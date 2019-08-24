@@ -1,0 +1,3 @@
+/home/dominykas/c++/FSim/build/CMakeFiles/rebuild_cache.dir
+/home/dominykas/c++/FSim/build/CMakeFiles/vb01.dir
+/home/dominykas/c++/FSim/build/CMakeFiles/edit_cache.dir
