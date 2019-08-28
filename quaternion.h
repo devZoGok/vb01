@@ -1,3 +1,6 @@
+#ifndef QUATERNION_H
+#define QUATERNION_H
+
 #include<cmath>
 
 namespace vb01{
@@ -20,15 +23,21 @@ namespace vb01{
 				float z=a1*d2+b1*c2-c1*b2+d1*a2;
 				return quaternion(w,x,y,z);
 			}
-			//inline vb01::quaternion conj(){return -.5*(*this+vb01::QUAT_I*(*this)*vb01::QUAT_I+vb01::QUAT_J*(*this)*vb01::QUAT_J+vb01::QUAT_K*(*this)*vb01::QUAT_K);}
+			inline vb01::quaternion operator+(quaternion q){return quaternion(w+q.w,x+q.x,y+q.y,z+q.z);}
+			inline vb01::quaternion operator-(quaternion q){return quaternion(w-q.w,x-q.x,y-q.y,z-q.z);}
+			template<typename T> inline vb01::quaternion operator*(T s){return quaternion(w*s,x*s,y*s,z*s);}
+			inline vb01::quaternion conj(){return (*this+vb01::quaternion(0,1,0,0)*(*this)*vb01::quaternion(0,1,0,0)+vb01::quaternion(0,0,1,0)*(*this)*vb01::quaternion(0,0,1,0)+vb01::quaternion(0,0,0,1)*(*this)*vb01::quaternion(0,0,0,1))*-.5;}
 			inline vb01::quaternion operator/ (float f){return quaternion(w/f,x/f,y/f,z/f);}
 			inline vb01::quaternion norm(){return *this/getLength();}
-			//inline vb01::quaternion recip(){return conj()/getLengthSq();}
+			inline vb01::quaternion recip(){return conj()/getLengthSq();}
 			inline float getLengthSq(){return w*w+x*x+y*y+z*z;}
 			inline float getLength(){return std::sqrt(getLengthSq());}
 
-	//static vb01::quaternion QUAT_I=quaternion(0,1,0,0),QUAT_J=quaternion(0,0,1,0),QUAT_K=quaternion(0,0,0,1);
 			float w,x,y,z;
+			const static quaternion QUAT_I,QUAT_J,QUAT_K;
 		private:
 	};
+
 }
+
+#endif
