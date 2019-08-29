@@ -23,11 +23,23 @@ namespace vb01{
 		vertShaderFile.close();
 		fragShaderFile.close();
 		
-		string v=vertShaderStream.str();
-		string f=fragShaderStream.str();
+		vString=vertShaderStream.str();
+		fString=fragShaderStream.str();
+		setNumLights(1);
+	}
 
-		const char *vertShaderSource=v.c_str();
-		const char *fragShaderSource=f.c_str();
+	void Shader::setNumLights(int numLights){
+		int firstCharId=-1,secondCharId=-1;
+		for(int i=0;i<fString.length()&&(firstCharId==-1||secondCharId==-1);i++){
+			if(fString.c_str()[i]=='=')
+				firstCharId=i;
+			if(fString.c_str()[i]==';')
+				secondCharId=i;
+		}
+		fString=fString.substr(0,firstCharId+1)+to_string(numLights)+fString.substr(secondCharId,string::npos);
+
+		const char *vertShaderSource=vString.c_str();
+		const char *fragShaderSource=fString.c_str();
 
 		unsigned int vert,frag;
 		vert=glCreateShader(GL_VERTEX_SHADER);
@@ -79,8 +91,23 @@ namespace vb01{
 		glUniformMatrix4fv(uniformLoc,1,GL_FALSE,value_ptr(mat));
 	}
 
+	void Shader::setFloat(float fl, string var){
+		int uniformLoc=glGetUniformLocation(id,var.c_str());
+		glUniform1f(uniformLoc,fl);
+	}
+
+	void Shader::setVec3(vec3 vec, string var){
+		int uniformLoc=glGetUniformLocation(id,var.c_str());
+		glUniform3f(uniformLoc,vec.x,vec.y,vec.z);
+	}
+
 	void Shader::setBool(bool b, string var){
 		int uniformLoc=glGetUniformLocation(id,var.c_str());	
 		glUniform1i(uniformLoc,(int)b);
+	}
+
+	void Shader::setInt(int i, string var){
+		int uniformLoc=glGetUniformLocation(id,var.c_str());	
+		glUniform1i(uniformLoc,i);
 	}
 }
