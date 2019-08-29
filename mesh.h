@@ -5,6 +5,8 @@
 #include<vector>
 #include<string>
 #include"material.h"
+#include<scene.h>
+
 
 namespace vb01{
 	class Node;
@@ -28,8 +30,11 @@ namespace vb01{
 			void setMaterial(Material *mat){this->material=mat;}
 			inline void setNode(Node *node){this->node=node;}
 			inline Node* getNode(){return node;}
+			inline Material* getMaterial(){return material;}
 		private:
 			Material *material=nullptr;
+			void processNode(aiNode*,const aiScene*);
+			void processMesh(aiMesh*, const aiScene*);
 	};
 }
 

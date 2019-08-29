@@ -15,7 +15,7 @@ namespace vb01{
 			void setSpecularMap(std::string specularMap){this->specularMap=new Texture(specularMap);}
 			inline void setLightingEnabled(bool lighting){this->lightingEnabled=lighting;}
 			inline Shader* getShader(){return shader;}
-			inline bool isLighting(){return lightingEnabled;}
+			inline bool isLightingEnabled(){return lightingEnabled;}
 		private:
 			bool lightingEnabled=false;
 			Texture *diffuseMap=nullptr,*normalMap=nullptr,*specularMap=nullptr;
