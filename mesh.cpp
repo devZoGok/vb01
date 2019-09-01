@@ -53,7 +53,7 @@ namespace vb01{
 		Vector3 dir=cam->getDirection(),up=cam->getUp(),camPos=cam->getPosition();
 
 		mat4 model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
-		model=rotate(model,38.f,vec3(1,0,0));
+		model=rotate(model,13.f,vec3(0,1,0));
 		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+dir.x,camPos.y+dir.y,camPos.z+dir.z),vec3(up.x,up.y,up.z));
 		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
 		//proj=ortho(0.f,800.f,0.f,-600.f,nearPlane,farPlane);

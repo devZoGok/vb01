@@ -22,7 +22,7 @@ namespace vb01{
 		private:
 			bool lightingEnabled=false;
 			std::vector<Texture*> diffuseMapTextures,normalMapTextures,specularMapTextures;
-			Shader *shader;
+			Shader *shader=nullptr;
 	};
 }
 
