@@ -10,7 +10,7 @@ link_directories(/usr/lib/)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(math quaternion.cpp vector.cpp)
-set(render camera.cpp light.cpp main.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp quaternion.cpp root.cpp shader.cpp texture.cpp vector.cpp)
+set(render camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp root.cpp shader.cpp texture.cpp)
 
 add_executable(vb01 main.cpp ${render} ${math})
 target_link_libraries(vb01 glfw)

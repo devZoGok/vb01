@@ -426,7 +426,7 @@ setPosition	camera.h	/^			void setPosition(Vector3 position){this->position=posi
 setPosition	light.h	/^			inline void setPosition(Vector3 pos){this->pos=pos;}$/;"	f	class:vb01::Light	typeref:typename:void
 setType	light.h	/^			inline void setType(Type t){this->type=t;}$/;"	f	class:vb01::Light	typeref:typename:void
 setVec3	shader.cpp	/^	void Shader::setVec3(vec3 vec, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
-shader	material.h	/^			Shader *shader;$/;"	m	class:vb01::Material	typeref:typename:Shader *
+shader	material.h	/^			Shader *shader=nullptr;$/;"	m	class:vb01::Material	typeref:typename:Shader *
 size	stb_image.h	/^   stbi_uc  size[257];$/;"	m	struct:__anon84e4e8860708	typeref:typename:stbi_uc[257]
 size	stb_image.h	/^   stbi_uc  size[288];$/;"	m	struct:__anon84e4e8860b08	typeref:typename:stbi_uc[288]
 size	stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon84e4e8861108	typeref:typename:stbi_uc

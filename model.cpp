@@ -47,8 +47,9 @@ namespace vb01{
 			vertices[i]=v;
 		}				
 		for(int i=0;i<numTris;i++){
-			for(int j=0;j<mesh->mFaces[i].mNumIndices;j++){
-				indices[i+j]=mesh->mFaces[i].mIndices[j];		
+			int numFaceIndices=mesh->mFaces[i].mNumIndices;
+			for(int j=0;j<numFaceIndices;j++){
+				indices[numFaceIndices*i+j]=mesh->mFaces[i].mIndices[j];		
 			}
 		}
 		//if(mesh->mMaterialIndex>=0){
@@ -59,7 +60,7 @@ namespace vb01{
 
 	Model::Model(string path) : Node(){
 		Importer importer;
-		const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+		const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs  |  aiProcess_GenNormals);
 		if(!scene||scene->mFlags&AI_SCENE_FLAGS_INCOMPLETE||!scene->mRootNode){
 			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
 			exit(-1);	

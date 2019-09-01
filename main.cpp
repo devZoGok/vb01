@@ -14,25 +14,17 @@ int main(){
 	Root *root=Root::getSingleton();
 	root->start(800,600);
 
-	Vector3 v1[]={Vector3(2,2,.5),Vector3(.5,.5,.5)};
-	Vector3 v2[]={Vector3(-.0,0,2),Vector3(.5,0,-2)};
-	for(int i=0;i<1;i++){
-		//Model *node=new Model("/home/dominykas/c++/FSim/jet00.obj");
-		//node->setObject(q);
-		//Material *mat=new Material();
-		//mat->addDiffuseMap("/home/dominykas/c++/FSim/woodChips.jpg");	
-		//mat->setLightingEnabled(false);
-		//node->setMaterial(mat);
-		//root->getRootNode()->attachChild(node);
-	Quad *q=new Quad(v1[i]);
-	Node *n=new Node(v2[i]);
-	n->attachMesh(q);
+	Vector3 v1[]={Vector3(.2,.2,.2),Vector3(.5,.5,.5)};
+	Vector3 v2[]={Vector3(-.5,0,-2),Vector3(.0,0,0)};
+
+	//Quad *q=new Quad(v1[1]);
+	Model *n=new Model("/home/dominykas/c++/FSim/jet00.obj");
 	Material *mat=new Material();
-	mat->addDiffuseMap("/home/dominykas/c++/FSim/woodChips.jpg");
+	mat->addDiffuseMap("/home/dominykas/c++/FSim/defaultTexture.jpg");
 	mat->setLightingEnabled(false);
-	q->setMaterial(mat);
+	n->setMaterial(mat);
+	//n->attachMesh(q);
 	root->getRootNode()->attachChild(n);
-	}
 
 	Camera *cam=Root::getSingleton()->getCamera();
 	cam->setPosition(Vector3(0,0,-5));
@@ -44,7 +36,7 @@ int main(){
 	l1->setInnerAngle(glm::radians(40.));
 	l1->setOuterAngle(glm::radians(60.));
 	l1->setType(Light::POINT);
-	root->getRootNode()->addLight(l1);
+	//root->getRootNode()->addLight(l1);
 	while(true)
 		root->update();
 	return 0;
