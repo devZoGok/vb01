@@ -9,6 +9,8 @@ class GLFWwindow;
 namespace vb01{
 	void foo();
 
+	class Mesh;
+
 	class Root{
 		public:
 			Root();
@@ -25,6 +27,7 @@ namespace vb01{
 			GLFWwindow *window;
 			Node *rootNode;
 			Camera *camera;
+			std::vector<Mesh*> meshes;
 			void framebuffer_size_callback(GLFWwindow*,int,int);
 	};
 }

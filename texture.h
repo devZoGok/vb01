@@ -11,6 +11,7 @@ namespace vb01{
 		private:
 			unsigned int texture;
 			int width,height,numChannels;
+			float weight;
 			unsigned char *data;
 	};
 }

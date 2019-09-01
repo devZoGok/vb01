@@ -2,6 +2,7 @@
 #include"node.h"
 #include"mesh.h"
 #include"light.h"
+#include"material.h"
 
 using namespace std;
 
@@ -13,8 +14,8 @@ namespace vb01{
 	Node::~Node(){}
 
 	void Node::update(){
-		if(mesh)
-			mesh->update();			
+		for(Mesh *m : meshes)
+			m->update();
 		for(Light *l : lights)
 			l->update();
 		for(Node *c : children)
@@ -31,8 +32,8 @@ namespace vb01{
 		descendants.push_back(child);
 	}
 
-	void Node::setObject(Mesh *mesh){
-		this->mesh=mesh;	
+	void Node::attachMesh(Mesh *mesh){
+		meshes.push_back(mesh);
 		mesh->setNode(this);
 	}
 
@@ -46,9 +47,12 @@ namespace vb01{
 		int numLights=0;
 		for(Node *n : descendants)
 			numLights+=n->getNumLights();
-		for(Node *n : descendants)
-			if(n->getMesh())
-				if(n->getMesh()->getMaterial())
-					n->getMesh()->getMaterial()->getShader()->setNumLights(numLights>0?numLights:1);
+		for(Node *n : descendants){
+			vector<Mesh*> meshes=n->getMeshes();
+			for(Mesh *m : meshes){
+				Material *mat=m->getMaterial();
+				if(mat) mat->getShader()->setNumLights(numLights>0?numLights:1);
+			}
+		}
 	}
 }

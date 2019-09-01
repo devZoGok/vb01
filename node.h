@@ -7,26 +7,28 @@
 
 namespace vb01{
 	class Mesh;
+	class Model;
 	class Light;
 
 	class Node{
 		public:
-			Node(Vector3);
+			Node(Vector3=Vector3::VEC_ZERO);
 			~Node();
-			void setObject(Mesh*);
-			void update();
+			void attachMesh(Mesh*);
+			virtual void update();
 			void attachChild(Node*);
 			void addLight(Light*);
-			inline Mesh* getMesh(){return mesh;}
+			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline Node* getParent(){return parent;}
 			inline Vector3 getPosition(){return pos;}
 			inline std::vector<Node*>& getDescendants(){return descendants;}
+			inline std::vector<Node*>& getChildren(){return children;}
 			inline std::vector<Light*>& getLights(){return lights;}
 			inline Light* getLight(int i){return lights[i];}
 			inline int getNumLights(){return lights.size();}
-		private:
+		protected:
 			Vector3 pos;
-			Mesh *mesh=nullptr;
+			std::vector<Mesh*> meshes;
 			std::vector<Node*> children,descendants;
 			std::vector<Light*> lights;
 			Node *parent=nullptr;
