@@ -2,16 +2,17 @@ cmake_minimum_required(VERSION 2.6)
 project(vb01)
 
 include_directories(/usr/include/GLFW)
-include_directories(/usr/include/glm)
 include_directories(/usr/include/glad)
+include_directories(/usr/include/glm)
 include_directories(/usr/include/assimp)
+
+link_directories(/usr/lib/)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(math quaternion.cpp vector.cpp)
-set(render root.cpp mesh.cpp node.cpp material.cpp texture.cpp camera.cpp light.cpp quad.cpp shader.cpp)
-link_directories(/usr/lib)
+set(render camera.cpp light.cpp main.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp quaternion.cpp root.cpp shader.cpp texture.cpp vector.cpp)
 
-add_executable(vb01 main.cpp ${math} ${render})
+add_executable(vb01 main.cpp ${render} ${math})
 target_link_libraries(vb01 glfw)
 target_link_libraries(vb01 glad)
 target_link_libraries(vb01 assimp)
