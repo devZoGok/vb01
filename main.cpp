@@ -3,6 +3,7 @@
 #include"node.h"
 #include"quad.h"
 #include"material.h"
+#include"model.h"
 #include"light.h"
 #include<glm.hpp>
 
@@ -16,17 +17,25 @@ int main(){
 	Vector3 v1[]={Vector3(2,2,.5),Vector3(.5,.5,.5)};
 	Vector3 v2[]={Vector3(-.0,0,2),Vector3(.5,0,-2)};
 	for(int i=0;i<1;i++){
-		Quad *q=new Quad(v1[i]);
-		Node *node=new Node(v2[i]);
-		node->setObject(q);
+		Model *node=new Model("/home/dominykas/c++/FSim/jet00.obj");
+		//node->setObject(q);
 		Material *mat=new Material();
-		mat->setDiffuseMap("/home/dominykas/c++/FSim/woodChips.jpg");	
-		mat->setLightingEnabled(true);
-		q->setMaterial(mat);
-		root->getRootNode()->attachChild(node);
+		mat->addDiffuseMap("/home/dominykas/c++/FSim/woodChips.jpg");	
+		mat->setLightingEnabled(false);
+		node->setMaterial(mat);
+		//root->getRootNode()->attachChild(node);
 	}
+	Quad *q=new Quad(v1[0]);
+	Node *n=new Node(v2[0]);
+	n->attachMesh(q);
+	Material *mat=new Material();
+	mat->addDiffuseMap("/home/dominykas/c++/FSim/woodChips.jpg");
+	mat->setLightingEnabled(false);
+	q->setMaterial(mat);
+	root->getRootNode()->attachChild(n);
+
 	Camera *cam=Root::getSingleton()->getCamera();
-	cam->setPosition(Vector3(0,0,-4));
+	cam->setPosition(Vector3(0,0,-5));
 	Light *l1=new Light();
 	l1->setPosition(Vector3(-.5,.1,0));
 	l1->setColor(Vector3(0,1,0));

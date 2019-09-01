@@ -14,8 +14,11 @@ namespace vb01{
 	void Material::update(){
 		shader->use();
 		shader->setBool(lightingEnabled,"lightingEnabled");
-		if(diffuseMap)diffuseMap->select();
-		if(normalMap)normalMap->select();
-		if(specularMap)specularMap->select();
+		for(Texture *t : diffuseMapTextures)
+			t->select();
+		for(Texture *t : normalMapTextures)
+			t->select();
+		for(Texture *t : specularMapTextures)
+			t->select();
 	}
 }

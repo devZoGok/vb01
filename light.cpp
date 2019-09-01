@@ -1,3 +1,4 @@
+#include"model.h"
 #include"light.h"
 #include"node.h"
 #include"root.h"
@@ -23,8 +24,9 @@ namespace vb01{
 		int numLights=0,thisId=-1;
 		for(Node *n : descendants){
 			std::vector<Light*> lights=n->getLights();
-			if(n->getMesh()){
-				Material *mat=n->getMesh()->getMaterial();
+			vector<Mesh*> meshes=n->getMeshes();
+			for(Mesh *mesh : meshes){
+				Material *mat=mesh->getMaterial();
 				if(mat&&mat->isLightingEnabled())
 					materials.push_back(mat);
 			}

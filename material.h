@@ -1,24 +1,27 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include"texture.h"
 #include"shader.h"
+#include"texture.h"
+#include<vector>
 
 namespace vb01{
+	class Texture;
+
 	class Material{
 		public:
 			Material();
 			~Material();
 			void update();
-			void setDiffuseMap(std::string diffuseMap){this->diffuseMap=new Texture(diffuseMap);}
-			void setNormalMap(std::string normalMap){this->normalMap=new Texture(normalMap);}
-			void setSpecularMap(std::string specularMap){this->specularMap=new Texture(specularMap);}
+			void addDiffuseMap(std::string diffuseMap){diffuseMapTextures.push_back(new Texture(diffuseMap));}
+			void addNormalMap(std::string normalMap){normalMapTextures.push_back(new Texture(normalMap));}
+			void addSpecularMap(std::string specularMap){specularMapTextures.push_back(new Texture(specularMap));}
 			inline void setLightingEnabled(bool lighting){this->lightingEnabled=lighting;}
 			inline Shader* getShader(){return shader;}
 			inline bool isLightingEnabled(){return lightingEnabled;}
 		private:
 			bool lightingEnabled=false;
-			Texture *diffuseMap=nullptr,*normalMap=nullptr,*specularMap=nullptr;
+			std::vector<Texture*> diffuseMapTextures,normalMapTextures,specularMapTextures;
 			Shader *shader;
 	};
 }
