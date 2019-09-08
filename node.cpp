@@ -51,7 +51,8 @@ namespace vb01{
 			vector<Mesh*> meshes=n->getMeshes();
 			for(Mesh *m : meshes){
 				Material *mat=m->getMaterial();
-				if(mat) mat->getShader()->setNumLights(numLights>0?numLights:1);
+				string str=to_string(numLights>0?numLights:1);
+				if(mat) mat->getShader()->editShader(false,'=',';',str);
 			}
 		}
 	}

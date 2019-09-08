@@ -1,8 +1,13 @@
+#include"stb_image.h"
 #include"root.h"
 #include<glad.h>
 #include<glfw3.h>
 #include<cstdlib>
 #include<iostream>
+#include"shader.h"
+#include"box.h"
+
+using namespace std;
 
 namespace vb01{
 	static Root *root=new Root();
@@ -41,7 +46,6 @@ namespace vb01{
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 	}
 
 	void Root::update(){
@@ -49,9 +53,21 @@ namespace vb01{
 			glClearColor(0,0,0,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+			glDepthMask(GL_FALSE);
+			glCullFace(GL_BACK);
+			skybox->update();
+			glDepthMask(GL_TRUE);
+			glCullFace(GL_FRONT);
 			rootNode->update();
 
 			glfwSwapBuffers(window);
 		}
+	}
+
+	void Root::createSkybox(string textures[6]){
+		skybox = new Box(Vector3(10,10,10));
+		Material *skyboxMat=new Material(Material::Type::MATERIAL_SKYBOX);
+		skyboxMat->addDiffuseMap(textures);
+		skybox->setMaterial(skyboxMat);
 	}
 }

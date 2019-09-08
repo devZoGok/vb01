@@ -6,9 +6,7 @@
 namespace vb01{
 	class Box : public Mesh{
 		public:
-			Box();
-			void update();
-		private:
+			Box(Vector3);
 	};
 }
 
