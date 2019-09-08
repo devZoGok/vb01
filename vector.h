@@ -24,7 +24,7 @@ namespace vb01{
 		Vector3 cross(Vector3 v){return Vector3(y*v.z-v.y*z,x*v.z-v.x*z,x*v.y-v.x*y);}
 
 		float x,y,z;
-		static const Vector3 VEC_I,VEC_J,VEC_K,VEC_ZERO;
+		static const Vector3 VEC_IJK, VEC_I,VEC_J,VEC_K,VEC_ZERO;
 	};
 
 	struct Vector2{
@@ -44,7 +44,7 @@ namespace vb01{
 		Vector2 norm(){return *this/getLength();}
 
 		float x,y;
-		static const Vector2 VEC_I,VEC_J,VEC_ZERO;
+		static const Vector2 VEC_IJ, VEC_I,VEC_J,VEC_ZERO;
 	};
 }
 

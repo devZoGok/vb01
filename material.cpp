@@ -4,9 +4,19 @@
 using namespace std;
 
 namespace vb01{
-	Material::Material(){
-		string basePath="/home/dominykas/c++/FSim/";
-		shader=new Shader(basePath+"texture.vert",basePath+"texture.frag");
+	Material::Material(Type type){
+		this->type=type;
+
+		string basePath="/home/dominykas/c++/FSim/",shaderName;
+		switch(type){
+			case MATERIAL_2D:
+				shaderName="texture.";
+				break;
+			case MATERIAL_SKYBOX:
+				shaderName="skybox.";
+				break;
+		}
+		shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
 	}
 
 	Material::~Material(){}

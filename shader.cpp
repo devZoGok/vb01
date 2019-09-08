@@ -25,19 +25,26 @@ namespace vb01{
 		
 		vString=vertShaderStream.str();
 		fString=fragShaderStream.str();
-		setNumLights(1);
+
+		loadShaders();
 	}
 
-	void Shader::setNumLights(int numLights){
+	void Shader::editShader(bool vertexShader, char firstChar, char secondChar, string insertion){
 		int firstCharId=-1,secondCharId=-1;
 		for(int i=0;i<fString.length()&&(firstCharId==-1||secondCharId==-1);i++){
-			if(fString.c_str()[i]=='=')
+			if(fString.c_str()[i]==firstChar)
 				firstCharId=i;
-			if(fString.c_str()[i]==';')
+			if(fString.c_str()[i]==secondChar)
 				secondCharId=i;
 		}
-		fString=fString.substr(0,firstCharId+1)+to_string(numLights)+fString.substr(secondCharId,string::npos);
+		string *shaderString=(vertexShader?&vString:&fString);
+		(*shaderString)=(*shaderString).substr(0,firstCharId+1)+insertion+(*shaderString).substr(secondCharId,string::npos);
 
+		loadShaders();
+
+	}
+
+	void Shader::loadShaders(){
 		const char *vertShaderSource=vString.c_str();
 		const char *fragShaderSource=fString.c_str();
 

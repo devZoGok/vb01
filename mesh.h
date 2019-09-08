@@ -16,7 +16,6 @@ namespace vb01{
 				Vector3 pos,norm;
 				Vector2 texCoords;	
 			};
-			Mesh();
 			Mesh(Vertex*,unsigned int*,int);
 			~Mesh();
 			virtual void update();
@@ -31,6 +30,7 @@ namespace vb01{
 			std::vector<Mesh*> meshes;
 			std::string name="";
 		protected:
+			Mesh();
 			void construct();
 			Vertex *vertices;
 			unsigned int *indices,VAO,VBO,EBO;

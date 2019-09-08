@@ -27,8 +27,9 @@ namespace vb01{
 		v6.norm=Vector3(0,0,-1);
 		v6.texCoords=Vector2(1,1);
 		
+		int numPolyVerts=3;
 		numTris=2;
-		indices=new unsigned int[numTris*3];
+		indices=new unsigned int[numTris*numPolyVerts];
 		indices[0]=0;
 		indices[1]=1;
 		indices[2]=2;
@@ -36,7 +37,7 @@ namespace vb01{
 		indices[4]=4;
 		indices[5]=5;
 
-		vertices=new Vertex[numTris*3];
+		vertices=new Vertex[numTris*numPolyVerts];
 		vertices[0]=v1;
 		vertices[1]=v2;
 		vertices[2]=v3;

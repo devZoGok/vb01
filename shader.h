@@ -7,6 +7,8 @@
 namespace vb01{
 	class Shader{
 		public:
+			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};
+
 			Shader(std::string,std::string);
 			void setNumLights(int);
 			void use();
@@ -15,8 +17,9 @@ namespace vb01{
 			void setFloat(float,std::string);
 			void setBool(bool,std::string);
 			void setInt(int,std::string);
+			void editShader(bool,char,char,std::string);
 		private:
-			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};
+			void loadShaders();
 			void checkCompileErrors(unsigned int,ErrorType);
 			unsigned int id;
 			std::string vString,fString;
