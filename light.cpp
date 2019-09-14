@@ -42,20 +42,20 @@ namespace vb01{
 			Shader *shader=m->getShader();
 			shader->use();
 			shader->setInt((int)type,"light["+to_string(thisId)+"].type");
-			shader->setVec3(vec3(color.x,color.y,color.z),"light["+to_string(thisId)+"].color");
+			shader->setVec3(color,"light["+to_string(thisId)+"].color");
 			switch(type){
 				case POINT:
-					shader->setVec3(vec3(pos.x,pos.y,pos.z),"light["+to_string(thisId)+"].pos");
+					shader->setVec3(pos,"light["+to_string(thisId)+"].pos");
 					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
 					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
 					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
 					break;
 				case DIRECTIONAL:
-					shader->setVec3(vec3(direction.x,direction.y,direction.z),"light["+to_string(thisId)+"].direction");
+					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
 					break;
 				case SPOT:
-					shader->setVec3(vec3(pos.x,pos.y,pos.z),"light["+to_string(thisId)+"].pos");
-					shader->setVec3(vec3(direction.x,direction.y,direction.z),"light["+to_string(thisId)+"].direction");
+					shader->setVec3(pos,"light["+to_string(thisId)+"].pos");
+					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
 					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
 					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
 					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");

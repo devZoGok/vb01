@@ -9,6 +9,7 @@
 #include"model.h"
 #include"light.h"
 #include<glm.hpp>
+#include"particleEmitter.h"
 
 using namespace vb01;
 using namespace std;
@@ -18,7 +19,7 @@ int main(){
 	root->start(800,600);
 
 	Vector3 v1[]={Vector3(.2,.2,.2),Vector3(1,1,1)};
-	Vector3 v2[]={Vector3(0,0,0),Vector3(.0,0,0)};
+	Vector3 v2[]={Vector3(2,0,0),Vector3(-1,0,0)};
 
 	string t[]={
 		"/home/dominykas/c++/FSim/left.jpg",
@@ -30,18 +31,27 @@ int main(){
 	};
 	root->createSkybox(t);
 
-	Box *b=new Box(Vector3(1,1,1));
-	Node *n=new Node(v2[0]);
+	for(int i=0;i<2;i++){
+	Box *box=new Box(Vector3(1,1,1));
+	Node *node=new Node(v2[i]);
 	Material *mat=new Material();
 	mat->addDiffuseMap("/home/dominykas/c++/FSim/defaultTexture.jpg");
 	mat->setLightingEnabled(false);
-	b->setMaterial(mat);
-	n->attachMesh(b);
-	root->getRootNode()->attachChild(n);
+	box->setMaterial(mat);
+	node->attachMesh(box);
+	//root->getRootNode()->attachChild(node);
+	}
+
+	ParticleEmitter *pe=new ParticleEmitter(100);
+	Node *node2=new Node(Vector3(0,0,0));
+	Material *mat2=new Material(Material::MATERIAL_PARTICLE);
+	mat2->addDiffuseMap("/home/dominykas/c++/FSim/stern.jpg");
+	pe->setMaterial(mat2);
+	node2->attachParticleEmitter(pe);
+	root->getRootNode()->attachChild(node2);
 
 	Camera *cam=Root::getSingleton()->getCamera();
 	cam->setPosition(Vector3(0,0,-5));
-	cam->lookAt(Vector3(1,0,1).norm(),Vector3(0,1,0));
 	Light *l1=new Light();
 	l1->setPosition(Vector3(-.5,.1,0));
 	l1->setColor(Vector3(0,1,0));

@@ -1,6 +1,7 @@
 #include"root.h"
 #include"node.h"
 #include"mesh.h"
+#include"particleEmitter.h"
 #include"light.h"
 #include"material.h"
 
@@ -18,6 +19,8 @@ namespace vb01{
 			m->update();
 		for(Light *l : lights)
 			l->update();
+		for(ParticleEmitter *p : emitters)
+			p->update();
 		for(Node *c : children)
 			c->update();
 	}
@@ -35,6 +38,11 @@ namespace vb01{
 	void Node::attachMesh(Mesh *mesh){
 		meshes.push_back(mesh);
 		mesh->setNode(this);
+	}
+
+	void Node::attachParticleEmitter(ParticleEmitter *emitter){
+		emitters.push_back(emitter);
+		emitter->setNode(this);
 	}
 
 	void Node::addLight(Light *light){

@@ -9,12 +9,14 @@ namespace vb01{
 	class Mesh;
 	class Model;
 	class Light;
+	class ParticleEmitter;
 
 	class Node{
 		public:
 			Node(Vector3=Vector3::VEC_ZERO);
 			~Node();
 			void attachMesh(Mesh*);
+			void attachParticleEmitter(ParticleEmitter*);
 			virtual void update();
 			void attachChild(Node*);
 			void addLight(Light*);
@@ -29,6 +31,7 @@ namespace vb01{
 		protected:
 			Vector3 pos;
 			std::vector<Mesh*> meshes;
+			std::vector<ParticleEmitter*> emitters;
 			std::vector<Node*> children,descendants;
 			std::vector<Light*> lights;
 			Node *parent=nullptr;

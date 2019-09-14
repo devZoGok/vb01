@@ -8,7 +8,7 @@
 namespace vb01{
 	class Material{
 		public:
-			enum Type{MATERIAL_2D,MATERIAL_SKYBOX};
+			enum Type{MATERIAL_2D,MATERIAL_PARTICLE,MATERIAL_SKYBOX};
 
 			Material(Type=MATERIAL_2D);
 			~Material();
