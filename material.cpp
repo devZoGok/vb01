@@ -12,6 +12,9 @@ namespace vb01{
 			case MATERIAL_2D:
 				shaderName="texture.";
 				break;
+			case MATERIAL_PARTICLE:
+				shaderName="particle.";
+				break;
 			case MATERIAL_SKYBOX:
 				shaderName="skybox.";
 				break;
@@ -23,7 +26,7 @@ namespace vb01{
 
 	void Material::update(){
 		shader->use();
-		shader->setBool(lightingEnabled,"lightingEnabled");
+		if(type==MATERIAL_2D)shader->setBool(lightingEnabled,"lightingEnabled");
 		for(Texture *t : diffuseMapTextures)
 			t->select();
 		for(Texture *t : normalMapTextures)

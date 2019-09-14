@@ -9,10 +9,11 @@ include_directories(/usr/include/assimp)
 link_directories(/usr/lib/)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(utils util.cpp)
 set(math quaternion.cpp vector.cpp)
-set(render camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
+set(render waterPlane.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 
-add_executable(vb01 main.cpp ${render} ${math})
+add_executable(vb01 main.cpp ${render} ${math} ${utils})
 target_link_libraries(vb01 glfw)
 target_link_libraries(vb01 glad)
 target_link_libraries(vb01 assimp)

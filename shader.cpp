@@ -103,9 +103,19 @@ namespace vb01{
 		glUniform1f(uniformLoc,fl);
 	}
 
-	void Shader::setVec3(vec3 vec, string var){
+	void Shader::setVec4(Vector4 vec, string var){
+		int uniformLoc=glGetUniformLocation(id,var.c_str());
+		glUniform4f(uniformLoc,vec.x,vec.y,vec.z,vec.w);
+	}
+
+	void Shader::setVec3(Vector3 vec, string var){
 		int uniformLoc=glGetUniformLocation(id,var.c_str());
 		glUniform3f(uniformLoc,vec.x,vec.y,vec.z);
+	}
+
+	void Shader::setVec2(Vector2 vec, string var){
+		int uniformLoc=glGetUniformLocation(id,var.c_str());
+		glUniform2f(uniformLoc,vec.x,vec.y);
 	}
 
 	void Shader::setBool(bool b, string var){

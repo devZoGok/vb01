@@ -46,6 +46,8 @@ namespace vb01{
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void Root::update(){
@@ -53,11 +55,13 @@ namespace vb01{
 			glClearColor(0,0,0,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-			glDepthMask(GL_FALSE);
-			glCullFace(GL_BACK);
-			skybox->update();
-			glDepthMask(GL_TRUE);
-			glCullFace(GL_FRONT);
+			if(skybox){
+				glDepthMask(GL_FALSE);
+				glCullFace(GL_BACK);
+				skybox->update();
+				glDepthMask(GL_TRUE);
+				glCullFace(GL_FRONT);
+			}
 			rootNode->update();
 
 			glfwSwapBuffers(window);
