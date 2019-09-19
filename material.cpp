@@ -18,6 +18,12 @@ namespace vb01{
 			case MATERIAL_SKYBOX:
 				shaderName="skybox.";
 				break;
+			case MATERIAL_GUI:
+				shaderName="gui.";
+				break;
+			case MATERIAL_TEXT:
+				shaderName="text.";
+				break;
 		}
 		shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
 	}
@@ -26,12 +32,19 @@ namespace vb01{
 
 	void Material::update(){
 		shader->use();
-		if(type==MATERIAL_2D)shader->setBool(lightingEnabled,"lightingEnabled");
-		for(Texture *t : diffuseMapTextures)
-			t->select();
-		for(Texture *t : normalMapTextures)
-			t->select();
-		for(Texture *t : specularMapTextures)
-			t->select();
+		if(type==MATERIAL_2D)
+			shader->setBool(lightingEnabled,"lightingEnabled");
+		shader->setBool(texturingEnabled,"texturingEnabled");
+		if(texturingEnabled){
+			for(Texture *t : diffuseMapTextures)
+				t->select();
+			for(Texture *t : normalMapTextures)
+				t->select();
+			for(Texture *t : specularMapTextures)
+				t->select();
+		}
+		else{
+			shader->setVec4(diffuseColor,"diffuseColor");
+		}
 	}
 }

@@ -32,6 +32,8 @@ namespace vb01{
 		protected:
 			Mesh();
 			void construct();
+
+			bool staticVerts=true;
 			Vertex *vertices;
 			unsigned int *indices,VAO,VBO,EBO;
 			int numTris;

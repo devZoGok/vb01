@@ -8,6 +8,7 @@
 #include"material.h"
 #include"model.h"
 #include"light.h"
+#include"text.h"
 #include<glm.hpp>
 #include"particleEmitter.h"
 
@@ -17,9 +18,11 @@ using namespace std;
 int main(){
 	Root *root=Root::getSingleton();
 	root->start(800,600);
+	Node *rootNode=root->getRootNode(),*guiNode=root->getGuiNode();
 
 	Vector3 v1[]={Vector3(.2,.2,.2),Vector3(1,1,1)};
 	Vector3 v2[]={Vector3(2,0,0),Vector3(-1,0,0)};
+	string tex[]={"defaultTexture.jpg","woodChips.jpg"};
 
 	string t[]={
 		"/home/dominykas/c++/FSim/left.jpg",
@@ -35,20 +38,38 @@ int main(){
 	Box *box=new Box(Vector3(1,1,1));
 	Node *node=new Node(v2[i]);
 	Material *mat=new Material();
-	mat->addDiffuseMap("/home/dominykas/c++/FSim/defaultTexture.jpg");
+	mat->addDiffuseMap("/home/dominykas/c++/FSim/"+tex[i]);
 	mat->setLightingEnabled(false);
+	mat->setTexturingEnabled(true);
+	mat->setDiffuseColor(Vector4(0,0,1,1));
 	box->setMaterial(mat);
 	node->attachMesh(box);
-	//root->getRootNode()->attachChild(node);
+	rootNode->attachChild(node);
 	}
 
+	Text *text =new Text("/home/dominykas/c++/FSim/batang.ttf","HI");
+	text->setText("IH");
+	Node *textNode=new Node(Vector3(400,100,0));
+	textNode->addText(text);
+	guiNode->attachChild(textNode);
+
+	Quad *quad=new Quad(Vector3(400,200,0),false);
+	Node *quadNode=new Node(Vector3(0,0,0));
+	Material *mat3=new Material(Material::MATERIAL_GUI);
+	mat3->addDiffuseMap("/home/dominykas/c++/FSim/defaultTexture.jpg");
+	mat3->setTexturingEnabled(true);
+	mat3->setDiffuseColor(Vector4(1,0,0,.1));
+	quad->setMaterial(mat3);
+	quadNode->attachMesh(quad);
+	guiNode->attachChild(quadNode);
+
 	ParticleEmitter *pe=new ParticleEmitter(100);
-	Node *node2=new Node(Vector3(0,0,0));
-	Material *mat2=new Material(Material::MATERIAL_PARTICLE);
-	mat2->addDiffuseMap("/home/dominykas/c++/FSim/stern.jpg");
-	pe->setMaterial(mat2);
-	node2->attachParticleEmitter(pe);
-	root->getRootNode()->attachChild(node2);
+	Node *peNode=new Node(Vector3::VEC_ZERO);
+	Material *peMat=new Material(Material::MATERIAL_PARTICLE);
+	peMat->addDiffuseMap("/home/dominykas/c++/FSim/stern.jpg");
+	pe->setMaterial(peMat);
+	peNode->attachParticleEmitter(pe);
+	rootNode->attachChild(peNode);
 
 	Camera *cam=Root::getSingleton()->getCamera();
 	cam->setPosition(Vector3(0,0,-5));
@@ -60,7 +81,7 @@ int main(){
 	l1->setInnerAngle(glm::radians(40.));
 	l1->setOuterAngle(glm::radians(60.));
 	l1->setType(Light::POINT);
-	//root->getRootNode()->addLight(l1);
+	//rootNode->addLight(l1);
 	while(true){
 		root->update();
 	}
