@@ -3,6 +3,7 @@
 #include"mesh.h"
 #include"particleEmitter.h"
 #include"light.h"
+#include"text.h"
 #include"material.h"
 
 using namespace std;
@@ -21,6 +22,8 @@ namespace vb01{
 			l->update();
 		for(ParticleEmitter *p : emitters)
 			p->update();
+		for(Text *t : texts)
+			t->update();
 		for(Node *c : children)
 			c->update();
 	}
@@ -63,5 +66,10 @@ namespace vb01{
 				if(mat) mat->getShader()->editShader(false,'=',';',str);
 			}
 		}
+	}
+
+	void Node::addText(Text *text){
+		texts.push_back(text);
+		text->setNode(this);	
 	}
 }

@@ -2,6 +2,19 @@
 
 namespace vb01{
 	Box::Box(Vector3 size){
+		this->staticVerts=false;
+
+		numTris=12;
+		indices=new unsigned int[3*numTris];
+		vertices=new Vertex[3*numTris];
+
+		setSize(size);
+
+		construct();
+	}
+
+	void Box::setSize(Vector3 size){
+		this->size=size;
 		Vector3 pos[]={
 			Vector3(size.x/2,size.y/2,size.z/2),
 			Vector3(-size.x/2,size.y/2,size.z/2),
@@ -47,9 +60,6 @@ namespace vb01{
 			4,4,3, 6,4,1, 5,4,2,
 			6,4,1, 4,4,3, 7,4,0
 		};
-		numTris=12;
-		indices=new unsigned int[3*numTris];
-		vertices=new Vertex[3*numTris];
 		for(int i=0;i<3*numTris;i++){
 			Vertex v;
 			v.pos=pos[data[3*i]];
@@ -58,6 +68,5 @@ namespace vb01{
 			vertices[i]=v;
 			indices[i]=i;	
 		}
-		construct();
 	}
 }

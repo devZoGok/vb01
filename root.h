@@ -12,6 +12,7 @@ namespace vb01{
 
 	class Mesh;
 	class Box;
+	class Quad;
 	class Shader;
 
 	class Root{
@@ -21,16 +22,19 @@ namespace vb01{
 			void start(int,int);
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
+			inline Node* getGuiNode(){return guiNode;}
 			inline int getWidth(){return width;}
 			inline int getHeight(){return height;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();
 		private:
 			Box *skybox=nullptr;
+			Quad *guiPlane=nullptr;
 			bool running=false;
 			int width,height;
+			unsigned int guiFBO,guiRBO;
 			GLFWwindow *window;
-			Node *rootNode;
+			Node *rootNode,*guiNode;
 			Camera *camera;
 			std::vector<Mesh*> meshes;
 			void framebuffer_size_callback(GLFWwindow*,int,int);

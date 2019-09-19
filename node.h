@@ -10,6 +10,7 @@ namespace vb01{
 	class Model;
 	class Light;
 	class ParticleEmitter;
+	class Text;
 
 	class Node{
 		public:
@@ -20,6 +21,7 @@ namespace vb01{
 			virtual void update();
 			void attachChild(Node*);
 			void addLight(Light*);
+			void addText(Text*);
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline Node* getParent(){return parent;}
 			inline Vector3 getPosition(){return pos;}
@@ -34,6 +36,7 @@ namespace vb01{
 			std::vector<ParticleEmitter*> emitters;
 			std::vector<Node*> children,descendants;
 			std::vector<Light*> lights;
+			std::vector<Text*> texts;
 			Node *parent=nullptr;
 	};
 }

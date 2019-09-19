@@ -6,6 +6,7 @@
 #include<iostream>
 #include"shader.h"
 #include"box.h"
+#include"quad.h"
 
 using namespace std;
 
@@ -20,6 +21,8 @@ namespace vb01{
 
 	Root::Root(){
 		rootNode=new Node(Vector3::VEC_ZERO);
+		guiNode=new Node(Vector3::VEC_ZERO);
+
 		camera=new Camera();
 	}
 
@@ -46,14 +49,36 @@ namespace vb01{
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+		glGenFramebuffers(1,&guiFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
+		Texture *texture=new Texture();
+		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(texture->getTexture()),0);
+
+		glGenRenderbuffers(1,&guiRBO);
+		glBindRenderbuffer(GL_RENDERBUFFER,guiRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,guiRBO);
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+			cout<<"Not complete\n";
+		else 
+			cout<<"Complete\n";
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+
+		guiPlane=new Quad(Vector3::VEC_IJK);
+		Material *mat=new Material(Material::MATERIAL_GUI);
+		mat->addDiffuseMap(texture);
+		guiPlane->setMaterial(mat);
 	}
 
 	void Root::update(){
 		if(running){
-			glClearColor(0,0,0,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE);
 
 			if(skybox){
 				glDepthMask(GL_FALSE);
@@ -62,7 +87,19 @@ namespace vb01{
 				glDepthMask(GL_TRUE);
 				glCullFace(GL_FRONT);
 			}
+
 			rootNode->update();
+			glDisable(GL_CULL_FACE);
+
+			guiNode->update();
+			glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glBindFramebuffer(GL_FRAMEBUFFER,0);
+			
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+			//guiPlane->update();
+			glDisable(GL_DEPTH_TEST);
 
 			glfwSwapBuffers(window);
 		}

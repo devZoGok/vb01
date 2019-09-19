@@ -20,10 +20,12 @@ struct Light{
 uniform Light light[numLights];
 uniform sampler2D tex;
 uniform bool lightingEnabled;
+uniform bool texturingEnabled;
+uniform vec4 diffuseColor;
 uniform vec3 camPos;
 
 void main(){
-	vec4 finalColor=texture(tex,texCoords);
+	vec4 finalColor=texturingEnabled?texture(tex,texCoords):diffuseColor;
 	if(lightingEnabled){
 		vec3 diffuseColor=vec3(0),specularColor;
 		for(int i=0;i<numLights;i++){

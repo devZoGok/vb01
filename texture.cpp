@@ -8,11 +8,48 @@
 using namespace std;
 
 namespace vb01{
+	Texture::Texture(){
+		width=800,height=600;
+
+		glGenTextures(1,&texture);
+		glBindTexture(GL_TEXTURE_2D,texture);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,1,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	}
+
+	Texture::Texture(FT_Face &face, char ch){
+		this->type=TextureType::TEXTURE_2D;
+
+		glGenTextures(1,&texture);
+		glBindTexture(GL_TEXTURE_2D,texture);
+		glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RED,
+				face->glyph->bitmap.width,
+				face->glyph->bitmap.rows,
+				0,
+				GL_RED,
+				GL_UNSIGNED_BYTE,
+				face->glyph->bitmap.buffer
+				);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D,0);
+	}
+
 	Texture::Texture(string path){
 		this->type=TextureType::TEXTURE_2D;
 
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_2D,texture);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
