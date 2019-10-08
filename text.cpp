@@ -27,7 +27,7 @@ namespace vb01{
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-		for(u32 i=0;i<128;i++){
+		for(u32 i=0;i<15000;i++){
 			if(FT_Load_Char(face,i,FT_LOAD_RENDER)){
 				cout<<"Could not load glyph\n";
 				continue;

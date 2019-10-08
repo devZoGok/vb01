@@ -10,14 +10,15 @@ namespace vb01{
 		public:
 			enum TextureType{TEXTURE_2D,TEXTURE_CUBEMAP};
 
-			Texture();
+			//Texture();
+			Texture(int,int);
 			Texture(FT_Face&,char);
 			Texture(std::string);
 			Texture(std::string[6]);
-			void select();
+			void select(int=0);
 			inline unsigned int* getTexture(){return &texture;}
 		private:
-			TextureType type;
+			TextureType type=TextureType::TEXTURE_2D;
 			unsigned int texture;
 			int width,height,numChannels;
 			float weight;

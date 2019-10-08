@@ -21,6 +21,7 @@ namespace vb01{
 			~Model();
 			void update();
 			void setMaterial(Material*);
+			void setCastShadow(bool);
 		private:
 			void processNode(aiNode*, const aiScene*, Node*);
 			void processMesh(aiMesh*, const aiScene*, Node*);
@@ -28,6 +29,7 @@ namespace vb01{
 			void processMaterial();
 
 			Material* material;
+			bool castShadow=false;
 	};
 }
 

@@ -30,6 +30,7 @@ namespace vb01{
 			this->y=y;
 			this->z=z;
 		}
+		bool  operator==(const Vector3 &v){return x==v.x&&y==v.y&&z==v.z;}
 		Vector3 operator-(const Vector3 &v){return Vector3(x-v.x,y-v.y,z-v.z);}
 		Vector3 operator+(const Vector3 &v){return Vector3(x+v.x,y+v.y,z+v.z);}
 		template<typename T>Vector3 operator+(T s){return Vector3(x+s,y+s,z+s);}

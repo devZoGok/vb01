@@ -1,19 +1,24 @@
 #include"stb_image.h"
 #include"root.h"
+#include"node.h"
+#include"shader.h"
+#include"box.h"
+#include"quad.h"
 #include<glad.h>
 #include<glfw3.h>
 #include<cstdlib>
 #include<iostream>
-#include"shader.h"
-#include"box.h"
-#include"quad.h"
 
 using namespace std;
 
 namespace vb01{
-	static Root *root=new Root();
+	static Root *root=nullptr;
 
-	Root* Root::getSingleton(){return root;}
+	Root* Root::getSingleton(){
+		if(!root)
+			root=new Root();
+		return root;
+	}
 
 	void foo(GLFWwindow *window, int width, int height){
 		glViewport(0,0,width,height);
@@ -27,7 +32,6 @@ namespace vb01{
 	}
 
 	void Root::start(int width,int height){
-		running=true;
 		this->width=width;
 		this->height=height;
 
@@ -53,6 +57,7 @@ namespace vb01{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+		/*
 		glGenFramebuffers(1,&guiFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
 		Texture *texture=new Texture();
@@ -72,10 +77,10 @@ namespace vb01{
 		Material *mat=new Material(Material::MATERIAL_GUI);
 		mat->addDiffuseMap(texture);
 		guiPlane->setMaterial(mat);
+		*/
 	}
 
 	void Root::update(){
-		if(running){
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
@@ -92,9 +97,11 @@ namespace vb01{
 			glDisable(GL_CULL_FACE);
 
 			guiNode->update();
+			/*
 			glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
+			*/
 			
 			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -102,7 +109,6 @@ namespace vb01{
 			glDisable(GL_DEPTH_TEST);
 
 			glfwSwapBuffers(window);
-		}
 	}
 
 	void Root::createSkybox(string textures[6]){

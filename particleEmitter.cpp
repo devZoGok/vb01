@@ -62,12 +62,6 @@ namespace vb01{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,texCoords)));
 		glEnableVertexAttribArray(1);
-
-		startColor=Vector4(1,0,0,1);
-		endColor=Vector4(0,0,1,1);
-		//endSize=Vector2(2,2);
-		direction=Vector3(0,.1,0);
-		spread=.3;
 	}
 
 	ParticleEmitter::~ParticleEmitter(){}
@@ -87,6 +81,10 @@ namespace vb01{
 		Shader *shader=material->getShader();
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
+		shader->setVec3(camDir,"camDir");
+		shader->setVec3(cam->getLeft(),"camLeft");
+		shader->setVec3(cam->getUp(),"camUp");
+
 		for(int i=0;i<numParticles;i++){
 			Vector3 dir=particles[i].dir;
 			if(getTime()-particles[i].time>=particles[i].timeToLive){

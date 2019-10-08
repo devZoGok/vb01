@@ -80,4 +80,11 @@ namespace vb01{
 				mesh->setMaterial(mat);
 		this->material=mat;
 	}
+
+	void Model::setCastShadow(bool castShadow){
+		for(Node *node : children)
+			for(Mesh *mesh : node->getMeshes())
+				mesh->setCastShadow(castShadow);
+		this->castShadow=castShadow;
+	}
 }

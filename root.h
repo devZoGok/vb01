@@ -1,9 +1,9 @@
 #ifndef ROOT_H
 #define ROOT_H
 
-#include"node.h"
 #include"camera.h"
 #include<string>
+#include<vector>
 
 class GLFWwindow;
 
@@ -14,10 +14,10 @@ namespace vb01{
 	class Box;
 	class Quad;
 	class Shader;
+	class Node;
 
 	class Root{
 		public:
-			Root();
 			void update();
 			void start(int,int);
 			inline Camera* getCamera(){return camera;}
@@ -30,14 +30,15 @@ namespace vb01{
 		private:
 			Box *skybox=nullptr;
 			Quad *guiPlane=nullptr;
-			bool running=false;
 			int width,height;
 			unsigned int guiFBO,guiRBO;
 			GLFWwindow *window;
 			Node *rootNode,*guiNode;
 			Camera *camera;
 			std::vector<Mesh*> meshes;
+
 			void framebuffer_size_callback(GLFWwindow*,int,int);
+			Root();
 	};
 }
 

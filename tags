@@ -38,7 +38,7 @@ Mesh	mesh.h	/^	class Mesh{$/;"	c	namespace:vb01
 Model	model.cpp	/^	Model::Model(string path) : Node(){$/;"	f	class:vb01::Model
 Model	model.h	/^	class Model : public Node{$/;"	c	namespace:vb01
 NODE_H	node.h	/^#define NODE_H$/;"	d
-Node	node.cpp	/^	Node::Node(Vector3 pos){$/;"	f	class:vb01::Node
+Node	node.cpp	/^	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale){$/;"	f	class:vb01::Node
 Node	node.h	/^	class Node{$/;"	c	namespace:vb01
 PARTICLE_EMITTER_H	particleEmitter.h	/^#define PARTICLE_EMITTER_H$/;"	d
 PI	util.h	/^	static const float PI=4*atan(1);$/;"	v	namespace:vb01	typeref:typename:const float
@@ -49,14 +49,20 @@ ParticleEmitter	particleEmitter.cpp	/^	ParticleEmitter::ParticleEmitter(int numP
 ParticleEmitter	particleEmitter.h	/^	class ParticleEmitter{$/;"	c	namespace:vb01
 QUAD_H	quad.h	/^#define QUAD_H$/;"	d
 QUATERNION_H	quaternion.h	/^#define QUATERNION_H$/;"	d
-QUAT_I	quaternion.cpp	/^	const quaternion quaternion::QUAT_I(0,1,0,0);$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
-QUAT_I	quaternion.h	/^			const static quaternion QUAT_I,QUAT_J,QUAT_K;$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
-QUAT_J	quaternion.cpp	/^	const quaternion quaternion::QUAT_J(0,0,1,0);$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
-QUAT_J	quaternion.h	/^			const static quaternion QUAT_I,QUAT_J,QUAT_K;$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
-QUAT_K	quaternion.cpp	/^	const quaternion quaternion::QUAT_K(0,0,0,1);$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
-QUAT_K	quaternion.h	/^			const static quaternion QUAT_I,QUAT_J,QUAT_K;$/;"	m	class:vb01::quaternion	typeref:typename:const quaternion
+QUAT_I	quaternion.cpp	/^	const Quaternion Quaternion::QUAT_I(0,1,0,0);$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_I	quaternion.h	/^			const static Quaternion QUAT_I,QUAT_J,QUAT_K,QUAT_W;$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_J	quaternion.cpp	/^	const Quaternion Quaternion::QUAT_J(0,0,1,0);$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_J	quaternion.h	/^			const static Quaternion QUAT_I,QUAT_J,QUAT_K,QUAT_W;$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_K	quaternion.cpp	/^	const Quaternion Quaternion::QUAT_K(0,0,0,1);$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_K	quaternion.h	/^			const static Quaternion QUAT_I,QUAT_J,QUAT_K,QUAT_W;$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_W	quaternion.cpp	/^	const Quaternion Quaternion::QUAT_W(1,0,0,0);$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
+QUAT_W	quaternion.h	/^			const static Quaternion QUAT_I,QUAT_J,QUAT_K,QUAT_W;$/;"	m	class:vb01::Quaternion	typeref:typename:const Quaternion
 Quad	quad.cpp	/^	Quad::Quad(Vector3 size,bool spatial) : Mesh(){$/;"	f	class:vb01::Quad
 Quad	quad.h	/^	class Quad : public Mesh{$/;"	c	namespace:vb01
+Quaternion	quaternion.h	/^			Quaternion(){}$/;"	f	class:vb01::Quaternion
+Quaternion	quaternion.h	/^			Quaternion(float angle, Vector3 axis){$/;"	f	class:vb01::Quaternion
+Quaternion	quaternion.h	/^			Quaternion(float w,float x,float y,float z){$/;"	f	class:vb01::Quaternion
+Quaternion	quaternion.h	/^	class Quaternion{$/;"	c	namespace:vb01
 RECTANGLE_H	rectangle.h	/^#define RECTANGLE_H$/;"	d
 ROOT_H	root.h	/^#define ROOT_H$/;"	d
 Rectangle	rectangle.cpp	/^	Rectangle::Rectangle(Vector3 size){$/;"	f	class:vb01::Rectangle
@@ -128,8 +134,8 @@ TEXTURE_H	texture.h	/^#define TEXTURE_H$/;"	d
 TEXT_H	text.h	/^#define TEXT_H$/;"	d
 Text	text.cpp	/^	Text::Text(string fontPath,string entry){$/;"	f	class:vb01::Text
 Text	text.h	/^	class Text{$/;"	c	namespace:vb01
-Texture	texture.cpp	/^	Texture::Texture(){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(FT_Face &face, char ch){$/;"	f	class:vb01::Texture
+Texture	texture.cpp	/^	Texture::Texture(int width, int height){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(string path){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(string paths[6]){$/;"	f	class:vb01::Texture
 Texture	texture.h	/^	class Texture{$/;"	c	namespace:vb01
@@ -222,7 +228,7 @@ app14_color_transform	stb_image.h	/^   int            app14_color_transform; \/\
 attachChild	node.cpp	/^	void Node::attachChild(Node *child){$/;"	f	class:vb01::Node	typeref:typename:void
 attachMesh	node.cpp	/^	void Node::attachMesh(Mesh *mesh){$/;"	f	class:vb01::Node	typeref:typename:void
 attachParticleEmitter	node.cpp	/^	void Node::attachParticleEmitter(ParticleEmitter *emitter){$/;"	f	class:vb01::Node	typeref:typename:void
-attenuationValues	light.h	/^			Vector3 pos,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
+attenuationValues	light.h	/^			Vector3 position=Vector3::VEC_ZERO,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
 background	stb_image.h	/^   stbi_uc *background;          \/\/ The current "background" as far as a gif is concerned$/;"	m	struct:__anon84e4e8861308	typeref:typename:stbi_uc *
 bearing	text.h	/^				Vector2 size,bearing;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:Vector2
 bgindex	stb_image.h	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
@@ -231,12 +237,14 @@ bpp	stb_image.h	/^   int bpp, offset, hsz;$/;"	m	struct:__anon84e4e8861008	typer
 buffer_start	stb_image.h	/^   stbi_uc buffer_start[128];$/;"	m	struct:__anon84e4e8860308	typeref:typename:stbi_uc[128]
 buflen	stb_image.h	/^   int buflen;$/;"	m	struct:__anon84e4e8860308	typeref:typename:int
 camera	root.h	/^			Camera *camera;$/;"	m	class:vb01::Root	typeref:typename:Camera *
+castShadow	mesh.h	/^			bool staticVerts=true,castShadow=false;$/;"	m	class:vb01::Mesh	typeref:typename:bool
+castShadow	model.h	/^			bool castShadow=false;$/;"	m	class:vb01::Model	typeref:typename:bool
 ch	text.h	/^				u32 ch;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:u32
 channel	stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon84e4e8861108	typeref:typename:stbi_uc
 channel_order	stb_image.h	/^   int channel_order;$/;"	m	struct:__anon84e4e8860508	typeref:typename:int
 characters	text.h	/^			std::vector<Glyph> characters;$/;"	m	class:vb01::Text	typeref:typename:std::vector<Glyph>
 checkCompileErrors	shader.cpp	/^	void Shader::checkCompileErrors(unsigned int shader, ErrorType type){$/;"	f	class:vb01::Shader	typeref:typename:void
-children	node.h	/^			std::vector<Node*> children,descendants;$/;"	m	class:vb01::Node	typeref:typename:std::vector<Node * >
+children	node.h	/^			std::vector<Node*> children;$/;"	m	class:vb01::Node	typeref:typename:std::vector<Node * >
 code	stb_image.h	/^   stbi__uint16 code[256];$/;"	m	struct:__anon84e4e8860708	typeref:typename:stbi__uint16[256]
 code_bits	stb_image.h	/^   int            code_bits;   \/\/ number of valid bits$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
 code_buffer	stb_image.h	/^   stbi__uint32   code_buffer; \/\/ jpeg entropy-coded buffer$/;"	m	struct:__anon84e4e8860808	typeref:typename:stbi__uint32
@@ -245,11 +253,11 @@ codes	stb_image.h	/^   stbi__gif_lzw codes[8192];$/;"	m	struct:__anon84e4e886130
 coeff	stb_image.h	/^      short   *coeff;   \/\/ progressive only$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:short *
 coeff_h	stb_image.h	/^      int      coeff_w, coeff_h; \/\/ number of 8x8 coefficient blocks$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
 coeff_w	stb_image.h	/^      int      coeff_w, coeff_h; \/\/ number of 8x8 coefficient blocks$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
-color	light.h	/^			Vector3 pos,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
+color	light.h	/^			Vector3 position=Vector3::VEC_ZERO,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
 color	particleEmitter.h	/^				Vector4 color;$/;"	m	struct:vb01::ParticleEmitter::Particle	typeref:typename:Vector4
 color	text.h	/^			Vector4 color=Vector4::VEC_IJKL;$/;"	m	class:vb01::Text	typeref:typename:Vector4
 color_table	stb_image.h	/^   stbi_uc *color_table;$/;"	m	struct:__anon84e4e8861308	typeref:typename:stbi_uc *
-conj	quaternion.h	/^			inline vb01::quaternion conj(){return (*this+vb01::quaternion(0,1,0,0)*(*this)*vb01::quaterni/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+conj	quaternion.h	/^			inline vb01::Quaternion conj(){$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 construct	mesh.cpp	/^	void Mesh::construct(){$/;"	f	class:vb01::Mesh	typeref:typename:void
 createSkybox	root.cpp	/^	void Root::createSkybox(string textures[6]){$/;"	f	class:vb01::Root	typeref:typename:void
 cross	vector.h	/^		Vector3 cross(Vector3 v){return Vector3(y*v.z-v.y*z,x*v.z-v.x*z,x*v.y-v.x*y);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
@@ -283,14 +291,17 @@ dct_wsub	stb_image.h	/^#define dct_wsub(/;"	d
 delay	stb_image.h	/^   int delay;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 delta	stb_image.h	/^   int    delta[17];   \/\/ old 'firstsymbol' - old 'firstcode'$/;"	m	struct:__anon84e4e8860708	typeref:typename:int[17]
 depth	stb_image.h	/^   int depth;$/;"	m	struct:__anon84e4e8860e08	typeref:typename:int
+depthMap	light.h	/^			Texture *depthMap=nullptr;$/;"	m	class:vb01::Light	typeref:typename:Texture *
+depthMapShader	light.h	/^			Shader *depthMapShader;$/;"	m	class:vb01::Light	typeref:typename:Shader *
+depthMapSize	light.h	/^			unsigned int depthmapFBO,depthMapSize=1024;$/;"	m	class:vb01::Light	typeref:typename:unsigned int
+depthmapFBO	light.h	/^			unsigned int depthmapFBO,depthMapSize=1024;$/;"	m	class:vb01::Light	typeref:typename:unsigned int
 dequant	stb_image.h	/^   stbi__uint16 dequant[4][64];$/;"	m	struct:__anon84e4e8860808	typeref:typename:stbi__uint16[4][64]
-descendants	node.h	/^			std::vector<Node*> children,descendants;$/;"	m	class:vb01::Node	typeref:typename:std::vector<Node * >
 diffuseColor	material.h	/^			Vector4 diffuseColor=Vector4::VEC_IJKL,specularColor=Vector4::VEC_IJKL;$/;"	m	class:vb01::Material	typeref:typename:Vector4
 diffuseMapTextures	material.h	/^			std::vector<Texture*> diffuseMapTextures,normalMapTextures,specularMapTextures;$/;"	m	class:vb01::Material	typeref:typename:std::vector<Texture * >
 dir	particleEmitter.h	/^				Vector3 dir;$/;"	m	struct:vb01::ParticleEmitter::Particle	typeref:typename:Vector3
 direction	camera.h	/^			Vector3 position=Vector3(0,0,0),direction=Vector3(0,0,1),left=Vector3(1,0,0),up=Vector3(0,1,0/;"	m	class:vb01::Camera	typeref:typename:Vector3
-direction	light.h	/^			Vector3 pos,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
-direction	particleEmitter.h	/^			Vector3 direction=Vector3(0,1,0);$/;"	m	class:vb01::ParticleEmitter	typeref:typename:Vector3
+direction	light.h	/^			Vector3 position=Vector3::VEC_ZERO,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
+direction	particleEmitter.h	/^			Vector3 direction=Vector3(0,.1,0);$/;"	m	class:vb01::ParticleEmitter	typeref:typename:Vector3
 dot	vector.h	/^		float dot(Vector2 v){return x*v.x+y*v.y;}$/;"	f	struct:vb01::Vector2	typeref:typename:float
 dot	vector.h	/^		float dot(Vector3 v){return x*v.x+y*v.y+z*v.z;}$/;"	f	struct:vb01::Vector3	typeref:typename:float
 editShader	shader.cpp	/^	void Shader::editShader(bool vertexShader, char firstChar, char secondChar, string insertion){$/;"	f	class:vb01::Shader	typeref:typename:void
@@ -304,6 +315,7 @@ eof	stb_image.h	/^   int      (*eof)   (void *user);                       \/\/ 
 expanded	stb_image.h	/^   stbi_uc *idata, *expanded, *out;$/;"	m	struct:__anon84e4e8860e08	typeref:typename:stbi_uc **
 fString	shader.h	/^			std::string vString,fString;$/;"	m	class:vb01::Shader	typeref:typename:std::string
 farPlane	camera.h	/^			float fov=45,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Camera	typeref:typename:float
+farPlane	light.h	/^			float innerAngle=.707,outerAngle=.714,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Light	typeref:typename:float
 fast	stb_image.h	/^   stbi__uint16 fast[1 << STBI__ZFAST_BITS];$/;"	m	struct:__anon84e4e8860b08	typeref:typename:stbi__uint16[]
 fast	stb_image.h	/^   stbi_uc  fast[1 << FAST_BITS];$/;"	m	struct:__anon84e4e8860708	typeref:typename:stbi_uc[]
 fast_ac	stb_image.h	/^   stbi__int16 fast_ac[4][1 << FAST_BITS];$/;"	m	struct:__anon84e4e8860808	typeref:typename:stbi__int16[4][]
@@ -314,12 +326,16 @@ firstsymbol	stb_image.h	/^   stbi__uint16 firstsymbol[16];$/;"	m	struct:__anon84
 flags	stb_image.h	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 foo	root.cpp	/^	void foo(GLFWwindow *window, int width, int height){$/;"	f	namespace:vb01	typeref:typename:void
 fov	camera.h	/^			float fov=45,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Camera	typeref:typename:float
+fromAngle	quaternion.h	/^			inline vb01::Quaternion fromAngle(float angle, Vector3 axis){$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
+getAngle	quaternion.h	/^			inline float getAngle(){return 2*acos(w);}$/;"	f	class:vb01::Quaternion	typeref:typename:float
 getAngleBetween	vector.h	/^		float getAngleBetween(Vector2 v){return std::acos(dot(v));}$/;"	f	struct:vb01::Vector2	typeref:typename:float
 getAngleBetween	vector.h	/^		float getAngleBetween(Vector3 v){return std::acos(dot(v));}$/;"	f	struct:vb01::Vector3	typeref:typename:float
 getAttenuationValues	light.h	/^			inline Vector3 getAttenuationValues(){return attenuationValues;}$/;"	f	class:vb01::Light	typeref:typename:Vector3
+getAxis	quaternion.h	/^			inline vb01::Vector3 getAxis(){return Vector3(asin(x),asin(y),asin(z))*2;}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Vector3
 getCamera	root.h	/^			inline Camera* getCamera(){return camera;}$/;"	f	class:vb01::Root	typeref:typename:Camera *
+getChild	node.h	/^			inline Node* getChild(int i){return children[i];}$/;"	f	class:vb01::Node	typeref:typename:Node *
 getChildren	node.h	/^			inline std::vector<Node*>& getChildren(){return children;}$/;"	f	class:vb01::Node	typeref:typename:std::vector<Node * > &
-getDescendants	node.h	/^			inline std::vector<Node*>& getDescendants(){return descendants;}$/;"	f	class:vb01::Node	typeref:typename:std::vector<Node * > &
+getDescendants	node.cpp	/^	void Node::getDescendants(Node *node, vector<Node*> &descendants){$/;"	f	class:vb01::Node	typeref:typename:void
 getDiffuseMap	material.h	/^			inline Texture* getDiffuseMap(int i){return diffuseMapTextures[i];}$/;"	f	class:vb01::Material	typeref:typename:Texture *
 getDirection	camera.h	/^			inline Vector3 getDirection(){return direction;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
 getDirection	light.h	/^			inline Vector3 getDirection(){return direction;}$/;"	f	class:vb01::Light	typeref:typename:Vector3
@@ -330,10 +346,10 @@ getGuiNode	root.h	/^			inline Node* getGuiNode(){return guiNode;}$/;"	f	class:vb
 getHeight	root.h	/^			inline int getHeight(){return height;}$/;"	f	class:vb01::Root	typeref:typename:int
 getInnerAngle	light.h	/^			inline float getInnerAngle(){return innerAngle;}$/;"	f	class:vb01::Light	typeref:typename:float
 getLeft	camera.h	/^			inline Vector3 getLeft(){return left;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
-getLength	quaternion.h	/^			inline float getLength(){return std::sqrt(getLengthSq());}$/;"	f	class:vb01::quaternion	typeref:typename:float
+getLength	quaternion.h	/^			inline float getLength(){return std::sqrt(getLengthSq());}$/;"	f	class:vb01::Quaternion	typeref:typename:float
 getLength	vector.h	/^		float getLength(){return std::sqrt(getLengthSq());}$/;"	f	struct:vb01::Vector2	typeref:typename:float
 getLength	vector.h	/^		float getLength(){return std::sqrt(getLengthSq());}$/;"	f	struct:vb01::Vector3	typeref:typename:float
-getLengthSq	quaternion.h	/^			inline float getLengthSq(){return w*w+x*x+y*y+z*z;}$/;"	f	class:vb01::quaternion	typeref:typename:float
+getLengthSq	quaternion.h	/^			inline float getLengthSq(){return w*w+x*x+y*y+z*z;}$/;"	f	class:vb01::Quaternion	typeref:typename:float
 getLengthSq	vector.h	/^		float getLengthSq(){return x*x+y*y+z*z;}$/;"	f	struct:vb01::Vector3	typeref:typename:float
 getLengthSq	vector.h	/^		float getLengthSq(){return x*x+y*y;}$/;"	f	struct:vb01::Vector2	typeref:typename:float
 getLight	node.h	/^			inline Light* getLight(int i){return lights[i];}$/;"	f	class:vb01::Node	typeref:typename:Light *
@@ -343,14 +359,20 @@ getMeshes	mesh.h	/^			inline std::vector<Mesh*>& getMeshes(){return meshes;}$/;"
 getMeshes	node.h	/^			inline std::vector<Mesh*>& getMeshes(){return meshes;}$/;"	f	class:vb01::Node	typeref:typename:std::vector<Mesh * > &
 getNearPlane	camera.h	/^			inline float getNearPlane(){return nearPlane;}$/;"	f	class:vb01::Camera	typeref:typename:float
 getNode	mesh.h	/^			inline Node* getNode(){return node;}$/;"	f	class:vb01::Mesh	typeref:typename:Node *
+getNumChildren	node.h	/^			inline int getNumChildren(){return children.size();}$/;"	f	class:vb01::Node	typeref:typename:int
 getNumLights	node.h	/^			inline int getNumLights(){return lights.size();}$/;"	f	class:vb01::Node	typeref:typename:int
+getNumVerts	mesh.h	/^			inline int getNumVerts(){return 3*numTris;}$/;"	f	class:vb01::Mesh	typeref:typename:int
+getOrientation	node.h	/^			inline Quaternion getOrientation(){return orientation;}$/;"	f	class:vb01::Node	typeref:typename:Quaternion
 getOuterAngle	light.h	/^			inline float getOuterAngle(){return outerAngle;}$/;"	f	class:vb01::Light	typeref:typename:float
 getParent	node.h	/^			inline Node* getParent(){return parent;}$/;"	f	class:vb01::Node	typeref:typename:Node *
 getPosition	camera.h	/^			inline Vector3 getPosition(){return position;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
 getPosition	node.h	/^			inline Vector3 getPosition(){return pos;}$/;"	f	class:vb01::Node	typeref:typename:Vector3
 getRootNode	root.h	/^			inline Node* getRootNode(){return rootNode;}$/;"	f	class:vb01::Root	typeref:typename:Node *
+getScale	node.h	/^			inline Vector3 getScale(){return scale;}$/;"	f	class:vb01::Node	typeref:typename:Vector3
 getShader	material.h	/^			inline Shader* getShader(){return shader;}$/;"	f	class:vb01::Material	typeref:typename:Shader *
-getSingleton	root.cpp	/^	Root* Root::getSingleton(){return root;}$/;"	f	class:vb01::Root	typeref:typename:Root *
+getShadowFarPlane	light.h	/^			inline float getShadowFarPlane(){return farPlane;}$/;"	f	class:vb01::Light	typeref:typename:float
+getShadowNearPlane	light.h	/^			inline float getShadowNearPlane(){return nearPlane;}$/;"	f	class:vb01::Light	typeref:typename:float
+getSingleton	root.cpp	/^	Root* Root::getSingleton(){$/;"	f	class:vb01::Root	typeref:typename:Root *
 getTexture	texture.h	/^			inline unsigned int* getTexture(){return &texture;}$/;"	f	class:vb01::Texture	typeref:typename:unsigned int *
 getTime	util.h	/^	inline s64 getTime(){return s64(std::chrono::system_clock::now().time_since_epoch()\/std::chron/;"	f	namespace:vb01	typeref:typename:s64
 getType	material.h	/^			inline Type getType(){return type;}$/;"	f	class:vb01::Material	typeref:typename:Type
@@ -393,10 +415,11 @@ img_v_max	stb_image.h	/^   int img_h_max, img_v_max;$/;"	m	struct:__anon84e4e886
 img_x	stb_image.h	/^   stbi__uint32 img_x, img_y;$/;"	m	struct:__anon84e4e8860308	typeref:typename:stbi__uint32
 img_y	stb_image.h	/^   stbi__uint32 img_x, img_y;$/;"	m	struct:__anon84e4e8860308	typeref:typename:stbi__uint32
 indices	mesh.h	/^			unsigned int *indices,VAO,VBO,EBO;$/;"	m	class:vb01::Mesh	typeref:typename:unsigned int *
-innerAngle	light.h	/^			float innerAngle=.707,outerAngle=.714;$/;"	m	class:vb01::Light	typeref:typename:float
+innerAngle	light.h	/^			float innerAngle=.707,outerAngle=.714,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Light	typeref:typename:float
 instanceVBO	particleEmitter.h	/^			unsigned int instanceVBO,VAO,VBO,EBO;$/;"	m	class:vb01::ParticleEmitter	typeref:typename:unsigned int
 io	stb_image.h	/^   stbi_io_callbacks io;$/;"	m	struct:__anon84e4e8860308	typeref:typename:stbi_io_callbacks
 io_user_data	stb_image.h	/^   void *io_user_data;$/;"	m	struct:__anon84e4e8860308	typeref:typename:void *
+isCastShadow	mesh.h	/^			inline bool isCastShadow(){return castShadow;}$/;"	f	class:vb01::Mesh	typeref:typename:bool
 isLightingEnabled	material.h	/^			inline bool isLightingEnabled(){return lightingEnabled;}$/;"	f	class:vb01::Material	typeref:typename:bool
 isTexturingEnabled	material.h	/^			inline bool isTexturingEnabled(){return texturingEnabled;}$/;"	f	class:vb01::Material	typeref:typename:bool
 jfif	stb_image.h	/^   int            jfif;$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
@@ -433,13 +456,14 @@ mg	stb_image.h	/^   unsigned int mr,mg,mb,ma, all_a;$/;"	m	struct:__anon84e4e886
 mr	stb_image.h	/^   unsigned int mr,mg,mb,ma, all_a;$/;"	m	struct:__anon84e4e8861008	typeref:typename:unsigned int
 name	mesh.h	/^			std::string name="";$/;"	m	class:vb01::Mesh	typeref:typename:std::string
 nearPlane	camera.h	/^			float fov=45,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Camera	typeref:typename:float
+nearPlane	light.h	/^			float innerAngle=.707,outerAngle=.714,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Light	typeref:typename:float
 node	light.h	/^			Node *node=nullptr;$/;"	m	class:vb01::Light	typeref:typename:Node *
 node	mesh.h	/^			Node *node=nullptr;$/;"	m	class:vb01::Mesh	typeref:typename:Node *
 node	particleEmitter.h	/^			Node *node=nullptr;$/;"	m	class:vb01::ParticleEmitter	typeref:typename:Node *
 node	text.h	/^			Node *node=nullptr;$/;"	m	class:vb01::Text	typeref:typename:Node *
 nomore	stb_image.h	/^   int            nomore;      \/\/ flag if we saw a marker so must stop$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
 norm	mesh.h	/^				Vector3 pos,norm;$/;"	m	struct:vb01::Mesh::Vertex	typeref:typename:Vector3
-norm	quaternion.h	/^			inline vb01::quaternion norm(){return *this\/getLength();}$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+norm	quaternion.h	/^			inline vb01::Quaternion norm(){return *this\/getLength();}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 norm	vector.h	/^		Vector2 norm(){return *this\/getLength();}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 norm	vector.h	/^		Vector3 norm(){return *this\/getLength();}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 normalMapTextures	material.h	/^			std::vector<Texture*> diffuseMapTextures,normalMapTextures,specularMapTextures;$/;"	m	class:vb01::Material	typeref:typename:std::vector<Texture * >
@@ -449,77 +473,83 @@ numTris	mesh.h	/^			int numTris;$/;"	m	class:vb01::Mesh	typeref:typename:int
 num_bits	stb_image.h	/^   int num_bits;$/;"	m	struct:__anon84e4e8860c08	typeref:typename:int
 num_channels	stb_image.h	/^   int num_channels;$/;"	m	struct:__anon84e4e8860508	typeref:typename:int
 offset	stb_image.h	/^   int bpp, offset, hsz;$/;"	m	struct:__anon84e4e8861008	typeref:typename:int
-operator *	quaternion.h	/^			inline vb01::quaternion operator* (vb01::quaternion q){$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
-operator *	quaternion.h	/^			template<typename T> inline vb01::quaternion operator*(T s){return quaternion(w*s,x*s,y*s,z*s/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+operator *	quaternion.h	/^			inline vb01::Quaternion operator* (vb01::Quaternion q){$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
+operator *	quaternion.h	/^			inline vb01::Vector3 operator* (vb01::Vector3 v){$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Vector3
+operator *	quaternion.h	/^			template<typename T> inline vb01::Quaternion operator*(T s){return Quaternion(w*s,x*s,y*s,z*s/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 operator *	vector.h	/^		template<typename T>Vector2 operator*(T s){return Vector2(x*s,y*s);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator *	vector.h	/^		template<typename T>Vector3 operator*(T s){return Vector3(x*s,y*s,z*s);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator *	vector.h	/^		template<typename T>Vector4 operator*(T s){return Vector4(x*s,y*s,z*s,w*s);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
-operator +	quaternion.h	/^			inline vb01::quaternion operator+(quaternion q){return quaternion(w+q.w,x+q.x,y+q.y,z+q.z);}$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+operator +	quaternion.h	/^			inline vb01::Quaternion operator+(Quaternion q){return Quaternion(w+q.w,x+q.x,y+q.y,z+q.z);}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 operator +	vector.h	/^		Vector2 operator+(const Vector2 &v){return Vector2(x+v.x,y+v.y);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator +	vector.h	/^		Vector3 operator+(const Vector3 &v){return Vector3(x+v.x,y+v.y,z+v.z);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator +	vector.h	/^		Vector4 operator+(const Vector4 &v){return Vector4(x+v.x,y+v.y,z+v.z,w+v.w);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
 operator +	vector.h	/^		template<typename T>Vector2 operator+(T s){return Vector2(x+s,y+s);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator +	vector.h	/^		template<typename T>Vector3 operator+(T s){return Vector3(x+s,y+s,z+s);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator +	vector.h	/^		template<typename T>Vector4 operator+(T s){return Vector4(x+s,y+s,z+s,w+s);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
-operator -	quaternion.h	/^			inline vb01::quaternion operator-(quaternion q){return quaternion(w-q.w,x-q.x,y-q.y,z-q.z);}$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+operator -	quaternion.h	/^			inline vb01::Quaternion operator-(Quaternion q){return Quaternion(w-q.w,x-q.x,y-q.y,z-q.z);}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 operator -	vector.h	/^		Vector2 operator-(const Vector2 &v){return Vector2(x-v.x,y-v.y);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator -	vector.h	/^		Vector3 operator-(const Vector3 &v){return Vector3(x-v.x,y-v.y,z-v.z);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator -	vector.h	/^		Vector4 operator-(const Vector4 &v){return Vector4(x-v.x,y-v.y,z-v.z,w-v.w);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
 operator -	vector.h	/^		template<typename T>Vector2 operator-(T s){return Vector2(x-s,y-s);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator -	vector.h	/^		template<typename T>Vector3 operator-(T s){return Vector3(x-s,y-s,z-s);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator -	vector.h	/^		template<typename T>Vector4 operator-(T s){return Vector4(x-s,y-s,z-s,w-s);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
-operator /	quaternion.h	/^			inline vb01::quaternion operator\/ (float f){return quaternion(w\/f,x\/f,y\/f,z\/f);}$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+operator /	quaternion.h	/^			template<typename T> inline vb01::Quaternion operator\/(T s){return Quaternion(w\/s,x\/s,y\/s/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
 operator /	vector.h	/^		template<typename T>Vector2 operator\/(T s){return Vector2(x\/s,y\/s);}$/;"	f	struct:vb01::Vector2	typeref:typename:Vector2
 operator /	vector.h	/^		template<typename T>Vector3 operator\/(T s){return Vector3(x\/s,y\/s,z\/s);}$/;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 operator /	vector.h	/^		template<typename T>Vector4 operator\/(T s){return Vector4(x\/s,y\/s,z\/s,w\/s);}$/;"	f	struct:vb01::Vector4	typeref:typename:Vector4
+operator ==	vector.h	/^		bool  operator==(const Vector3 &v){return x==v.x&&y==v.y&&z==v.z;}$/;"	f	struct:vb01::Vector3	typeref:typename:bool
 order	stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anon84e4e8860808	typeref:typename:int[4]
+orientation	node.h	/^			Quaternion orientation;$/;"	m	class:vb01::Node	typeref:typename:Quaternion
 out	stb_image.h	/^   stbi_uc *idata, *expanded, *out;$/;"	m	struct:__anon84e4e8860e08	typeref:typename:stbi_uc ***
 out	stb_image.h	/^   stbi_uc *out;                 \/\/ output buffer (always 4 components)$/;"	m	struct:__anon84e4e8861308	typeref:typename:stbi_uc *
-outerAngle	light.h	/^			float innerAngle=.707,outerAngle=.714;$/;"	m	class:vb01::Light	typeref:typename:float
+outerAngle	light.h	/^			float innerAngle=.707,outerAngle=.714,nearPlane=.1,farPlane=100;$/;"	m	class:vb01::Light	typeref:typename:float
 pal	stb_image.h	/^   stbi_uc  pal[256][4];$/;"	m	struct:__anon84e4e8861308	typeref:typename:stbi_uc[256][4]
 parent	node.h	/^			Node *parent=nullptr;$/;"	m	class:vb01::Node	typeref:typename:Node *
 parse	stb_image.h	/^   int parse, step;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 particles	particleEmitter.h	/^			Particle *particles;$/;"	m	class:vb01::ParticleEmitter	typeref:typename:Particle *
-pos	light.h	/^			Vector3 pos,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
 pos	mesh.h	/^				Vector3 pos,norm;$/;"	m	struct:vb01::Mesh::Vertex	typeref:typename:Vector3
-pos	node.h	/^			Vector3 pos;$/;"	m	class:vb01::Node	typeref:typename:Vector3
+pos	node.h	/^			Vector3 pos,scale;$/;"	m	class:vb01::Node	typeref:typename:Vector3
 pos	particleEmitter.h	/^				Vector3 pos;$/;"	m	struct:vb01::ParticleEmitter::Vertex	typeref:typename:Vector3
 position	camera.h	/^			Vector3 position=Vector3(0,0,0),direction=Vector3(0,0,1),left=Vector3(1,0,0),up=Vector3(0,1,0/;"	m	class:vb01::Camera	typeref:typename:Vector3
+position	light.h	/^			Vector3 position=Vector3::VEC_ZERO,color,attenuationValues=Vector3(1.8,.7,1),direction;$/;"	m	class:vb01::Light	typeref:typename:Vector3
 prefix	stb_image.h	/^   stbi__int16 prefix;$/;"	m	struct:__anon84e4e8861208	typeref:typename:stbi__int16
 processMesh	model.cpp	/^	void Model::processMesh(aiMesh *mesh, const aiScene *scene, Node *currentNode){$/;"	f	class:vb01::Model	typeref:typename:void
 processNode	model.cpp	/^	void Model::processNode(aiNode *node, const aiScene *scene, Node *currentNode){$/;"	f	class:vb01::Model	typeref:typename:void
 progressive	stb_image.h	/^   int            progressive;$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
-quaternion	quaternion.h	/^			quaternion(float w,float x,float y,float z){$/;"	f	class:vb01::quaternion
-quaternion	quaternion.h	/^	class quaternion{$/;"	c	namespace:vb01
 ratio	stb_image.h	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 raw_coeff	stb_image.h	/^      void *raw_data, *raw_coeff;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:void **
 raw_data	stb_image.h	/^      void *raw_data, *raw_coeff;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:void *
 read	stb_image.h	/^   int      (*read)  (void *user,char *data,int size);   \/\/ fill 'data' with 'size' bytes.  re/;"	m	struct:__anon84e4e8860208	typeref:typename:int (*)(void * user,char * data,int size)
 read_from_callbacks	stb_image.h	/^   int read_from_callbacks;$/;"	m	struct:__anon84e4e8860308	typeref:typename:int
-recip	quaternion.h	/^			inline vb01::quaternion recip(){return conj()\/getLengthSq();}$/;"	f	class:vb01::quaternion	typeref:typename:vb01::quaternion
+recip	quaternion.h	/^			inline vb01::Quaternion recip(){return conj()\/getLengthSq();}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Quaternion
+render	mesh.cpp	/^	void Mesh::render(){$/;"	f	class:vb01::Mesh	typeref:typename:void
 resample	stb_image.h	/^   resample_row_func resample;$/;"	m	struct:__anon84e4e8860a08	typeref:typename:resample_row_func
 resample_row_1	stb_image.h	/^static stbi_uc *resample_row_1(stbi_uc *out, stbi_uc *in_near, stbi_uc *in_far, int w, int hs)$/;"	f	typeref:typename:stbi_uc *
 resample_row_func	stb_image.h	/^typedef stbi_uc *(*resample_row_func)(stbi_uc *out, stbi_uc *in0, stbi_uc *in1,$/;"	t	typeref:typename:stbi_uc * (*)(stbi_uc * out,stbi_uc * in0,stbi_uc * in1,int w,int hs)
 resample_row_hv_2_kernel	stb_image.h	/^   stbi_uc *(*resample_row_hv_2_kernel)(stbi_uc *out, stbi_uc *in_near, stbi_uc *in_far, int w, /;"	m	struct:__anon84e4e8860808	typeref:typename:stbi_uc * (*)(stbi_uc * out,stbi_uc * in_near,stbi_uc * in_far,int w,int hs)
 restart_interval	stb_image.h	/^   int restart_interval, todo;$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
 rgb	stb_image.h	/^   int            rgb;$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
-root	root.cpp	/^	static Root *root=new Root();$/;"	v	namespace:vb01	typeref:typename:Root *	file:
+root	root.cpp	/^	static Root *root=nullptr;$/;"	v	namespace:vb01	typeref:typename:Root *	file:
 rootNode	root.h	/^			Node *rootNode,*guiNode;$/;"	m	class:vb01::Root	typeref:typename:Node *
-running	root.h	/^			bool running=false;$/;"	m	class:vb01::Root	typeref:typename:bool
 s	stb_image.h	/^   stbi__context *s;$/;"	m	struct:__anon84e4e8860808	typeref:typename:stbi__context *
 s	stb_image.h	/^   stbi__context *s;$/;"	m	struct:__anon84e4e8860e08	typeref:typename:stbi__context *
 s16	util.h	/^	typedef short s16;$/;"	t	namespace:vb01	typeref:typename:short
 s32	util.h	/^	typedef int s32;$/;"	t	namespace:vb01	typeref:typename:int
 s64	util.h	/^	typedef long long s64;$/;"	t	namespace:vb01	typeref:typename:long long
 s8	util.h	/^	typedef char s8;$/;"	t	namespace:vb01	typeref:typename:char
+scale	node.h	/^			Vector3 pos,scale;$/;"	m	class:vb01::Node	typeref:typename:Vector3
 scale	text.h	/^			float scale=1;$/;"	m	class:vb01::Text	typeref:typename:float
 scan_n	stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
-select	texture.cpp	/^	void Texture::select(){$/;"	f	class:vb01::Texture	typeref:typename:void
+select	texture.cpp	/^	void Texture::select(int id){$/;"	f	class:vb01::Texture	typeref:typename:void
 setAttenuationValues	light.h	/^			inline void setAttenuationValues(float a, float b, float c){$/;"	f	class:vb01::Light	typeref:typename:void
 setBool	shader.cpp	/^	void Shader::setBool(bool b, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
+setCastShadow	mesh.h	/^			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}$/;"	f	class:vb01::Mesh	typeref:typename:void
+setCastShadow	model.cpp	/^	void Model::setCastShadow(bool castShadow){$/;"	f	class:vb01::Model	typeref:typename:void
 setColor	light.h	/^			inline void setColor(Vector3 color){this->color=color;}$/;"	f	class:vb01::Light	typeref:typename:void
 setDiffuseColor	material.h	/^			inline void setDiffuseColor(Vector4 diffuse){this->diffuseColor=diffuse;}$/;"	f	class:vb01::Material	typeref:typename:void
 setDirection	light.h	/^			inline void setDirection(Vector3 dir){this->direction=dir;}$/;"	f	class:vb01::Light	typeref:typename:void
+setEndColor	particleEmitter.h	/^			inline void setEndColor(Vector4 color){this->endColor=color;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
+setEndSize	particleEmitter.h	/^			inline void setEndSize(Vector2 size){this->endSize=size;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
 setFloat	shader.cpp	/^	void Shader::setFloat(float fl, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
 setInnerAngle	light.h	/^			inline void setInnerAngle(float innerAngle){this->innerAngle=innerAngle;}$/;"	f	class:vb01::Light	typeref:typename:void
 setInt	shader.cpp	/^	void Shader::setInt(int i, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
@@ -533,11 +563,18 @@ setNode	mesh.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	clas
 setNode	particleEmitter.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
 setNode	text.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	class:vb01::Text	typeref:typename:void
 setOuterAngle	light.h	/^			inline void setOuterAngle(float outerAngle){this->outerAngle=outerAngle;}$/;"	f	class:vb01::Light	typeref:typename:void
+setParent	node.h	/^			inline void setParent(Node *par){this->parent=par;}$/;"	f	class:vb01::Node	typeref:typename:void
 setPosition	camera.h	/^			void setPosition(Vector3 position){this->position=position;}$/;"	f	class:vb01::Camera	typeref:typename:void
-setPosition	light.h	/^			inline void setPosition(Vector3 pos){this->pos=pos;}$/;"	f	class:vb01::Light	typeref:typename:void
+setPosition	light.h	/^			inline void setPosition(Vector3 pos){this->position=pos;}$/;"	f	class:vb01::Light	typeref:typename:void
+setPosition	node.h	/^			inline void setPosition(Vector3 pos){this->pos=pos;}$/;"	f	class:vb01::Node	typeref:typename:void
+setScale	node.h	/^			inline void setScale(Vector3 scale){this->scale=scale;}$/;"	f	class:vb01::Node	typeref:typename:void
+setShadowFarPlane	light.h	/^			inline void setShadowFarPlane(float farPlane){this->farPlane=farPlane;}$/;"	f	class:vb01::Light	typeref:typename:void
+setShadowNearPlane	light.h	/^			inline void setShadowNearPlane(float nearPlane){this->nearPlane=nearPlane;}$/;"	f	class:vb01::Light	typeref:typename:void
 setSize	box.cpp	/^	void Box::setSize(Vector3 size){$/;"	f	class:vb01::Box	typeref:typename:void
 setSize	quad.cpp	/^	void Quad::setSize(Vector3 size){$/;"	f	class:vb01::Quad	typeref:typename:void
 setSpecularColor	material.h	/^			inline void setSpecularColor(Vector4 specular){this->specularColor=specular;}$/;"	f	class:vb01::Material	typeref:typename:void
+setStartColor	particleEmitter.h	/^			inline void setStartColor(Vector4 color){this->startColor=color;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
+setStartSize	particleEmitter.h	/^			inline void setStartSize(Vector2 size){this->startSize=size;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
 setText	text.cpp	/^	void Text::setText(string text){$/;"	f	class:vb01::Text	typeref:typename:void
 setTexturingEnabled	material.h	/^			inline void setTexturingEnabled(bool texturing){this->texturingEnabled=texturing;}$/;"	f	class:vb01::Material	typeref:typename:void
 setType	light.h	/^			inline void setType(Type t){this->type=t;}$/;"	f	class:vb01::Light	typeref:typename:void
@@ -566,7 +603,7 @@ startColor	particleEmitter.h	/^			Vector4 startColor,endColor;$/;"	m	class:vb01:
 startSize	particleEmitter.h	/^			Vector2 startSize=Vector2::VEC_IJ,endSize=Vector2::VEC_IJ;$/;"	m	class:vb01::ParticleEmitter	typeref:typename:Vector2
 start_x	stb_image.h	/^   int start_x, start_y;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 start_y	stb_image.h	/^   int start_x, start_y;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
-staticVerts	mesh.h	/^			bool staticVerts=true;$/;"	m	class:vb01::Mesh	typeref:typename:bool
+staticVerts	mesh.h	/^			bool staticVerts=true,castShadow=false;$/;"	m	class:vb01::Mesh	typeref:typename:bool
 stbi__DNL	stb_image.h	/^#define stbi__DNL(/;"	d
 stbi__EOI	stb_image.h	/^#define stbi__EOI(/;"	d
 stbi__SOF	stb_image.h	/^#define stbi__SOF(/;"	d
@@ -853,7 +890,7 @@ type	light.h	/^			Type type;$/;"	m	class:vb01::Light	typeref:typename:Type
 type	material.h	/^			Type type;$/;"	m	class:vb01::Material	typeref:typename:Type
 type	stb_image.h	/^   stbi__uint32 type;$/;"	m	struct:__anon84e4e8860d08	typeref:typename:stbi__uint32
 type	stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon84e4e8861108	typeref:typename:stbi_uc
-type	texture.h	/^			TextureType type;$/;"	m	class:vb01::Texture	typeref:typename:TextureType
+type	texture.h	/^			TextureType type=TextureType::TEXTURE_2D;$/;"	m	class:vb01::Texture	typeref:typename:TextureType
 u16	util.h	/^	typedef unsigned short u16;$/;"	t	namespace:vb01	typeref:typename:unsigned short
 u32	util.h	/^	typedef unsigned int  u32;$/;"	t	namespace:vb01	typeref:typename:unsigned int
 u64	util.h	/^	typedef unsigned long long u64;$/;"	t	namespace:vb01	typeref:typename:unsigned long long
@@ -912,7 +949,7 @@ vb01	waterPlane.cpp	/^namespace vb01{$/;"	n	file:
 vb01	waterPlane.h	/^namespace vb01{$/;"	n
 vertices	mesh.h	/^			Vertex *vertices;$/;"	m	class:vb01::Mesh	typeref:typename:Vertex *
 vs	stb_image.h	/^   int hs,vs;   \/\/ expansion factor in each axis$/;"	m	struct:__anon84e4e8860a08	typeref:typename:int
-w	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::quaternion	typeref:typename:float
+w	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::Quaternion	typeref:typename:float
 w	stb_image.h	/^   int w,h;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 w	vector.h	/^		float x,y,z,w;$/;"	m	struct:vb01::Vector4	typeref:typename:float
 w2	stb_image.h	/^      int x,y,w2,h2;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
@@ -921,19 +958,19 @@ weight	texture.h	/^			float weight;$/;"	m	class:vb01::Texture	typeref:typename:f
 width	root.h	/^			int width,height;$/;"	m	class:vb01::Root	typeref:typename:int
 width	texture.h	/^			int width,height,numChannels;$/;"	m	class:vb01::Texture	typeref:typename:int
 window	root.h	/^			GLFWwindow *window;$/;"	m	class:vb01::Root	typeref:typename:GLFWwindow *
-x	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::quaternion	typeref:typename:float
+x	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::Quaternion	typeref:typename:float
 x	stb_image.h	/^      int x,y,w2,h2;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
 x	vector.h	/^		float x,y,z,w;$/;"	m	struct:vb01::Vector4	typeref:typename:float
 x	vector.h	/^		float x,y,z;$/;"	m	struct:vb01::Vector3	typeref:typename:float
 x	vector.h	/^		float x,y;$/;"	m	struct:vb01::Vector2	typeref:typename:float
-y	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::quaternion	typeref:typename:float
+y	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::Quaternion	typeref:typename:float
 y	stb_image.h	/^      int x,y,w2,h2;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
 y	vector.h	/^		float x,y,z,w;$/;"	m	struct:vb01::Vector4	typeref:typename:float
 y	vector.h	/^		float x,y,z;$/;"	m	struct:vb01::Vector3	typeref:typename:float
 y	vector.h	/^		float x,y;$/;"	m	struct:vb01::Vector2	typeref:typename:float
 ypos	stb_image.h	/^   int ypos;    \/\/ which pre-expansion row we're on$/;"	m	struct:__anon84e4e8860a08	typeref:typename:int
 ystep	stb_image.h	/^   int ystep;   \/\/ how far through vertical expansion we are$/;"	m	struct:__anon84e4e8860a08	typeref:typename:int
-z	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::quaternion	typeref:typename:float
+z	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::Quaternion	typeref:typename:float
 z	vector.h	/^		float x,y,z,w;$/;"	m	struct:vb01::Vector4	typeref:typename:float
 z	vector.h	/^		float x,y,z;$/;"	m	struct:vb01::Vector3	typeref:typename:float
 z_distance	stb_image.h	/^   stbi__zhuffman z_length, z_distance;$/;"	m	struct:__anon84e4e8860c08	typeref:typename:stbi__zhuffman

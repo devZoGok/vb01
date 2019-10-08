@@ -8,6 +8,7 @@
 using namespace std;
 
 namespace vb01{
+	/*
 	Texture::Texture(){
 		width=800,height=600;
 
@@ -19,10 +20,24 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	}
+	*/
+
+	Texture::Texture(int width, int height){
+		this->width=width;
+		this->height=height;
+
+		glGenTextures(1,&texture);
+		glBindTexture(GL_TEXTURE_2D,texture);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,width,height,0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_BORDER);
+		float borderColor[]={1,1,1,1};
+		glTexParameterfv(GL_TEXTURE_2D,GL_TEXTURE_BORDER_COLOR,borderColor);
+	}
 
 	Texture::Texture(FT_Face &face, char ch){
-		this->type=TextureType::TEXTURE_2D;
-
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_2D,texture);
 		glTexImage2D(
@@ -44,8 +59,6 @@ namespace vb01{
 	}
 
 	Texture::Texture(string path){
-		this->type=TextureType::TEXTURE_2D;
-
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_2D,texture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -86,7 +99,8 @@ namespace vb01{
 
 	}
 
-	void Texture::select(){
+	void Texture::select(int id){
+		glActiveTexture(GL_TEXTURE0+id);
 		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,texture);
 	}
 }

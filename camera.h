@@ -10,7 +10,7 @@ namespace vb01{
 			~Camera();
 			void update();
 			void setPosition(Vector3 position){this->position=position;}
-			void lookAt(Vector3, Vector3);
+			void lookAt(Vector3, Vector3=Vector3(0,1,0));
 			inline Vector3 getPosition(){return position;}
 			inline Vector3 getDirection(){return direction;}
 			inline Vector3 getLeft(){return left;}
