@@ -1,4 +1,5 @@
 #include"root.h"
+#include"node.h"
 #include"mesh.h"
 #include<glad.h>
 #include<glfw3.h>
@@ -44,34 +45,61 @@ namespace vb01{
 	}
 
 	void Mesh::update(){
-		mat4 model=mat4(1.f);
-		mat4 view=mat4(1.f);
-		mat4 proj=mat4(1.f);
-
 		Root *root=Root::getSingleton();
 		Camera *cam=root->getCamera();
 		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
 		float nearPlane=cam->getNearPlane(),farPlane=cam->getFarPlane();
-		Vector3 pos=(node?node->getPosition():Vector3::VEC_ZERO);
-		Vector3 dir=cam->getDirection(),up=cam->getUp(),camPos=cam->getPosition();
+		Vector3 dir=cam->getDirection(),up=cam->getUp(),camPos=Vector3::VEC_ZERO,pos=Vector3::VEC_ZERO,scale=Vector3::VEC_IJK;
+		Quaternion orient=Quaternion::QUAT_W;
 
-		model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
-		model=rotate(model,radians(0.f),vec3(1,1,1));
-		view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+dir.x,camPos.y+dir.y,camPos.z+dir.z),vec3(up.x,up.y,up.z));
-		proj=perspective(radians(fov),width/height,nearPlane,farPlane);
+		if(node){
+			Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
+			vector<Node*> ancestors;
+			ancestors.push_back(node);
+			Node *parent=node->getParent();
+			while(parent){
+				ancestors.push_back(parent);
+				parent=parent->getParent();
+			}
+			while(!ancestors.empty()){
+				int id=ancestors.size()-1;
+				Quaternion o=ancestors[id]->getOrientation();	
+				Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
+				origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
+				orient=o*orient;
+				scale=s;
+				for(int i=0;i<3;i++)
+					axis[i]=orient*axis[i];
+				ancestors.pop_back();
+			}
+
+			pos=origin;
+			camPos=cam->getPosition();
+		}
+
+		Vector3 rotAxis=orient.getAxis();
+		if(rotAxis==Vector3::VEC_ZERO)rotAxis=Vector3::VEC_I;
+		mat4 model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
+		model=rotate(model,orient.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+		model=glm::scale(model,vec3(scale.x,scale.y,scale.z));
+		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+dir.x,camPos.y+dir.y,camPos.z+dir.z),vec3(up.x,up.y,up.z));
+		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
 
 		material->update();
 		Shader *shader=material->getShader();
-		shader->setVec3(camPos,"camPos");
-		shader->setMat4(model,"model");
+		shader->setBool(castShadow,"castShadow");
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
+		shader->setVec3(camPos,"camPos");
+		shader->setMat4(model,"model");
 		if(material->getType()==Material::MATERIAL_GUI)
 			shader->setVec2(Vector2((float)width,(float)height),"screen");
-		//proj=ortho(0.f,800.f,0.f,-600.f,nearPlane,farPlane);
 
+		render();
+	}
+
+	void Mesh::render(){
 		glBindVertexArray(VAO);
-
 		if(!staticVerts){
 			glBindBuffer(GL_ARRAY_BUFFER,VBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, 3*numTris*sizeof(Vertex),vertices);

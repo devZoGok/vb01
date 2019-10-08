@@ -7,7 +7,7 @@ namespace vb01{
 	Material::Material(Type type){
 		this->type=type;
 
-		string basePath="/home/dominykas/c++/FSim/",shaderName;
+		string basePath="/home/dominykas/c++/vb01/",shaderName;
 		switch(type){
 			case MATERIAL_2D:
 				shaderName="texture.";

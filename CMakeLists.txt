@@ -15,7 +15,7 @@ set(utils util.cpp)
 set(math quaternion.cpp vector.cpp)
 set(render waterPlane.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 
-add_executable(vb01 main.cpp ${render} ${math} ${utils} ${gui})
+add_library(vb01 SHARED main.cpp ${render} ${math} ${utils} ${gui})
 target_link_libraries(vb01 glfw)
 target_link_libraries(vb01 glad)
 target_link_libraries(vb01 assimp)

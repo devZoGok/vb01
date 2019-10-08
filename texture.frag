@@ -5,6 +5,7 @@ const int numLights=1;
 in vec3 fragPos;
 in vec3 norm;
 in vec2 texCoords;
+in vec4 lightSpaceFragPos;
 
 out vec4 FragColor;
 
@@ -15,25 +16,38 @@ struct Light{
 	vec3 pos,color,direction;
 	float innerAngle,outerAngle;
 	float a,b,c;
+	sampler2D depthMap;
+	mat4 lightMat;
 };
 
-uniform Light light[numLights];
 uniform sampler2D tex;
+uniform Light light[numLights];
 uniform bool lightingEnabled;
 uniform bool texturingEnabled;
+uniform bool castShadow;
 uniform vec4 diffuseColor;
 uniform vec3 camPos;
+
+float getShadow(int id){
+	vec3 projCoords=(light[id].lightMat*vec4(fragPos,1)).xyz/(light[id].lightMat*vec4(fragPos,1)).w;
+	projCoords=projCoords*.5+.5;
+	float closestDepth=texture(light[id].depthMap,projCoords.xy).r;
+	float currentDepth=projCoords.z;
+	float bias=.005;
+	return currentDepth-bias>closestDepth?.7:0;
+}
 
 void main(){
 	vec4 finalColor=texturingEnabled?texture(tex,texCoords):diffuseColor;
 	if(lightingEnabled){
 		vec3 diffuseColor=vec3(0),specularColor;
+		float coef=1;
 		for(int i=0;i<numLights;i++){
 			vec3 specularColor,lightDir,reflectVec,viewDir=normalize(camPos-fragPos);
 			float attenuation=1.0;
-			float coef=1.0;
 			float factor;
 			float a=light[i].a,b=light[i].b,c=light[i].c,dist=length(fragPos-light[i].pos);
+			coef=1;
 			if(light[i].type==0){
 				lightDir=normalize(light[i].pos-fragPos);
 				attenuation=1.0/(a*dist*dist+b*dist+c);
@@ -59,8 +73,14 @@ void main(){
 			specularColor+=vec3(1)*spec*specularStrength;
 
 			factor=max(dot(lightDir,norm),0.);
-			diffuseColor+=light[i].color*factor*attenuation*coef;
+			diffuseColor+=light[i].color*(factor*attenuation*coef);
 		}	
+
+		for(int i=0;i<numLights;i++){
+			float shadow=coef*getShadow(i);
+			diffuseColor*=(1-shadow);
+		}
+
 		finalColor*=vec4(diffuseColor+specularColor,1);
 	}
 	FragColor=finalColor;
