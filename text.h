@@ -25,6 +25,8 @@ namespace vb01{
 			void update();
 			void setText(std::string);
 			inline void setNode(Node *node){this->node=node;}
+			inline void setScale(float s){this->scale=s;}
+			inline void setColor(Vector4 c){this->color=c;}
 		private:
 			Node *node=nullptr;
 			std::string entry;

@@ -57,31 +57,34 @@ namespace vb01{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-		/*
-		glGenFramebuffers(1,&guiFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
+		glGenFramebuffers(1,&FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
 		Texture *texture=new Texture();
 		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(texture->getTexture()),0);
 
-		glGenRenderbuffers(1,&guiRBO);
-		glBindRenderbuffer(GL_RENDERBUFFER,guiRBO);
+		/*
+		glGenRenderbuffers(1,&RBO);
+		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
 		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,guiRBO);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+		*/
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
 		else 
 			cout<<"Complete\n";
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
 
-		guiPlane=new Quad(Vector3::VEC_IJK);
+		guiPlane=new Quad(Vector3(width,height,-1),false);
 		Material *mat=new Material(Material::MATERIAL_GUI);
 		mat->addDiffuseMap(texture);
 		guiPlane->setMaterial(mat);
-		*/
 	}
 
 	void Root::update(){
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			
+			glBindFramebuffer(GL_FRAMEBUFFER,FBO);
+
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
 
@@ -94,21 +97,21 @@ namespace vb01{
 			}
 
 			rootNode->update();
+
+			glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 			glDisable(GL_CULL_FACE);
 
-			guiNode->update();
-			/*
-			glBindFramebuffer(GL_FRAMEBUFFER,guiFBO);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			glBindFramebuffer(GL_FRAMEBUFFER,0);
-			*/
-			
-			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-			//guiPlane->update();
 			glDisable(GL_DEPTH_TEST);
 
+			guiPlane->update();
+			/*
+			*/
+			glEnable(GL_DEPTH_TEST);
+			guiNode->update();
+
 			glfwSwapBuffers(window);
+			glfwPollEvents();
 	}
 
 	void Root::createSkybox(string textures[6]){
