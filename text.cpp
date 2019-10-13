@@ -13,7 +13,7 @@ using namespace std;
 
 namespace vb01{
 	Text::Text(string fontPath,string entry){
-		string basePath="/home/dominykas/c++/FSim/text.";
+		string basePath="/home/dominykas/c++/vb01/text.";
 		shader=new Shader(basePath+"vert",basePath+"frag");
 
 		FT_Library ft;
@@ -27,7 +27,7 @@ namespace vb01{
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-		for(u32 i=0;i<15000;i++){
+		for(u32 i=0;i<256;i++){
 			if(FT_Load_Char(face,i,FT_LOAD_RENDER)){
 				cout<<"Could not load glyph\n";
 				continue;
@@ -56,6 +56,7 @@ namespace vb01{
 		shader->use();
 		shader->setVec4(color,"color");
 		shader->setVec2(Vector2(width,height),"screen");
+		shader->setVec3(node->getPosition(),"pos");
 
 		Vector3 origin=node->getPosition();
 		for(int i=0;i<entry.length();i++){
@@ -69,13 +70,13 @@ namespace vb01{
 			if(!foundChar)continue;
 			Vector2 size=ch.size*scale,bearing=ch.bearing;
 			float data[]={
-				origin.x+bearing.x,origin.y-bearing.y,0,1,
-				origin.x+bearing.x+size.x,origin.y-bearing.y,1,1,
-				origin.x+bearing.x+size.x,origin.y-bearing.y+size.y,1,0,
+				origin.x+bearing.x,origin.y-bearing.y,0,0,
+				origin.x+bearing.x+size.x,origin.y-bearing.y,1,0,
+				origin.x+bearing.x+size.x,origin.y-bearing.y+size.y,1,1,
 
-				origin.x+bearing.x+size.x,origin.y-bearing.y+size.y,1,0,
-				origin.x+bearing.x,origin.y-bearing.y+size.y,0,0,
-				origin.x+bearing.x,origin.y-bearing.y,0,1
+				origin.x+bearing.x+size.x,origin.y-bearing.y+size.y,1,1,
+				origin.x+bearing.x,origin.y-bearing.y+size.y,0,1,
+				origin.x+bearing.x,origin.y-bearing.y,0,0
 			};
 			origin.x+=(ch.advance>>6)*scale;
 			glBindVertexArray(VAO);

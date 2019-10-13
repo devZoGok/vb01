@@ -92,8 +92,11 @@ namespace vb01{
 		shader->setMat4(proj,"proj");
 		shader->setVec3(camPos,"camPos");
 		shader->setMat4(model,"model");
-		if(material->getType()==Material::MATERIAL_GUI)
+		if(material->getType()==Material::MATERIAL_GUI){
 			shader->setVec2(Vector2((float)width,(float)height),"screen");
+			if(node)
+				shader->setVec3(pos,"pos");
+		}
 
 		render();
 	}

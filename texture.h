@@ -10,7 +10,7 @@ namespace vb01{
 		public:
 			enum TextureType{TEXTURE_2D,TEXTURE_CUBEMAP};
 
-			//Texture();
+			Texture();
 			Texture(int,int);
 			Texture(FT_Face&,char);
 			Texture(std::string);

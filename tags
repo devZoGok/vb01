@@ -17,6 +17,7 @@ EBO	mesh.h	/^			unsigned int *indices,VAO,VBO,EBO;$/;"	m	class:vb01::Mesh	typere
 EBO	particleEmitter.h	/^			unsigned int instanceVBO,VAO,VBO,EBO;$/;"	m	class:vb01::ParticleEmitter	typeref:typename:unsigned int
 ErrorType	shader.h	/^			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};$/;"	g	class:vb01::Shader
 FAST_BITS	stb_image.h	/^#define FAST_BITS /;"	d
+FBO	root.h	/^			unsigned int FBO,RBO;$/;"	m	class:vb01::Root	typeref:typename:unsigned int
 FRAGMENT	shader.h	/^			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};$/;"	e	enum:vb01::Shader::ErrorType
 Glyph	text.h	/^			struct Glyph{$/;"	s	class:vb01::Text
 LIGHT_H	light.h	/^#define LIGHT_H$/;"	d
@@ -63,6 +64,7 @@ Quaternion	quaternion.h	/^			Quaternion(){}$/;"	f	class:vb01::Quaternion
 Quaternion	quaternion.h	/^			Quaternion(float angle, Vector3 axis){$/;"	f	class:vb01::Quaternion
 Quaternion	quaternion.h	/^			Quaternion(float w,float x,float y,float z){$/;"	f	class:vb01::Quaternion
 Quaternion	quaternion.h	/^	class Quaternion{$/;"	c	namespace:vb01
+RBO	root.h	/^			unsigned int FBO,RBO;$/;"	m	class:vb01::Root	typeref:typename:unsigned int
 RECTANGLE_H	rectangle.h	/^#define RECTANGLE_H$/;"	d
 ROOT_H	root.h	/^#define ROOT_H$/;"	d
 Rectangle	rectangle.cpp	/^	Rectangle::Rectangle(Vector3 size){$/;"	f	class:vb01::Rectangle
@@ -134,6 +136,7 @@ TEXTURE_H	texture.h	/^#define TEXTURE_H$/;"	d
 TEXT_H	text.h	/^#define TEXT_H$/;"	d
 Text	text.cpp	/^	Text::Text(string fontPath,string entry){$/;"	f	class:vb01::Text
 Text	text.h	/^	class Text{$/;"	c	namespace:vb01
+Texture	texture.cpp	/^	Texture::Texture(){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(FT_Face &face, char ch){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(int width, int height){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(string path){$/;"	f	class:vb01::Texture
@@ -378,10 +381,9 @@ getTime	util.h	/^	inline s64 getTime(){return s64(std::chrono::system_clock::now
 getType	material.h	/^			inline Type getType(){return type;}$/;"	f	class:vb01::Material	typeref:typename:Type
 getUp	camera.h	/^			inline Vector3 getUp(){return up;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
 getWidth	root.h	/^			inline int getWidth(){return width;}$/;"	f	class:vb01::Root	typeref:typename:int
-guiFBO	root.h	/^			unsigned int guiFBO,guiRBO;$/;"	m	class:vb01::Root	typeref:typename:unsigned int
+getWindow	root.h	/^			inline GLFWwindow* getWindow(){return window;}$/;"	f	class:vb01::Root	typeref:typename:GLFWwindow *
 guiNode	root.h	/^			Node *rootNode,*guiNode;$/;"	m	class:vb01::Root	typeref:typename:Node **
 guiPlane	root.h	/^			Quad *guiPlane=nullptr;$/;"	m	class:vb01::Root	typeref:typename:Quad *
-guiRBO	root.h	/^			unsigned int guiFBO,guiRBO;$/;"	m	class:vb01::Root	typeref:typename:unsigned int
 h	stb_image.h	/^      int h,v;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
 h	stb_image.h	/^   int w,h;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
 h2	stb_image.h	/^      int x,y,w2,h2;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:int
@@ -546,6 +548,7 @@ setBool	shader.cpp	/^	void Shader::setBool(bool b, string var){$/;"	f	class:vb01
 setCastShadow	mesh.h	/^			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}$/;"	f	class:vb01::Mesh	typeref:typename:void
 setCastShadow	model.cpp	/^	void Model::setCastShadow(bool castShadow){$/;"	f	class:vb01::Model	typeref:typename:void
 setColor	light.h	/^			inline void setColor(Vector3 color){this->color=color;}$/;"	f	class:vb01::Light	typeref:typename:void
+setColor	text.h	/^			inline void setColor(Vector4 c){this->color=c;}$/;"	f	class:vb01::Text	typeref:typename:void
 setDiffuseColor	material.h	/^			inline void setDiffuseColor(Vector4 diffuse){this->diffuseColor=diffuse;}$/;"	f	class:vb01::Material	typeref:typename:void
 setDirection	light.h	/^			inline void setDirection(Vector3 dir){this->direction=dir;}$/;"	f	class:vb01::Light	typeref:typename:void
 setEndColor	particleEmitter.h	/^			inline void setEndColor(Vector4 color){this->endColor=color;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
@@ -568,6 +571,7 @@ setPosition	camera.h	/^			void setPosition(Vector3 position){this->position=posi
 setPosition	light.h	/^			inline void setPosition(Vector3 pos){this->position=pos;}$/;"	f	class:vb01::Light	typeref:typename:void
 setPosition	node.h	/^			inline void setPosition(Vector3 pos){this->pos=pos;}$/;"	f	class:vb01::Node	typeref:typename:void
 setScale	node.h	/^			inline void setScale(Vector3 scale){this->scale=scale;}$/;"	f	class:vb01::Node	typeref:typename:void
+setScale	text.h	/^			inline void setScale(float s){this->scale=s;}$/;"	f	class:vb01::Text	typeref:typename:void
 setShadowFarPlane	light.h	/^			inline void setShadowFarPlane(float farPlane){this->farPlane=farPlane;}$/;"	f	class:vb01::Light	typeref:typename:void
 setShadowNearPlane	light.h	/^			inline void setShadowNearPlane(float nearPlane){this->nearPlane=nearPlane;}$/;"	f	class:vb01::Light	typeref:typename:void
 setSize	box.cpp	/^	void Box::setSize(Vector3 size){$/;"	f	class:vb01::Box	typeref:typename:void

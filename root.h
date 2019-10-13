@@ -25,13 +25,14 @@ namespace vb01{
 			inline Node* getGuiNode(){return guiNode;}
 			inline int getWidth(){return width;}
 			inline int getHeight(){return height;}
+			inline GLFWwindow* getWindow(){return window;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();
 		private:
 			Box *skybox=nullptr;
 			Quad *guiPlane=nullptr;
 			int width,height;
-			unsigned int guiFBO,guiRBO;
+			unsigned int FBO,RBO;
 			GLFWwindow *window;
 			Node *rootNode,*guiNode;
 			Camera *camera;
