@@ -14,7 +14,7 @@ namespace vb01{
 	class Text{
 		public:
 			struct Glyph{
-				u32 ch;
+				int ch;
 				Texture *texture=nullptr;
 				unsigned int advance;
 				Vector2 size,bearing;
@@ -24,9 +24,13 @@ namespace vb01{
 			~Text();
 			void update();
 			void setText(std::string);
+			float getCharWidth(char);
+			inline Node* getNode(){return node;}
 			inline void setNode(Node *node){this->node=node;}
 			inline void setScale(float s){this->scale=s;}
 			inline void setColor(Vector4 c){this->color=c;}
+			inline int getLength(){return entry.length();}
+			inline std::string getText(){return entry;}
 		private:
 			Node *node=nullptr;
 			std::string entry;

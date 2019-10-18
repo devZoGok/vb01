@@ -18,16 +18,18 @@ namespace vb01{
 	Node::~Node(){}
 
 	void Node::update(){
-		for(Light *l : lights)
-			l->update();
-		for(Mesh *m : meshes)
-			m->update();
-		for(ParticleEmitter *p : emitters)
-			p->update();
-		for(Text *t : texts)
-			t->update();
-		for(Node *c : children)
-			c->update();
+		if(visible){
+			for(Light *l : lights)
+				l->update();
+			for(Mesh *m : meshes)
+				m->update();
+			for(ParticleEmitter *p : emitters)
+				p->update();
+			for(Text *t : texts)
+				t->update();
+			for(Node *c : children)
+				c->update();
+		}
 	}
 
 	void Node::attachChild(Node *child){
@@ -41,6 +43,23 @@ namespace vb01{
 		*/
 		child->setParent(this);
 		children.push_back(child);
+	}
+
+	void Node::dettachChild(Node *child){
+		/*
+		Node *parent=getParent();
+		while(parent){
+			parent->getDescendants().push_back(child);
+			parent=parent->getParent();
+		}
+		descendants.push_back(child);
+		*/
+		child->setParent(nullptr);
+		int id=-1;
+		for(int i=0;i<children.size()&&id==-1;i++)
+			if(children[i]==child)
+				id=i;
+		children.erase(children.begin()+id);
 	}
 
 	void Node::attachMesh(Mesh *mesh){

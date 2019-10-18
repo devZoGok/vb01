@@ -20,6 +20,7 @@ namespace vb01{
 			void attachParticleEmitter(ParticleEmitter*);
 			virtual void update();
 			void attachChild(Node*);
+			void dettachChild(Node*);
 			void addLight(Light*);
 			void addText(Text*);
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
@@ -36,8 +37,11 @@ namespace vb01{
 			inline int getNumLights(){return lights.size();}
 			inline int getNumChildren(){return children.size();}
 			inline Quaternion getOrientation(){return orientation;}
+			inline bool isVisible(){return visible;}
+			inline void setVisible(bool v){this->visible=v;}
 			void getDescendants(Node*,std::vector<Node*>&);
 		protected:
+			bool visible=true;
 			Vector3 pos,scale;
 			Quaternion orientation;
 			std::vector<Mesh*> meshes;
