@@ -23,7 +23,7 @@ namespace vb01{
 		if(FT_New_Face(ft,fontPath.c_str(),0,&face))
 			cout<<"Could not load font\n";
 
-		FT_Set_Pixel_Sizes(face,0,96);
+		FT_Set_Pixel_Sizes(face,0,100);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
@@ -68,7 +68,7 @@ namespace vb01{
 					foundChar=true;
 				}
 			if(!foundChar)continue;
-			Vector2 size=ch.size*scale,bearing=ch.bearing;
+			Vector2 size=ch.size*scale,bearing=ch.bearing*scale;
 			float data[]={
 				origin.x+bearing.x,origin.y-bearing.y,0,0,
 				origin.x+bearing.x+size.x,origin.y-bearing.y,1,0,
@@ -99,5 +99,11 @@ namespace vb01{
 		glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,4*sizeof(float),(void*)0);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
 		glBindVertexArray(0);
+	}
+
+	float Text::getCharWidth(char c){
+		for(Glyph g : characters)
+			if(g.ch==c)
+				return g.size.x*scale;
 	}
 }

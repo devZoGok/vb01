@@ -242,7 +242,7 @@ buflen	stb_image.h	/^   int buflen;$/;"	m	struct:__anon84e4e8860308	typeref:type
 camera	root.h	/^			Camera *camera;$/;"	m	class:vb01::Root	typeref:typename:Camera *
 castShadow	mesh.h	/^			bool staticVerts=true,castShadow=false;$/;"	m	class:vb01::Mesh	typeref:typename:bool
 castShadow	model.h	/^			bool castShadow=false;$/;"	m	class:vb01::Model	typeref:typename:bool
-ch	text.h	/^				u32 ch;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:u32
+ch	text.h	/^				int ch;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:int
 channel	stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon84e4e8861108	typeref:typename:stbi_uc
 channel_order	stb_image.h	/^   int channel_order;$/;"	m	struct:__anon84e4e8860508	typeref:typename:int
 characters	text.h	/^			std::vector<Glyph> characters;$/;"	m	class:vb01::Text	typeref:typename:std::vector<Glyph>
@@ -299,6 +299,7 @@ depthMapShader	light.h	/^			Shader *depthMapShader;$/;"	m	class:vb01::Light	type
 depthMapSize	light.h	/^			unsigned int depthmapFBO,depthMapSize=1024;$/;"	m	class:vb01::Light	typeref:typename:unsigned int
 depthmapFBO	light.h	/^			unsigned int depthmapFBO,depthMapSize=1024;$/;"	m	class:vb01::Light	typeref:typename:unsigned int
 dequant	stb_image.h	/^   stbi__uint16 dequant[4][64];$/;"	m	struct:__anon84e4e8860808	typeref:typename:stbi__uint16[4][64]
+dettachChild	node.cpp	/^	void Node::dettachChild(Node *child){$/;"	f	class:vb01::Node	typeref:typename:void
 diffuseColor	material.h	/^			Vector4 diffuseColor=Vector4::VEC_IJKL,specularColor=Vector4::VEC_IJKL;$/;"	m	class:vb01::Material	typeref:typename:Vector4
 diffuseMapTextures	material.h	/^			std::vector<Texture*> diffuseMapTextures,normalMapTextures,specularMapTextures;$/;"	m	class:vb01::Material	typeref:typename:std::vector<Texture * >
 dir	particleEmitter.h	/^				Vector3 dir;$/;"	m	struct:vb01::ParticleEmitter::Particle	typeref:typename:Vector3
@@ -336,6 +337,7 @@ getAngleBetween	vector.h	/^		float getAngleBetween(Vector3 v){return std::acos(d
 getAttenuationValues	light.h	/^			inline Vector3 getAttenuationValues(){return attenuationValues;}$/;"	f	class:vb01::Light	typeref:typename:Vector3
 getAxis	quaternion.h	/^			inline vb01::Vector3 getAxis(){return Vector3(asin(x),asin(y),asin(z))*2;}$/;"	f	class:vb01::Quaternion	typeref:typename:vb01::Vector3
 getCamera	root.h	/^			inline Camera* getCamera(){return camera;}$/;"	f	class:vb01::Root	typeref:typename:Camera *
+getCharWidth	text.cpp	/^	float Text::getCharWidth(char c){$/;"	f	class:vb01::Text	typeref:typename:float
 getChild	node.h	/^			inline Node* getChild(int i){return children[i];}$/;"	f	class:vb01::Node	typeref:typename:Node *
 getChildren	node.h	/^			inline std::vector<Node*>& getChildren(){return children;}$/;"	f	class:vb01::Node	typeref:typename:std::vector<Node * > &
 getDescendants	node.cpp	/^	void Node::getDescendants(Node *node, vector<Node*> &descendants){$/;"	f	class:vb01::Node	typeref:typename:void
@@ -350,6 +352,7 @@ getHeight	root.h	/^			inline int getHeight(){return height;}$/;"	f	class:vb01::R
 getInnerAngle	light.h	/^			inline float getInnerAngle(){return innerAngle;}$/;"	f	class:vb01::Light	typeref:typename:float
 getLeft	camera.h	/^			inline Vector3 getLeft(){return left;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
 getLength	quaternion.h	/^			inline float getLength(){return std::sqrt(getLengthSq());}$/;"	f	class:vb01::Quaternion	typeref:typename:float
+getLength	text.h	/^			inline int getLength(){return entry.length();}$/;"	f	class:vb01::Text	typeref:typename:int
 getLength	vector.h	/^		float getLength(){return std::sqrt(getLengthSq());}$/;"	f	struct:vb01::Vector2	typeref:typename:float
 getLength	vector.h	/^		float getLength(){return std::sqrt(getLengthSq());}$/;"	f	struct:vb01::Vector3	typeref:typename:float
 getLengthSq	quaternion.h	/^			inline float getLengthSq(){return w*w+x*x+y*y+z*z;}$/;"	f	class:vb01::Quaternion	typeref:typename:float
@@ -362,6 +365,7 @@ getMeshes	mesh.h	/^			inline std::vector<Mesh*>& getMeshes(){return meshes;}$/;"
 getMeshes	node.h	/^			inline std::vector<Mesh*>& getMeshes(){return meshes;}$/;"	f	class:vb01::Node	typeref:typename:std::vector<Mesh * > &
 getNearPlane	camera.h	/^			inline float getNearPlane(){return nearPlane;}$/;"	f	class:vb01::Camera	typeref:typename:float
 getNode	mesh.h	/^			inline Node* getNode(){return node;}$/;"	f	class:vb01::Mesh	typeref:typename:Node *
+getNode	text.h	/^			inline Node* getNode(){return node;}$/;"	f	class:vb01::Text	typeref:typename:Node *
 getNumChildren	node.h	/^			inline int getNumChildren(){return children.size();}$/;"	f	class:vb01::Node	typeref:typename:int
 getNumLights	node.h	/^			inline int getNumLights(){return lights.size();}$/;"	f	class:vb01::Node	typeref:typename:int
 getNumVerts	mesh.h	/^			inline int getNumVerts(){return 3*numTris;}$/;"	f	class:vb01::Mesh	typeref:typename:int
@@ -376,6 +380,7 @@ getShader	material.h	/^			inline Shader* getShader(){return shader;}$/;"	f	class
 getShadowFarPlane	light.h	/^			inline float getShadowFarPlane(){return farPlane;}$/;"	f	class:vb01::Light	typeref:typename:float
 getShadowNearPlane	light.h	/^			inline float getShadowNearPlane(){return nearPlane;}$/;"	f	class:vb01::Light	typeref:typename:float
 getSingleton	root.cpp	/^	Root* Root::getSingleton(){$/;"	f	class:vb01::Root	typeref:typename:Root *
+getText	text.h	/^			inline std::string getText(){return entry;}$/;"	f	class:vb01::Text	typeref:typename:std::string
 getTexture	texture.h	/^			inline unsigned int* getTexture(){return &texture;}$/;"	f	class:vb01::Texture	typeref:typename:unsigned int *
 getTime	util.h	/^	inline s64 getTime(){return s64(std::chrono::system_clock::now().time_since_epoch()\/std::chron/;"	f	namespace:vb01	typeref:typename:s64
 getType	material.h	/^			inline Type getType(){return type;}$/;"	f	class:vb01::Material	typeref:typename:Type
@@ -424,6 +429,7 @@ io_user_data	stb_image.h	/^   void *io_user_data;$/;"	m	struct:__anon84e4e886030
 isCastShadow	mesh.h	/^			inline bool isCastShadow(){return castShadow;}$/;"	f	class:vb01::Mesh	typeref:typename:bool
 isLightingEnabled	material.h	/^			inline bool isLightingEnabled(){return lightingEnabled;}$/;"	f	class:vb01::Material	typeref:typename:bool
 isTexturingEnabled	material.h	/^			inline bool isTexturingEnabled(){return texturingEnabled;}$/;"	f	class:vb01::Material	typeref:typename:bool
+isVisible	node.h	/^			inline bool isVisible(){return visible;}$/;"	f	class:vb01::Node	typeref:typename:bool
 jfif	stb_image.h	/^   int            jfif;$/;"	m	struct:__anon84e4e8860808	typeref:typename:int
 left	camera.h	/^			Vector3 position=Vector3(0,0,0),direction=Vector3(0,0,1),left=Vector3(1,0,0),up=Vector3(0,1,0/;"	m	class:vb01::Camera	typeref:typename:Vector3
 length	stb_image.h	/^   stbi__uint32 length;$/;"	m	struct:__anon84e4e8860d08	typeref:typename:stbi__uint32
@@ -585,6 +591,7 @@ setType	light.h	/^			inline void setType(Type t){this->type=t;}$/;"	f	class:vb01
 setVec2	shader.cpp	/^	void Shader::setVec2(Vector2 vec, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
 setVec3	shader.cpp	/^	void Shader::setVec3(Vector3 vec, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
 setVec4	shader.cpp	/^	void Shader::setVec4(Vector4 vec, string var){$/;"	f	class:vb01::Shader	typeref:typename:void
+setVisible	node.h	/^			inline void setVisible(bool v){this->visible=v;}$/;"	f	class:vb01::Node	typeref:typename:void
 shader	material.h	/^			Shader *shader=nullptr;$/;"	m	class:vb01::Material	typeref:typename:Shader *
 shader	text.h	/^			Shader *shader=nullptr;$/;"	m	class:vb01::Text	typeref:typename:Shader *
 size	box.h	/^			Vector3 size;$/;"	m	class:vb01::Box	typeref:typename:Vector3
@@ -952,6 +959,7 @@ vb01	vector.h	/^namespace vb01{$/;"	n
 vb01	waterPlane.cpp	/^namespace vb01{$/;"	n	file:
 vb01	waterPlane.h	/^namespace vb01{$/;"	n
 vertices	mesh.h	/^			Vertex *vertices;$/;"	m	class:vb01::Mesh	typeref:typename:Vertex *
+visible	node.h	/^			bool visible=true;$/;"	m	class:vb01::Node	typeref:typename:bool
 vs	stb_image.h	/^   int hs,vs;   \/\/ expansion factor in each axis$/;"	m	struct:__anon84e4e8860a08	typeref:typename:int
 w	quaternion.h	/^			float w,x,y,z;$/;"	m	class:vb01::Quaternion	typeref:typename:float
 w	stb_image.h	/^   int w,h;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
