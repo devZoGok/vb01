@@ -59,6 +59,11 @@ namespace vb01{
 	}
 
 	Texture::Texture(string path){
+		bool png=false;
+		int length=path.length();
+		if(path.substr(length-4,string::npos)==".png")
+			png=true;
+
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_2D,texture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -70,7 +75,7 @@ namespace vb01{
 
 		data=stbi_load(path.c_str(),&width,&height,&numChannels,0);
 
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+		glTexImage2D(GL_TEXTURE_2D,0,png?GL_RGBA:GL_RGB,width,height,0,png?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
 		//glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
 	}

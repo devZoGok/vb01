@@ -242,7 +242,7 @@ buflen	stb_image.h	/^   int buflen;$/;"	m	struct:__anon84e4e8860308	typeref:type
 camera	root.h	/^			Camera *camera;$/;"	m	class:vb01::Root	typeref:typename:Camera *
 castShadow	mesh.h	/^			bool staticVerts=true,castShadow=false;$/;"	m	class:vb01::Mesh	typeref:typename:bool
 castShadow	model.h	/^			bool castShadow=false;$/;"	m	class:vb01::Model	typeref:typename:bool
-ch	text.h	/^				int ch;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:int
+ch	text.h	/^				u32 ch;$/;"	m	struct:vb01::Text::Glyph	typeref:typename:u32
 channel	stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon84e4e8861108	typeref:typename:stbi_uc
 channel_order	stb_image.h	/^   int channel_order;$/;"	m	struct:__anon84e4e8860508	typeref:typename:int
 characters	text.h	/^			std::vector<Glyph> characters;$/;"	m	class:vb01::Text	typeref:typename:std::vector<Glyph>
