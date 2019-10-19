@@ -14,7 +14,7 @@ namespace vb01{
 	class Text{
 		public:
 			struct Glyph{
-				int ch;
+				u32 ch;
 				Texture *texture=nullptr;
 				unsigned int advance;
 				Vector2 size,bearing;
