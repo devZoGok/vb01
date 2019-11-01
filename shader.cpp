@@ -29,6 +29,8 @@ namespace vb01{
 		loadShaders();
 	}
 
+	Shader::~Shader(){}
+
 	void Shader::editShader(bool vertexShader, char firstChar, char secondChar, string insertion){
 		int firstCharId=-1,secondCharId=-1;
 		for(int i=0;i<fString.length()&&(firstCharId==-1||secondCharId==-1);i++){

@@ -64,7 +64,14 @@ namespace vb01{
 		glEnableVertexAttribArray(1);
 	}
 
-	ParticleEmitter::~ParticleEmitter(){}
+	ParticleEmitter::~ParticleEmitter(){
+		glDeleteVertexArrays(1,&VAO);	
+		glDeleteBuffers(1,&VBO);	
+
+		delete material;
+
+		delete[] particles;
+	}
 
 	void ParticleEmitter::update(){
 		Root *root=Root::getSingleton();

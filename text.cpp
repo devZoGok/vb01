@@ -13,7 +13,7 @@ using namespace std;
 
 namespace vb01{
 	Text::Text(string fontPath,string entry){
-		string basePath="/home/dominykas/c++/vb01/text.";
+		string basePath="../../vb01/text.";
 		shader=new Shader(basePath+"vert",basePath+"frag");
 
 		FT_Library ft;
@@ -47,7 +47,12 @@ namespace vb01{
 		setText(entry);
 	}
 
-	Text::~Text(){}
+	Text::~Text(){
+		delete shader;
+
+		glDeleteVertexArrays(1,&VAO);
+		glDeleteBuffers(1,&VBO);
+	}
 
 	void Text::update(){
 		Root *root=Root::getSingleton();
