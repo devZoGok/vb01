@@ -30,11 +30,18 @@ namespace vb01{
 		else 
 			cout<<"Complete\n";
 
-		string basePath="/home/dominykas/c++/FSim/depthMap.";
+		string basePath="../../vb01/depthMap.";
 		depthMapShader=new Shader(basePath+"vert",basePath+"frag");
 	}
 
-	Light::~Light(){}
+	Light::~Light(){
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glDeleteFramebuffers(1,&depthmapFBO);
+
+		delete depthMap;
+
+		delete depthMapShader;
+	}
 
 	void Light::update(){
 		Root *root=Root::getSingleton();

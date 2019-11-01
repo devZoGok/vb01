@@ -15,7 +15,18 @@ namespace vb01{
 		this->orientation=orientation;
 	}
 
-	Node::~Node(){}
+	Node::~Node(){
+		for(Light *l : lights)
+			delete l;
+		for(Mesh *m : meshes)
+			delete m;
+		for(ParticleEmitter *p : emitters)
+			delete p;
+		for(Text *t : texts)
+			delete t;
+		for(Node *c : children)
+			delete c;
+	}
 
 	void Node::update(){
 		if(visible){

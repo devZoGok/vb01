@@ -11,6 +11,7 @@ namespace vb01{
 			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};
 
 			Shader(std::string,std::string);
+			~Shader();
 			void setNumLights(int);
 			void use();
 			void setMat4(glm::mat4,std::string);

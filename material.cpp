@@ -7,7 +7,7 @@ namespace vb01{
 	Material::Material(Type type){
 		this->type=type;
 
-		string basePath="/home/dominykas/c++/vb01/",shaderName;
+		string basePath="../../vb01/",shaderName;
 		switch(type){
 			case MATERIAL_2D:
 				shaderName="texture.";
@@ -28,7 +28,15 @@ namespace vb01{
 		shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
 	}
 
-	Material::~Material(){}
+	Material::~Material(){
+		delete shader;
+		for(Texture *t : diffuseMapTextures)
+			delete t;
+		for(Texture *t : normalMapTextures)
+			delete t;
+		for(Texture *t : specularMapTextures)
+			delete t;
+	}
 
 	void Material::update(){
 		shader->use();

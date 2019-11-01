@@ -994,10 +994,12 @@ zout	stb_image.h	/^   char *zout;$/;"	m	struct:__anon84e4e8860c08	typeref:typena
 zout_end	stb_image.h	/^   char *zout_end;$/;"	m	struct:__anon84e4e8860c08	typeref:typename:char *
 zout_start	stb_image.h	/^   char *zout_start;$/;"	m	struct:__anon84e4e8860c08	typeref:typename:char *
 ~Camera	camera.cpp	/^	Camera::~Camera(){}$/;"	f	class:vb01::Camera
-~Light	light.cpp	/^	Light::~Light(){}$/;"	f	class:vb01::Light
-~Material	material.cpp	/^	Material::~Material(){}$/;"	f	class:vb01::Material
-~Mesh	mesh.cpp	/^	Mesh::~Mesh(){}$/;"	f	class:vb01::Mesh
+~Light	light.cpp	/^	Light::~Light(){$/;"	f	class:vb01::Light
+~Material	material.cpp	/^	Material::~Material(){$/;"	f	class:vb01::Material
+~Mesh	mesh.cpp	/^	Mesh::~Mesh(){$/;"	f	class:vb01::Mesh
 ~Model	model.cpp	/^	Model::~Model(){}$/;"	f	class:vb01::Model
-~Node	node.cpp	/^	Node::~Node(){}$/;"	f	class:vb01::Node
-~ParticleEmitter	particleEmitter.cpp	/^	ParticleEmitter::~ParticleEmitter(){}$/;"	f	class:vb01::ParticleEmitter
-~Text	text.cpp	/^	Text::~Text(){}$/;"	f	class:vb01::Text
+~Node	node.cpp	/^	Node::~Node(){$/;"	f	class:vb01::Node
+~ParticleEmitter	particleEmitter.cpp	/^	ParticleEmitter::~ParticleEmitter(){$/;"	f	class:vb01::ParticleEmitter
+~Shader	shader.cpp	/^	Shader::~Shader(){}$/;"	f	class:vb01::Shader
+~Text	text.cpp	/^	Text::~Text(){$/;"	f	class:vb01::Text
+~Texture	texture.cpp	/^	Texture::~Texture(){$/;"	f	class:vb01::Texture

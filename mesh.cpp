@@ -23,7 +23,19 @@ namespace vb01{
 		construct();
 	}
 
-	Mesh::~Mesh(){}
+	Mesh::~Mesh(){
+		for(Mesh *m : meshes)
+			delete m;
+
+		delete material;
+
+		glDeleteVertexArrays(1,&VAO);
+		glDeleteBuffers(1,&EBO);
+		glDeleteBuffers(1,&VBO);
+
+		delete[] indices;
+		delete[] vertices;
+	}
 
 	void Mesh::construct(){
 		glGenVertexArrays(1,&VAO);

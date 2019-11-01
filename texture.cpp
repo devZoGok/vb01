@@ -8,8 +8,6 @@
 using namespace std;
 
 namespace vb01{
-	/*
-	*/
 	Texture::Texture(){
 		width=800,height=600;
 
@@ -102,6 +100,11 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
 
+	}
+
+	Texture::~Texture(){
+		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,0);
+		glDeleteTextures(1,&texture);
 	}
 
 	void Texture::select(int id){
