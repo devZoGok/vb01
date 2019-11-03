@@ -10,9 +10,8 @@ namespace vb01{
 		public:
 			enum TextureType{TEXTURE_2D,TEXTURE_CUBEMAP};
 
-			Texture();
 			~Texture();
-			Texture(int,int);
+			Texture(int,int,bool=true);
 			Texture(FT_Face&,char);
 			Texture(std::string);
 			Texture(std::string[6]);
