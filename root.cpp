@@ -59,7 +59,7 @@ namespace vb01{
 
 		glGenFramebuffers(1,&FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
-		Texture *texture=new Texture();
+		Texture *texture=new Texture(width,height,false);
 		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(texture->getTexture()),0);
 
 		/*

@@ -136,9 +136,8 @@ TEXTURE_H	texture.h	/^#define TEXTURE_H$/;"	d
 TEXT_H	text.h	/^#define TEXT_H$/;"	d
 Text	text.cpp	/^	Text::Text(string fontPath,string entry){$/;"	f	class:vb01::Text
 Text	text.h	/^	class Text{$/;"	c	namespace:vb01
-Texture	texture.cpp	/^	Texture::Texture(){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(FT_Face &face, char ch){$/;"	f	class:vb01::Texture
-Texture	texture.cpp	/^	Texture::Texture(int width, int height){$/;"	f	class:vb01::Texture
+Texture	texture.cpp	/^	Texture::Texture(int width, int height, bool shadowMap){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(string path){$/;"	f	class:vb01::Texture
 Texture	texture.cpp	/^	Texture::Texture(string paths[6]){$/;"	f	class:vb01::Texture
 Texture	texture.h	/^	class Texture{$/;"	c	namespace:vb01
