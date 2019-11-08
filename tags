@@ -570,6 +570,7 @@ setNode	light.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	cla
 setNode	mesh.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	class:vb01::Mesh	typeref:typename:void
 setNode	particleEmitter.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	class:vb01::ParticleEmitter	typeref:typename:void
 setNode	text.h	/^			inline void setNode(Node *node){this->node=node;}$/;"	f	class:vb01::Text	typeref:typename:void
+setOrientation	node.h	/^			inline void setOrientation(Quaternion q){this->orientation=q;}$/;"	f	class:vb01::Node	typeref:typename:void
 setOuterAngle	light.h	/^			inline void setOuterAngle(float outerAngle){this->outerAngle=outerAngle;}$/;"	f	class:vb01::Light	typeref:typename:void
 setParent	node.h	/^			inline void setParent(Node *par){this->parent=par;}$/;"	f	class:vb01::Node	typeref:typename:void
 setPosition	camera.h	/^			void setPosition(Vector3 position){this->position=position;}$/;"	f	class:vb01::Camera	typeref:typename:void
