@@ -30,7 +30,7 @@ namespace vb01{
 			}
 			inline vb01::Vector3 operator* (vb01::Vector3 v){
 				Quaternion vQuat=(*this)*Quaternion(0,v.x,v.y,v.z)*recip();
-				return Vector3(vQuat.x,vQuat.y,vQuat.z);
+				return Vector3(vQuat.x,vQuat.y,vQuat.z).norm();
 			}
 			inline vb01::Quaternion fromAngle(float angle, Vector3 axis){
 				return Quaternion(cos(angle/2),axis.x*sin(angle/2),axis.y*sin(angle/2),axis.z*sin(angle/2));

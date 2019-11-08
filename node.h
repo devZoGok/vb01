@@ -37,6 +37,7 @@ namespace vb01{
 			inline int getNumLights(){return lights.size();}
 			inline int getNumChildren(){return children.size();}
 			inline Quaternion getOrientation(){return orientation;}
+			inline void setOrientation(Quaternion q){this->orientation=q;}
 			inline bool isVisible(){return visible;}
 			inline void setVisible(bool v){this->visible=v;}
 			void getDescendants(Node*,std::vector<Node*>&);
