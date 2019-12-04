@@ -14,6 +14,11 @@ namespace vb01{
 
 	class Node{
 		public:
+			struct Transform{
+				Vector3 position,scale;
+				Quaternion orientation;	
+			};
+
 			Node(Vector3=Vector3::VEC_ZERO,Quaternion=Quaternion::QUAT_W,Vector3=Vector3::VEC_IJK);
 			~Node();
 			void attachMesh(Mesh*);
@@ -23,6 +28,12 @@ namespace vb01{
 			void dettachChild(Node*);
 			void addLight(Light*);
 			void addText(Text*);
+			Transform getWorldTransform();
+			Vector3 getLocalAxis(int);
+			inline Text* getText(int i){return texts[i];}
+			inline Vector3 getWorldPosition(){return getWorldTransform().position;}
+			inline Quaternion getWorldOrientation(){return getWorldTransform().orientation;}
+			inline Vector3 getWorldScale(){return getWorldTransform().scale;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent=par;}

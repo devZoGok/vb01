@@ -120,4 +120,59 @@ namespace vb01{
 				descendants.push_back(node->getChild(i));
 		}
 	}
+
+	Node::Transform Node::getWorldTransform(){
+		Transform t;
+		Vector3 scale=Vector3::VEC_IJK;
+		Quaternion orient=Quaternion::QUAT_W;
+		Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
+		vector<Node*> ancestors;
+		ancestors.push_back(this);
+		Node *parent=this->getParent();
+		while(parent){
+			ancestors.push_back(parent);
+			parent=parent->getParent();
+		}
+		while(!ancestors.empty()){
+			int id=ancestors.size()-1;
+			Quaternion o=ancestors[id]->getOrientation();	
+			Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
+			origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
+			orient=o*orient;
+			scale=s;
+			for(int i=0;i<3;i++)
+				axis[i]=orient*axis[i];
+			ancestors.pop_back();
+		}
+
+		t.position=origin,t.orientation=orient,t.scale=scale;
+		return t;
+	}
+
+	Vector3 Node::getLocalAxis(int i){
+		Transform t;
+		Vector3 pos=Vector3::VEC_ZERO,scale=Vector3::VEC_IJK;
+		Quaternion orient=Quaternion::QUAT_W;
+		Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
+		vector<Node*> ancestors;
+		ancestors.push_back(this);
+		Node *parent=this->getParent();
+		while(parent){
+			ancestors.push_back(parent);
+			parent=parent->getParent();
+		}
+		while(!ancestors.empty()){
+			int id=ancestors.size()-1;
+			Quaternion o=ancestors[id]->getOrientation();	
+			Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
+			origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
+			orient=o*orient;
+			scale=s;
+			for(int i=0;i<3;i++)
+				axis[i]=orient*axis[i];
+			ancestors.pop_back();
+		}
+
+		return axis[i];
+	}
 }
