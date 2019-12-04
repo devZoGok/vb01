@@ -16,6 +16,7 @@ namespace vb01{
 				Vector3 pos,norm;
 				Vector2 texCoords;	
 			};
+
 			Mesh(Vertex*,unsigned int*,int);
 			~Mesh();
 			virtual void update();
@@ -28,6 +29,8 @@ namespace vb01{
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline bool isCastShadow(){return castShadow;}
 			inline int getNumVerts(){return 3*numTris;}
+			inline Vertex* getVerts(){return vertices;}
+			inline unsigned int* getIndices(){return indices;}
 		private:
 			Material *material=nullptr;
 			Node *node=nullptr;
