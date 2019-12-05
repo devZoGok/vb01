@@ -28,6 +28,7 @@ namespace vb01{
 			void dettachChild(Node*);
 			void addLight(Light*);
 			void addText(Text*);
+			void lookAt(Vector3);
 			Transform getWorldTransform();
 			Vector3 getLocalAxis(int);
 			inline Text* getText(int i){return texts[i];}

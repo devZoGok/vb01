@@ -89,10 +89,10 @@ namespace vb01{
 			camPos=cam->getPosition();
 		}
 
-		Vector3 rotAxis=orient.getAxis();
+		Vector3 rotAxis=orient.norm().getAxis();
 		if(rotAxis==Vector3::VEC_ZERO)rotAxis=Vector3::VEC_I;
 		mat4 model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
-		model=rotate(model,orient.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+		model=rotate(model,orient.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
 		model=glm::scale(model,vec3(scale.x,scale.y,scale.z));
 		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+dir.x,camPos.y+dir.y,camPos.z+dir.z),vec3(up.x,up.y,up.z));
 		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
