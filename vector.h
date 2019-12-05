@@ -30,7 +30,8 @@ namespace vb01{
 			this->y=y;
 			this->z=z;
 		}
-		bool  operator==(const Vector3 &v){return x==v.x&&y==v.y&&z==v.z;}
+		bool operator!=(const Vector3 &v){return x!=v.x||y!=v.y||z!=v.z;}
+		bool operator==(const Vector3 &v){return x==v.x&&y==v.y&&z==v.z;}
 		Vector3 operator-(){return Vector3(-x,-y,-z);}
 		Vector3 operator-(const Vector3 &v){return Vector3(x-v.x,y-v.y,z-v.z);}
 		Vector3 operator+(const Vector3 &v){return Vector3(x+v.x,y+v.y,z+v.z);}
@@ -43,8 +44,8 @@ namespace vb01{
 		float dot(Vector3 v){return x*v.x+y*v.y+z*v.z;}
 		float getAngleBetween(Vector3 v){return std::acos(dot(v));}
 		float getDistanceFrom(Vector3 v){return (v-*this).getLengthSq();}
-		Vector3 norm(){return *this/getLength();}
-		Vector3 cross(Vector3 v){return Vector3(y*v.z-v.y*z,x*v.z-v.x*z,x*v.y-v.x*y);}
+		Vector3 norm(){return (*this!=Vector3::VEC_ZERO?*this/getLength():Vector3::VEC_ZERO);}
+		Vector3 cross(Vector3 v){return Vector3(y * v.z - v.y * z, z * v.x - x * v.z, x * v.y - v.x * y);}
 
 		float x,y,z;
 		static const Vector3 VEC_IJK, VEC_I,VEC_J,VEC_K,VEC_ZERO;

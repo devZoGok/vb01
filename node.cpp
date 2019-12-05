@@ -112,6 +112,13 @@ namespace vb01{
 		text->setNode(this);	
 	}
 
+	void Node::lookAt(Vector3 newDir){
+		Vector3 dir=getLocalAxis(0).norm();
+		float angle=dir.getAngleBetween(newDir.norm());
+		Vector3 rotAxis=dir.cross(newDir.norm());
+		orientation=Quaternion(angle,rotAxis)*orientation;
+	}
+
 	void Node::getDescendants(Node *node, vector<Node*> &descendants){
 		for(int i=0;i<node->getNumChildren();i++){
 			if(node->getChild(i)->getNumChildren()>0)
