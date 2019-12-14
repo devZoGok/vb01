@@ -2,6 +2,7 @@
 #include"mesh.h"
 #include"material.h"
 #include"vector.h"
+#include"util.h"
 #include<vector>
 #include<iostream>
 #include<Importer.hpp>
@@ -26,8 +27,8 @@ namespace vb01{
 
 	void Model::processMesh(aiMesh *mesh, const aiScene *scene, Node *currentNode){
 		const int numTris=mesh->mNumFaces;
-		Mesh::Vertex vertices[3*numTris];
-		unsigned int indices[3*numTris];
+		Mesh::Vertex *vertices=new Mesh::Vertex[3*numTris];
+		u32 *indices=new u32[3*numTris];
 		for(int i=0;i<3*numTris;i++){
 			Mesh::Vertex v;
 			v.pos.x=mesh->mVertices[i].x;
