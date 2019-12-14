@@ -7,7 +7,7 @@
 namespace vb01{
 	class Quad : public Mesh{
 		public:
-			Quad(Vector3,bool=true);
+			Quad(Vector3,bool=true,bool=false);
 			void setSize(Vector3);
 		private:
 			Vector3 size;

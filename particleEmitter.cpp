@@ -88,9 +88,6 @@ namespace vb01{
 		Shader *shader=material->getShader();
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
-		shader->setVec3(camDir,"camDir");
-		shader->setVec3(cam->getLeft(),"camLeft");
-		shader->setVec3(cam->getUp(),"camUp");
 
 		for(int i=0;i<numParticles;i++){
 			Vector3 dir=particles[i].dir;

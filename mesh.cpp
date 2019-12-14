@@ -106,6 +106,7 @@ namespace vb01{
 		shader->setMat4(model,"model");
 		if(material->getType()==Material::MATERIAL_GUI){
 			shader->setVec2(Vector2((float)width,(float)height),"screen");
+			//shader->setBool(spatialToScreen,"spatialToScreen");
 			if(node)
 				shader->setVec3(pos,"pos");
 		}

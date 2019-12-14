@@ -20,7 +20,7 @@ namespace vb01{
 			};
 
 			Node(Vector3=Vector3::VEC_ZERO,Quaternion=Quaternion::QUAT_W,Vector3=Vector3::VEC_IJK);
-			~Node();
+			virtual ~Node();
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
 			virtual void update();
@@ -36,6 +36,7 @@ namespace vb01{
 			inline Quaternion getWorldOrientation(){return getWorldTransform().orientation;}
 			inline Vector3 getWorldScale(){return getWorldTransform().scale;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
+			inline Mesh* getMesh(int i){return meshes[i];}
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent=par;}
 			inline Node* getChild(int i){return children[i];}

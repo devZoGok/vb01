@@ -43,6 +43,11 @@ namespace vb01{
 		if(type==MATERIAL_2D)
 			shader->setBool(lightingEnabled,"lightingEnabled");
 		shader->setBool(texturingEnabled,"texturingEnabled");
+		if(type==MATERIAL_GUI){
+			shader->setBool(diffuseColorEnabled,"diffuseColorEnabled");
+			if(diffuseColorEnabled)
+				shader->setVec4(diffuseColor,"diffuseColor");
+		}
 		if(texturingEnabled){
 			for(Texture *t : diffuseMapTextures)
 				t->select();
@@ -51,7 +56,7 @@ namespace vb01{
 			for(Texture *t : specularMapTextures)
 				t->select();
 		}
-		else{
+		else {
 			shader->setVec4(diffuseColor,"diffuseColor");
 		}
 	}
