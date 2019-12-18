@@ -14,11 +14,14 @@ namespace vb01{
 			Material(Type=MATERIAL_2D);
 			~Material();
 			void update();
-			void addDiffuseMap(std::string diffuseMap){diffuseMapTextures.push_back(new Texture(diffuseMap));}
-			void addDiffuseMap(std::string diffuseMap[6]){diffuseMapTextures.push_back(new Texture(diffuseMap));}
-			void addDiffuseMap(Texture *texture){diffuseMapTextures.push_back(texture);}
-			void addNormalMap(std::string normalMap){normalMapTextures.push_back(new Texture(normalMap));}
-			void addSpecularMap(std::string specularMap){specularMapTextures.push_back(new Texture(specularMap));}
+			inline void addDiffuseMap(std::string diffuseMap){diffuseMapTextures.push_back(new Texture(diffuseMap));}
+			inline void addDiffuseMap(std::string diffuseMap[6]){diffuseMapTextures.push_back(new Texture(diffuseMap));}
+			inline void addDiffuseMap(Texture *texture){diffuseMapTextures.push_back(texture);}
+			inline void setDiffuseMap(Texture *texture, int i){diffuseMapTextures[i]=texture;}
+			inline void addNormalMap(std::string normalMap){normalMapTextures.push_back(new Texture(normalMap));}
+			inline void setNormalMap(Texture *texture, int i){normalMapTextures[i]=texture;}
+			inline void addSpecularMap(std::string specularMap){specularMapTextures.push_back(new Texture(specularMap));}
+			inline void setSpecularMap(Texture *texture, int i){specularMapTextures[i]=texture;}
 			inline void setDiffuseColor(Vector4 diffuse){this->diffuseColor=diffuse;}
 			inline void setSpecularColor(Vector4 specular){this->specularColor=specular;}
 			inline void setLightingEnabled(bool lighting){this->lightingEnabled=lighting;}
@@ -27,8 +30,10 @@ namespace vb01{
 			inline bool isLightingEnabled(){return lightingEnabled;}
 			inline bool isTexturingEnabled(){return texturingEnabled;}
 			inline bool isDiffuseColorEnabled(){return diffuseColorEnabled;}
-			inline Shader* getShader(){return shader;}
 			inline Texture* getDiffuseMap(int i){return diffuseMapTextures[i];}
+			inline Texture* getNormalMap(int i){return normalMapTextures[i];}
+			inline Texture* getSpecularMap(int i){return specularMapTextures[i];}
+			inline Shader* getShader(){return shader;}
 			inline Type getType(){return type;}
 		private:
 			Type type;

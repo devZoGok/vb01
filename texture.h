@@ -17,12 +17,14 @@ namespace vb01{
 			Texture(std::string[6]);
 			void select(int=0);
 			inline unsigned int* getTexture(){return &texture;}
+			inline std::string getPath(){return path;}
 		private:
 			TextureType type=TextureType::TEXTURE_2D;
 			unsigned int texture;
 			int width,height,numChannels;
 			float weight;
 			unsigned char *data;
+			std::string path="",paths[6];
 	};
 }
 

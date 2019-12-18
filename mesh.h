@@ -40,7 +40,7 @@ namespace vb01{
 			Mesh();
 			void construct();
 
-			bool staticVerts=true,castShadow=false,spatialToScreen=false;
+			bool staticVerts=true,castShadow=false;
 			Vertex *vertices;
 			unsigned int *indices,VAO,VBO,EBO;
 			int numTris;
