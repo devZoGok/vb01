@@ -1,10 +1,9 @@
 #include"quad.h"
 
 namespace vb01{
-	Quad::Quad(Vector3 size,bool spatial,bool spatialToScreen) : Mesh(){
+	Quad::Quad(Vector3 size,bool spatial) : Mesh(){
 		this->spatial=spatial;
 		this->staticVerts=false;
-		this->spatialToScreen=spatialToScreen;
 		
 		int numPolyVerts=3;
 		numTris=2;
