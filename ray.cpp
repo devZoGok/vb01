@@ -54,10 +54,11 @@ namespace vb01{
 	}
         
 	void sortResults(std::vector<CollisionResult> &results){
-		for(int i=0;i<results.size();i++){
-			for(int i2=i;i2<results.size();i2++)
-				if(results[i].distance>results[i2].distance)
-					swap(results[i],results[i2]);
-		}
+		if(!results.empty())
+			for(int i=0;i<results.size();i++){
+				for(int i2=i;i2<results.size();i2++)
+					if(results[i].distance>results[i2].distance)
+						swap(results[i],results[i2]);
+			}
 	}
 }

@@ -21,6 +21,8 @@ namespace vb01{
 			inline void setEndSize(Vector2 size){this->endSize=size;}
 			inline void setStartColor(Vector4 color){this->startColor=color;}
 			inline void setEndColor(Vector4 color){this->endColor=color;}
+			inline void setSpread(float s){this->spread=s;}
+			void setDirection(Vector3 dir);
 		private:
 			struct Vertex{
 				Vector3 pos;
@@ -42,7 +44,7 @@ namespace vb01{
 			Vector2 startSize=Vector2::VEC_IJ,endSize=Vector2::VEC_IJ;
 			Vector3 direction=Vector3(0,.1,0);
 			Vector4 startColor,endColor;
-			float spread=0,lowLife=1,highLife=2;
+			float spread=1,lowLife=1,highLife=2;
 	};
 }
 

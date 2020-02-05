@@ -12,5 +12,6 @@ uniform vec4 color[100];
 void main(){
 	float alpha=texture(tex,texCoords).x;
 	vec4 c=color[id];
+	//FragColor=vec4(1,0,0,1);
 	FragColor=vec4(c.x,c.y,c.z,c.w*alpha);
 }

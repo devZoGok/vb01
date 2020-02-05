@@ -79,7 +79,7 @@ namespace vb01{
 		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
 		float nearPlane=cam->getNearPlane(),farPlane=cam->getFarPlane();
 		Vector3 pos=node->getPosition();
-		Vector3 camDir=cam->getDirection(),up=cam->getUp(),camPos=cam->getPosition();
+		Vector3 camDir=cam->getDirection(),up=cam->getUp(),left=cam->getLeft(),camPos=cam->getPosition();
 
 		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+camDir.x,camPos.y+camDir.y,camPos.z+camDir.z),vec3(up.x,up.y,up.z));
 		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
@@ -94,12 +94,14 @@ namespace vb01{
 			if(getTime()-particles[i].time>=particles[i].timeToLive){
 				particles[i].time=getTime();
 				float factor=(float)(rand()%100)/100;
-				float spreadX=(float)(rand()%360)/180*PI,spreadY=(float)(rand()%360)/180*PI;
-				dir=Vector3(cos(abs(spreadX)>spread?spread:spreadX),sin(abs(spreadY)>spread?spread:spreadY),0);
+				float s1=float(rand()%(int)spread)/180*PI,s2=float(rand()%360)/180*PI;
+				Vector3 ra1=(Vector3(0,1,0).cross(dir)).norm(),ra2=dir.norm();
+				dir=Quaternion(s1,ra1)*dir;
+				dir=Quaternion(s2,ra2)*dir;
 				particles[i].timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
-				particles[i].mat=translate(mat4(1.f),vec3(dir.x,dir.y,dir.z));
+				particles[i].mat=mat4(1.f);
 			}
-			dir=dir.norm()*direction.getLengthSq();
+			particles[i].dir=dir.norm()*direction.getLengthSq();
 			float lifePercentage=(float)(getTime()-particles[i].time)/particles[i].timeToLive;
 			particles[i].color=startColor+(endColor-startColor)*lifePercentage;
 			particles[i].size=startSize+(endSize-startSize)*lifePercentage;
@@ -126,5 +128,11 @@ namespace vb01{
 			
 		glBindVertexArray(VAO);
 		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
+	}
+
+	void ParticleEmitter::setDirection(Vector3 dir){
+		this->direction=dir;
+		for(int i=0;i<numParticles;i++)
+			particles[i].dir=dir;
 	}
 }

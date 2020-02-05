@@ -52,8 +52,9 @@ namespace vb01{
 		}
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
+		glDepthMask(GL_TRUE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -68,11 +69,11 @@ namespace vb01{
 		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
 		*/
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
 		else 
 			cout<<"Complete\n";
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
 
 		guiPlane=new Quad(Vector3(width,height,-1),false);
 		Material *mat=new Material(Material::MATERIAL_GUI);
@@ -81,42 +82,42 @@ namespace vb01{
 	}
 
 	void Root::update(){
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			
-			glBindFramebuffer(GL_FRAMEBUFFER,FBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
+		//glBindFramebuffer(GL_FRAMEBUFFER,FBO);
 
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE);
 
-			if(skybox){
-				glDepthMask(GL_FALSE);
-				glCullFace(GL_BACK);
-				skybox->update();
-				glDepthMask(GL_TRUE);
-				glCullFace(GL_FRONT);
-			}
+		if(skybox){
+			glDepthMask(GL_FALSE);
+			//glCullFace(GL_BACK);
+			skybox->update();
+			glDepthMask(GL_TRUE);
+			//glCullFace(GL_FRONT);
+		}
 
-			rootNode->update();
+		rootNode->update();
 
-			glBindFramebuffer(GL_FRAMEBUFFER,0);
+		//glBindFramebuffer(GL_FRAMEBUFFER,0);
 
-			glDisable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
 
-			glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 
-			guiPlane->update();
-			/*
-			*/
-			glEnable(GL_DEPTH_TEST);
-			guiNode->update();
+		//guiPlane->update();
+		/*
+		*/
+		glEnable(GL_DEPTH_TEST);
+		guiNode->update();
 
-			glfwSwapBuffers(window);
-			glfwPollEvents();
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	void Root::createSkybox(string textures[6]){
 		skybox = new Box(Vector3(10,10,10));
-		Material *skyboxMat=new Material(Material::Type::MATERIAL_SKYBOX);
+		Material *skyboxMat=new Material(Material::MATERIAL_SKYBOX);
 		skyboxMat->addDiffuseMap(textures);
 		skybox->setMaterial(skyboxMat);
 	}
