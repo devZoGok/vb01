@@ -1,6 +1,7 @@
 #include"root.h"
 #include"node.h"
 #include"mesh.h"
+#include"skeleton.h"
 #include<glad.h>
 #include<glfw3.h>
 #include<glm.hpp>
@@ -90,7 +91,8 @@ namespace vb01{
 		}
 
 		Vector3 rotAxis=orient.norm().getAxis();
-		if(rotAxis==Vector3::VEC_ZERO)rotAxis=Vector3::VEC_I;
+		if(rotAxis==Vector3::VEC_ZERO)
+			rotAxis=Vector3::VEC_I;
 		mat4 model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
 		model=rotate(model,orient.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
 		model=glm::scale(model,vec3(scale.x,scale.y,scale.z));
@@ -104,6 +106,8 @@ namespace vb01{
 		shader->setMat4(proj,"proj");
 		shader->setVec3(camPos,"camPos");
 		shader->setMat4(model,"model");
+		if(skeleton){
+		}
 		if(material->getType()==Material::MATERIAL_GUI){
 			shader->setVec2(Vector2((float)width,(float)height),"screen");
 			if(node)

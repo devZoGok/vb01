@@ -9,12 +9,19 @@
 
 namespace vb01{
 	class Node;
+	class Skeleton;
 
 	class Mesh{
 		public:
 			struct Vertex{
 				Vector3 pos,norm;
 				Vector2 texCoords;	
+			};
+			struct VertexGroup{
+				int numVertices=0;
+				Vertex **vertices=nullptr;
+				float *weights;
+				std::string name;
 			};
 
 			Mesh(Vertex*,unsigned int*,int);
@@ -36,12 +43,14 @@ namespace vb01{
 			Node *node=nullptr;
 			std::vector<Mesh*> meshes;
 			std::string name="";
+			Skeleton *skeleton=nullptr;
 		protected:
 			Mesh();
 			void construct();
 
 			bool staticVerts=true,castShadow=false;
 			Vertex *vertices;
+			VertexGroup groups;
 			unsigned int *indices,VAO,VBO,EBO;
 			int numTris;
 	};
