@@ -12,7 +12,7 @@ link_directories(/usr/lib/)
 set(CMAKE_BUILD_TYPE Debug)
 set(gui text.cpp rectangle.cpp)
 set(utils util.cpp)
-set(math quaternion.cpp vector.cpp ray.cpp)
+set(math quaternion.cpp vector.cpp matrix.cpp ray.cpp)
 set(render waterPlane.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(armature skeleton.cpp bone.cpp)
 

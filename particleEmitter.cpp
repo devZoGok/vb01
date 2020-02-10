@@ -89,6 +89,10 @@ namespace vb01{
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
 
+		Vector3 nodePos=node->getWorldTransform().position;
+		Vector3 nodeDir=node->getLocalAxis(2);
+		Vector3 nodeUp=node->getLocalAxis(1);
+		Vector3 nodeLeft=node->getLocalAxis(0);
 		for(int i=0;i<numParticles;i++){
 			Vector3 dir=particles[i].dir;
 			if(getTime()-particles[i].time>=particles[i].timeToLive){
@@ -99,9 +103,10 @@ namespace vb01{
 				dir=Quaternion(s1,ra1)*dir;
 				dir=Quaternion(s2,ra2)*dir;
 				particles[i].timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
-				particles[i].mat=mat4(1.f);
+				particles[i].mat=translate(mat4(1.f),vec3(nodePos.x,nodePos.y,nodePos.z));
 			}
-			particles[i].dir=dir.norm()*direction.getLengthSq();
+			//dir=nodeLeft*dir.x+nodeUp*dir.y+nodeDir*dir.z;
+			particles[i].dir=dir.norm()*direction.getLengthSq()+gravity;
 			float lifePercentage=(float)(getTime()-particles[i].time)/particles[i].timeToLive;
 			particles[i].color=startColor+(endColor-startColor)*lifePercentage;
 			particles[i].size=startSize+(endSize-startSize)*lifePercentage;
@@ -126,8 +131,10 @@ namespace vb01{
 			shader->setVec2(particles[i].size,"size["+to_string(i)+"]");
 		}
 			
+		glDisable(GL_CULL_FACE);
 		glBindVertexArray(VAO);
 		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
+		glEnable(GL_CULL_FACE);
 	}
 
 	void ParticleEmitter::setDirection(Vector3 dir){

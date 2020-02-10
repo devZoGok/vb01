@@ -28,9 +28,11 @@ namespace vb01{
 			void dettachChild(Node*);
 			void addLight(Light*);
 			void addText(Text*);
-			void lookAt(Vector3);
+			void lookAt(Vector3,Vector3);
 			Transform getWorldTransform();
 			Vector3 getLocalAxis(int);
+			Vector3 localToGlobal(Vector3);
+			Vector3 globalToLocal(Vector3);
 			inline Text* getText(int i){return texts[i];}
 			inline Vector3 getWorldPosition(){return getWorldTransform().position;}
 			inline Quaternion getWorldOrientation(){return getWorldTransform().orientation;}

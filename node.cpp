@@ -5,6 +5,7 @@
 #include"light.h"
 #include"text.h"
 #include"material.h"
+#include"matrix.h"
 
 using namespace std;
 
@@ -112,11 +113,15 @@ namespace vb01{
 		text->setNode(this);	
 	}
 
-	void Node::lookAt(Vector3 newDir){
-		Vector3 dir=getLocalAxis(0).norm();
-		float angle=dir.getAngleBetween(newDir.norm());
-		Vector3 rotAxis=dir.cross(newDir.norm());
+	void Node::lookAt(Vector3 newDir,Vector3 upDir){
+		Vector3 dir=getLocalAxis(2).norm(),newDirLocal=globalToLocal(newDir.norm()),upDirLocal=globalToLocal(upDir.norm());
+		float angle=dir.getAngleBetween(newDirLocal);
+		Vector3 rotAxis=dir.cross(newDirLocal);
 		orientation=Quaternion(angle,rotAxis)*orientation;
+		Vector3 up=getLocalAxis(1).norm();
+		angle=up.getAngleBetween(upDirLocal);
+		rotAxis=up.cross(upDirLocal);
+		orientation=Quaternion(angle,rotAxis.norm())*orientation;
 	}
 
 	void Node::getDescendants(Node *node, vector<Node*> &descendants){
@@ -181,5 +186,57 @@ namespace vb01{
 		}
 
 		return axis[i];
+	}
+
+	Vector3 Node::localToGlobal(Vector3 p0){
+		Vector3 dir=getLocalAxis(2),up=getLocalAxis(1),left=getLocalAxis(0);
+		float **mat=new float*[3];
+		for(int i=0;i<3;i++)
+			mat[i]=new float[3];
+
+		mat[0][0]=left.x;
+		mat[1][0]=left.y;
+		mat[2][0]=left.z;
+		mat[0][1]=up.x;
+		mat[1][1]=up.y;
+		mat[2][1]=up.z;
+		mat[0][2]=dir.x;
+		mat[1][2]=dir.y;
+		mat[2][2]=dir.z;
+
+		Vector3 p=Matrix(mat,3,3)*p0;
+
+		for(int i=0;i<3;i++)
+			delete[] mat[i];
+		delete[] mat;
+
+		return p;
+	}
+
+	Vector3 Node::globalToLocal(Vector3 p0){
+		Vector3 dir=getLocalAxis(2),up=getLocalAxis(1),left=getLocalAxis(0);
+		float **mat=new float*[3];
+		for(int i=0;i<3;i++)
+			mat[i]=new float[3];
+
+		mat[0][0]=left.x;
+		mat[1][0]=left.y;
+		mat[2][0]=left.z;
+		mat[0][1]=up.x;
+		mat[1][1]=up.y;
+		mat[2][1]=up.z;
+		mat[0][2]=dir.x;
+		mat[1][2]=dir.y;
+		mat[2][2]=dir.z;
+
+		Matrix m(mat,3,3);
+		m.invert();
+		Vector3 p=m*p0;
+
+		for(int i=0;i<3;i++)
+			delete[] mat[i];
+		delete[] mat;
+
+		return p;
 	}
 }

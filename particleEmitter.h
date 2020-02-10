@@ -22,6 +22,11 @@ namespace vb01{
 			inline void setStartColor(Vector4 color){this->startColor=color;}
 			inline void setEndColor(Vector4 color){this->endColor=color;}
 			inline void setSpread(float s){this->spread=s;}
+			inline void setLowLife(float l){this->lowLife=l;}
+			inline void setHighLife(float h){this->highLife=h;}
+			inline void setGravity(Vector3 g){this->gravity=g;}
+			inline Node* getNode(){return node;}
+			inline Vector3 getDirection(){return direction;}
 			void setDirection(Vector3 dir);
 		private:
 			struct Vertex{
@@ -42,7 +47,7 @@ namespace vb01{
 			Material *material=nullptr;
 			Node *node=nullptr;
 			Vector2 startSize=Vector2::VEC_IJ,endSize=Vector2::VEC_IJ;
-			Vector3 direction=Vector3(0,.1,0);
+			Vector3 direction=Vector3(0,.1,0),gravity=Vector3::VEC_ZERO;
 			Vector4 startColor,endColor;
 			float spread=1,lowLife=1,highLife=2;
 	};
