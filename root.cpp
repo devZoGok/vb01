@@ -41,19 +41,19 @@ namespace vb01{
 		glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
 		window=glfwCreateWindow(width,height,"KEK",NULL,NULL);
 		if(window==NULL){
-			std::cout<<"KEK\n";
+			std::cout<<"Failed to load window.\n";
 			exit(-1);
 		}
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window,foo);
 		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
-			std::cout<<"KEK2\n";
+			std::cout<<"Failed to load GLAD.\n";
 			exit(-1);
 		}
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 		glDepthMask(GL_TRUE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -82,30 +82,30 @@ namespace vb01{
 	}
 
 	void Root::update(){
+		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
-		//glBindFramebuffer(GL_FRAMEBUFFER,FBO);
 
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 
 		if(skybox){
 			glDepthMask(GL_FALSE);
-			//glCullFace(GL_BACK);
+			glCullFace(GL_BACK);
 			skybox->update();
 			glDepthMask(GL_TRUE);
-			//glCullFace(GL_FRONT);
+			glCullFace(GL_FRONT);
 		}
 
 		rootNode->update();
 
-		//glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		//glDisable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 
 		glDisable(GL_DEPTH_TEST);
 
-		//guiPlane->update();
+		guiPlane->update();
 		/*
 		*/
 		glEnable(GL_DEPTH_TEST);

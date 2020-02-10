@@ -25,6 +25,7 @@ namespace vb01{
 			inline Node* getGuiNode(){return guiNode;}
 			inline int getWidth(){return width;}
 			inline int getHeight(){return height;}
+			inline unsigned int* getFBO(){return &FBO;}
 			inline GLFWwindow* getWindow(){return window;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();

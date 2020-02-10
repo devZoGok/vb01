@@ -66,27 +66,10 @@ namespace vb01{
 		Quaternion orient=Quaternion::QUAT_W;
 
 		if(node){
-			Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
-			vector<Node*> ancestors;
-			ancestors.push_back(node);
-			Node *parent=node->getParent();
-			while(parent){
-				ancestors.push_back(parent);
-				parent=parent->getParent();
-			}
-			while(!ancestors.empty()){
-				int id=ancestors.size()-1;
-				Quaternion o=ancestors[id]->getOrientation();	
-				Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
-				origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
-				orient=o*orient;
-				scale=s;
-				for(int i=0;i<3;i++)
-					axis[i]=orient*axis[i];
-				ancestors.pop_back();
-			}
+			Node::Transform t=node->getWorldTransform();
 
-			pos=origin;
+			pos=t.position;
+			orient=t.orientation;
 			camPos=cam->getPosition();
 		}
 
@@ -125,6 +108,7 @@ namespace vb01{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
 			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,0,3*numTris*sizeof(unsigned int),indices);
 		}
+		glPolygonMode(GL_FRONT_AND_BACK,wireframe?GL_LINE:GL_FILL);
 		glDrawElements(GL_TRIANGLES,3*numTris,GL_UNSIGNED_INT,0);	
 	}
 }

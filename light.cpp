@@ -48,36 +48,14 @@ namespace vb01{
 		Node *rootNode=root->getRootNode();
 		Camera *cam=root->getCamera();
 		std::vector<Node*> descendants;
+		std::vector<Material*> materials;
 		rootNode->getDescendants(rootNode,descendants);
 		descendants.push_back(rootNode);
-		std::vector<Material*> materials;
 		int numLights=0,thisId=-1;
+		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
 
-		vec3 dir=vec3(direction.x,direction.y,direction.z);
-		vec3 pos=type==DIRECTIONAL?-.5f*farPlane*dir:vec3(position.x,position.y,position.z);
-		mat4 view=lookAt(pos,pos+dir,vec3(0,1,0));
-		mat4 proj=ortho(-10.f,10.f,-10.f,10.f,nearPlane,farPlane);
-
-		depthMapShader->use();
-		depthMapShader->setMat4(proj*view,"lightMat");
-
-		glViewport(0,0,depthMapSize,depthMapSize);
-		glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
-		for(Node *n : descendants){
-			std::vector<Light*> lights=n->getLights();
-			vector<Mesh*> meshes=n->getMeshes();
-			for(Mesh *mesh : meshes){
-				Material *mat=mesh->getMaterial();
-				if(mat&&mat->isLightingEnabled()){
-					materials.push_back(mat);
-					if(mesh->isCastShadow()){
-						Vector3 pos=n->getPosition();
-						mat4 model=translate(mat4(1.f),vec3(pos.x,pos.y,pos.z));
-						depthMapShader->setMat4(model,"model");
-						mesh->render();
-					}
-				}
-			}
+		for(Node *d : descendants){
+			std::vector<Light*> lights=d->getLights();
 			for(Light *l : lights){
 				if(l){
 					numLights++;
@@ -85,41 +63,91 @@ namespace vb01{
 						thisId=numLights-1;
 				}	
 			}
+			for(Mesh *m : d->getMeshes())
+				materials.push_back(m->getMaterial());
 		}
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		for(int i=0;i<descendants.size();i++){
+			Node *n=descendants[i];
+			vector<Mesh*> meshes=n->getMeshes();
+			for(Mesh *mesh : meshes){
+				Material *mat=mesh->getMaterial();
+				if(n->isVisible()&&mat&&mat->isLightingEnabled()){
+					mat4 proj,view;
+					if(mesh->isCastShadow()){
+						Vector3 pos=n->getWorldPosition();
+						Quaternion rot=n->getWorldOrientation();
+						Vector3 rotAxis=rot.norm().getAxis();
 
-		glViewport(0,0,root->getWidth(),root->getHeight());
+						if(rotAxis==Vector3::VEC_ZERO)
+							rotAxis=Vector3::VEC_I;
 
-		for(Material *m : materials){
-			Shader *shader=m->getShader();
-			shader->use();
-			shader->setInt((int)type,"light["+to_string(thisId)+"].type");
-			shader->setVec3(color,"light["+to_string(thisId)+"].color");
-			shader->setInt(0,"tex");
-			shader->setInt(thisId+1,"light["+to_string(thisId)+"].depthMap");
-			depthMap->select(thisId+1);
+						glViewport(0,0,depthMapSize,depthMapSize);
+						glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-			switch(type){
-				case POINT:
-					shader->setVec3(position,"light["+to_string(thisId)+"].pos");
-					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
-					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
-					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
-					break;
-				case DIRECTIONAL:
-					shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
-					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
-					break;
-				case SPOT:
-					shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
-					shader->setVec3(position,"light["+to_string(thisId)+"].pos");
-					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
-					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
-					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
-					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
-					shader->setFloat(innerAngle,"light["+to_string(thisId)+"].innerAngle");
-					shader->setFloat(outerAngle,"light["+to_string(thisId)+"].outerAngle");
-					break;
+						Vector3 upDir=direction.cross(Vector3(0,1,0));
+						if(upDir==Vector3(0,0,0))
+							upDir=Vector3::VEC_I;
+
+						vec3 dir=vec3(direction.x,direction.y,direction.z);
+						vec3 up=vec3(upDir.x,upDir.y,upDir.z);
+						vec3 p=type==DIRECTIONAL?vec3(pos.x,pos.y,pos.z)-.5f*farPlane*dir:vec3(position.x,position.y,position.z);
+						view=lookAt(p,p+dir,up);
+						proj=ortho(-10.f,10.f,-10.f,10.f,nearPlane,farPlane);
+
+						depthMapShader->use();
+						depthMapShader->setMat4(proj*view,"lightMat");
+
+						mat4 model=translate(mat4(1.f),vec3(pos.x,pos.y,pos.z));
+						model=rotate(model,rot.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+						depthMapShader->setMat4(model,"model");
+						mesh->render();
+
+						glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
+						glViewport(0,0,root->getWidth(),root->getHeight());
+
+						/*
+						for(Material *m : materials){
+							Shader *shader=m->getShader();
+							shader->use();
+							shader->setInt(1+2*thisId+i,"light["+to_string(thisId)+"].depthMap["+to_string(i)+"]");
+							depthMap->select(1+2*thisId+i);
+						}
+						*/
+					}
+					for(Material *m : materials){
+						Shader *shader=m->getShader();
+						shader->use();
+						shader->setInt((int)type,"light["+to_string(thisId)+"].type");
+						shader->setVec3(color,"light["+to_string(thisId)+"].color");
+						shader->setInt(0,"tex");
+						shader->setInt(1,"light["+to_string(thisId)+"].depthMap["+to_string(0)+"]");
+						depthMap->select(1);
+
+						switch(type){
+							case POINT:
+								shader->setVec3(position,"light["+to_string(thisId)+"].pos");
+								shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
+								shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
+								shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
+								break;
+							case DIRECTIONAL:
+								shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
+								shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
+								break;
+							case SPOT:
+								shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
+								shader->setVec3(position,"light["+to_string(thisId)+"].pos");
+								shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
+								shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
+								shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
+								shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
+								shader->setFloat(innerAngle,"light["+to_string(thisId)+"].innerAngle");
+								shader->setFloat(outerAngle,"light["+to_string(thisId)+"].outerAngle");
+								break;
+						}
+					}
+				}
 			}
 		}
 	}

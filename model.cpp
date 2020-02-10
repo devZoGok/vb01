@@ -213,9 +213,20 @@ namespace vb01{
 	}
 
 	void Model::setCastShadow(bool castShadow){
-		for(Node *node : children)
+		vector<Node*> descendants;
+		getDescendants(this,descendants);
+		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setCastShadow(castShadow);
 		this->castShadow=castShadow;
+	}
+
+	void Model::setWireframe(bool wirefame){
+		vector<Node*> descendants;
+		getDescendants(this,descendants);
+		for(Node *node : descendants)
+			for(Mesh *mesh : node->getMeshes())
+				mesh->setWireframe(wirefame);
+		this->wireframe=wireframe;
 	}
 }

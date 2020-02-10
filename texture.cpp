@@ -8,7 +8,6 @@
 using namespace std;
 
 namespace vb01{
-
 	Texture::Texture(int width, int height, bool shadowMap){
 		this->width=width;
 		this->height=height;
@@ -69,6 +68,8 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
+		//stbi_set_flip_vertically_on_load(true);
+
 		data=stbi_load(path.c_str(),&width,&height,&numChannels,0);
 
 		glTexImage2D(GL_TEXTURE_2D,0,png?GL_RGBA:GL_RGB,width,height,0,png?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
@@ -81,6 +82,7 @@ namespace vb01{
 
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
+
 		for(int i=0;i<6;i++){
 			data=stbi_load(paths[i].c_str(),&width,&height,&numChannels,0);
 			if(data){

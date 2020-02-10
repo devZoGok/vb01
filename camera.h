@@ -19,7 +19,7 @@ namespace vb01{
 			inline float getNearPlane(){return nearPlane;}
 			inline float getFarPlane(){return farPlane;}
 		private:
-			Vector3 position=Vector3(0,0,0),direction=Vector3(0,0,1),left=Vector3(1,0,0),up=Vector3(0,1,0);
+			Vector3 position=Vector3(0,0,0),direction=Vector3(0,0,-1),left=Vector3(1,0,0),up=Vector3(0,1,0);
 			float fov=45,nearPlane=.1,farPlane=100;
 	};
 }

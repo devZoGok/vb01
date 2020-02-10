@@ -31,6 +31,7 @@ namespace vb01{
 			void setMaterial(Material *mat){this->material=mat;}
 			inline void setNode(Node *node){this->node=node;}
 			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}
+			inline void setWireframe(bool w){this->wireframe=w;}
 			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
@@ -48,7 +49,7 @@ namespace vb01{
 			Mesh();
 			void construct();
 
-			bool staticVerts=true,castShadow=false;
+			bool staticVerts=true,castShadow=false,wireframe=false;
 			Vertex *vertices;
 			VertexGroup groups;
 			unsigned int *indices,VAO,VBO,EBO;

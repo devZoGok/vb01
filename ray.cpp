@@ -37,8 +37,8 @@ namespace vb01{
 						Vector3 bisecCVec=((pointB-pointC)+(pointA-pointC));
 						bool withinBisecA=(contactPoint-pointA).norm().getAngleBetween(bisecAVec.norm())<=angleA/2;
 						bool withinBisecB=(contactPoint-pointB).norm().getAngleBetween(bisecBVec.norm())<=angleB/2;
-						//bool withinBisecC=(contactPoint-pointC).norm().getAngleBetween(bisecCVec.norm())<=angleC/2;
-						if(withinBisecA&&withinBisecB){
+						bool withinBisecC=(contactPoint-pointC).norm().getAngleBetween(bisecCVec.norm())<=angleC/2;
+						if(withinBisecA&&withinBisecB&&withinBisecC){
 							CollisionResult result;
 							result.pos=contactPoint;
 							result.distance=distance;

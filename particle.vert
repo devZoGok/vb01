@@ -9,8 +9,8 @@ flat out int id;
 
 uniform mat4 proj;
 uniform mat4 view;
-uniform mat4 model[100];
-uniform vec2 size[100];
+uniform mat4 model[200];
+uniform vec2 size[200];
 
 void main(){
 	vec3 camLeft=vec3(view[0][0],view[1][0],view[2][0]);	

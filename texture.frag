@@ -1,6 +1,7 @@
 #version 330 core
 
 const int numLights=1;
+const int numShadows=1;
 
 in vec3 fragPos;
 in vec3 norm;
@@ -16,7 +17,7 @@ struct Light{
 	vec3 pos,color,direction;
 	float innerAngle,outerAngle;
 	float a,b,c;
-	sampler2D depthMap;
+	sampler2D depthMap[numShadows];
 	mat4 lightMat;
 };
 
@@ -28,10 +29,10 @@ uniform bool castShadow;
 uniform vec4 diffuseColor;
 uniform vec3 camPos;
 
-float getShadow(int id){
+float getShadow(int id,int shadowId){
 	vec3 projCoords=(light[id].lightMat*vec4(fragPos,1)).xyz/(light[id].lightMat*vec4(fragPos,1)).w;
 	projCoords=projCoords*.5+.5;
-	float closestDepth=texture(light[id].depthMap,projCoords.xy).r;
+	float closestDepth=texture(light[id].depthMap[shadowId],projCoords.xy).r;
 	float currentDepth=projCoords.z;
 	float bias=.005;
 	return currentDepth-bias>closestDepth?.7:0;
@@ -76,10 +77,11 @@ void main(){
 			diffuseColor+=light[i].color*(factor*attenuation*coef);
 		}	
 
-		for(int i=0;i<numLights;i++){
-			float shadow=coef*getShadow(i);
-			diffuseColor*=(1-shadow);
-		}
+		for(int i=0;i<numLights;i++)
+			for(int j=0;j<numShadows;j++){
+				float shadow=coef*getShadow(i,j);
+				diffuseColor*=(1-shadow);
+			}
 
 		finalColor*=vec4(diffuseColor+specularColor,1);
 	}
