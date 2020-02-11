@@ -53,8 +53,8 @@ namespace vb01{
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		glDepthMask(GL_TRUE);
+		glCullFace(GL_BACK);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -63,11 +63,11 @@ namespace vb01{
 		Texture *texture=new Texture(width,height,false);
 		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(texture->getTexture()),0);
 
-		/*
 		glGenRenderbuffers(1,&RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
 		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+		/*
 		*/
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
@@ -90,10 +90,10 @@ namespace vb01{
 
 		if(skybox){
 			glDepthMask(GL_FALSE);
-			glCullFace(GL_BACK);
+			//glCullFace(GL_FRONT);
 			skybox->update();
 			glDepthMask(GL_TRUE);
-			glCullFace(GL_FRONT);
+			//glCullFace(GL_BACK);
 		}
 
 		rootNode->update();
@@ -102,12 +102,10 @@ namespace vb01{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glDisable(GL_CULL_FACE);
-
 		glDisable(GL_DEPTH_TEST);
 
 		guiPlane->update();
-		/*
-		*/
+
 		glEnable(GL_DEPTH_TEST);
 		guiNode->update();
 
