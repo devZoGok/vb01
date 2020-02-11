@@ -77,6 +77,35 @@ namespace vb01{
 		stbi_image_free(data);
 	}
 
+	Texture::Texture(string path[],int numFrames,s64 updateRate,bool flip){
+		this->updateRate=updateRate;
+		this->numFrames=numFrames;
+		frames=new u32;
+		for(int i=0;i<numFrames;i++){
+			bool png=false;
+			int length=path[i].length();
+			if(path[i].substr(length-4,string::npos)==".png")
+				png=true;
+
+			glGenTextures(1,&(frames[i]));
+			glBindTexture(GL_TEXTURE_2D,frames[i]);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+			stbi_set_flip_vertically_on_load(flip);
+
+			data=stbi_load(path[i].c_str(),&width,&height,&numChannels,0);
+
+			glTexImage2D(GL_TEXTURE_2D,0,png?GL_RGBA:GL_RGB,width,height,0,png?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
+			//glGenerateMipmap(GL_TEXTURE_2D);
+			stbi_image_free(data);
+		}
+	}
+
 	Texture::Texture(string paths[6],bool flip){
 		this->type=TextureType::TEXTURE_CUBEMAP;
 
@@ -109,8 +138,17 @@ namespace vb01{
 		glDeleteTextures(1,&texture);
 	}
 
+	void Texture::update(){
+		if(numFrames>0){
+			if(getTime()-lastUpdateTime>updateRate){
+				currentFrame=(currentFrame==numFrames-1?0:currentFrame+1);
+				lastUpdateTime=getTime();
+			}
+		}
+	}
+
 	void Texture::select(int id){
 		glActiveTexture(GL_TEXTURE0+id);
-		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,texture);
+		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,numFrames==0?texture:frames[currentFrame]);
 	}
 }

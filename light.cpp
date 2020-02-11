@@ -92,7 +92,7 @@ namespace vb01{
 						vec3 dir=vec3(direction.x,direction.y,direction.z);
 						vec3 up=vec3(upDir.x,upDir.y,upDir.z);
 						vec3 p=type==DIRECTIONAL?vec3(pos.x,pos.y,pos.z)-.5f*farPlane*dir:vec3(position.x,position.y,position.z);
-						view=lookAt(p,p+dir,up);
+						view=lookAt(vec3(0,30,0),vec3(0,0,0),vec3(1,0,0));
 						proj=ortho(-10.f,10.f,-10.f,10.f,nearPlane,farPlane);
 
 						depthMapShader->use();
