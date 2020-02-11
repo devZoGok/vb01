@@ -131,10 +131,10 @@ namespace vb01{
 			shader->setVec2(particles[i].size,"size["+to_string(i)+"]");
 		}
 			
-		glDisable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
 		glBindVertexArray(VAO);
 		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 	}
 
 	void ParticleEmitter::setDirection(Vector3 dir){

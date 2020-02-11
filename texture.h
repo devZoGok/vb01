@@ -13,8 +13,8 @@ namespace vb01{
 			~Texture();
 			Texture(int,int,bool=true);
 			Texture(FT_Face&,char);
-			Texture(std::string);
-			Texture(std::string[6]);
+			Texture(std::string,bool=false);
+			Texture(std::string[6],bool=false);
 			void select(int=0);
 			inline unsigned int* getTexture(){return &texture;}
 			inline std::string getPath(){return path;}

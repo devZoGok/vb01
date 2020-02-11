@@ -53,7 +53,7 @@ namespace vb01{
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 
-	Texture::Texture(string path){
+	Texture::Texture(string path,bool flip){
 		bool png=false;
 		int length=path.length();
 		if(path.substr(length-4,string::npos)==".png")
@@ -68,7 +68,7 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
-		//stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(flip);
 
 		data=stbi_load(path.c_str(),&width,&height,&numChannels,0);
 
@@ -77,11 +77,13 @@ namespace vb01{
 		stbi_image_free(data);
 	}
 
-	Texture::Texture(string paths[6]){
+	Texture::Texture(string paths[6],bool flip){
 		this->type=TextureType::TEXTURE_CUBEMAP;
 
 		glGenTextures(1,&texture);
 		glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
+
+		stbi_set_flip_vertically_on_load(flip);
 
 		for(int i=0;i<6;i++){
 			data=stbi_load(paths[i].c_str(),&width,&height,&numChannels,0);
