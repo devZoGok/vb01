@@ -35,7 +35,7 @@ float getShadow(int id,int shadowId){
 	float closestDepth=texture(light[id].depthMap[shadowId],projCoords.xy).r;
 	float currentDepth=projCoords.z;
 	float bias=.005;
-	return (currentDepth-bias>closestDepth)&&projCoords.z<=1.?.7:0;
+	return currentDepth-bias>closestDepth?.7:0;
 }
 
 void main(){
