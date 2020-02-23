@@ -11,9 +11,10 @@ namespace vb01{
 	Texture::Texture(int width, int height, bool shadowMap){
 		this->width=width;
 		this->height=height;
+		texture=new u32;
 
-		glGenTextures(1,&texture);
-		glBindTexture(GL_TEXTURE_2D,texture);
+		glGenTextures(1,&texture[0]);
+		glBindTexture(GL_TEXTURE_2D,texture[0]);
 		if(shadowMap){
 			glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,width,height,0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -32,35 +33,44 @@ namespace vb01{
 		}
 	}
 
-	Texture::Texture(string path,bool flip){
-		bool png=false;
-		int length=path.length();
-		if(path.substr(length-4,string::npos)==".png")
-			png=true;
+	Texture::Texture(string path[],int numPaths,int updateRate,bool flip){
+		this->numFrames=numPaths;
+		this->updateRate=updateRate;
 
-		glGenTextures(1,&texture);
-		glBindTexture(GL_TEXTURE_2D,texture);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		texture=new u32[numPaths];
 
-		stbi_set_flip_vertically_on_load(flip);
+		for(int i=0;i<numPaths;i++){
+			bool png=false;
+			int length=path[i].length();
 
-		data=stbi_load(path.c_str(),&width,&height,&numChannels,0);
+			if(path[i].substr(length-4,string::npos)==".png")
+				png=true;
 
-		glTexImage2D(GL_TEXTURE_2D,0,png?GL_RGBA:GL_RGB,width,height,0,png?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(data);
+			glGenTextures(1,&texture[i]);
+			glBindTexture(GL_TEXTURE_2D,texture[i]);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+			stbi_set_flip_vertically_on_load(flip);
+
+			data=stbi_load(path[i].c_str(),&width,&height,&numChannels,0);
+
+			glTexImage2D(GL_TEXTURE_2D,0,png?GL_RGBA:GL_RGB,width,height,0,png?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
+			//glGenerateMipmap(GL_TEXTURE_2D);
+			stbi_image_free(data);
+		}
 	}
 
 	Texture::Texture(string paths[6],bool flip){
 		this->type=TextureType::TEXTURE_CUBEMAP;
+		texture=new u32;
 
-		glGenTextures(1,&texture);
-		glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
+		glGenTextures(1,&texture[0]);
+		glBindTexture(GL_TEXTURE_CUBE_MAP,texture[0]);
 
 		stbi_set_flip_vertically_on_load(flip);
 
@@ -86,9 +96,10 @@ namespace vb01{
 	Texture::Texture(int width){
 		this->width=width;
 		this->type=TextureType::TEXTURE_CUBEMAP;
+		texture=new u32;
 
-		glGenTextures(1,&texture);
-		glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
+		glGenTextures(1,&texture[0]);
+		glBindTexture(GL_TEXTURE_CUBE_MAP,texture[0]);
 
 		for(int i=0;i<6;i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,0,GL_DEPTH_COMPONENT,width,width,0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);	
@@ -102,8 +113,10 @@ namespace vb01{
 	}
 
 	Texture::Texture(FT_Face &face, char ch){
-		glGenTextures(1,&texture);
-		glBindTexture(GL_TEXTURE_2D,texture);
+		texture=new u32;
+
+		glGenTextures(1,&texture[0]);
+		glBindTexture(GL_TEXTURE_2D,texture[0]);
 		glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
@@ -124,11 +137,31 @@ namespace vb01{
 
 	Texture::~Texture(){
 		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,0);
-		glDeleteTextures(1,&texture);
+		if(numFrames>0){
+			for(int i=0;i<numFrames;i++)
+				glDeleteTextures(1,&texture[i]);
+			delete[] texture;
+		}
+		else{
+			glDeleteTextures(1,&texture[0]);
+			delete texture;
+		}
 	}
 
 	void Texture::select(int id){
 		glActiveTexture(GL_TEXTURE0+id);
-		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,texture);
+		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,texture[numFrames>0?frame:0]);
+	}
+
+	void Texture::update(){
+		if(numFrames>0){
+			if(getTime()-lastUpdateTime>updateRate){
+				frame++;
+				if(frame==numFrames)
+					frame=0;
+				lastUpdateTime=getTime();
+			}
+		}
+		select();
 	}
 }

@@ -13,16 +13,18 @@ namespace vb01{
 
 			~Texture();
 			Texture(int,int,bool=true);
-			Texture(std::string,bool=false);
+			Texture(std::string[],int,int=0,bool=false);
 			Texture(std::string[6],bool=false);
 			Texture(int);
 			Texture(FT_Face&,char);
 			void select(int=0);
-			inline unsigned int* getTexture(){return &texture;}
+			void update();
+			inline unsigned int* getTexture(int i=0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 		private:
 			TextureType type=TextureType::TEXTURE_2D;
-			u32 texture;
+			u32 *texture=nullptr;
+			s32 updateRate=0,numFrames=0,frame=0;
 			s64 lastUpdateTime=0;
 			int width,height,numChannels;
 			float weight;
