@@ -29,6 +29,7 @@ namespace vb01{
 			inline GLFWwindow* getWindow(){return window;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();
+			int numLights=0;
 		private:
 			Box *skybox=nullptr;
 			Quad *guiPlane=nullptr;

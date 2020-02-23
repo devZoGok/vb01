@@ -15,23 +15,31 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
-	Light::Light(){
+	Light::Light(Type t){
+		this->type=t;
+		string basePath="../../vb01/depthMap.";
+
 		glGenFramebuffers(1,&depthmapFBO);
-
-		depthMap=new Texture(depthMapSize,depthMapSize);
-
 		glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
-		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,*(depthMap->getTexture()),0);
+		if(this->type==POINT){
+			depthMap=new Texture(depthMapSize);
+			glFramebufferTexture(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,*(depthMap->getTexture()),0);
+			depthMapShader=new Shader(basePath+"vert",basePath+"frag",basePath+"geo");
+		}
+		else{
+			depthMap=new Texture(depthMapSize,depthMapSize,true);
+			glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,*(depthMap->getTexture()),0);
+			depthMapShader=new Shader(basePath+"vert",basePath+"frag");
+		}
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
 		else 
 			cout<<"Complete\n";
 
-		string basePath="../../vb01/depthMap.";
-		depthMapShader=new Shader(basePath+"vert",basePath+"frag");
 	}
 
 	Light::~Light(){
@@ -66,88 +74,101 @@ namespace vb01{
 			for(Mesh *m : d->getMeshes())
 				materials.push_back(m->getMaterial());
 		}
-		for(int i=0;i<descendants.size();i++){
-			Node *n=descendants[i];
+		vec3 dirs[]{
+			vec3(1,0,0),
+			vec3(-1,0,0),
+			vec3(0,1,0),
+			vec3(0,-1,0),
+			vec3(0,0,1),
+			vec3(0,0,-1)
+		};
+		mat4 proj=mat4(1.),view=mat4(1.);
+		glViewport(0,0,depthMapSize,depthMapSize);
+		glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		for(Node *n : descendants){
 			vector<Mesh*> meshes=n->getMeshes();
 			for(Mesh *mesh : meshes){
 				Material *mat=mesh->getMaterial();
 				if(n->isVisible()&&mat&&mat->isLightingEnabled()){
-					mat4 proj,view;
+					Vector3 pos=n->getWorldPosition();
+					Quaternion rot=n->getWorldOrientation();
+					Vector3 rotAxis=rot.norm().getAxis();
+
+					if(rotAxis==Vector3::VEC_ZERO)
+						rotAxis=Vector3::VEC_I;
+
+					Vector3 upDir=direction.cross(Vector3(0,1,0));
+					if(upDir==Vector3(0,0,0))
+						upDir=Vector3::VEC_I;
+
+					vec3 dir=vec3(direction.x,direction.y,direction.z);
+					vec3 up=vec3(upDir.x,upDir.y,upDir.z);
+					vec3 p=type==DIRECTIONAL?vec3(pos.x,pos.y,pos.z)-.5f*farPlane*dir:vec3(position.x,position.y,position.z);
+					view=lookAt(p,p+dir,up);
+					proj=(type==DIRECTIONAL?ortho(-10.f,10.f,-10.f,10.f,nearPlane,farPlane):perspective(radians(90.f),1.f,nearPlane,farPlane));
+					mat4 model=translate(mat4(1.f),vec3(pos.x,pos.y,pos.z));
+					model=rotate(model,rot.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+
 					if(mesh->isCastShadow()){
-						Vector3 pos=n->getWorldPosition();
-						Quaternion rot=n->getWorldOrientation();
-						Vector3 rotAxis=rot.norm().getAxis();
-
-						if(rotAxis==Vector3::VEC_ZERO)
-							rotAxis=Vector3::VEC_I;
-
-						glViewport(0,0,depthMapSize,depthMapSize);
-						glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
-						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-						Vector3 upDir=direction.cross(Vector3(0,1,0));
-						if(upDir==Vector3(0,0,0))
-							upDir=Vector3::VEC_I;
-
-						vec3 dir=vec3(direction.x,direction.y,direction.z);
-						vec3 up=vec3(upDir.x,upDir.y,upDir.z);
-						vec3 p=type==DIRECTIONAL?vec3(pos.x,pos.y,pos.z)-.5f*farPlane*dir:vec3(position.x,position.y,position.z);
-						view=lookAt(p,p+dir,up);
-						proj=ortho(-10.f,10.f,-10.f,10.f,nearPlane,farPlane);
-
 						depthMapShader->use();
-						depthMapShader->setMat4(proj*view,"lightMat");
-
-						mat4 model=translate(mat4(1.f),vec3(pos.x,pos.y,pos.z));
-						model=rotate(model,rot.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+						depthMapShader->setBool(type==POINT,"point");
 						depthMapShader->setMat4(model,"model");
+
+						if(type==POINT){
+							depthMapShader->setFloat(farPlane,"farPlane");
+							depthMapShader->setVec3(position,"lightPos");
+							for(int j=0;j<6;j++)
+								depthMapShader->setMat4(proj*lookAt(p,p+dirs[j],1<j&&j<4?vec3(0,0,-1):vec3(0,-1,0)),"shadowMat["+to_string(j)+"]");
+						}
+						else{
+							depthMapShader->setMat4(proj*view,"lightMat");
+						}
 						mesh->render();
-
-						glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
-						glViewport(0,0,root->getWidth(),root->getHeight());
-
-						/*
-						for(Material *m : materials){
-							Shader *shader=m->getShader();
-							shader->use();
-							shader->setInt(1+2*thisId+i,"light["+to_string(thisId)+"].depthMap["+to_string(i)+"]");
-							depthMap->select(1+2*thisId+i);
-						}
-						*/
-					}
-					for(Material *m : materials){
-						Shader *shader=m->getShader();
-						shader->use();
-						shader->setInt((int)type,"light["+to_string(thisId)+"].type");
-						shader->setVec3(color,"light["+to_string(thisId)+"].color");
-						shader->setInt(0,"tex");
-						shader->setInt(1,"light["+to_string(thisId)+"].depthMap["+to_string(0)+"]");
-						depthMap->select(1);
-
-						switch(type){
-							case POINT:
-								shader->setVec3(position,"light["+to_string(thisId)+"].pos");
-								shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
-								shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
-								shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
-								break;
-							case DIRECTIONAL:
-								shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
-								shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
-								break;
-							case SPOT:
-								shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
-								shader->setVec3(position,"light["+to_string(thisId)+"].pos");
-								shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
-								shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
-								shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
-								shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
-								shader->setFloat(innerAngle,"light["+to_string(thisId)+"].innerAngle");
-								shader->setFloat(outerAngle,"light["+to_string(thisId)+"].outerAngle");
-								break;
-						}
 					}
 				}
+			}
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
+		glViewport(0,0,root->getWidth(),root->getHeight());
+		for(Material *m : materials){
+			Shader *shader=m->getShader();
+			shader->use();
+			shader->setInt((int)type,"light["+to_string(thisId)+"].type");
+			shader->setVec3(color,"light["+to_string(thisId)+"].color");
+			shader->setFloat(nearPlane,"light["+to_string(thisId)+"].near");
+			shader->setFloat(farPlane,"light["+to_string(thisId)+"].far");
+			shader->setInt(0,"tex");
+			if(type==POINT)
+				shader->setInt(1,"light["+to_string(thisId)+"].depthMapCube");
+			else
+				shader->setInt(1,"light["+to_string(thisId)+"].depthMap");
+			depthMap->select(1);
+			/*
+			*/
+
+			switch(type){
+				case POINT:
+					shader->setVec3(position,"light["+to_string(thisId)+"].pos");
+					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
+					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
+					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
+					break;
+				case DIRECTIONAL:
+					shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
+					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
+					break;
+				case SPOT:
+					shader->setMat4(proj*view,"light["+to_string(thisId)+"].lightMat");
+					shader->setVec3(position,"light["+to_string(thisId)+"].pos");
+					shader->setVec3(direction,"light["+to_string(thisId)+"].direction");
+					shader->setFloat(attenuationValues.x,"light["+to_string(thisId)+"].a");
+					shader->setFloat(attenuationValues.y,"light["+to_string(thisId)+"].b");
+					shader->setFloat(attenuationValues.z,"light["+to_string(thisId)+"].c");
+					shader->setFloat(innerAngle,"light["+to_string(thisId)+"].innerAngle");
+					shader->setFloat(outerAngle,"light["+to_string(thisId)+"].outerAngle");
+					break;
 			}
 		}
 	}

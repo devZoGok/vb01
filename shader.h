@@ -8,9 +8,9 @@
 namespace vb01{
 	class Shader{
 		public:
-			enum ErrorType{VERTEX,FRAGMENT,PROGRAM};
+			enum ErrorType{VERTEX,GEOMETRY,FRAGMENT,PROGRAM};
 
-			Shader(std::string,std::string);
+			Shader(std::string,std::string,std::string="");
 			~Shader();
 			void setNumLights(int);
 			void use();
@@ -26,7 +26,8 @@ namespace vb01{
 			void loadShaders();
 			void checkCompileErrors(unsigned int,ErrorType);
 			unsigned int id;
-			std::string vString,fString;
+			bool geometry=false;
+			std::string vString,fString,gString;
 	};
 }
 
