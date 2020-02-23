@@ -50,11 +50,11 @@ namespace vb01{
 		}
 		if(texturingEnabled){
 			for(Texture *t : diffuseMapTextures)
-				t->select();
+				t->update();
 			for(Texture *t : normalMapTextures)
-				t->select();
+				t->update();
 			for(Texture *t : specularMapTextures)
-				t->select();
+				t->update();
 		}
 		else {
 			shader->setVec4(diffuseColor,"diffuseColor");
