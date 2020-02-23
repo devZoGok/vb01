@@ -4,7 +4,11 @@ layout (location=0) in vec3 aPos;
 
 uniform mat4 model;
 uniform mat4 lightMat;
+uniform bool point;
 
 void main(){
-	gl_Position=lightMat*model*vec4(aPos,1);	
+	if(point)
+		gl_Position=model*vec4(aPos,1);
+	else
+		gl_Position=lightMat*model*vec4(aPos,1);	
 }

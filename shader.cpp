@@ -11,19 +11,25 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Shader::Shader(string vertShaderPath, string fragShaderPath){
-		ifstream vertShaderFile,fragShaderFile;
+	Shader::Shader(string vertShaderPath, string fragShaderPath, string geoShaderPath){
+		geometry=(geoShaderPath!="");
+
+		ifstream vertShaderFile,geoShaderFile,fragShaderFile;
 		vertShaderFile.open(vertShaderPath);
+		geoShaderFile.open(geoShaderPath);
 		fragShaderFile.open(fragShaderPath);
 		
-		stringstream vertShaderStream,fragShaderStream;
+		stringstream vertShaderStream,geoShaderStream,fragShaderStream;
 		vertShaderStream<<vertShaderFile.rdbuf();
+		geoShaderStream<<geoShaderFile.rdbuf();
 		fragShaderStream<<fragShaderFile.rdbuf();
 		
 		vertShaderFile.close();
+		geoShaderFile.close();
 		fragShaderFile.close();
 		
 		vString=vertShaderStream.str();
+		gString=geoShaderStream.str();
 		fString=fragShaderStream.str();
 
 		loadShaders();
@@ -48,13 +54,21 @@ namespace vb01{
 
 	void Shader::loadShaders(){
 		const char *vertShaderSource=vString.c_str();
+		const char *geoShaderSource=gString.c_str();
 		const char *fragShaderSource=fString.c_str();
 
-		unsigned int vert,frag;
+		unsigned int vert,geo,frag;
 		vert=glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vert,1,&vertShaderSource,NULL);
 		glCompileShader(vert);
 		checkCompileErrors(vert,VERTEX);
+
+		if(geometry){
+			geo=glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geo,1,&geoShaderSource,NULL);
+			glCompileShader(geo);
+			checkCompileErrors(geo,GEOMETRY);
+		}
 
 		frag=glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(frag,1,&fragShaderSource,NULL);
@@ -63,11 +77,13 @@ namespace vb01{
 
 		id=glCreateProgram();
 		glAttachShader(id,vert);
+		if(geometry) glAttachShader(id,geo);
 		glAttachShader(id,frag);
 		glLinkProgram(id);
 		checkCompileErrors(id,PROGRAM);
 
 		glDeleteShader(vert);
+		if(geometry) glDeleteShader(geo);
 		glDeleteShader(frag);
 	}
 	
@@ -85,7 +101,18 @@ namespace vb01{
 			default:
 				glGetShaderiv(shader,GL_COMPILE_STATUS,&success);
 				if(!success){
-					const char *sh=(type==VERTEX?"VERTEX":"FRAGMENT");
+					const char *sh;
+					switch(type){
+						case VERTEX:
+							sh="VERTEX";
+							break;
+						case GEOMETRY:
+							sh="GEOMETRY";
+							break;
+						case FRAGMENT:
+							sh="FRAGMENT";
+							break;
+					}
 					glGetShaderInfoLog(shader,1024,NULL,infoLog);
 					cout<<"ERROS::SHADER_COMPILE_ERROR::"<<sh<<endl<<infoLog<<endl;
 				}

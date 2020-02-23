@@ -87,21 +87,20 @@ namespace vb01{
 	void Node::addLight(Light *light){
 		lights.push_back(light);	
 		light->setNode(this);
+		Root *root=Root::getSingleton();
 
 		Node *rootNode=Root::getSingleton()->getRootNode();
 		vector<Node*> descendants;
 		rootNode->getDescendants(rootNode,descendants);
 		descendants.push_back(rootNode);
-		int numLights=0;
-		for(Node *n : descendants)
-			numLights+=n->getNumLights();
+		root->numLights++;
 		for(Node *n : descendants){
 			vector<Mesh*> meshes=n->getMeshes();
 			for(Mesh *m : meshes){
 				Material *mat=m->getMaterial();
-				string str=to_string(numLights>0?numLights:1);
+				string str=to_string(root->numLights>0?root->numLights:1);
 				if(mat){
-					mat->getShader()->editShader(true,'=',';',str);
+					//mat->getShader()->editShader(true,'=',';',str);
 					mat->getShader()->editShader(false,'=',';',str);
 				}
 			}

@@ -12,7 +12,7 @@ namespace vb01{
 		public:
 			enum Type{POINT,DIRECTIONAL,SPOT,AMBIENT};
 
-			Light();
+			Light(Type);
 			~Light();
 			void update();
 			inline void setNode(Node *node){this->node=node;}
@@ -24,7 +24,6 @@ namespace vb01{
 				attenuationValues.y=b;
 				attenuationValues.z=c;
 			}
-			inline void setType(Type t){this->type=t;}
 			inline void setInnerAngle(float innerAngle){this->innerAngle=innerAngle;}
 			inline void setOuterAngle(float outerAngle){this->outerAngle=outerAngle;}
 			inline void setShadowNearPlane(float nearPlane){this->nearPlane=nearPlane;}
