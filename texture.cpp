@@ -153,7 +153,7 @@ namespace vb01{
 		glBindTexture(type==TEXTURE_2D?GL_TEXTURE_2D:GL_TEXTURE_CUBE_MAP,texture[numFrames>0?frame:0]);
 	}
 
-	void Texture::update(){
+	void Texture::update(int id){
 		if(numFrames>0){
 			if(getTime()-lastUpdateTime>updateRate){
 				frame++;
@@ -162,6 +162,6 @@ namespace vb01{
 				lastUpdateTime=getTime();
 			}
 		}
-		select();
+		select(id);
 	}
 }

@@ -14,7 +14,7 @@ namespace vb01{
 	class Mesh{
 		public:
 			struct Vertex{
-				Vector3 pos,norm;
+				Vector3 pos,tan,biTan,norm;
 				Vector2 texCoords;	
 			};
 			struct VertexGroup{

@@ -40,8 +40,11 @@ namespace vb01{
 
 	void Material::update(){
 		shader->use();
-		if(type==MATERIAL_2D)
+		if(type==MATERIAL_2D){
 			shader->setBool(lightingEnabled,"lightingEnabled");
+			if(normalMapEnabled)
+				shader->setBool(normalMapEnabled,"normalMapEnabled");
+		}
 		shader->setBool(texturingEnabled,"texturingEnabled");
 		if(type==MATERIAL_GUI){
 			shader->setBool(diffuseColorEnabled,"diffuseColorEnabled");
@@ -52,9 +55,9 @@ namespace vb01{
 			for(Texture *t : diffuseMapTextures)
 				t->update();
 			for(Texture *t : normalMapTextures)
-				t->update();
+				t->update(2);
 			for(Texture *t : specularMapTextures)
-				t->update();
+				t->update(3);
 		}
 		else {
 			shader->setVec4(diffuseColor,"diffuseColor");
