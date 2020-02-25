@@ -2,6 +2,8 @@
 const int numLights=1;
 
 in vec3 fragPos;
+in vec3 tan;
+in vec3 biTan;
 in vec3 norm;
 in vec2 texCoords;
 in vec4 lightSpaceFragPos;
@@ -20,10 +22,12 @@ struct Light{
 	mat4 lightMat;
 };
 
-uniform sampler2D tex;
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
 uniform Light light[numLights];
 uniform bool lightingEnabled;
 uniform bool texturingEnabled;
+uniform bool normalMapEnabled;
 uniform bool castShadow;
 uniform vec4 diffuseColor;
 uniform vec3 camPos;
@@ -37,13 +41,15 @@ float getShadow(int id){
 	int type=light[id].type;
 
 	float shadow=0,closestDepth=0,currentDepth=0,bias=.005,val=.7;
+/*
 	if(type==0){
 		vec3 projDir=fragPos-light[id].pos;
 		closestDepth=texture(light[id].depthMapCube,projDir).r*light[id].far;
 		currentDepth=length(projDir);
 		shadow=(currentDepth-bias>closestDepth)?val:0;
 	}
-	else{
+*/
+	if(type!=0){
 		vec3 projCoords=(light[id].lightMat*vec4(fragPos,1)).xyz/(light[id].lightMat*vec4(fragPos,1)).w;
 		projCoords=projCoords*.5+.5;
 		closestDepth=texture(light[id].depthMap,projCoords.xy).r;
@@ -57,13 +63,16 @@ float getShadow(int id){
 			shadow=0;
 	}
 	return shadow;
-/*
-*/
 }
 
 void main(){
-	vec4 finalColor=texturingEnabled?texture(tex,texCoords):diffuseColor;
+	vec4 finalColor=texturingEnabled?texture(diffuseMap,texCoords):diffuseColor;
+	vec3 normal=norm;
 	if(lightingEnabled){
+		if(normalMapEnabled){
+			vec3 n=vec3(texture(normalMap,texCoords));
+			normal=mat3(tan,biTan,norm)*n;
+		}
 		vec3 diffuseColor=vec3(0),specularColor=vec3(0);
 		float coef=1;
 		for(int i=0;i<numLights;i++){
@@ -92,17 +101,19 @@ void main(){
 				}
 			}
 			float specularStrength=.5;
-			reflectVec=reflect(lightDir,norm);
+			reflectVec=reflect(lightDir,normal);
 			float spec=pow(max(dot(viewDir,reflectVec),0),32);	
 			specularColor+=vec3(1)*spec*specularStrength;
 
-			factor=max(dot(lightDir,norm),0.);
+			factor=max(dot(lightDir,normal),0.);
 			diffuseColor+=light[i].color*(factor*attenuation*coef);
 		}	
 
 		for(int i=0;i<numLights;i++){
 			float shadow=getShadow(i);
 			diffuseColor*=(1-shadow);
+/*
+*/
 		}
 
 		finalColor*=vec4(diffuseColor+specularColor,1);

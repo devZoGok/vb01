@@ -18,7 +18,7 @@ namespace vb01{
 			Texture(int);
 			Texture(FT_Face&,char);
 			void select(int=0);
-			void update();
+			void update(int=0);
 			inline unsigned int* getTexture(int i=0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 		private:

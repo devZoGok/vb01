@@ -40,6 +40,14 @@ namespace vb01{
 			v.norm.y=mesh->mNormals[i].y;
 			v.norm.z=mesh->mNormals[i].z;
 
+			v.tan.x=mesh->mTangents[i].x;
+			v.tan.y=mesh->mTangents[i].y;
+			v.tan.z=mesh->mTangents[i].z;
+
+			v.biTan.x=mesh->mBitangents[i].x;
+			v.biTan.y=mesh->mBitangents[i].y;
+			v.biTan.z=mesh->mBitangents[i].z;
+
 			if(mesh->mTextureCoords[0]){
 				v.texCoords.x=mesh->mTextureCoords[0][i].x;
 				v.texCoords.y=mesh->mTextureCoords[0][i].y;
@@ -63,7 +71,7 @@ namespace vb01{
 	Model::Model(string path,bool b) : Node(){
 		if(b){
 		Importer importer;
-		const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs  |  aiProcess_GenNormals);
+		const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 		if(!scene||scene->mFlags&AI_SCENE_FLAGS_INCOMPLETE||!scene->mRootNode){
 			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
 			exit(-1);	
