@@ -24,6 +24,8 @@ struct Light{
 
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
+uniform sampler2D specularMap;
+uniform sampler2D parallaxMap;
 uniform Light light[numLights];
 uniform bool lightingEnabled;
 uniform bool texturingEnabled;
@@ -73,6 +75,7 @@ void main(){
 			vec3 n=vec3(texture(normalMap,texCoords));
 			normal=mat3(tan,biTan,norm)*n;
 		}
+
 		vec3 diffuseColor=vec3(0),specularColor=vec3(0);
 		float coef=1;
 		for(int i=0;i<numLights;i++){
@@ -100,7 +103,7 @@ void main(){
 					coef=0;	
 				}
 			}
-			float specularStrength=.5;
+			float specularStrength=1;
 			reflectVec=reflect(lightDir,normal);
 			float spec=pow(max(dot(viewDir,reflectVec),0),32);	
 			specularColor+=vec3(1)*spec*specularStrength;

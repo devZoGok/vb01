@@ -139,7 +139,7 @@ namespace vb01{
 			shader->setVec3(color,"light["+to_string(thisId)+"].color");
 			shader->setFloat(nearPlane,"light["+to_string(thisId)+"].near");
 			shader->setFloat(farPlane,"light["+to_string(thisId)+"].far");
-			shader->setInt(0,"tex");
+			//shader->setInt(0,"tex");
 			if(type==POINT)
 				shader->setInt(1,"light["+to_string(thisId)+"].depthMapCube");
 			else
