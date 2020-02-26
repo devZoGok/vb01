@@ -58,6 +58,8 @@ namespace vb01{
 				t->update(2);
 			for(Texture *t : specularMapTextures)
 				t->update(3);
+			for(Texture *t : parallaxMapTextures)
+				t->update(4);
 		}
 		else {
 			shader->setVec4(diffuseColor,"diffuseColor");

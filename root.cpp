@@ -79,6 +79,8 @@ namespace vb01{
 		Material *mat=new Material(Material::MATERIAL_GUI);
 		mat->addDiffuseMap(texture);
 		guiPlane->setMaterial(mat);
+		mat->getShader()->use();
+		mat->getShader()->setBool(true,"guiPlane");
 	}
 
 	void Root::update(){
