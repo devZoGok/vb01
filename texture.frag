@@ -8,7 +8,8 @@ in vec3 norm;
 in vec2 texCoords;
 in vec4 lightSpaceFragPos;
 
-out vec4 FragColor;
+layout (location=0) out vec4 FragColor;
+layout (location=1) out vec4 BrightColor;
 
 //0-POINT,1-DIRECTIONAL,2-SPOT
 
@@ -121,5 +122,8 @@ void main(){
 
 		finalColor*=vec4(diffuseColor+specularColor,1);
 	}
+	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness>1)
+		BrightColor=vec4(finalColor.rgb,1);
 	FragColor=finalColor;
 }

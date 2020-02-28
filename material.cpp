@@ -21,6 +21,9 @@ namespace vb01{
 			case MATERIAL_GUI:
 				shaderName="gui.";
 				break;
+			case MATERIAL_POST:
+				shaderName="postProcess.";
+				break;
 			case MATERIAL_TEXT:
 				shaderName="text.";
 				break;

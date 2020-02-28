@@ -13,8 +13,9 @@ namespace vb01{
 	class Mesh;
 	class Box;
 	class Quad;
-	class Shader;
 	class Node;
+	class Texture;
+	class Shader;
 
 	class Root{
 		public:
@@ -27,17 +28,21 @@ namespace vb01{
 			inline int getHeight(){return height;}
 			inline unsigned int* getFBO(){return &FBO;}
 			inline GLFWwindow* getWindow(){return window;}
+			inline void setBloom(bool bloom){this->bloom=bloom;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();
 			int numLights=0;
 		private:
+			bool bloom=false;
 			Box *skybox=nullptr;
 			Quad *guiPlane=nullptr;
 			int width,height;
-			unsigned int FBO,RBO;
+			unsigned int FBO,RBO,pingpongBuffers[2];
 			GLFWwindow *window;
 			Node *rootNode,*guiNode;
 			Camera *camera;
+			Shader *blurShader;
+			Texture *pingPongTextures[2];
 			std::vector<Mesh*> meshes;
 
 			void framebuffer_size_callback(GLFWwindow*,int,int);
