@@ -60,8 +60,13 @@ namespace vb01{
 
 		glGenFramebuffers(1,&FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
-		Texture *texture=new Texture(width,height,false);
-		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(texture->getTexture()),0);
+		Texture *fragTexture=new Texture(width,height,false);
+		Texture *brightTexture=new Texture(width,height,false);
+		for(int i=0;i<2;i++){
+			glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0+i,GL_TEXTURE_2D,*((i==0?fragTexture:brightTexture)->getTexture()),0);
+		}
+		u32 colorAttachments[]{GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1};
+		glDrawBuffers(2,colorAttachments);
 
 		glGenRenderbuffers(1,&RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
@@ -76,11 +81,22 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 
 		guiPlane=new Quad(Vector3(width,height,-1),false);
-		Material *mat=new Material(Material::MATERIAL_GUI);
-		mat->addDiffuseMap(texture);
+		Material *mat=new Material(Material::MATERIAL_POST);
+		mat->addDiffuseMap(fragTexture);
+		mat->addDiffuseMap(brightTexture);
 		guiPlane->setMaterial(mat);
-		mat->getShader()->use();
-		mat->getShader()->setBool(true,"guiPlane");
+
+		string basePath="../../vb01/";
+		blurShader=new Shader(basePath+"blur.vert",basePath+"blur.frag");
+		glGenFramebuffers(2,pingpongBuffers);
+		for(int i=0;i<2;i++){
+			pingPongTextures[i]=new Texture(width,height,false);
+			glBindFramebuffer(GL_RENDERBUFFER,pingpongBuffers[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(pingPongTextures[i]->getTexture()),0);
+			if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+				cout<<"Not complete\n";
+			glBindFramebuffer(GL_RENDERBUFFER,0);
+		}
 	}
 
 	void Root::update(){
@@ -106,7 +122,35 @@ namespace vb01{
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
 
-		guiPlane->update();
+		Material *material=guiPlane->getMaterial();
+		Shader *shader=material->getShader();
+
+		/*
+		int ammount=10;
+		bool horizontal=false;
+		blurShader->use();
+		for(int i=0;i<ammount;i++){
+			blurShader->setBool(horizontal,"horizontal");
+			glBindFramebuffer(GL_FRAMEBUFFER,pingpongBuffers[horizontal]);
+			if(i==0)
+				material->getDiffuseMap(1)->update();
+			else
+				pingPongTextures[!horizontal]->update();
+			guiPlane->render();
+			horizontal=!horizontal;
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		*/
+
+		shader->use();
+		shader->setVec2(Vector2(width,height),"screen");
+		shader->setBool(bloom,"bloom");
+		material->getDiffuseMap(0)->update();
+		material->getDiffuseMap(1)->update(1);
+		//pingPongTextures[1]->update(1);
+		shader->setInt(0,"frag");
+		shader->setInt(1,"bright");
+		guiPlane->render();
 
 		glEnable(GL_DEPTH_TEST);
 		guiNode->update();
