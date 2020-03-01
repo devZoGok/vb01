@@ -76,8 +76,6 @@ namespace vb01{
 		*/
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
-		else 
-			cout<<"Complete\n";
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 
 		guiPlane=new Quad(Vector3(width,height,-1),false);
@@ -86,16 +84,15 @@ namespace vb01{
 		mat->addDiffuseMap(brightTexture);
 		guiPlane->setMaterial(mat);
 
-		string basePath="../../vb01/";
-		blurShader=new Shader(basePath+"blur.vert",basePath+"blur.frag");
+		string basePath="../../vb01/blur.";
+		blurShader=new Shader(basePath+"vert",basePath+"frag");
 		glGenFramebuffers(2,pingpongBuffers);
 		for(int i=0;i<2;i++){
+			glBindFramebuffer(GL_FRAMEBUFFER,pingpongBuffers[i]);
 			pingPongTextures[i]=new Texture(width,height,false);
-			glBindFramebuffer(GL_RENDERBUFFER,pingpongBuffers[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,*(pingPongTextures[i]->getTexture()),0);
 			if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 				cout<<"Not complete\n";
-			glBindFramebuffer(GL_RENDERBUFFER,0);
 		}
 	}
 
@@ -125,29 +122,29 @@ namespace vb01{
 		Material *material=guiPlane->getMaterial();
 		Shader *shader=material->getShader();
 
-		/*
-		int ammount=10;
 		bool horizontal=false;
 		blurShader->use();
-		for(int i=0;i<ammount;i++){
-			blurShader->setBool(horizontal,"horizontal");
+		blurShader->setVec2(Vector2(width,height),"screen");
+		for(int i=0;i<blurLevel;i++){
 			glBindFramebuffer(GL_FRAMEBUFFER,pingpongBuffers[horizontal]);
+			blurShader->setBool(horizontal,"horizontal");
 			if(i==0)
-				material->getDiffuseMap(1)->update();
+				glBindTexture(GL_TEXTURE_2D,*(material->getDiffuseMap(1)->getTexture()));
 			else
-				pingPongTextures[!horizontal]->update();
+				pingPongTextures[!horizontal]->select();
 			guiPlane->render();
 			horizontal=!horizontal;
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		*/
 
 		shader->use();
 		shader->setVec2(Vector2(width,height),"screen");
 		shader->setBool(bloom,"bloom");
-		material->getDiffuseMap(0)->update();
-		material->getDiffuseMap(1)->update(1);
-		//pingPongTextures[1]->update(1);
+		shader->setBool(hdr,"hdr");
+		shader->setFloat(exposure,"exposure");
+		shader->setFloat(gamma,"gamma");
+		material->getDiffuseMap(0)->select();
+		pingPongTextures[!horizontal]->select(1);
 		shader->setInt(0,"frag");
 		shader->setInt(1,"bright");
 		guiPlane->render();

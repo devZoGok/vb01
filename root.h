@@ -28,15 +28,21 @@ namespace vb01{
 			inline int getHeight(){return height;}
 			inline unsigned int* getFBO(){return &FBO;}
 			inline GLFWwindow* getWindow(){return window;}
+			inline void setHDREnabled(bool hdr){this->hdr=hdr;}
+			inline void setExposure(float exposure){this->exposure=exposure;}
+			inline void setGamma(float gamme){this->gamma=gamma;}
 			inline void setBloom(bool bloom){this->bloom=bloom;}
+			inline void setBlurLevel(bool level){this->blurLevel=level;}
+			inline Box* getSkybox(){return skybox;}
 			void createSkybox(std::string[6]);
 			static Root* getSingleton();
 			int numLights=0;
 		private:
-			bool bloom=false;
+			bool bloom=false,hdr=false;
+			float exposure=1,gamma=1;
 			Box *skybox=nullptr;
 			Quad *guiPlane=nullptr;
-			int width,height;
+			int width,height,blurLevel=10;
 			unsigned int FBO,RBO,pingpongBuffers[2];
 			GLFWwindow *window;
 			Node *rootNode,*guiNode;

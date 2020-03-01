@@ -229,6 +229,15 @@ namespace vb01{
 		this->castShadow=castShadow;
 	}
 
+	void Model::setReflect(bool reflect){
+		vector<Node*> descendants;
+		getDescendants(this,descendants);
+		for(Node *node : descendants)
+			for(Mesh *mesh : node->getMeshes())
+				mesh->setReflect(reflect);
+		this->reflect=reflect;
+	}
+
 	void Model::setWireframe(bool wirefame){
 		vector<Node*> descendants;
 		getDescendants(this,descendants);
