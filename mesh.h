@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include"vector.h"
+#include"util.h"
 #include<vector>
 #include<string>
 #include"material.h"
@@ -9,6 +10,8 @@
 
 namespace vb01{
 	class Node;
+	class Shader;
+	class Texture;
 	class Skeleton;
 
 	class Mesh{
@@ -31,6 +34,7 @@ namespace vb01{
 			void setMaterial(Material *mat){this->material=mat;}
 			inline void setNode(Node *node){this->node=node;}
 			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}
+			inline void setReflect(bool r){this->reflect=r;}
 			inline void setWireframe(bool w){this->wireframe=w;}
 			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
@@ -40,16 +44,20 @@ namespace vb01{
 			inline Vertex* getVerts(){return vertices;}
 			inline unsigned int* getIndices(){return indices;}
 		private:
+			Shader *environmentShader=nullptr;
+			u32 environmentBuffer;
+			Texture *environmentMap;
 			Material *material=nullptr;
 			Node *node=nullptr;
 			std::vector<Mesh*> meshes;
 			std::string name="";
+			int width=800;
 			Skeleton *skeleton=nullptr;
 		protected:
 			Mesh();
 			void construct();
 
-			bool staticVerts=true,castShadow=false,wireframe=false;
+			bool staticVerts=true,castShadow=false,reflect=false,wireframe=false;
 			Vertex *vertices;
 			VertexGroup groups;
 			unsigned int *indices,VAO,VBO,EBO;

@@ -28,7 +28,13 @@ namespace vb01{
 				shaderName="text.";
 				break;
 		}
-		shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
+		/*
+		if(type==MATERIAL_2D)
+			//shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
+			shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag",basePath+shaderName+"geo");
+		else
+		*/
+			shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
 	}
 
 	Material::~Material(){
@@ -56,13 +62,13 @@ namespace vb01{
 		}
 		if(texturingEnabled){
 			for(Texture *t : diffuseMapTextures)
-				t->update();
+				t->update(0);
 			for(Texture *t : normalMapTextures)
-				t->update(2);
+				t->update(1);
 			for(Texture *t : specularMapTextures)
-				t->update(3);
+				t->update(2);
 			for(Texture *t : parallaxMapTextures)
-				t->update(4);
+				t->update(3);
 		}
 		else {
 			shader->setVec4(diffuseColor,"diffuseColor");

@@ -25,10 +25,10 @@ namespace vb01{
 			glTexParameterfv(GL_TEXTURE_2D,GL_TEXTURE_BORDER_COLOR,borderColor);
 		}
 		else{
-			glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGB,GL_FLOAT,NULL);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_RGB16F,width,height,0,GL_RGB,GL_FLOAT,NULL);
 			//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
-			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		}
@@ -94,7 +94,7 @@ namespace vb01{
 
 	}
 
-	Texture::Texture(int width){
+	Texture::Texture(int width,bool depth){
 		this->width=width;
 		this->type=TextureType::TEXTURE_CUBEMAP;
 		texture=new u32;
@@ -103,7 +103,7 @@ namespace vb01{
 		glBindTexture(GL_TEXTURE_CUBE_MAP,texture[0]);
 
 		for(int i=0;i<6;i++)
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,0,GL_DEPTH_COMPONENT,width,width,0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);	
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,0,depth?GL_DEPTH_COMPONENT:GL_RGB,width,width,0,depth?GL_DEPTH_COMPONENT:GL_RGB,GL_FLOAT,NULL);	
 		
 		glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_NEAREST);

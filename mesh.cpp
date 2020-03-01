@@ -1,6 +1,7 @@
 #include"root.h"
 #include"node.h"
-#include"mesh.h"
+#include"box.h"
+#include"texture.h"
 #include"skeleton.h"
 #include<glad.h>
 #include<glfw3.h>
@@ -21,6 +22,7 @@ namespace vb01{
 		this->vertices=vertices;
 		this->indices=indices;
 		this->numTris=numTris;
+
 		construct();
 	}
 
@@ -39,6 +41,27 @@ namespace vb01{
 	}
 
 	void Mesh::construct(){
+		u32 RBO;
+		string basePath="../../vb01/depthMap.";
+		environmentShader=new Shader(basePath+"vert",basePath+"frag",basePath+"geo");
+		environmentMap=new Texture(width,false);
+
+		glGenFramebuffers(1,&environmentBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER,environmentBuffer);
+		glFramebufferTexture(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,*(environmentMap->getTexture()),0);
+
+		/*
+		glGenRenderbuffers(1,&RBO);
+		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,width);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+		*/
+
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+			cout<<"Not complete\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 		glGenVertexArrays(1,&VAO);
 		glGenBuffers(1,&VBO);
 		glGenBuffers(1,&EBO);	
@@ -77,6 +100,49 @@ namespace vb01{
 			camPos=cam->getPosition();
 		}
 
+		if(reflect){
+			glViewport(0,0,width,width);
+			glBindFramebuffer(GL_FRAMEBUFFER,environmentBuffer);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			vec3 dirs[]{
+				vec3(1,0,0),
+				vec3(-1,0,0),
+				vec3(0,1,0),
+				vec3(0,-1,0),
+				vec3(0,0,1),
+				vec3(0,0,-1)
+			};
+			environmentShader->use();
+			Node *rootNode=root->getRootNode();
+			vector<Node*> descendants;
+			rootNode->getDescendants(rootNode,descendants);
+			for(Node *n : descendants){
+				for(Mesh *m : n->getMeshes())
+					if(m!=this){
+						Vector3 position=n->getWorldPosition();
+						Quaternion rotation=n->getWorldOrientation();
+						Vector3 rotAxis=rotation.norm().getAxis();
+
+						if(rotAxis==Vector3::VEC_ZERO)
+							rotAxis=Vector3::VEC_I;
+						float far=100;
+						vec3 p=vec3(position.x,position.y,position.z);
+						mat4 proj=perspective(radians(90.f),1.f,.1f,far);
+						mat4 model=translate(mat4(1.),p);
+						model=rotate(model,rotation.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+						environmentShader->setMat4(model,"model");
+						environmentShader->setBool(true,"point");
+						environmentShader->setVec3(pos,"lightPos");
+						environmentShader->setFloat(far,"farPlane");
+						for(int i=0;i<6;i++)
+							environmentShader->setMat4(proj*lookAt(p,p+dirs[i],1<i&&i<4?vec3(0,0,-1):vec3(0,-1,0)),"shadowMat["+to_string(i)+"]");
+						m->render();
+					}
+			}
+			glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
+			glViewport(0,0,root->getWidth(),root->getHeight());
+		}
+
 		Vector3 rotAxis=orient.norm().getAxis();
 		if(rotAxis==Vector3::VEC_ZERO)
 			rotAxis=Vector3::VEC_I;
@@ -89,10 +155,16 @@ namespace vb01{
 		material->update();
 		Shader *shader=material->getShader();
 		shader->setBool(castShadow,"castShadow");
+		shader->setBool(false,"environment");
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
 		shader->setVec3(camPos,"camPos");
 		shader->setMat4(model,"model");
+		if(reflect){
+			shader->setBool(reflect,"environmentMapEnabled");
+			root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
+			//environmentMap->select(4);
+		}
 		if(skeleton){
 		}
 		if(material->getType()==Material::MATERIAL_GUI){

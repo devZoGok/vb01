@@ -15,7 +15,7 @@ namespace vb01{
 			Texture(int,int,bool=true);
 			Texture(std::string[],int,int=0,bool=false);
 			Texture(std::string[6],bool=false);
-			Texture(int);
+			Texture(int,bool=true);
 			Texture(FT_Face&,char);
 			void select(int=0);
 			void update(int=0);
