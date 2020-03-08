@@ -25,8 +25,12 @@ namespace vb01{
 			delete p;
 		for(Text *t : texts)
 			delete t;
-		for(Node *c : children)
+		for(Node *c : children){
+			Node *par=c->getParent();
+			if(par)
+				par->dettachChild(c);
 			delete c;
+		}
 	}
 
 	void Node::update(){
@@ -35,12 +39,12 @@ namespace vb01{
 				l->update();
 			for(Mesh *m : meshes)
 				m->update();
-			for(ParticleEmitter *p : emitters)
-				p->update();
 			for(Text *t : texts)
 				t->update();
 			for(Node *c : children)
 				c->update();
+			for(ParticleEmitter *p : emitters)
+				p->update();
 		}
 	}
 
