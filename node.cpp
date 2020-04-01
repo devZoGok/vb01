@@ -26,9 +26,7 @@ namespace vb01{
 		for(Text *t : texts)
 			delete t;
 		for(Node *c : children){
-			Node *par=c->getParent();
-			if(par)
-				par->dettachChild(c);
+			//dettachChild(c);
 			delete c;
 		}
 	}
@@ -49,27 +47,11 @@ namespace vb01{
 	}
 
 	void Node::attachChild(Node *child){
-		/*
-		Node *parent=getParent();
-		while(parent){
-			parent->getDescendants().push_back(child);
-			parent=parent->getParent();
-		}
-		descendants.push_back(child);
-		*/
 		child->setParent(this);
 		children.push_back(child);
 	}
 
 	void Node::dettachChild(Node *child){
-		/*
-		Node *parent=getParent();
-		while(parent){
-			parent->getDescendants().push_back(child);
-			parent=parent->getParent();
-		}
-		descendants.push_back(child);
-		*/
 		child->setParent(nullptr);
 		int id=-1;
 		for(int i=0;i<children.size()&&id==-1;i++)
@@ -89,26 +71,18 @@ namespace vb01{
 	}
 
 	void Node::addLight(Light *light){
+		Root::getSingleton()->numLights++;
 		lights.push_back(light);	
 		light->setNode(this);
-		Root *root=Root::getSingleton();
+		updateShaders();
+	}
 
-		Node *rootNode=Root::getSingleton()->getRootNode();
-		vector<Node*> descendants;
-		rootNode->getDescendants(rootNode,descendants);
-		descendants.push_back(rootNode);
-		root->numLights++;
-		for(Node *n : descendants){
-			vector<Mesh*> meshes=n->getMeshes();
-			for(Mesh *m : meshes){
-				Material *mat=m->getMaterial();
-				string str=to_string(root->numLights>0?root->numLights:1);
-				if(mat){
-					//mat->getShader()->editShader(true,'=',';',str);
-					mat->getShader()->editShader(false,'=',';',str);
-				}
-			}
-		}
+	void Node::removeLight(int id){
+		Root::getSingleton()->numLights--;
+		Light *light=lights[id];
+		light->setNode(nullptr);
+		lights.erase(lights.begin()+id);
+		updateShaders();
 	}
 
 	void Node::addText(Text *text){
@@ -241,5 +215,24 @@ namespace vb01{
 		delete[] mat;
 
 		return p;
+	}
+
+	void Node::updateShaders(){
+		Root *root=Root::getSingleton();
+		Node *rootNode=Root::getSingleton()->getRootNode();
+		vector<Node*> descendants;
+		rootNode->getDescendants(rootNode,descendants);
+		descendants.push_back(rootNode);
+		for(Node *n : descendants){
+			vector<Mesh*> meshes=n->getMeshes();
+			for(Mesh *m : meshes){
+				Material *mat=m->getMaterial();
+				string str=to_string(root->numLights>0?root->numLights:1);
+				if(mat){
+					//mat->getShader()->editShader(true,'=',';',str);
+					mat->getShader()->editShader(false,'=',';',str);
+				}
+			}
+		}
 	}
 }

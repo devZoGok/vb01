@@ -162,4 +162,10 @@ namespace vb01{
 		skyboxMat->addDiffuseMap(textures);
 		skybox->setMaterial(skyboxMat);
 	}
+
+	void Root::removeSkybox(){
+		Material *mat=skybox->getMaterial();
+		delete skybox;
+		skybox=nullptr;
+	}
 }
