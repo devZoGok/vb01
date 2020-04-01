@@ -27,6 +27,7 @@ namespace vb01{
 			void attachChild(Node*);
 			void dettachChild(Node*);
 			void addLight(Light*);
+			void removeLight(int);
 			void addText(Text*);
 			void lookAt(Vector3,Vector3);
 			Transform getWorldTransform();
@@ -57,6 +58,8 @@ namespace vb01{
 			inline void setVisible(bool v){this->visible=v;}
 			void getDescendants(Node*,std::vector<Node*>&);
 		protected:
+			void updateShaders();
+			
 			bool visible=true;
 			Vector3 pos,scale;
 			Quaternion orientation;

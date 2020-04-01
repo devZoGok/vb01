@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include<cmath>
+#include<iostream>
 
 namespace vb01{
 	struct Vector4{
@@ -67,6 +68,7 @@ namespace vb01{
 		float getLength(){return std::sqrt(getLengthSq());}
 		float dot(Vector2 v){return x*v.x+y*v.y;}
 		float getAngleBetween(Vector2 v){return std::acos(dot(v));}
+		float getDistanceFrom(Vector2 v){return (v-*this).getLengthSq();}
 		Vector2 norm(){return *this/getLength();}
 
 		float x,y;

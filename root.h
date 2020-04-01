@@ -35,6 +35,7 @@ namespace vb01{
 			inline void setBlurLevel(bool level){this->blurLevel=level;}
 			inline Box* getSkybox(){return skybox;}
 			void createSkybox(std::string[6]);
+			void removeSkybox();
 			static Root* getSingleton();
 			int numLights=0;
 		private:
