@@ -43,6 +43,8 @@ namespace vb01{
 				c->update();
 			for(ParticleEmitter *p : emitters)
 				p->update();
+			/*
+				*/
 		}
 	}
 

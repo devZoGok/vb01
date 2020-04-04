@@ -8,7 +8,7 @@ layout (location=0) out vec4 FragColor;
 layout (location=1) out vec4 BrightColor;
 
 uniform sampler2D tex;
-uniform vec4 color[200];
+uniform vec4 color[507];
 
 void main(){
 	float alpha=texture(tex,texCoords).r;

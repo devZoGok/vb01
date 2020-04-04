@@ -42,13 +42,18 @@ namespace vb01{
 		ParticleEmitter::Vertex vertices[]={v1,v2,v3,v4,v5,v6};
 		unsigned int indices[]={0,1,2,3,4,5};
 
+		u32 MBO;
+		mat4 *matrices=new mat4[numParticles];
+
 		for(int i=0;i<numParticles;i++){
 			mat4 mat=translate(mat4(1.f),vec3(0,0,0));
 			Particle p;
 			p.mat=mat;
 			p.dir=direction;
 			particles[i]=p;
+			matrices[i]=mat;
 		}
+
 
 		glGenVertexArrays(1,&VAO);
 		glGenBuffers(1,&VBO);
@@ -62,6 +67,22 @@ namespace vb01{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,texCoords)));
 		glEnableVertexAttribArray(1);
+		glGenBuffers(1,&MBO);
+		glBindBuffer(GL_ARRAY_BUFFER,MBO);
+		glBufferData(GL_ARRAY_BUFFER,numParticles*sizeof(mat4),&matrices[0],GL_STATIC_DRAW);
+		glVertexAttribPointer(2,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)0);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(3,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(1*sizeof(vec4)));
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(4,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(2*sizeof(vec4)));
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(5,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(3*sizeof(vec4)));
+		glEnableVertexAttribArray(5);
+
+		glVertexAttribDivisor(2,1);
+		glVertexAttribDivisor(3,1);
+		glVertexAttribDivisor(4,1);
+		glVertexAttribDivisor(5,1);
 	}
 
 	ParticleEmitter::~ParticleEmitter(){
@@ -100,10 +121,12 @@ namespace vb01{
 				float factor=(float)(rand()%100)/100;
 				float s1=float(rand()%(int)spread)/180*PI,s2=float(rand()%360)/180*PI;
 				Vector3 ra1=(Vector3(0,1,0).cross(dir)).norm(),ra2=dir.norm();
+				if(ra1==Vector3::VEC_ZERO) ra1=Vector3(1,0,0);
 				dir=Quaternion(s1,ra1)*dir;
 				dir=Quaternion(s2,ra2)*dir;
 				particles[i].timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
 				particles[i].mat=translate(mat4(1.f),vec3(nodePos.x,nodePos.y,nodePos.z));
+				particles[i].trans=nodePos;
 			}
 			//dir=nodeLeft*dir.x+nodeUp*dir.y+nodeDir*dir.z;
 			particles[i].dir=dir.norm()*direction.getLengthSq()+gravity;
@@ -111,29 +134,31 @@ namespace vb01{
 			particles[i].color=startColor+(endColor-startColor)*lifePercentage;
 			particles[i].size=startSize+(endSize-startSize)*lifePercentage;
 			particles[i].mat=translate(particles[i].mat,vec3(dir.x,dir.y,dir.z));
+			particles[i].trans=particles[i].trans+dir;
 
+			shader->setVec3(particles[i].trans,"trans["+to_string(i)+"]");
+			shader->setVec4(particles[i].color,"color["+to_string(i)+"]");
+			shader->setVec2(particles[i].size,"size["+to_string(i)+"]");
 		}
+		/*
 		for(int i=0;i<numParticles;i++){
-			for(int j=0;j<numParticles-1;j++){
+			for(int j=i;j<numParticles-1;j++){
 				mat4 m1=particles[j].mat,m2=particles[j+1].mat;
 				Vector3 v1=Vector3(m1[3][0],m1[3][1],m1[3][2]);
 				Vector3 v2=Vector3(m2[3][0],m2[3][1],m2[3][2]);
 				float d1=cos(camDir.getAngleBetween((v1-camPos).norm()))*camPos.getDistanceFrom(v1);
 				float d2=cos(camDir.getAngleBetween((v2-camPos).norm()))*camPos.getDistanceFrom(v2);
-				if(d1<d2){
+				if(d1<d2)
 					swap(particles[j],particles[j+1]);
-				}
 			}
 		}
+		*/
+		glBindVertexArray(VAO);
+		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
 		for(int i=0;i<numParticles;i++){
-			shader->setMat4(particles[i].mat,"model["+to_string(i)+"]");
-			shader->setVec4(particles[i].color,"color["+to_string(i)+"]");
-			shader->setVec2(particles[i].size,"size["+to_string(i)+"]");
 		}
 			
 		//glDisable(GL_CULL_FACE);
-		glBindVertexArray(VAO);
-		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
 		//glEnable(GL_CULL_FACE);
 	}
 
