@@ -34,10 +34,11 @@ namespace vb01{
 				Vector2 texCoords;
 			};
 			struct Particle{
+				int VAO;
 				glm::mat4 mat;
 				s64 time=0,timeToLive=0;
 				Vector4 color;
-				Vector3 dir;
+				Vector3 dir,trans;
 				Vector2 size;
 			};
 
