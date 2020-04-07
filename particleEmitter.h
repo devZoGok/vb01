@@ -35,16 +35,20 @@ namespace vb01{
 			};
 			struct Particle{
 				int VAO;
-				glm::mat4 mat;
 				s64 time=0,timeToLive=0;
 				Vector4 color;
 				Vector3 dir,trans;
 				Vector2 size;
+				float d;
 			};
 
-			unsigned int instanceVBO,VAO,VBO,EBO;
+			void makeHeap(int);
+			void heapSort();
+
+			unsigned int VAO,VBO,EBO,MBO;
+			glm::mat4 *matrices;
 			int numParticles;
-			Particle *particles;
+			Particle **particles;
 			Material *material=nullptr;
 			Node *node=nullptr;
 			Vector2 startSize=Vector2::VEC_IJ,endSize=Vector2::VEC_IJ;
