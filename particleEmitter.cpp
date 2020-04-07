@@ -14,10 +14,12 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
+	int n=0;
+
 	ParticleEmitter::ParticleEmitter(int numParticles){
 		this->numParticles=numParticles;
 
-		particles=new Particle[numParticles];
+		particles=new Particle*[numParticles];
 
 		Vertex v1,v2,v3,v4,v5,v6;
 		Vector2 size=Vector2(.5,.5);
@@ -46,14 +48,11 @@ namespace vb01{
 		mat4 *matrices=new mat4[numParticles];
 
 		for(int i=0;i<numParticles;i++){
-			mat4 mat=translate(mat4(1.f),vec3(0,0,0));
-			Particle p;
-			p.mat=mat;
-			p.dir=direction;
+			Particle *p=new Particle;
+			p->dir=direction;
 			particles[i]=p;
-			matrices[i]=mat;
+			matrices[i]=mat4(1.f);
 		}
-
 
 		glGenVertexArrays(1,&VAO);
 		glGenBuffers(1,&VBO);
@@ -94,6 +93,39 @@ namespace vb01{
 		delete[] particles;
 	}
 
+	void ParticleEmitter::makeHeap(int offset){
+		bool heap=false;
+		while(!heap){
+			bool end=true;
+			for(int i=0;2*i+1+offset<numParticles;i++){
+				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d)){
+					bool leftChild=particles[2*i+1+offset]->d>particles[2*i+2+offset]->d;
+					swap(particles[i+offset],leftChild?particles[2*i+1+offset]:particles[2*i+2+offset]);
+					n++;
+				}
+				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d){
+					swap(particles[i+offset],particles[2*i+1+offset]);
+					n++;
+				}
+			}
+			for(int i=0;2*i+1<numParticles;i++){
+				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d))
+					end=false;
+				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d)
+					end=false;
+			}
+			if(end)
+				heap=true;
+		}
+	}
+	
+	void ParticleEmitter::heapSort(){
+		n=0;
+		for(int i=0;i<numParticles;i++)
+			makeHeap(i);
+		cout<<n<<endl;
+	}
+	
 	void ParticleEmitter::update(){
 		Root *root=Root::getSingleton();
 		Camera *cam=root->getCamera();
@@ -109,43 +141,49 @@ namespace vb01{
 		Shader *shader=material->getShader();
 		shader->setMat4(view,"view");
 		shader->setMat4(proj,"proj");
+		shader->setVec4(startColor,"startColor");
+		shader->setVec4(endColor,"endColor");
+		shader->setVec2(startSize,"startSize");
+		shader->setVec2(endSize,"endSize");
 
 		Vector3 nodePos=node->getWorldTransform().position;
 		Vector3 nodeDir=node->getLocalAxis(2);
 		Vector3 nodeUp=node->getLocalAxis(1);
 		Vector3 nodeLeft=node->getLocalAxis(0);
 		for(int i=0;i<numParticles;i++){
-			Vector3 dir=particles[i].dir;
-			if(getTime()-particles[i].time>=particles[i].timeToLive){
-				particles[i].time=getTime();
+			Vector3 dir=particles[i]->dir;
+			if(getTime()-particles[i]->time>=particles[i]->timeToLive){
+				particles[i]->time=getTime();
 				float factor=(float)(rand()%100)/100;
 				float s1=float(rand()%(int)spread)/180*PI,s2=float(rand()%360)/180*PI;
 				Vector3 ra1=(Vector3(0,1,0).cross(dir)).norm(),ra2=dir.norm();
 				if(ra1==Vector3::VEC_ZERO) ra1=Vector3(1,0,0);
 				dir=Quaternion(s1,ra1)*dir;
 				dir=Quaternion(s2,ra2)*dir;
-				particles[i].timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
-				particles[i].mat=translate(mat4(1.f),vec3(nodePos.x,nodePos.y,nodePos.z));
-				particles[i].trans=nodePos;
+				particles[i]->timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
+				//particles[i].mat=translate(mat4(1.f),vec3(nodePos.x,nodePos.y,nodePos.z));
+				particles[i]->trans=nodePos;
 			}
 			//dir=nodeLeft*dir.x+nodeUp*dir.y+nodeDir*dir.z;
-			particles[i].dir=dir.norm()*direction.getLengthSq()+gravity;
-			float lifePercentage=(float)(getTime()-particles[i].time)/particles[i].timeToLive;
-			particles[i].color=startColor+(endColor-startColor)*lifePercentage;
-			particles[i].size=startSize+(endSize-startSize)*lifePercentage;
-			particles[i].mat=translate(particles[i].mat,vec3(dir.x,dir.y,dir.z));
-			particles[i].trans=particles[i].trans+dir;
+			particles[i]->dir=dir.norm()*direction.getLengthSq()+gravity;
+			float lifePercentage=(float)(getTime()-particles[i]->time)/particles[i]->timeToLive;
+			particles[i]->color=startColor+(endColor-startColor)*lifePercentage;
+			particles[i]->size=startSize+(endSize-startSize)*lifePercentage;
+			//particles[i].mat=translate(particles[i].mat,vec3(dir.x,dir.y,dir.z));
+			particles[i]->trans=particles[i]->trans+dir;
 
-			shader->setVec3(particles[i].trans,"trans["+to_string(i)+"]");
-			shader->setVec4(particles[i].color,"color["+to_string(i)+"]");
-			shader->setVec2(particles[i].size,"size["+to_string(i)+"]");
+			shader->setVec3(particles[i]->trans,"trans["+to_string(i)+"]");
+			shader->setFloat(lifePercentage,"lifePercentage["+to_string(i)+"]");
+			//shader->setVec2(particles[i]->size,"size["+to_string(i)+"]");
+
+			Vector3 v0=particles[i]->trans;
+			particles[i]->d=cos(camDir.getAngleBetween((v0-camPos).norm()))*camPos.getDistanceFrom(v0);
 		}
+		heapSort();
 		/*
 		for(int i=0;i<numParticles;i++){
 			for(int j=i;j<numParticles-1;j++){
-				mat4 m1=particles[j].mat,m2=particles[j+1].mat;
-				Vector3 v1=Vector3(m1[3][0],m1[3][1],m1[3][2]);
-				Vector3 v2=Vector3(m2[3][0],m2[3][1],m2[3][2]);
+				Vector3 v1=particles[j]->trans,v2=particles[j+1]->trans;
 				float d1=cos(camDir.getAngleBetween((v1-camPos).norm()))*camPos.getDistanceFrom(v1);
 				float d2=cos(camDir.getAngleBetween((v2-camPos).norm()))*camPos.getDistanceFrom(v2);
 				if(d1<d2)
@@ -165,6 +203,6 @@ namespace vb01{
 	void ParticleEmitter::setDirection(Vector3 dir){
 		this->direction=dir;
 		for(int i=0;i<numParticles;i++)
-			particles[i].dir=dir;
+			particles[i]->dir=dir;
 	}
 }

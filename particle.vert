@@ -11,14 +11,18 @@ flat out int id;
 uniform mat4 proj;
 uniform mat4 view;
 //uniform mat4 model[4];
-uniform vec3 trans[507];
-uniform vec2 size[507];
+uniform float lifePercentage[500];
+uniform vec3 trans[500];
+//uniform vec2 size[500];
+uniform vec2 startSize;
+uniform vec2 endSize;
 
 void main(){
 	vec3 camLeft=vec3(view[0][0],view[1][0],view[2][0]);	
 	vec3 camUp=vec3(view[0][1],view[1][1],view[2][1]);	
 
-	vec2 s=size[gl_InstanceID];
+	id=gl_InstanceID;
+	vec2 s=startSize+(endSize-startSize)*lifePercentage[id];
 	vec3 v=camLeft*s.x*aPos.x+camUp*s.y*aPos.y;
 	mat4 model=aInstancedModel;
 	model[3][0]=trans[gl_InstanceID].x;
