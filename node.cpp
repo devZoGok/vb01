@@ -17,10 +17,10 @@ namespace vb01{
 	}
 
 	Node::~Node(){
-		for(Light *l : lights)
-			delete l;
 		for(Mesh *m : meshes)
 			delete m;
+		for(Light *l : lights)
+			delete l;
 		for(ParticleEmitter *p : emitters)
 			delete p;
 		for(Text *t : texts)
@@ -43,8 +43,6 @@ namespace vb01{
 				c->update();
 			for(ParticleEmitter *p : emitters)
 				p->update();
-			/*
-				*/
 		}
 	}
 
@@ -59,7 +57,8 @@ namespace vb01{
 		for(int i=0;i<children.size()&&id==-1;i++)
 			if(children[i]==child)
 				id=i;
-		children.erase(children.begin()+id);
+		if(id!=-1)
+			children.erase(children.begin()+id);
 	}
 
 	void Node::attachMesh(Mesh *mesh){

@@ -1,5 +1,6 @@
 #include"material.h"
 #include"shader.h"
+#include"root.h"
 
 using namespace std;
 
@@ -51,8 +52,7 @@ namespace vb01{
 		shader->use();
 		if(type==MATERIAL_2D){
 			shader->setBool(lightingEnabled,"lightingEnabled");
-			if(normalMapEnabled)
-				shader->setBool(normalMapEnabled,"normalMapEnabled");
+			shader->setBool(normalMapEnabled,"normalMapEnabled");
 		}
 		shader->setBool(texturingEnabled,"texturingEnabled");
 		if(type==MATERIAL_GUI){

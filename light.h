@@ -34,6 +34,7 @@ namespace vb01{
 			inline float getOuterAngle(){return outerAngle;}
 			inline float getShadowNearPlane(){return nearPlane;}
 			inline float getShadowFarPlane(){return farPlane;}
+			inline Node* getNode(){return node;}
 		private:
 			Type type;
 			Shader *depthMapShader;

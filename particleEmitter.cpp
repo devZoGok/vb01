@@ -14,8 +14,6 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
-	int n=0;
-
 	ParticleEmitter::ParticleEmitter(int numParticles){
 		this->numParticles=numParticles;
 
@@ -101,12 +99,9 @@ namespace vb01{
 				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d)){
 					bool leftChild=particles[2*i+1+offset]->d>particles[2*i+2+offset]->d;
 					swap(particles[i+offset],leftChild?particles[2*i+1+offset]:particles[2*i+2+offset]);
-					n++;
 				}
-				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d){
+				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d)
 					swap(particles[i+offset],particles[2*i+1+offset]);
-					n++;
-				}
 			}
 			for(int i=0;2*i+1<numParticles;i++){
 				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d))
@@ -120,10 +115,8 @@ namespace vb01{
 	}
 	
 	void ParticleEmitter::heapSort(){
-		n=0;
 		for(int i=0;i<numParticles;i++)
 			makeHeap(i);
-		cout<<n<<endl;
 	}
 	
 	void ParticleEmitter::update(){
@@ -180,18 +173,8 @@ namespace vb01{
 			particles[i]->d=cos(camDir.getAngleBetween((v0-camPos).norm()))*camPos.getDistanceFrom(v0);
 		}
 		heapSort();
-		/*
-		for(int i=0;i<numParticles;i++){
-			for(int j=i;j<numParticles-1;j++){
-				Vector3 v1=particles[j]->trans,v2=particles[j+1]->trans;
-				float d1=cos(camDir.getAngleBetween((v1-camPos).norm()))*camPos.getDistanceFrom(v1);
-				float d2=cos(camDir.getAngleBetween((v2-camPos).norm()))*camPos.getDistanceFrom(v2);
-				if(d1<d2)
-					swap(particles[j],particles[j+1]);
-			}
-		}
-		*/
 		glBindVertexArray(VAO);
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
 		for(int i=0;i<numParticles;i++){
 		}
