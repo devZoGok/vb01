@@ -57,17 +57,14 @@ namespace vb01{
 		std::vector<Material*> materials;
 		rootNode->getDescendants(rootNode,descendants);
 		descendants.push_back(rootNode);
-		int numLights=0,thisId=-1;
+		int thisId=-1;
 		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
 
 		for(Node *d : descendants){
 			std::vector<Light*> lights=d->getLights();
-			for(Light *l : lights){
-				if(l){
-					numLights++;
-					if(l==this)
-						thisId=numLights-1;
-				}	
+			for(int i=0;i<lights.size();i++){
+				if(lights[i]==this)
+					thisId=i;
 			}
 			for(Mesh *m : d->getMeshes())
 				materials.push_back(m->getMaterial());
@@ -130,6 +127,7 @@ namespace vb01{
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
 		glViewport(0,0,root->getWidth(),root->getHeight());
+
 		for(Material *m : materials){
 			Shader *shader=m->getShader();
 			shader->use();
@@ -138,13 +136,15 @@ namespace vb01{
 			shader->setFloat(nearPlane,"light["+to_string(thisId)+"].near");
 			shader->setFloat(farPlane,"light["+to_string(thisId)+"].far");
 			shader->setInt(0,"diffuseMap");
-			//shader->setInt(1,"normalMap");
+			shader->setInt(1,"normalMap");
 			shader->setInt(2,"specularMap");
 			shader->setInt(3,"parallaxMap");
 			shader->setInt(4,"environmentMap");
 			shader->setInt(5,"light["+to_string(thisId)+"].depthMapCube");
 			shader->setInt(6,"light["+to_string(thisId)+"].depthMap");
 			depthMap->select(type==POINT?5:6);
+			/*
+			*/
 
 			switch(type){
 				case POINT:

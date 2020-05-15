@@ -30,7 +30,8 @@ namespace vb01{
 		for(Mesh *m : meshes)
 			delete m;
 
-		delete material;
+		if(material)
+			delete material;
 
 		glDeleteVertexArrays(1,&VAO);
 		glDeleteBuffers(1,&EBO);
@@ -163,7 +164,7 @@ namespace vb01{
 		if(reflect){
 			shader->setBool(reflect,"environmentMapEnabled");
 			root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
-			//environmentMap->select(4);
+			environmentMap->select(4);
 		}
 		if(skeleton){
 		}

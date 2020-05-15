@@ -70,143 +70,157 @@ namespace vb01{
 
 	Model::Model(string path,bool b) : Node(){
 		if(b){
-		Importer importer;
-		const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
-		if(!scene||scene->mFlags&AI_SCENE_FLAGS_INCOMPLETE||!scene->mRootNode){
-			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
-			exit(-1);	
-		}
-		processNode(scene->mRootNode,scene,this);
+			Importer importer;
+			const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+			if(!scene||scene->mFlags&AI_SCENE_FLAGS_INCOMPLETE||!scene->mRootNode){
+				cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
+				exit(-1);	
+			}
+			processNode(scene->mRootNode,scene,this);
 		}
 		else{
-		int numTris,numVerts,numGroups,v=0,u=0,vg=0,b=0;
-		Mesh::Vertex *vertices;
-		Mesh::VertexGroup *groups=new Mesh::VertexGroup[5];
-		unsigned int *indices;
-		Vector3 *pos,*norm;
-
-		ifstream in(path);
-		string l;
-		bool verts=false,uv=false,vertexGroups=false,bones=false;
-
-		while(getline(in,l)){
-			if(l.substr(0,8)=="numFaces"){
-				numTris=atoi(l.substr(9,string::npos).c_str());		
-				vertices=new Mesh::Vertex[numTris*3];
-				indices=new unsigned int[numTris*3];
-			}
-			else if(l.substr(0,11)=="numVertices"){
-				numVerts=atoi(l.substr(12,string::npos).c_str());		
-				pos=new Vector3[numVerts];
-				norm=new Vector3[numVerts];
-			}
-			else if(l.substr(0,9)=="numGroups"){
-				numGroups=atoi(l.substr(10,string::npos).c_str());		
-				groups=new Mesh::VertexGroup[numGroups];
-			}
-			if(l=="vertices:"){
-				verts=true;
-				continue;
-			}
-			else if(l=="uv:"){
-				verts=false;	
-				uv=true;
-				continue;
-			}
-			else if(l=="groups:"){
-				uv=false;
-				vertexGroups=true;
-				continue;
-			}
-			else if(l=="bones:"){
-				vertexGroups=false;
-				bones=true;
-				continue;
-			}
-
-			if(verts||uv||vertexGroups||bones){
-				int numCoords=1;
-				if(verts)numCoords=6;
-				else if(uv)numCoords=3;
-				else if(vg)numCoords=3;
-				else if(groups)numCoords=1;
-
-				int nextSpace=0;
-				int *spaceIds=new int[numCoords-1];
-				for(int i=0;i<l.length();i++)
-					if(l.c_str()[i]==' '){
-						spaceIds[nextSpace]=i;
-						nextSpace++;
-					}
-				float *coords=new float[numCoords];
-				for(int i=0;i<numCoords;i++){
-					int firstChar,lastChar;
-					if(i==0)
-						firstChar=0,lastChar=spaceIds[i];
-					else if(i==numCoords-1)
-						firstChar=spaceIds[i-1],lastChar=string::npos;
-					else
-						firstChar=spaceIds[i-1],lastChar=spaceIds[i]-spaceIds[i-1];
-					coords[i]=atof(l.substr(firstChar,lastChar).c_str());
+			int numTris,numVerts,numGroups,v=0,u=0,vg=0,b=0;
+			Mesh::Vertex *vertices;
+			Mesh::VertexGroup *groups=new Mesh::VertexGroup[5];
+			unsigned int *indices;
+			Vector3 *pos,*norm;
+	
+			ifstream in(path);
+			string l;
+			bool verts=false,uv=false,vertexGroups=false,bones=false;
+	
+			while(getline(in,l)){
+				if(l.substr(0,8)=="numFaces"){
+					numTris=atoi(l.substr(9,string::npos).c_str());		
+					vertices=new Mesh::Vertex[numTris*3];
+					indices=new unsigned int[numTris*3];
 				}
-				if(verts){
-					pos[v]=Vector3(coords[0],coords[1],coords[2]);
-					norm[v]=Vector3(coords[3],coords[4],coords[5]);
-					//Vector2 uv=Vector2(coords[6],coords[7]);
-					//vertices[v].pos=pos;
-					//vertices[v].norm=norm;
-					//vertices[v].texCoords=uv;
-					v++;
+				else if(l.substr(0,11)=="numVertices"){
+					numVerts=atoi(l.substr(12,string::npos).c_str());		
+					pos=new Vector3[numVerts];
+					norm=new Vector3[numVerts];
 				}
-				else if(uv){
-					int id=(int)coords[0];
-					Vector2 uv=Vector2(coords[1],coords[2]);
-					vertices[u].pos=pos[id];
-					vertices[u].norm=norm[id];
-					vertices[u].texCoords=uv;
-					indices[u]=u;
-					u++;
+				else if(l.substr(0,9)=="numGroups"){
+					numGroups=atoi(l.substr(10,string::npos).c_str());		
+					groups=new Mesh::VertexGroup[numGroups];
 				}
-				else if(vertexGroups){
-					if(l.c_str()[l.length()-1]==':'){
-						numCoords=1;
-						groups[vg].vertices=new Mesh::Vertex*;
-						groups[vg].weights=new float;
-						groups[vg].name=l.c_str()[l.length()-1];
-						vg++;
-					}
-					else{
-						numCoords=2;
-						int *ids=new int,numVerts=0;
-						for(int i=0;i<3*numTris;i++){
-							if(vertices[i].pos==pos[(int)coords[0]]){
-								ids[numVerts]=i;
-								numVerts++;
-							}
+				if(l=="vertices:"){
+					verts=true;
+					continue;
+				}
+				else if(l=="uv:"){
+					verts=false;	
+					uv=true;
+					continue;
+				}
+				else if(l=="groups:"){
+					uv=false;
+					vertexGroups=true;
+					continue;
+				}
+				else if(l=="bones:"){
+					vertexGroups=false;
+					bones=true;
+					continue;
+				}
+	
+				if(verts||uv||vertexGroups||bones){
+					int numCoords=1;
+					if(verts)numCoords=6;
+					else if(uv)numCoords=3;
+					else if(vg)numCoords=3;
+					else if(groups)numCoords=1;
+	
+					int nextSpace=0;
+					int *spaceIds=new int[numCoords-1];
+					for(int i=0;i<l.length();i++)
+						if(l.c_str()[i]==' '){
+							spaceIds[nextSpace]=i;
+							nextSpace++;
 						}
-						for(int i=0;i<3*numTris;i++)
-							for(int j=0;j<numVerts;j++){
-								groups[vg].vertices[groups[vg].numVertices]=&(vertices[ids[j]]);
-								groups[vg].weights[ids[j]]=coords[1];
-							}
-						groups[vg].numVertices++;
-						delete[] ids;
+					float *coords=new float[numCoords];
+					for(int i=0;i<numCoords;i++){
+						int firstChar,lastChar;
+						if(i==0)
+							firstChar=0,lastChar=spaceIds[i];
+						else if(i==numCoords-1)
+							firstChar=spaceIds[i-1],lastChar=string::npos;
+						else
+							firstChar=spaceIds[i-1],lastChar=spaceIds[i]-spaceIds[i-1];
+						coords[i]=atof(l.substr(firstChar,lastChar).c_str());
 					}
+					if(verts){
+						pos[v]=Vector3(coords[0],coords[1],coords[2]);
+						norm[v]=Vector3(coords[3],coords[4],coords[5]);
+						//Vector2 uv=Vector2(coords[6],coords[7]);
+						//vertices[v].pos=pos;
+						//vertices[v].norm=norm;
+						//vertices[v].texCoords=uv;
+						v++;
+					}
+					else if(uv){
+						int id=(int)coords[0];
+						Vector2 uv=Vector2(coords[1],coords[2]);
+						vertices[u].pos=pos[id];
+						vertices[u].norm=norm[id];
+						vertices[u].texCoords=uv;
+						indices[u]=u;
+						u++;
+					}
+					else if(vertexGroups){
+						if(l.c_str()[l.length()-1]==':'){
+							numCoords=1;
+							groups[vg].vertices=new Mesh::Vertex*;
+							groups[vg].weights=new float;
+							groups[vg].name=l.c_str()[l.length()-1];
+							vg++;
+						}
+						else{
+							numCoords=2;
+							int *ids=new int,numVerts=0;
+							for(int i=0;i<3*numTris;i++){
+								if(vertices[i].pos==pos[(int)coords[0]]){
+									ids[numVerts]=i;
+									numVerts++;
+								}
+							}
+							for(int i=0;i<3*numTris;i++)
+								for(int j=0;j<numVerts;j++){
+									groups[vg].vertices[groups[vg].numVertices]=&(vertices[ids[j]]);
+									groups[vg].weights[ids[j]]=coords[1];
+								}
+							groups[vg].numVertices++;
+							delete[] ids;
+						}
+					}
+					else if(bones){
+						b++;
+					}
+					delete[] coords;
 				}
-				else if(bones){
-					b++;
-				}
-				delete[] coords;
 			}
-		}
-		delete[] pos;
-		delete[] norm;
-		attachChild(new Node());
-		children[0]->attachMesh(new Mesh(vertices,indices,numTris));
+			delete[] pos;
+			delete[] norm;
+			attachChild(new Node());
+			children[0]->attachMesh(new Mesh(vertices,indices,numTris));
 		}
 	}
 
-	Model::~Model(){}
+	Model::~Model(){
+		delete children[0]->getMesh(0)->getMaterial();
+
+		vector<Node*> descendants;
+		getDescendants(this,descendants);
+		for(Node *node : descendants)
+			for(Mesh *mesh : node->getMeshes())
+				mesh->setMaterial(nullptr);
+
+		while(!children.empty()){
+			Node *c=children[children.size()-1];
+			dettachChild(c);
+			delete c;
+		}
+	}
 
 	void Model::update(){
 		Node::update();	
