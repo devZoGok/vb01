@@ -14,9 +14,9 @@ namespace vb01{
 			Material(Type=MATERIAL_2D);
 			~Material();
 			void update();
-			inline void addDiffuseMap(std::string diffuseMap){
+			inline void addDiffuseMap(std::string diffuseMap,bool flip=false){
 				std::string p[]{diffuseMap};
-				diffuseMapTextures.push_back(new Texture(p,1));
+				diffuseMapTextures.push_back(new Texture(p,1,0,flip));
 			}
 			inline void addDiffuseMap(std::string diffuseMap[],int numFrames){diffuseMapTextures.push_back(new Texture(diffuseMap,numFrames));}
 			inline void addDiffuseMap(std::string diffuseMap[6]){diffuseMapTextures.push_back(new Texture(diffuseMap));}
