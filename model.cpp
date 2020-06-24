@@ -3,6 +3,11 @@
 #include"material.h"
 #include"vector.h"
 #include"util.h"
+#include"bone.h"
+#include"root.h"
+#include"skeleton.h"
+#include"animation.h"
+
 #include<vector>
 #include<iostream>
 #include<Importer.hpp>
@@ -49,11 +54,11 @@ namespace vb01{
 			v.biTan.z=mesh->mBitangents[i].z;
 
 			if(mesh->mTextureCoords[0]){
-				v.texCoords.x=mesh->mTextureCoords[0][i].x;
-				v.texCoords.y=mesh->mTextureCoords[0][i].y;
+				v.uv.x=mesh->mTextureCoords[0][i].x;
+				v.uv.y=mesh->mTextureCoords[0][i].y;
 			}
 			else
-				v.texCoords=Vector2::VEC_ZERO;
+				v.uv=Vector2::VEC_ZERO;
 			vertices[i]=v;
 		}				
 		for(int i=0;i<numTris;i++){
@@ -69,6 +74,7 @@ namespace vb01{
 	}
 
 	Model::Model(string path,bool b) : Node(){
+		Node *rootNode=Root::getSingleton()->getRootNode();
 		if(b){
 			Importer importer;
 			const aiScene *scene=importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
@@ -79,130 +85,319 @@ namespace vb01{
 			processNode(scene->mRootNode,scene,this);
 		}
 		else{
-			int numTris,numVerts,numGroups,v=0,u=0,vg=0,b=0;
-			Mesh::Vertex *vertices;
-			Mesh::VertexGroup *groups=new Mesh::VertexGroup[5];
-			unsigned int *indices;
-			Vector3 *pos,*norm;
-	
+			enum Stage{ARMATURE,MESH};
+
+			Stage stage;
 			ifstream in(path);
-			string l;
-			bool verts=false,uv=false,vertexGroups=false,bones=false;
-	
+			string l,name="";
+			Vector3 localPos=Vector3::VEC_ZERO,localScale=Vector3::VEC_IJK;
+			Quaternion localRot=Quaternion::QUAT_W;
+			vector<string> childrenChain;
+			vector<Skeleton*> skeletons;
+			vector<Mesh*> meshes;
+			vector<Light*> lights;
+			vector<Node*> nodes;
+
+			Skeleton *skeleton=nullptr;
+			string animName="";
+			Bone *animBone=nullptr;
+
+			vector<Vector3> vertPos,vertNorm;
+			const int numVertsPerFace=3;
+			int numVertPos=0,numFaces=0,vertId=0,faceId=0,groupId=-1,groupVertId=0,numGroups=0,numShapeKeys=0;
+			Mesh::Vertex *vertices;
+			u32 *indices; 
+			Mesh::VertexGroup *groups=nullptr;
+			Mesh::ShapeKey *shapeKeys=nullptr;
+
 			while(getline(in,l)){
-				if(l.substr(0,8)=="numFaces"){
-					numTris=atoi(l.substr(9,string::npos).c_str());		
-					vertices=new Mesh::Vertex[numTris*3];
-					indices=new unsigned int[numTris*3];
-				}
-				else if(l.substr(0,11)=="numVertices"){
-					numVerts=atoi(l.substr(12,string::npos).c_str());		
-					pos=new Vector3[numVerts];
-					norm=new Vector3[numVerts];
-				}
-				else if(l.substr(0,9)=="numGroups"){
-					numGroups=atoi(l.substr(10,string::npos).c_str());		
-					groups=new Mesh::VertexGroup[numGroups];
-				}
-				if(l=="vertices:"){
-					verts=true;
+				int colonId=-1;
+				for(int i=0;i<l.length();i++)
+					if(l[i]==':'){
+						colonId=i;
+						break;
+					}
+
+				string preColon=l.substr(0,colonId);
+				string postColon=l.length()==colonId+1?"":l.substr(colonId+2,string::npos);
+
+				if(preColon=="ARMATURE"){
+					stage=ARMATURE;
+					skeleton=new Skeleton(postColon);
+					name=postColon;
 					continue;
 				}
-				else if(l=="uv:"){
-					verts=false;	
-					uv=true;
+				else if(preColon=="MESH"){
+					stage=MESH;
+					name=postColon;
 					continue;
 				}
-				else if(l=="groups:"){
-					uv=false;
-					vertexGroups=true;
+				else if(preColon=="pos"){
 					continue;
 				}
-				else if(l=="bones:"){
-					vertexGroups=false;
-					bones=true;
+				else if(preColon=="rot"){
 					continue;
 				}
-	
-				if(verts||uv||vertexGroups||bones){
-					int numCoords=1;
-					if(verts)numCoords=6;
-					else if(uv)numCoords=3;
-					else if(vg)numCoords=3;
-					else if(groups)numCoords=1;
-	
-					int nextSpace=0;
-					int *spaceIds=new int[numCoords-1];
-					for(int i=0;i<l.length();i++)
-						if(l.c_str()[i]==' '){
-							spaceIds[nextSpace]=i;
-							nextSpace++;
+				else if(preColon=="scale"){
+					continue;
+				}
+				else if(preColon=="parent"){
+					childrenChain.push_back(name+" "+postColon);
+					continue;
+				}
+
+				if(stage==ARMATURE){
+					enum ArmatureStage{BONES,ANIMATIONS};
+
+					ArmatureStage armatureStage;
+					int numBones=0;
+
+					if(preColon=="bones"){
+						numBones=atoi(postColon.c_str());
+						armatureStage=BONES;
+						continue;
+					}
+					else if(preColon=="animations"){
+						armatureStage=ANIMATIONS;
+						continue;
+					}
+
+					switch(armatureStage){
+						case BONES:
+						{
+							int numData=11;
+							string data[numData];
+							getLineData(postColon,data,numData);
+
+							float length=atof(data[0].c_str());
+							Vector3 pos=Vector3(atof(data[2].c_str()),atof(data[4].c_str()),-atof(data[3].c_str()));
+							Vector3 xAxis=Vector3(atof(data[5].c_str()),atof(data[7].c_str()),-atof(data[6].c_str())),yAxis=Vector3(atof(data[8].c_str()),atof(data[10].c_str()),-atof(data[9].c_str())),zAxis=xAxis.cross(yAxis);
+
+							string parName=string(data[0].c_str());
+							Node *parent=skeleton->getBone(parName);
+							if(!parent)
+								parent=this;
+
+							Bone *bone=new Bone(preColon);
+							skeleton->addBone(bone,parent);
+							bone->setPosition(parent->globalToLocalPosition(pos));
+							bone->lookAt(yAxis,zAxis,parent);
+
+							break;
 						}
-					float *coords=new float[numCoords];
-					for(int i=0;i<numCoords;i++){
-						int firstChar,lastChar;
-						if(i==0)
-							firstChar=0,lastChar=spaceIds[i];
-						else if(i==numCoords-1)
-							firstChar=spaceIds[i-1],lastChar=string::npos;
-						else
-							firstChar=spaceIds[i-1],lastChar=spaceIds[i]-spaceIds[i-1];
-						coords[i]=atof(l.substr(firstChar,lastChar).c_str());
-					}
-					if(verts){
-						pos[v]=Vector3(coords[0],coords[1],coords[2]);
-						norm[v]=Vector3(coords[3],coords[4],coords[5]);
-						//Vector2 uv=Vector2(coords[6],coords[7]);
-						//vertices[v].pos=pos;
-						//vertices[v].norm=norm;
-						//vertices[v].texCoords=uv;
-						v++;
-					}
-					else if(uv){
-						int id=(int)coords[0];
-						Vector2 uv=Vector2(coords[1],coords[2]);
-						vertices[u].pos=pos[id];
-						vertices[u].norm=norm[id];
-						vertices[u].texCoords=uv;
-						indices[u]=u;
-						u++;
-					}
-					else if(vertexGroups){
-						if(l.c_str()[l.length()-1]==':'){
-							numCoords=1;
-							groups[vg].vertices=new Mesh::Vertex*;
-							groups[vg].weights=new float;
-							groups[vg].name=l.c_str()[l.length()-1];
-							vg++;
-						}
-						else{
-							numCoords=2;
-							int *ids=new int,numVerts=0;
-							for(int i=0;i<3*numTris;i++){
-								if(vertices[i].pos==pos[(int)coords[0]]){
-									ids[numVerts]=i;
-									numVerts++;
+						case ANIMATIONS:
+						{
+							if(preColon=="animationName"){
+								animName=postColon;
+								skeleton->addAnimation(new Animation(animName));
+								continue;
+							}
+							Bone *b=skeleton->getBone(preColon);
+							if(b){
+								animBone=b;
+								Animation *anim=skeleton->getAnimation(animName);
+								Animation::KeyframeGroup *group=anim->getKeyframeGroup(animBone);
+								if(!group){
+									Animation::KeyframeGroup kg;
+									kg.bone=animBone;
+									anim->addKeyframeGroup(kg);
+								}
+								continue;
+							}
+							else{
+								Animation::KeyframeGroup::Keyframe::Type type;
+								Animation::KeyframeGroup::Keyframe::Interpolation interp;
+								if(preColon=="pos_x")
+									type=Animation::KeyframeGroup::Keyframe::Type::POS_X;
+								else if(preColon=="pos_y")
+									type=Animation::KeyframeGroup::Keyframe::Type::POS_Y;
+								else if(preColon=="pos_z")
+									type=Animation::KeyframeGroup::Keyframe::Type::POS_Z;
+								else if(preColon=="rot_w")
+									type=Animation::KeyframeGroup::Keyframe::Type::ROT_W;
+								else if(preColon=="rot_x")
+									type=Animation::KeyframeGroup::Keyframe::Type::ROT_X;
+								else if(preColon=="rot_y")
+									type=Animation::KeyframeGroup::Keyframe::Type::ROT_Y;
+								else if(preColon=="rot_z")
+									type=Animation::KeyframeGroup::Keyframe::Type::ROT_Z;
+								else if(l==""){
+									skeletons.push_back(skeleton);
+									break;
+								}
+								else{
+									int numData=3;
+									string data[numData];
+
+									getLineData(l,data,numData);
+
+									float value=atof(data[0].c_str()),frame=atoi(data[1].c_str());
+									interp=(Animation::KeyframeGroup::Keyframe::Interpolation)atoi(data[2].c_str());
+
+									Animation::KeyframeGroup::Keyframe keyframe;
+									keyframe.type=type;
+									keyframe.interpolation=interp;
+									keyframe.value=value;
+									keyframe.frame=frame;
+									skeleton->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
+
 								}
 							}
-							for(int i=0;i<3*numTris;i++)
-								for(int j=0;j<numVerts;j++){
-									groups[vg].vertices[groups[vg].numVertices]=&(vertices[ids[j]]);
-									groups[vg].weights[ids[j]]=coords[1];
-								}
-							groups[vg].numVertices++;
-							delete[] ids;
+							break;
 						}
 					}
-					else if(bones){
-						b++;
+				}
+				else{
+					enum MeshStage{VERTICES,FACES,GROUPS,SHAPE_KEYS};
+
+					MeshStage meshStage;
+
+					if(preColon=="vertices"){
+						string data[2];
+						getLineData(postColon,data,2);
+						numVertPos=atoi(data[0].c_str());
+						numFaces=atoi(data[1].c_str());
+						meshStage=VERTICES;
+						continue;
 					}
-					delete[] coords;
+					else if(preColon=="faces"){
+						meshStage=FACES;
+						vertices=new Mesh::Vertex[numFaces*numVertsPerFace];
+						indices=new u32[numFaces*numVertsPerFace];
+						continue;
+					}
+					else if(preColon=="groups"){
+						numGroups=atoi(postColon.c_str());
+						groups=new Mesh::VertexGroup[numGroups];
+						meshStage=GROUPS;
+						continue;
+					}
+					else if(preColon=="shapeKeys"){
+						meshStage=SHAPE_KEYS;
+						continue;
+					}
+					switch(meshStage){
+						{
+						case VERTICES:
+							int numData=6;
+							string data[numData];
+							getLineData(l,data,numData);
+							Vector3 vp=Vector3(atof(data[0].c_str()),atof(data[2].c_str()),-atof(data[1].c_str()));
+							Vector3 vn=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
+							vertPos.push_back(vp);
+							vertNorm.push_back(vn);
+							break;
+						}
+						{
+						case FACES:
+							int numData=9;
+							string data[numData];
+							getLineData(l,data,numData);
+							u32 index=atoi(data[0].c_str());
+							Vector2 uv=Vector2(atof(data[1].c_str()),atof(data[2].c_str()));
+							Vector3 tan=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
+							Vector3 biTan=Vector3(atof(data[6].c_str()),atof(data[8].c_str()),-atof(data[7].c_str()));
+							/*
+							*/
+
+							Mesh::Vertex vert;
+							vert.pos=vertPos[index];
+							vert.norm=vertNorm[index];
+							vert.uv=uv;
+							vert.tan=tan;
+							vert.biTan=biTan;
+							vertices[vertId]=vert;
+
+							indices[vertId]=vertId;
+							vertId++;
+							break;
+						}
+						{
+						case GROUPS:
+							if(l==""){
+								meshes.push_back(new Mesh(vertices,indices,numFaces,groups,numGroups,shapeKeys,numShapeKeys,name));
+								break;
+							}
+							else if(colonId!=-1){
+								groupId++,groupVertId=0;
+								int numVerts=atoi(postColon.c_str());
+								groups[groupId].numVertices=numVerts;
+								groups[groupId].name=preColon;
+								if(numVerts>0){
+									groups[groupId].vertices=new u32[numVerts];
+									groups[groupId].weights=new float[numVerts];
+								}
+							}
+							else{
+								int numData=2,vertId;
+								float weight;
+								string data[numData];
+								getLineData(l,data,numData);
+								vertId=atoi(data[0].c_str());
+								weight=atof(data[1].c_str());
+								groups[groupId].vertices[groupVertId]=vertId;
+								groups[groupId].weights[groupVertId]=weight;
+								groupVertId++;
+							}
+							break;
+						}
+						{
+						case SHAPE_KEYS:
+							if(l==""){
+								meshes.push_back(new Mesh(vertices,indices,numFaces,groups,numGroups,shapeKeys,numShapeKeys,name));
+								break;
+							}
+							break;
+						}
+					}
 				}
 			}
-			delete[] pos;
-			delete[] norm;
-			attachChild(new Node());
-			children[0]->attachMesh(new Mesh(vertices,indices,numTris));
+			for(Mesh *mesh : meshes){
+				Node *meshNode=new Node(localPos,localRot,localScale);
+				meshNode->attachMesh(mesh);
+				nodes.push_back(meshNode);
+				for(string line : childrenChain){
+					int spaceId=-1;
+					for(int i=0;i<line.length();i++)
+						if(line[i]==' ')
+							spaceId=i;
+					string childName=line.substr(0,spaceId),parentName=line.substr(spaceId+1,string::npos);
+					if(mesh->getName()==childName){
+						for(Skeleton *sk : skeletons){
+							if(sk->getName()==parentName)
+								mesh->setSkeleton(sk);
+						}
+					}
+				}
+			}
+			for(Light *light : lights){
+				Node *lightNode=new Node(localPos,localRot,localScale);
+				lightNode->addLight(light);
+				nodes.push_back(lightNode);
+			}
+			for(string line : childrenChain){
+				int spaceId=-1;
+				for(int i=0;i<line.length();i++)
+					if(line[i]==' ')
+						spaceId=i;
+				string childName=line.substr(0,spaceId),parentName=line.substr(spaceId+1,string::npos);
+				Node *childNode=nullptr,*parentNode=this;
+				for(int i=0;i<nodes.size();i++){
+					Mesh *m0=nodes[i]->getMesh(0);
+					Skeleton *sk0=m0->getSkeleton();
+					if(m0->getName()==childName||(sk0&&sk0->getName()==childName)){
+						childNode=nodes[i];
+						for(int j=0;j<nodes.size();j++){
+							Mesh *m1=nodes[j]->getMesh(0);
+							Skeleton *sk1=m1->getSkeleton();
+							if(m1->getName()==parentName||(sk1&&sk1->getName()==parentName))
+								parentNode=nodes[j];
+						}
+					}
+				}
+				if(childNode!=parentNode)
+					parentNode->attachChild(childNode);
+			}
 		}
 	}
 
@@ -224,6 +419,26 @@ namespace vb01{
 
 	void Model::update(){
 		Node::update();	
+	}
+
+	void Model::getLineData(string &line,string data[],int numData,int offset){
+		int offsetComma=0,c1=0;
+		for(int i=0;i<line.length()&&offsetComma<offset;i++)
+			if(line.c_str()[i]==' '){
+				c1=i+1;
+				offsetComma++;
+			}
+		int c2=c1;
+		for(int i=0;i<numData;i++){
+			for(int j=c1;j<line.length();j++)	
+				if(line.c_str()[j]==' '){
+					c2=j;
+					break;
+				}
+			data[i]=line.substr(c1,c2-c1);
+			c2++;
+			c1=c2;
+		}
 	}
 
 	void Model::setMaterial(Material *mat){

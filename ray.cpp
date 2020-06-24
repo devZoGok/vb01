@@ -7,8 +7,8 @@ using namespace std;
 
 namespace vb01{
 	void retrieveCollisions(Vector3 rayPos, Vector3 rayDir,Node *node,std::vector<CollisionResult> &results, const float rayLength){
-		Vector3 pos=node->getWorldPosition();
-		Quaternion rot=node->getWorldOrientation();
+		Vector3 pos=node->localToGlobalPosition(Vector3::VEC_ZERO);
+		Quaternion rot=node->localToGlobalOrientation(Quaternion::QUAT_W);
 		for(Mesh *m : node->getMeshes()){
 			const int numVerts=m->getNumVerts();
 			Mesh::Vertex *vertices=m->getVerts();

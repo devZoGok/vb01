@@ -6,14 +6,21 @@
 #include"text.h"
 #include"material.h"
 #include"matrix.h"
+#include<glm.hpp>
+#include<glm/gtc/matrix_inverse.hpp>
 
 using namespace std;
+using namespace glm;
 
 namespace vb01{
-	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale){
+	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale,string name){
 		this->pos=pos;
 		this->scale=scale;
 		this->orientation=orientation;
+		this->name=name;
+		axis[0]=Vector3::VEC_I;
+		axis[1]=Vector3::VEC_J;
+		axis[2]=Vector3::VEC_K;
 	}
 
 	Node::~Node(){
@@ -49,6 +56,7 @@ namespace vb01{
 	void Node::attachChild(Node *child){
 		child->setParent(this);
 		children.push_back(child);
+		child->updateLocalAxis();
 	}
 
 	void Node::dettachChild(Node *child){
@@ -91,15 +99,33 @@ namespace vb01{
 		text->setNode(this);	
 	}
 
-	void Node::lookAt(Vector3 newDir,Vector3 upDir){
-		Vector3 dir=getLocalAxis(2).norm(),newDirLocal=globalToLocal(newDir.norm()),upDirLocal=globalToLocal(upDir.norm());
-		float angle=dir.getAngleBetween(newDirLocal);
-		Vector3 rotAxis=dir.cross(newDirLocal);
-		orientation=Quaternion(angle,rotAxis)*orientation;
-		Vector3 up=getLocalAxis(1).norm();
-		angle=up.getAngleBetween(upDirLocal);
-		rotAxis=up.cross(upDirLocal);
-		orientation=Quaternion(angle,rotAxis.norm())*orientation;
+	void Node::lookAt(Vector3 newDir,Vector3 newUp,Node *node){
+		newDir=node->localToGlobalPosition(newDir);
+		newUp=node->localToGlobalPosition(newUp);
+		float angle=axis[2].getAngleBetween(newDir);
+		Vector3 rotAxis=axis[2].cross(newDir).norm();
+		if(rotAxis==Vector3::VEC_ZERO)
+			rotAxis=axis[1];
+		//setOrientation((Quaternion(angle,rotAxis)*(orientation)));
+		setOrientation(node->globalToLocalOrientation(Quaternion(angle,rotAxis)*node->localToGlobalOrientation(orientation)));
+
+		mat3 mat;
+		mat[0][0]=axis[0].x;
+		mat[1][0]=axis[0].y;
+		mat[2][0]=axis[0].z;
+		mat[0][1]=axis[1].x;
+		mat[1][1]=axis[1].y;
+		mat[2][1]=axis[1].z;
+		mat[0][2]=axis[2].x;
+		mat[1][2]=axis[2].y;
+		mat[2][2]=axis[2].z;
+		mat=inverse(mat);
+		vec3 nu=vec3(newUp.x,newUp.y,newUp.z)*mat;
+		newUp=(axis[0]*nu.x+axis[1]*nu.y).norm();
+		angle=axis[1].getAngleBetween(newUp);
+		//setOrientation((Quaternion(angle*(nu.x<0?1:-1),axis[2])*(orientation)));
+		setOrientation(node->globalToLocalOrientation(Quaternion(angle*(nu.x<0?1:-1),axis[2])*node->localToGlobalOrientation(orientation)));
+		//setOrientation(node->globalToLocalOrientation(Quaternion(angle,axis[2])*node->localToGlobalOrientation(orientation)));
 	}
 
 	void Node::getDescendants(Node *node, vector<Node*> &descendants){
@@ -111,111 +137,116 @@ namespace vb01{
 		}
 	}
 
-	Node::Transform Node::getWorldTransform(){
-		Transform t;
-		Vector3 scale=Vector3::VEC_IJK;
-		Quaternion orient=Quaternion::QUAT_W;
-		Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
+	void Node::updateLocalAxis(){
+		Node *rootNode=Root::getSingleton()->getRootNode(),*par=this;
+		while(par->getParent())
+			par=par->getParent();
+		if(par!=rootNode)
+			return;
+
+		Vector3 parAxis[3]={
+			parent->getLocalAxis(0),
+			parent->getLocalAxis(1),
+			parent->getLocalAxis(2)
+		};
+
+		for(int i=0;i<3;i++)
+			axis[i]=(orientation*parAxis[i]).norm();
+		for(Node *ch : children)
+			ch->updateLocalAxis();
+	}
+
+	Vector3 Node::localToGlobalPosition(Vector3 localPos){
+		Vector3 origin=Vector3::VEC_ZERO;
 		vector<Node*> ancestors;
 		ancestors.push_back(this);
 		Node *parent=this->getParent();
+
 		while(parent){
 			ancestors.push_back(parent);
 			parent=parent->getParent();
 		}
+
 		while(!ancestors.empty()){
 			int id=ancestors.size()-1;
-			Quaternion o=ancestors[id]->getOrientation();	
-			Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
-			origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
-			orient=o*orient;
-			scale=s;
-			for(int i=0;i<3;i++)
-				axis[i]=orient*axis[i];
+			Node *par=ancestors[id]->getParent();
+			Vector3 parAxis[]={
+				par?par->getLocalAxis(0):Vector3::VEC_I,
+				par?par->getLocalAxis(1):Vector3::VEC_J,
+				par?par->getLocalAxis(2):Vector3::VEC_K
+			};
+			Vector3 p=ancestors[id]->getPosition();
+			origin=origin+parAxis[0]*p.x+parAxis[1]*p.y+parAxis[2]*p.z;
 			ancestors.pop_back();
 		}
-
-		t.position=origin,t.orientation=orient,t.scale=scale;
-		return t;
+		return origin+axis[0]*localPos.x+axis[1]*localPos.y+axis[2]*localPos.z;
 	}
 
-	Vector3 Node::getLocalAxis(int i){
-		Transform t;
-		Vector3 pos=Vector3::VEC_ZERO,scale=Vector3::VEC_IJK;
-		Quaternion orient=Quaternion::QUAT_W;
-		Vector3 origin=Vector3::VEC_ZERO,axis[]={Vector3::VEC_I,Vector3::VEC_J,Vector3::VEC_K};
+	Vector3 Node::globalToLocalPosition(Vector3 globalPos){
+		Vector3 origin=globalPos;
 		vector<Node*> ancestors;
 		ancestors.push_back(this);
 		Node *parent=this->getParent();
+
 		while(parent){
 			ancestors.push_back(parent);
 			parent=parent->getParent();
 		}
+
 		while(!ancestors.empty()){
-			int id=ancestors.size()-1;
-			Quaternion o=ancestors[id]->getOrientation();	
-			Vector3 p=ancestors[id]->getPosition(),s=ancestors[id]->getScale();
-			origin=origin+axis[0]*p.x*s.x+axis[1]*p.y*s.y+axis[2]*p.z*s.z;
-			orient=o*orient;
-			scale=s;
-			for(int i=0;i<3;i++)
-				axis[i]=orient*axis[i];
-			ancestors.pop_back();
+			int id=0;
+			Node *par=ancestors[id]->getParent();
+			Vector3 parAxis[]={
+				par?par->getLocalAxis(0):Vector3::VEC_I,
+				par?par->getLocalAxis(1):Vector3::VEC_J,
+				par?par->getLocalAxis(2):Vector3::VEC_K
+			};
+			Vector3 p=ancestors[id]->getPosition();
+			origin=origin-parAxis[0]*p.x-parAxis[1]*p.y-parAxis[2]*p.z;
+			ancestors.erase(ancestors.begin());
+		}
+		//return origin+axis[0]*localPos.x+axis[1]*localPos.y+axis[2]*localPos.z;
+		return origin;
+	}
+
+	Quaternion Node::localToGlobalOrientation(Quaternion localRot){
+		Quaternion origin=Quaternion::QUAT_W;
+		vector<Node*> ancestors;
+		ancestors.push_back(this);
+		Node *parent=this->getParent();
+
+		while(parent){
+			ancestors.push_back(parent);
+			parent=parent->getParent();
 		}
 
-		return axis[i];
+		while(!ancestors.empty()){
+			int id=ancestors.size()-1;
+			Quaternion o=ancestors[id]->getOrientation();
+			origin=o*origin;
+			ancestors.pop_back();
+		}
+		return localRot*origin;
 	}
 
-	Vector3 Node::localToGlobal(Vector3 p0){
-		Vector3 dir=getLocalAxis(2),up=getLocalAxis(1),left=getLocalAxis(0);
-		float **mat=new float*[3];
-		for(int i=0;i<3;i++)
-			mat[i]=new float[3];
+	Quaternion Node::globalToLocalOrientation(Quaternion globalRot){
+		Quaternion origin=globalRot;
+		vector<Node*> ancestors;
+		ancestors.push_back(this);
+		Node *parent=this->getParent();
 
-		mat[0][0]=left.x;
-		mat[1][0]=left.y;
-		mat[2][0]=left.z;
-		mat[0][1]=up.x;
-		mat[1][1]=up.y;
-		mat[2][1]=up.z;
-		mat[0][2]=dir.x;
-		mat[1][2]=dir.y;
-		mat[2][2]=dir.z;
+		while(parent){
+			ancestors.push_back(parent);
+			parent=parent->getParent();
+		}
 
-		Vector3 p=Matrix(mat,3,3)*p0;
-
-		for(int i=0;i<3;i++)
-			delete[] mat[i];
-		delete[] mat;
-
-		return p;
-	}
-
-	Vector3 Node::globalToLocal(Vector3 p0){
-		Vector3 dir=getLocalAxis(2),up=getLocalAxis(1),left=getLocalAxis(0);
-		float **mat=new float*[3];
-		for(int i=0;i<3;i++)
-			mat[i]=new float[3];
-
-		mat[0][0]=left.x;
-		mat[1][0]=left.y;
-		mat[2][0]=left.z;
-		mat[0][1]=up.x;
-		mat[1][1]=up.y;
-		mat[2][1]=up.z;
-		mat[0][2]=dir.x;
-		mat[1][2]=dir.y;
-		mat[2][2]=dir.z;
-
-		Matrix m(mat,3,3);
-		m.invert();
-		Vector3 p=m*p0;
-
-		for(int i=0;i<3;i++)
-			delete[] mat[i];
-		delete[] mat;
-
-		return p;
+		while(!ancestors.empty()){
+			int id=ancestors.size()-1;
+			Quaternion o=ancestors[id]->getOrientation();
+			origin=origin*Quaternion(-o.getAngle(),o.getAxis());
+			ancestors.pop_back();
+		}
+		return origin;
 	}
 
 	void Node::updateShaders(){
@@ -235,5 +266,10 @@ namespace vb01{
 				}
 			}
 		}
+	}
+
+	void Node::setOrientation(Quaternion q){
+		this->orientation=q;
+		updateLocalAxis();
 	}
 }

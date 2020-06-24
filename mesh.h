@@ -18,30 +18,41 @@ namespace vb01{
 		public:
 			struct Vertex{
 				Vector3 pos,tan,biTan,norm;
-				Vector2 texCoords;	
+				Vector2 uv;	
 			};
 			struct VertexGroup{
-				int numVertices=0;
+				int numVertices;
+				u32 *vertices=nullptr;
+				float *weights=nullptr;
+				std::string name;
+			};
+			struct ShapeKey{
+				int numVertices;
 				Vertex **vertices=nullptr;
-				float *weights;
+				Vector3 *offsets=nullptr;
 				std::string name;
 			};
 
-			Mesh(Vertex*,unsigned int*,int);
+			Mesh(Vertex*,unsigned int*,int,VertexGroup *groups=nullptr,int=0,ShapeKey *keys=nullptr,int=0,std::string="");
 			~Mesh();
 			virtual void update();
 			void render();
 			void setMaterial(Material *mat){this->material=mat;}
+			VertexGroup& getVertexGroup(std::string);
+			ShapeKey& getShapeKey(std::string);
 			inline void setNode(Node *node){this->node=node;}
 			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}
 			inline void setReflect(bool r){this->reflect=r;}
 			inline void setWireframe(bool w){this->wireframe=w;}
+			inline void setSkeleton(Skeleton *sk){this->skeleton=sk;}
 			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline bool isCastShadow(){return castShadow;}
 			inline int getNumVerts(){return 3*numTris;}
 			inline Vertex* getVerts(){return vertices;}
+			inline std::string getName(){return name;}
+			inline Skeleton* getSkeleton(){return skeleton;}
 			inline unsigned int* getIndices(){return indices;}
 		private:
 			Shader *environmentShader=nullptr;
@@ -59,9 +70,10 @@ namespace vb01{
 
 			bool staticVerts=true,castShadow=false,reflect=false,wireframe=false;
 			Vertex *vertices;
-			VertexGroup groups;
+			VertexGroup *groups;
+			ShapeKey *shapeKeys;
 			unsigned int *indices,VAO,VBO,EBO;
-			int numTris;
+			int numTris,numVertexGroups=0,numShapeKeys=0;
 	};
 }
 

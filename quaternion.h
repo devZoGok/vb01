@@ -50,6 +50,7 @@ namespace vb01{
 			}
 			inline Quaternion norm(){return *this/getLength();}
 			inline Quaternion recip(){return conj()/getLengthSq();}
+			inline Quaternion invert(){return conj()/(getLengthSq());}
 			inline float getLengthSq(){return w*w+x*x+y*y+z*z;}
 			inline float getLength(){return std::sqrt(getLengthSq());}
 

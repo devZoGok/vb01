@@ -139,7 +139,7 @@ namespace vb01{
 		shader->setVec2(startSize,"startSize");
 		shader->setVec2(endSize,"endSize");
 
-		Vector3 nodePos=node->getWorldTransform().position;
+		Vector3 nodePos=node->localToGlobalPosition(Vector3::VEC_ZERO);
 		Vector3 nodeDir=node->getLocalAxis(2);
 		Vector3 nodeUp=node->getLocalAxis(1);
 		Vector3 nodeLeft=node->getLocalAxis(0);

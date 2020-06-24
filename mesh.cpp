@@ -18,10 +18,15 @@ namespace vb01{
 		
 	}
 
-	Mesh::Mesh(Vertex *vertices, unsigned int *indices,int numTris){
+	Mesh::Mesh(Vertex *vertices,unsigned int *indices,int numTris,VertexGroup *vertexGroups,int numVertexGroups,ShapeKey *shapeKeys,int numShapeKeys,string name){
 		this->vertices=vertices;
 		this->indices=indices;
 		this->numTris=numTris;
+		this->groups=vertexGroups;
+		this->numVertexGroups=numVertexGroups;
+		this->shapeKeys=shapeKeys;
+		this->numShapeKeys=numShapeKeys;
+		this->name=name;
 
 		construct();
 	}
@@ -77,7 +82,7 @@ namespace vb01{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,norm)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,texCoords)));
+		glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,uv)));
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(3,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,tan)));
 		glEnableVertexAttribArray(3);
@@ -94,10 +99,8 @@ namespace vb01{
 		Quaternion orient=Quaternion::QUAT_W;
 
 		if(node){
-			Node::Transform t=node->getWorldTransform();
-
-			pos=t.position;
-			orient=t.orientation;
+			pos=node->localToGlobalPosition(Vector3::VEC_ZERO);
+			orient=node->localToGlobalOrientation(Quaternion::QUAT_W);
 			camPos=cam->getPosition();
 		}
 
@@ -120,8 +123,8 @@ namespace vb01{
 			for(Node *n : descendants){
 				for(Mesh *m : n->getMeshes())
 					if(m!=this){
-						Vector3 position=n->getWorldPosition();
-						Quaternion rotation=n->getWorldOrientation();
+						Vector3 position=n->localToGlobalPosition(Vector3::VEC_ZERO);
+						Quaternion rotation=n->localToGlobalOrientation(Quaternion::QUAT_W);
 						Vector3 rotAxis=rotation.norm().getAxis();
 
 						if(rotAxis==Vector3::VEC_ZERO)
@@ -187,5 +190,25 @@ namespace vb01{
 		}
 		glPolygonMode(GL_FRONT_AND_BACK,wireframe?GL_LINE:GL_FILL);
 		glDrawElements(GL_TRIANGLES,3*numTris,GL_UNSIGNED_INT,0);	
+	}
+
+	Mesh::VertexGroup& Mesh::getVertexGroup(string name){
+		int id=-1;
+		for(int i=0;i<numVertexGroups;i++)
+			if(groups[i].name==name){
+				id=i;
+				break;
+			}
+		return groups[id];
+	}
+
+	Mesh::ShapeKey& Mesh::getShapeKey(string name){
+		int id=-1;
+		for(int i=0;i<numVertexGroups;i++)
+			if(shapeKeys[i].name==name){
+				id=i;
+				break;
+			}
+		return shapeKeys[id];
 	}
 }

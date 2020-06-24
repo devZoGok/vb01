@@ -64,7 +64,7 @@ namespace vb01{
 			Vertex v;
 			v.pos=pos[data[3*i]];
 			v.norm=norm[data[3*i+1]];
-			v.texCoords=tex[data[3*i+2]];
+			v.uv=tex[data[3*i+2]];
 			vertices[i]=v;
 			indices[i]=i;	
 		}
