@@ -31,7 +31,7 @@ namespace vb01{
 		camera=new Camera();
 	}
 
-	void Root::start(int width,int height){
+	void Root::start(int width,int height,string name){
 		this->width=width;
 		this->height=height;
 
@@ -39,7 +39,7 @@ namespace vb01{
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-		window=glfwCreateWindow(width,height,"KEK",NULL,NULL);
+		window=glfwCreateWindow(width,height,name.c_str(),NULL,NULL);
 		if(window==NULL){
 			std::cout<<"Failed to load window.\n";
 			exit(-1);

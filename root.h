@@ -20,7 +20,7 @@ namespace vb01{
 	class Root{
 		public:
 			void update();
-			void start(int,int);
+			void start(int,int,std::string);
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
 			inline Node* getGuiNode(){return guiNode;}

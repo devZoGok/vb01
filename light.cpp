@@ -87,8 +87,8 @@ namespace vb01{
 			for(Mesh *mesh : meshes){
 				Material *mat=mesh->getMaterial();
 				if(n->isVisible()&&mat&&mat->isLightingEnabled()){
-					Vector3 pos=n->getWorldPosition();
-					Quaternion rot=n->getWorldOrientation();
+					Vector3 pos=n->localToGlobalPosition(Vector3::VEC_ZERO);
+					Quaternion rot=n->localToGlobalOrientation(Quaternion::QUAT_W);
 					Vector3 rotAxis=rot.norm().getAxis();
 
 					if(rotAxis==Vector3::VEC_ZERO)

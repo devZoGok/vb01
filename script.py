@@ -2,25 +2,18 @@ import sys
 
 def exportData(ob):
     par=ob.parent
-    file.write(ob.name+"\n")
+    file.write(ob.type+": "+ob.name+"\n")
     file.write("pos: "+str(ob.location.x)+" "+str(ob.location.y)+" "+str(ob.location.z)+"\n")
     file.write("rot: "+str(ob.rotation_quaternion.w)+" "+str(ob.rotation_quaternion.x)+" "+str(ob.rotation_quaternion.y)+" "+str(-ob.rotation_quaternion.z)+"\n")
     file.write("scale: "+str(ob.scale.x)+" "+str(ob.scale.y)+" "+str(ob.scale.z)+"\n")
-    file.write("parent: "+('None' if par is None else par.name)+"\n")
+    file.write("parent: "+('-' if par is None else par.name)+"\n")
     if(ob.type=="ARMATURE"):
         file.write("bones: "+str(len(ob.data.bones)))
         for bone in ob.data.bones:
-            tail=bone.tail
             head=bone.head
-            file.write("\n"+bone.name+": "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(tail.x)+" "+str(tail.y)+" "+str(tail.z))
-    
-        file.write("\nboneHierarchy:")
-        for bone in ob.data.bones:
-            numChildren=len(bone.children)
-            if numChildren>0:
-                file.write('\n'+bone.name+' '+str(numChildren)+':')
-                for ch in bone.children:
-                    file.write(' '+ch.name)
+            xAxis=bone.x_axis
+            yAxis=bone.y_axis
+            file.write("\n"+bone.name+": "+('None' if bone.parent is None else bone.parent.name)+" "+str(bone.length)+" "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(xAxis.x)+" "+str(xAxis.y)+" "+str(xAxis.z)+" "+str(yAxis.x)+" "+str(yAxis.y)+" "+str(yAxis.z)+" ")
 
         numAnims=len(ob.animation_data.nla_tracks[0].strips)
         if numAnims>0:
@@ -29,7 +22,7 @@ def exportData(ob):
                 animName=nlaStrip.name
                 action=bpy.data.actions[animName]
                 numAnimBones=len(action.groups)
-                file.write("\n"+animName+": "+str(numAnimBones)+"\n")
+                file.write("\nanimationName: "+animName+"\n")
     
                 print('Exporting animation '+animName+'...\n')
                 for group in action.groups:
@@ -56,13 +49,22 @@ def exportData(ob):
                             file.write("rot_"+coords[arrInd])
                         elif coordType=="scale":
                             file.write("scale_"+coords[arrInd+1])
-                        file.write(' '+str(numKeyframes)+':\n')
+                        file.write(': '+str(numKeyframes)+'\n')
     
                         for keyframe in channel.keyframe_points:
                             keyframeId=keyframe.co[0]
                             interp=keyframe.interpolation
                             bpy.context.scene.frame_set(int(start)+int(keyframeId))
                             poseBone=ob.pose.bones[group.name]
+                            interpInt=-1
+
+                            if interp=='CONSTANT':
+                                interpInt=0
+                            elif interp=='LINEAR':
+                                interpInt=1
+                            elif interp=='BEZIER':
+                                interpInt=2
+
                             if bpy.context.scene.frame_current>end:
                                     bpy.context.scene.frame_current=bpy.context.scene.frame_current-1
                             if coordType=="location":
@@ -71,7 +73,7 @@ def exportData(ob):
                                 file.write(str(poseBone.rotation_quaternion[arrInd]))
                             elif coordType=="scale":
                                 file.write(str(poseBone.scale[arrInd]))
-                            file.write(" "+str(keyframeId)+" "+interp)
+                            file.write(" "+str(keyframeId)+" "+str(interpInt))
                             if interp=='BEZIER':
                                 file.write(" "+str(keyframe.handle_left_type)+" "+str(keyframe.handle_left.x)+" "+str(keyframe.handle_left.y)+" ")
                                 file.write(str(keyframe.handle_right_type)+" "+str(keyframe.handle_right.x)+" "+str(keyframe.handle_right.y))
@@ -86,31 +88,56 @@ def exportData(ob):
         #if mesh.shape_keys is not NoneType:
             #numShapeKeys=len(mesh.shape_keys[0].key_blocks)-1
 
-        file.write("vertices: "+str(numVerts)+","+str(numFaces)+"\n")
+        file.write("vertices: "+str(numVerts)+" "+str(numFaces)+" \n")
         print('Exporting vertices...\n')
         for vert in mesh.vertices:
             pos=vert.co
             norm=vert.normal
-            file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+"\n")
-        
-        file.write("uv:\n")
-        print('Exporting texture coordinates...\n')
+            file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+" \n")
+        '''
         for face in mesh.polygons:
-            for vert,loop in zip(face.vertices,face.loop_indices):
-                uv=mesh.uv_layers[0].data[loop].uv
-                file.write(str(vert)+" "+str(uv.x)+" "+str(uv.y)+"\n")
-        
+            for vert,loop in zip(face.vertices,mesh.loops):
+                pos=mesh.vertices[vert].co
+                norm=mesh.vertices[vert].normal
+                uv=mesh.uv_layers[0].data[loop.index].uv
+                tan=loop.tangent
+                bitan=loop.bitangent
+                file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
+        '''
+
+        file.write("faces:\n")
+        print('Exporting faces...\n')
+        mesh.calc_tangents()
+        for face in mesh.polygons:
+            for vert,loopInd in zip(face.vertices,face.loop_indices):
+                uv=mesh.uv_layers[0].data[loopInd].uv
+                loop=mesh.loops[loopInd]
+                tan=loop.tangent
+                bitan=loop.bitangent
+                file.write(str(vert)+" "+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
+        mesh.free_tangents()
+
         if numGroups>0:
+            groupVerts=[]
             file.write("groups: "+str(numGroups)+"\n")
             print('Exporting vertex groups...\n')
-            for group in ob.vertex_groups:
-                file.write(group.name+":\n")
+            for i in range(0,numGroups):
+                groupVerts.append([])
+                for vert in mesh.vertices:
+                    for g in vert.groups:
+                        if g.group==ob.vertex_groups[i].index:
+                            groupVerts[i].append(vert.index)
+
+            for i in range(0,numGroups):
+                group=ob.vertex_groups[i]
+                file.write(group.name+": "+str(len(groupVerts[i]))+"\n")
                 for vert in mesh.vertices:
                     for g in vert.groups:
                         if g.group==group.index:
-                            file.write(str(vert.index)+" "+str(g.weight)+"\n")
+                            file.write(str(vert.index)+" "+str(g.weight)+" \n")
+
         if numShapeKeys>0:
-            file.write('shape keys:\n')
+            file.write('shapeKeys:\n')
             print('Exporting shape keys...\n')
             for shape_key in mesh.shape_keys.key_blocks:
                 if shape_key.name=='Basis':
@@ -120,7 +147,14 @@ def exportData(ob):
                     if(newPos!=mesh.vertices[i].co):
                         file.write('\n'+str(i)+" "+str(newPos.x)+' '+str(newPos.y)+' '+str(newPos.z))
 
-fl="/home/dominykas/c++/vb01/kek.vb";
+fl=bpy.data.filepath
+dotId=0
+for i in range(len(fl)):
+    if(fl[i]=='.'):
+        dotId=i
+        break
+fl=fl[0:dotId]+".vb"
+
 objects=[]
 selectedObjects=bpy.context.selected_objects
 

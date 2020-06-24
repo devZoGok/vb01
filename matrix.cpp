@@ -139,13 +139,16 @@ namespace vb01{
 		int newRows=dim[0]-1,newColumns=dim[1]-1;
 		float **matrix=new float*[dim[0]];
 		bool offsetRows=false,offsetColumns=false;
+
 		for(int i=0;i<dim[1];i++){
 			matrix[i]=new float[dim[1]];
+
 			for(int j=0;j<dim[1];j++)
 				if(i!=row&&j!=column){
 					int a=offsetRows&&i!=0?i-1:i,b=offsetColumns&&j!=0?j-1:j;
 					matrix[a][b]=this->matrix[i][j];
 				}
+
 				else if(i==row) offsetRows=true;
 				else if(j==column) offsetColumns=true;
 		}
@@ -155,11 +158,17 @@ namespace vb01{
 	void Matrix::invert(){
 		transpose();
 		float **matrix=new float*[dim[0]];
+
 		for(int i=0;i<dim[0];i++){
 			matrix[i]=new float[dim[1]];
 			for(int j=0;j<dim[1];j++)
 				matrix[i][j]=getCofactor(i,j);
 		}
+
+		for(int i=0;i<dim[0];i++)
+			delete this->matrix[i];
+		delete[] this->matrix;
+
 		this->matrix=matrix;
 		*this/getDeterminant();
 	}
