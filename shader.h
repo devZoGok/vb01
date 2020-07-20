@@ -8,7 +8,8 @@
 namespace vb01{
 	class Shader{
 		public:
-			enum ErrorType{VERTEX,GEOMETRY,FRAGMENT,PROGRAM};
+			enum ErrorType{VERTEX_ERROR,GEOMETRY_ERROR,FRAGMENT_ERROR,PROGRAM_ERROR};
+			enum ShaderType{VERTEX_SHADER,FRAGMENT_SHADER,GEOMETRY_SHADER};
 
 			Shader(std::string,std::string,std::string="");
 			~Shader();
@@ -21,7 +22,7 @@ namespace vb01{
 			void setFloat(float,std::string);
 			void setBool(bool,std::string);
 			void setInt(int,std::string);
-			void editShader(bool,char,char,std::string);
+			void editShader(ShaderType,int,std::string);
 		private:
 			void loadShaders();
 			void checkCompileErrors(unsigned int,ErrorType);

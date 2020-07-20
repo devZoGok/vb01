@@ -16,8 +16,10 @@ namespace vb01{
 			Animation* getAnimation(std::string);
 			inline void addAnimation(Animation *anim){animations.push_back(anim);}
 			inline Bone* getBone(int i){return bones[i];}
+			inline Bone* getRootBone(){return bones[0];}
 			inline std::vector<Bone*>& getBones(){return bones;}
 			inline std::string getName(){return name;}
+			inline int getNumBones(){return bones.size();}
 		private:
 			std::string name;
 			std::vector<Bone*> bones;

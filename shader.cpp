@@ -37,16 +37,32 @@ namespace vb01{
 
 	Shader::~Shader(){}
 
-	void Shader::editShader(bool vertexShader, char firstChar, char secondChar, string insertion){
-		int firstCharId=-1,secondCharId=-1;
-		for(int i=0;i<fString.length()&&(firstCharId==-1||secondCharId==-1);i++){
-			if(fString.c_str()[i]==firstChar)
-				firstCharId=i;
-			if(fString.c_str()[i]==secondChar)
-				secondCharId=i;
+	void Shader::editShader(ShaderType type, int line, string insertion){
+		int numPassedLines = 0, lineStart = -1, lineEnd = -1;
+		string *shaderString;
+		switch(type){
+			case VERTEX_SHADER:
+				shaderString=&vString;
+				break;
+			case FRAGMENT_SHADER:
+				shaderString=&fString;
+				break;
+			case GEOMETRY_SHADER:
+				shaderString=&gString;
+				break;
 		}
-		string *shaderString=(vertexShader?&vString:&fString);
-		(*shaderString)=(*shaderString).substr(0,firstCharId+1)+insertion+(*shaderString).substr(secondCharId,string::npos);
+
+		for(int i = 0; i < shaderString->length(); i++)
+			if(shaderString[0][i] == '\n'){
+				if(numPassedLines==line-1)
+					lineStart=i+1;
+				if(numPassedLines==line){
+					lineEnd=i;
+					break;
+				}
+				numPassedLines++;
+			}
+		*shaderString=shaderString->substr(0,lineStart)+insertion+shaderString->substr(lineEnd,string::npos);
 
 		loadShaders();
 
@@ -61,26 +77,26 @@ namespace vb01{
 		vert=glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vert,1,&vertShaderSource,NULL);
 		glCompileShader(vert);
-		checkCompileErrors(vert,VERTEX);
+		checkCompileErrors(vert,VERTEX_ERROR);
 
 		if(geometry){
 			geo=glCreateShader(GL_GEOMETRY_SHADER);
 			glShaderSource(geo,1,&geoShaderSource,NULL);
 			glCompileShader(geo);
-			checkCompileErrors(geo,GEOMETRY);
+			checkCompileErrors(geo,GEOMETRY_ERROR);
 		}
 
 		frag=glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(frag,1,&fragShaderSource,NULL);
 		glCompileShader(frag);
-		checkCompileErrors(frag,FRAGMENT);
+		checkCompileErrors(frag,FRAGMENT_ERROR);
 
 		id=glCreateProgram();
 		glAttachShader(id,vert);
 		if(geometry) glAttachShader(id,geo);
 		glAttachShader(id,frag);
 		glLinkProgram(id);
-		checkCompileErrors(id,PROGRAM);
+		checkCompileErrors(id,PROGRAM_ERROR);
 
 		glDeleteShader(vert);
 		if(geometry) glDeleteShader(geo);
@@ -91,7 +107,7 @@ namespace vb01{
 		int success;
 		char infoLog[1024];
 		switch(type){
-			case PROGRAM:
+			case PROGRAM_ERROR:
 				glGetProgramiv(shader,GL_LINK_STATUS,&success);
 				if(!success){
 					glGetProgramInfoLog(shader,1024,NULL,infoLog);
@@ -103,13 +119,13 @@ namespace vb01{
 				if(!success){
 					const char *sh;
 					switch(type){
-						case VERTEX:
+						case VERTEX_ERROR:
 							sh="VERTEX";
 							break;
-						case GEOMETRY:
+						case GEOMETRY_ERROR:
 							sh="GEOMETRY";
 							break;
-						case FRAGMENT:
+						case FRAGMENT_ERROR:
 							sh="FRAGMENT";
 							break;
 					}

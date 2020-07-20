@@ -102,13 +102,13 @@ namespace vb01{
 			string animName="";
 			Bone *animBone=nullptr;
 
-			vector<Vector3> vertPos,vertNorm;
 			const int numVertsPerFace=3;
-			int numVertPos=0,numFaces=0,vertId=0,faceId=0,groupId=-1,groupVertId=0,numGroups=0,numShapeKeys=0;
+			int numFaces=0,vertId=0,faceId=0,groupId=0,groupVertId=0,numGroups=0,numShapeKeys=0;
 			Mesh::Vertex *vertices;
 			u32 *indices; 
-			Mesh::VertexGroup *groups=nullptr;
-			Mesh::ShapeKey *shapeKeys=nullptr;
+			vector<Vector3> vertPos,vertNorm;
+			vector<float> vertWeights;
+			string *groups=nullptr,*shapeKeys=nullptr;
 
 			while(getline(in,l)){
 				int colonId=-1;
@@ -170,18 +170,36 @@ namespace vb01{
 							getLineData(postColon,data,numData);
 
 							float length=atof(data[0].c_str());
-							Vector3 pos=Vector3(atof(data[2].c_str()),atof(data[4].c_str()),-atof(data[3].c_str()));
-							Vector3 xAxis=Vector3(atof(data[5].c_str()),atof(data[7].c_str()),-atof(data[6].c_str())),yAxis=Vector3(atof(data[8].c_str()),atof(data[10].c_str()),-atof(data[9].c_str())),zAxis=xAxis.cross(yAxis);
+							Vector3 pos=Vector3(atof(data[2].c_str()),atof(data[3].c_str()),atof(data[4].c_str()));
+							Vector3 xAxis=Vector3(atof(data[5].c_str()),atof(data[6].c_str()),atof(data[6].c_str()));
+							Vector3 yAxis=Vector3(atof(data[8].c_str()),atof(data[9].c_str()),atof(data[10].c_str()));
+							Vector3 zAxis=xAxis.cross(yAxis);
 
 							string parName=string(data[0].c_str());
 							Node *parent=skeleton->getBone(parName);
-							if(!parent)
+							if(!parent){
 								parent=this;
+								swap(xAxis.y,xAxis.z);
+								xAxis.z=-xAxis.z;
+								swap(yAxis.y,yAxis.z);
+								yAxis.z=-yAxis.z;
+								swap(zAxis.y,zAxis.z);
+								zAxis.z=-zAxis.z;
+							}
 
-							Bone *bone=new Bone(preColon);
+							Vector3 parAxis[]={
+								parent->getLocalAxis(0),
+								parent->getLocalAxis(1),
+								parent->getLocalAxis(2)
+							};
+							Vector3 boneAxis[3]={
+								(parAxis[0]*xAxis.x+parAxis[1]*xAxis.y+parAxis[2]*xAxis.z).norm(),
+								(parAxis[0]*yAxis.x+parAxis[1]*yAxis.y+parAxis[2]*yAxis.z).norm(),
+								(parAxis[0]*zAxis.x+parAxis[1]*zAxis.y+parAxis[2]*zAxis.z).norm()
+							};
+							Bone *bone=new Bone(preColon,boneAxis,pos);
 							skeleton->addBone(bone,parent);
-							bone->setPosition(parent->globalToLocalPosition(pos));
-							bone->lookAt(yAxis,zAxis,parent);
+							bone->lookAt(boneAxis[1],boneAxis[2],parent);
 
 							break;
 						}
@@ -253,22 +271,22 @@ namespace vb01{
 					MeshStage meshStage;
 
 					if(preColon=="vertices"){
-						string data[2];
-						getLineData(postColon,data,2);
-						numVertPos=atoi(data[0].c_str());
+						const int numData=4;
+						string data[numData];
+						getLineData(postColon,data,numData);
 						numFaces=atoi(data[1].c_str());
+						numGroups=atoi(data[2].c_str());
+						vertices=new Mesh::Vertex[numFaces*numVertsPerFace];
+						indices=new u32[numFaces*numVertsPerFace];
 						meshStage=VERTICES;
 						continue;
 					}
 					else if(preColon=="faces"){
 						meshStage=FACES;
-						vertices=new Mesh::Vertex[numFaces*numVertsPerFace];
-						indices=new u32[numFaces*numVertsPerFace];
 						continue;
 					}
 					else if(preColon=="groups"){
-						numGroups=atoi(postColon.c_str());
-						groups=new Mesh::VertexGroup[numGroups];
+						groups=new string[numGroups];
 						meshStage=GROUPS;
 						continue;
 					}
@@ -279,13 +297,35 @@ namespace vb01{
 					switch(meshStage){
 						{
 						case VERTICES:
-							int numData=6;
+							int numData=10;
 							string data[numData];
 							getLineData(l,data,numData);
-							Vector3 vp=Vector3(atof(data[0].c_str()),atof(data[2].c_str()),-atof(data[1].c_str()));
-							Vector3 vn=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
-							vertPos.push_back(vp);
-							vertNorm.push_back(vn);
+							Vector3 vPos=Vector3(atof(data[0].c_str()),atof(data[2].c_str()),-atof(data[1].c_str()));
+							Vector3 vNorm=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
+							float vWeights[]{
+								atof(data[6].c_str()),
+								atof(data[7].c_str()),
+								atof(data[8].c_str()),
+								atof(data[9].c_str())
+							};
+							vertPos.push_back(vPos);
+							vertNorm.push_back(vNorm);
+							for(int i=0;i<4;i++)
+								vertWeights.push_back(vWeights[i]);
+							/*
+							Vector2 vertUv=Vector2(atof(data[5].c_str()),atof(data[6].c_str()));
+							Vector3 vertTan=Vector3(atof(data[7].c_str()),atof(data[9].c_str()),-atof(data[10].c_str()));
+							Vector3 vertBitan=Vector3(atof(data[11].c_str()),atof(data[13].c_str()),-atof(data[12].c_str()));
+							*/
+							/*
+							Mesh::Vertex vert;
+							vert.pos=vertPos;
+							vert.norm=vertNorm;
+							vert.uv=vertUv;
+							vert.tan=vertTan;
+							vert.biTan=vertBitan;
+							*/
+							//vertices[vertId]=vert;
 							break;
 						}
 						{
@@ -293,22 +333,26 @@ namespace vb01{
 							int numData=9;
 							string data[numData];
 							getLineData(l,data,numData);
-							u32 index=atoi(data[0].c_str());
+							int index=atoi(data[0].c_str());
 							Vector2 uv=Vector2(atof(data[1].c_str()),atof(data[2].c_str()));
 							Vector3 tan=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
-							Vector3 biTan=Vector3(atof(data[6].c_str()),atof(data[8].c_str()),-atof(data[7].c_str()));
-							/*
-							*/
+							Vector3 biTan=Vector3(atof(data[6].c_str()),atof(data[8].c_str()),-atof(data[7].c_str())); 
 
 							Mesh::Vertex vert;
 							vert.pos=vertPos[index];
 							vert.norm=vertNorm[index];
-							vert.uv=uv;
 							vert.tan=tan;
 							vert.biTan=biTan;
+							vert.uv=uv;
+							vert.weights[0]=vertWeights[index*4+0];
+							vert.weights[1]=vertWeights[index*4+1];
+							vert.weights[2]=vertWeights[index*4+2];
+							vert.weights[3]=vertWeights[index*4+3];
+							for(int i=0;i<numVertsPerFace;i++){
+							}
+							indices[vertId]=vertId;
 							vertices[vertId]=vert;
 
-							indices[vertId]=vertId;
 							vertId++;
 							break;
 						}
@@ -318,26 +362,9 @@ namespace vb01{
 								meshes.push_back(new Mesh(vertices,indices,numFaces,groups,numGroups,shapeKeys,numShapeKeys,name));
 								break;
 							}
-							else if(colonId!=-1){
-								groupId++,groupVertId=0;
-								int numVerts=atoi(postColon.c_str());
-								groups[groupId].numVertices=numVerts;
-								groups[groupId].name=preColon;
-								if(numVerts>0){
-									groups[groupId].vertices=new u32[numVerts];
-									groups[groupId].weights=new float[numVerts];
-								}
-							}
 							else{
-								int numData=2,vertId;
-								float weight;
-								string data[numData];
-								getLineData(l,data,numData);
-								vertId=atoi(data[0].c_str());
-								weight=atof(data[1].c_str());
-								groups[groupId].vertices[groupVertId]=vertId;
-								groups[groupId].weights[groupVertId]=weight;
-								groupVertId++;
+								groups[groupId]=l;
+								groupId++;
 							}
 							break;
 						}

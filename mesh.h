@@ -17,29 +17,19 @@ namespace vb01{
 	class Mesh{
 		public:
 			struct Vertex{
-				Vector3 pos,tan,biTan,norm;
+				Vector3 pos,norm,tan,biTan;
 				Vector2 uv;	
-			};
-			struct VertexGroup{
-				int numVertices;
-				u32 *vertices=nullptr;
-				float *weights=nullptr;
-				std::string name;
-			};
-			struct ShapeKey{
-				int numVertices;
-				Vertex **vertices=nullptr;
-				Vector3 *offsets=nullptr;
-				std::string name;
+				//Vector4 weights;
+				//float *weights=nullptr;
+				float weights[4];
+				Vector3 *shapeKeyOffsets=nullptr;
 			};
 
-			Mesh(Vertex*,unsigned int*,int,VertexGroup *groups=nullptr,int=0,ShapeKey *keys=nullptr,int=0,std::string="");
+			Mesh(Vertex*,unsigned int*,int,std::string *vg=nullptr,int=0,std::string *sk=nullptr,int=0,std::string="");
 			~Mesh();
 			virtual void update();
 			void render();
 			void setMaterial(Material *mat){this->material=mat;}
-			VertexGroup& getVertexGroup(std::string);
-			ShapeKey& getShapeKey(std::string);
 			inline void setNode(Node *node){this->node=node;}
 			inline void setCastShadow(bool castShadow){this->castShadow=castShadow;}
 			inline void setReflect(bool r){this->reflect=r;}
@@ -62,7 +52,6 @@ namespace vb01{
 			Node *node=nullptr;
 			std::vector<Mesh*> meshes;
 			std::string name="";
-			int width=800;
 			Skeleton *skeleton=nullptr;
 		protected:
 			Mesh();
@@ -70,8 +59,7 @@ namespace vb01{
 
 			bool staticVerts=true,castShadow=false,reflect=false,wireframe=false;
 			Vertex *vertices;
-			VertexGroup *groups;
-			ShapeKey *shapeKeys;
+			std::string *vertexGroups=nullptr,*shapeKeys=nullptr;
 			unsigned int *indices,VAO,VBO,EBO;
 			int numTris,numVertexGroups=0,numShapeKeys=0;
 	};
