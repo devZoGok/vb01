@@ -88,22 +88,20 @@ def exportData(ob):
         #if mesh.shape_keys is not NoneType:
             #numShapeKeys=len(mesh.shape_keys[0].key_blocks)-1
 
-        file.write("vertices: "+str(numVerts)+" "+str(numFaces)+" \n")
+        file.write("vertices: "+str(numVerts)+" "+str(numFaces)+" "+str(numGroups)+" "+str(numShapeKeys)+" \n")
         print('Exporting vertices...\n')
         for vert in mesh.vertices:
             pos=vert.co
             norm=vert.normal
-            file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+" \n")
-        '''
-        for face in mesh.polygons:
-            for vert,loop in zip(face.vertices,mesh.loops):
-                pos=mesh.vertices[vert].co
-                norm=mesh.vertices[vert].normal
-                uv=mesh.uv_layers[0].data[loop.index].uv
-                tan=loop.tangent
-                bitan=loop.bitangent
-                file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
-        '''
+            weights=[]
+            for i in range(0,numGroups):
+                weights.append(0.0)
+            for g in vert.groups:
+                weights[g.group]=g.weight
+            file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+" ")
+            for w in weights:
+                file.write(str(w)+" ")
+            file.write('\n')
 
         file.write("faces:\n")
         print('Exporting faces...\n')
@@ -116,6 +114,27 @@ def exportData(ob):
                 bitan=loop.bitangent
                 file.write(str(vert)+" "+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
         mesh.free_tangents()
+
+        if numGroups>0:
+            file.write('groups:\n')
+            for group in ob.vertex_groups:
+                file.write(group.name+'\n')
+
+        if numShapeKeys>0:
+            file.write('shapeKeys:\n')
+            for shape_key in mesh.shape_keys.key_blocks:
+                if shape_key.name=='Basis':
+                    continue
+                file.write(shape_key.name+'\n')
+        '''
+        for face in mesh.polygons:
+            for vert,loop in zip(face.vertices,mesh.loops):
+                pos=mesh.vertices[vert].co
+                norm=mesh.vertices[vert].normal
+                uv=mesh.uv_layers[0].data[loop.index].uv
+                tan=loop.tangent
+                bitan=loop.bitangent
+                file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
 
         if numGroups>0:
             groupVerts=[]
@@ -146,6 +165,7 @@ def exportData(ob):
                     newPos=shape_key.data[i].co
                     if(newPos!=mesh.vertices[i].co):
                         file.write('\n'+str(i)+" "+str(newPos.x)+' '+str(newPos.y)+' '+str(newPos.z))
+        '''
 
 fl=bpy.data.filepath
 dotId=0

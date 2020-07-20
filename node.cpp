@@ -100,8 +100,15 @@ namespace vb01{
 	}
 
 	void Node::lookAt(Vector3 newDir,Vector3 newUp,Node *node){
-		newDir=node->localToGlobalPosition(newDir);
-		newUp=node->localToGlobalPosition(newUp);
+		Vector3 parAxis[]{
+			node->getLocalAxis(0),
+			node->getLocalAxis(1),
+			node->getLocalAxis(2)
+		};
+		newDir=parAxis[0]*newDir.x+parAxis[1]*newDir.y+parAxis[2]*newDir.z;
+		newUp=parAxis[0]*newUp.x+parAxis[1]*newUp.y+parAxis[2]*newUp.z;
+		/*
+		*/
 		float angle=axis[2].getAngleBetween(newDir);
 		Vector3 rotAxis=axis[2].cross(newDir).norm();
 		if(rotAxis==Vector3::VEC_ZERO)
@@ -138,10 +145,10 @@ namespace vb01{
 	}
 
 	void Node::updateLocalAxis(){
-		Node *rootNode=Root::getSingleton()->getRootNode(),*par=this;
-		while(par->getParent())
-			par=par->getParent();
-		if(par!=rootNode)
+		Node *rootNode=Root::getSingleton()->getRootNode(),*ancestor=this;
+		while(ancestor->getParent())
+			ancestor=ancestor->getParent();
+		if(ancestor!=rootNode)
 			return;
 
 		Vector3 parAxis[3]={
@@ -259,10 +266,11 @@ namespace vb01{
 			vector<Mesh*> meshes=n->getMeshes();
 			for(Mesh *m : meshes){
 				Material *mat=m->getMaterial();
-				string str=to_string(root->numLights>0?root->numLights:1);
+				string str="const int numLights="+to_string(root->numLights>0?root->numLights:1)+";";
+
 				if(mat){
 					//mat->getShader()->editShader(true,'=',';',str);
-					mat->getShader()->editShader(false,'=',';',str);
+					mat->getShader()->editShader(Shader::FRAGMENT_SHADER,1,str);
 				}
 			}
 		}
