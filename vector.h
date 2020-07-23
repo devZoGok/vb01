@@ -43,7 +43,14 @@ namespace vb01{
 		float getLengthSq(){return x*x+y*y+z*z;}
 		float getLength(){return std::sqrt(getLengthSq());}
 		float dot(Vector3 v){return x*v.x+y*v.y+z*v.z;}
-		float getAngleBetween(Vector3 v){return std::acos(dot(v));}
+		float getAngleBetween(Vector3 v){
+			float dotProd = dot(v);
+			if(dotProd > 1.0)
+				dotProd = 1.0;
+			else if(dotProd < -1)
+				dotProd = -1;
+			return std::acos(dotProd);
+		}
 		float getDistanceFrom(Vector3 v){return (v-*this).getLength();}
 		Vector3 norm(){return (*this!=Vector3::VEC_ZERO?*this/getLength():Vector3::VEC_ZERO);}
 		Vector3 cross(Vector3 v){return Vector3(y * v.z - v.y * z, z * v.x - x * v.z, x * v.y - v.x * y);}

@@ -21,7 +21,8 @@ namespace vb01{
 				Vector2 uv;	
 				//Vector4 weights;
 				//float *weights=nullptr;
-				float weights[4];
+				float weights[4]{0,0,0,0};
+				int boneIndices[4]{-1,-1,-1,-1};
 				Vector3 *shapeKeyOffsets=nullptr;
 			};
 

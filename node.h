@@ -30,10 +30,11 @@ namespace vb01{
 			void addLight(Light*);
 			void removeLight(int);
 			void addText(Text*);
-			void lookAt(Vector3,Vector3,Node*);
-			void updateLocalAxis();
+			virtual void lookAt(Vector3,Vector3,Node*);
+			void updateAxis();
 			void setOrientation(Quaternion);
 			void getDescendants(Node*,std::vector<Node*>&);
+			std::vector<Node*> getAncestors(Node*, Node *anc = nullptr);
 			Vector3 localToGlobalPosition(Vector3);
 			Vector3 globalToLocalPosition(Vector3);
 			Quaternion localToGlobalOrientation(Quaternion);
@@ -46,7 +47,7 @@ namespace vb01{
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent=par;}
 			inline Node* getChild(int i){return children[i];}
-			inline Vector3 getLocalAxis(int i){return axis[i];}
+			inline Vector3 getGlobalAxis(int i){return globalAxis[i];}
 			inline Vector3 getPosition(){return pos;}
 			inline Vector3 getScale(){return scale;}
 			inline void setPosition(Vector3 pos){this->pos=pos;}
@@ -64,7 +65,7 @@ namespace vb01{
 			void updateShaders();
 			
 			bool visible=true;
-			Vector3 pos,scale,axis[3];
+			Vector3 pos,scale,globalAxis[3];
 			Quaternion orientation;
 			std::vector<Mesh*> meshes;
 			std::vector<ParticleEmitter*> emitters;

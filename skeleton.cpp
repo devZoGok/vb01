@@ -9,17 +9,10 @@ namespace vb01{
 		this->name=name;
 	}
 
-	void Skeleton::addBone(Bone *bone, Node *parent){
+	void Skeleton::addBone(Bone *bone, Bone *parent){
 		parent->attachChild(bone);
+		bone->setSkeleton(this);
 		bones.push_back(bone);
-
-		Box *box=new Box(Vector3(.1,.1,.1));
-		Material *mat=new Material();
-		mat->setTexturingEnabled(false);
-		mat->setLightingEnabled(false);
-		mat->setDiffuseColor(Vector4(0,1,0,1));
-		box->setMaterial(mat);
-		//bone->attachMesh(box);
 	}
 
 	Bone* Skeleton::getBone(string name){

@@ -103,7 +103,7 @@ namespace vb01{
 			Bone *animBone=nullptr;
 
 			const int numVertsPerFace=3;
-			int numFaces=0,vertId=0,faceId=0,groupId=0,groupVertId=0,numGroups=0,numShapeKeys=0;
+			int numFaces=0,vertId=0,faceId=0,groupId=0,groupVertId=0,numGroups=0,numShapeKeys=0,numBones=0;
 			Mesh::Vertex *vertices;
 			u32 *indices; 
 			vector<Vector3> vertPos,vertNorm;
@@ -150,7 +150,6 @@ namespace vb01{
 					enum ArmatureStage{BONES,ANIMATIONS};
 
 					ArmatureStage armatureStage;
-					int numBones=0;
 
 					if(preColon=="bones"){
 						numBones=atoi(postColon.c_str());
@@ -169,11 +168,12 @@ namespace vb01{
 							string data[numData];
 							getLineData(postColon,data,numData);
 
-							float length=atof(data[0].c_str());
-							Vector3 pos=Vector3(atof(data[2].c_str()),atof(data[3].c_str()),atof(data[4].c_str()));
-							Vector3 xAxis=Vector3(atof(data[5].c_str()),atof(data[6].c_str()),atof(data[6].c_str()));
+							float length = atof(data[1].c_str());
+							Vector3 head=Vector3(atof(data[2].c_str()),atof(data[3].c_str()),atof(data[4].c_str()));
+							Vector3 xAxis=Vector3(atof(data[5].c_str()),atof(data[6].c_str()),atof(data[7].c_str()));
 							Vector3 yAxis=Vector3(atof(data[8].c_str()),atof(data[9].c_str()),atof(data[10].c_str()));
 							Vector3 zAxis=xAxis.cross(yAxis);
+							Vector3 pos = head;
 
 							string parName=string(data[0].c_str());
 							Node *parent=skeleton->getBone(parName);
@@ -186,20 +186,12 @@ namespace vb01{
 								swap(zAxis.y,zAxis.z);
 								zAxis.z=-zAxis.z;
 							}
+							else
+								pos = pos + Vector3(0,((Bone*)parent)->getLength(),0);
 
-							Vector3 parAxis[]={
-								parent->getLocalAxis(0),
-								parent->getLocalAxis(1),
-								parent->getLocalAxis(2)
-							};
-							Vector3 boneAxis[3]={
-								(parAxis[0]*xAxis.x+parAxis[1]*xAxis.y+parAxis[2]*xAxis.z).norm(),
-								(parAxis[0]*yAxis.x+parAxis[1]*yAxis.y+parAxis[2]*yAxis.z).norm(),
-								(parAxis[0]*zAxis.x+parAxis[1]*zAxis.y+parAxis[2]*zAxis.z).norm()
-							};
-							Bone *bone=new Bone(preColon,boneAxis,pos);
-							skeleton->addBone(bone,parent);
-							bone->lookAt(boneAxis[1],boneAxis[2],parent);
+							Bone *bone=new Bone(preColon,length,pos);
+							skeleton->addBone(bone,(Bone*)parent);
+							bone->lookAt(zAxis,yAxis,parent);
 
 							break;
 						}
@@ -297,35 +289,15 @@ namespace vb01{
 					switch(meshStage){
 						{
 						case VERTICES:
-							int numData=10;
+							int numData = 6 + numBones;
 							string data[numData];
 							getLineData(l,data,numData);
 							Vector3 vPos=Vector3(atof(data[0].c_str()),atof(data[2].c_str()),-atof(data[1].c_str()));
 							Vector3 vNorm=Vector3(atof(data[3].c_str()),atof(data[5].c_str()),-atof(data[4].c_str()));
-							float vWeights[]{
-								atof(data[6].c_str()),
-								atof(data[7].c_str()),
-								atof(data[8].c_str()),
-								atof(data[9].c_str())
-							};
 							vertPos.push_back(vPos);
 							vertNorm.push_back(vNorm);
-							for(int i=0;i<4;i++)
-								vertWeights.push_back(vWeights[i]);
-							/*
-							Vector2 vertUv=Vector2(atof(data[5].c_str()),atof(data[6].c_str()));
-							Vector3 vertTan=Vector3(atof(data[7].c_str()),atof(data[9].c_str()),-atof(data[10].c_str()));
-							Vector3 vertBitan=Vector3(atof(data[11].c_str()),atof(data[13].c_str()),-atof(data[12].c_str()));
-							*/
-							/*
-							Mesh::Vertex vert;
-							vert.pos=vertPos;
-							vert.norm=vertNorm;
-							vert.uv=vertUv;
-							vert.tan=vertTan;
-							vert.biTan=vertBitan;
-							*/
-							//vertices[vertId]=vert;
+							for(int i=0;i<numBones;i++)
+								vertWeights.push_back(atof(data[6 + i].c_str()));
 							break;
 						}
 						{
@@ -344,11 +316,12 @@ namespace vb01{
 							vert.tan=tan;
 							vert.biTan=biTan;
 							vert.uv=uv;
-							vert.weights[0]=vertWeights[index*4+0];
-							vert.weights[1]=vertWeights[index*4+1];
-							vert.weights[2]=vertWeights[index*4+2];
-							vert.weights[3]=vertWeights[index*4+3];
-							for(int i=0;i<numVertsPerFace;i++){
+							for(int i = 0, boneIndex = 0; i < numBones; i++){
+								if(vertWeights[index * numBones + i] > 0){
+									vert.boneIndices[boneIndex] = i;
+									vert.weights[boneIndex] = vertWeights[index * numBones + i];
+									boneIndex++;
+								}
 							}
 							indices[vertId]=vertId;
 							vertices[vertId]=vert;
