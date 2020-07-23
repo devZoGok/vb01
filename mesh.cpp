@@ -72,11 +72,7 @@ namespace vb01{
 		glGenBuffers(1,&VBO);
 		glGenBuffers(1,&EBO);	
 
-		u32 base=sizeof(float);
-		u32 size=(14+3*numShapeKeys)*base;
-		size=sizeof(Vertex);
-		//size=(18)*sizeof(float)+sizeof(Vector3*);
-		//cout<<size<<endl;
+		u32 size=sizeof(Vertex);
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER,VBO);
@@ -95,11 +91,9 @@ namespace vb01{
 		glVertexAttribPointer(4,3,GL_FLOAT,GL_FALSE,size,(void*)(offsetof(Vertex,biTan)));
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(5,4,GL_FLOAT,GL_FALSE,size,(void*)(offsetof(Vertex,weights)));
-		//glEnableVertexArrayAttrib(VAO,5);
 		glEnableVertexAttribArray(5);
-		//glVertexAttribDivisor(5,1);
-		for(int i=0;i<numVertexGroups;i++){
-		}
+		glVertexAttribPointer(6,4,GL_FLOAT,GL_FALSE,size,(void*)(offsetof(Vertex,boneIndices)));
+		glEnableVertexAttribArray(6);
 	}
 
 	void Mesh::update(){
@@ -159,11 +153,12 @@ namespace vb01{
 			glViewport(0,0,root->getWidth(),root->getHeight());
 		}
 
-		Vector3 rotAxis=orient.norm().getAxis();
+		Vector3 rotAxis=orient.getAxis();
 		if(rotAxis==Vector3::VEC_ZERO)
 			rotAxis=Vector3::VEC_I;
-		mat4 model=translate(mat4(1.),vec3(pos.x,pos.y,pos.z));
-		model=rotate(model,orient.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+		mat4 model = mat4(1.);
+		model=translate(model,vec3(pos.x,pos.y,pos.z));
+		model=rotate(model,orient.getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
 		model=glm::scale(model,vec3(scale.x,scale.y,scale.z));
 		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+dir.x,camPos.y+dir.y,camPos.z+dir.z),vec3(up.x,up.y,up.z));
 		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
@@ -195,10 +190,9 @@ namespace vb01{
 				Quaternion poseRot = bone->getPoseRot();
 				Vector3 trans = boneAxis[0]*posePos.x+boneAxis[1]*posePos.y+boneAxis[2]*posePos.z;
 				Vector3 scale = bone->getPoseScale();
-				Vector3 bonePos = (bone->getRestPos());
-				//bonePos = modelNode->globalToLocalPosition(bonePos);
+				Vector3 bonePos = bone->getModelSpacePos();
 
-				int vertGroupId = -1,parentId = -1;
+				int vertGroupId = -1, parentId = -1;
 				for(int j=0;j<numVertexGroups;j++)
 					if(bone->getName() == vertexGroups[j])
 						vertGroupId = j;

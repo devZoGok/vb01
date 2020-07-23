@@ -140,9 +140,9 @@ namespace vb01{
 		shader->setVec2(endSize,"endSize");
 
 		Vector3 nodePos=node->localToGlobalPosition(Vector3::VEC_ZERO);
-		Vector3 nodeDir=node->getLocalAxis(2);
-		Vector3 nodeUp=node->getLocalAxis(1);
-		Vector3 nodeLeft=node->getLocalAxis(0);
+		Vector3 nodeDir=node->getGlobalAxis(2);
+		Vector3 nodeUp=node->getGlobalAxis(1);
+		Vector3 nodeLeft=node->getGlobalAxis(0);
 		for(int i=0;i<numParticles;i++){
 			Vector3 dir=particles[i]->dir;
 			if(getTime()-particles[i]->time>=particles[i]->timeToLive){

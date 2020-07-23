@@ -118,10 +118,12 @@ void main(){
 			diffuseColor+=light[i].color*(factor*attenuation*coef);
 		}	
 
+/*
 		for(int i=0;i<numLights;i++){
 			float shadow=getShadow(i);
 			diffuseColor*=(1-shadow);
 		}
+*/
 		if(environmentMapEnabled){
 			vec3 projDir=normalize(fragPos-camPos);
 			projDir=reflect(projDir,norm);

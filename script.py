@@ -11,6 +11,7 @@ def exportData(ob):
         file.write("bones: "+str(len(ob.data.bones)))
         for bone in ob.data.bones:
             head=bone.head
+            tail=bone.tail
             xAxis=bone.x_axis
             yAxis=bone.y_axis
             file.write("\n"+bone.name+": "+('None' if bone.parent is None else bone.parent.name)+" "+str(bone.length)+" "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(xAxis.x)+" "+str(xAxis.y)+" "+str(xAxis.z)+" "+str(yAxis.x)+" "+str(yAxis.y)+" "+str(yAxis.z)+" ")
