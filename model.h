@@ -29,7 +29,6 @@ namespace vb01{
 			void processMesh(aiMesh*, const aiScene*, Node*);
 //			std::vector<Texture*> processTexture(aiMaterial*, Assimp::aiTextureType);
 			void processMaterial();
-			void getLineData(std::string&,std::string[],int,int=0);
 
 			Material* material;
 			bool castShadow=false,reflect=false,wireframe=false;

@@ -2,7 +2,7 @@ import sys
 
 def exportData(ob):
     par=ob.parent
-    file.write(ob.type+": "+ob.name+"\n")
+    file.write('{\n' + ob.type+": "+ob.name+"\n")
     file.write("pos: "+str(ob.location.x)+" "+str(ob.location.y)+" "+str(ob.location.z)+"\n")
     file.write("rot: "+str(ob.rotation_quaternion.w)+" "+str(ob.rotation_quaternion.x)+" "+str(ob.rotation_quaternion.y)+" "+str(-ob.rotation_quaternion.z)+"\n")
     file.write("scale: "+str(ob.scale.x)+" "+str(ob.scale.y)+" "+str(ob.scale.z)+"\n")
@@ -89,7 +89,15 @@ def exportData(ob):
         #if mesh.shape_keys is not NoneType:
             #numShapeKeys=len(mesh.shape_keys[0].key_blocks)-1
 
-        file.write("vertices: "+str(numVerts)+" "+str(numFaces)+" "+str(numGroups)+" "+str(numShapeKeys)+" \n")
+
+        file.write("numElements: "+str(numVerts)+" "+str(numFaces)+" "+str(numGroups)+" "+str(numShapeKeys)+" \n")
+
+        if numGroups>0:
+            file.write('groups:\n')
+            for group in ob.vertex_groups:
+                file.write(group.name+'\n')
+
+        file.write("vertices:\n")
         print('Exporting vertices...\n')
         for vert in mesh.vertices:
             pos=vert.co
@@ -116,10 +124,6 @@ def exportData(ob):
                 file.write(str(vert)+" "+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
         mesh.free_tangents()
 
-        if numGroups>0:
-            file.write('groups:\n')
-            for group in ob.vertex_groups:
-                file.write(group.name+'\n')
 
         if numShapeKeys>0:
             file.write('shapeKeys:\n')
@@ -194,5 +198,5 @@ for s in selectedObjects:
 file=open(fl,"w")
 for ob in selectedObjects:
     exportData(ob)
-    file.write("\n")
+    file.write("}\n")
 file.close()
