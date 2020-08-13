@@ -76,14 +76,14 @@ namespace vb01{
 	void VbModelReader::readSkeletons(int startLine, int endLine){
 		vector<string> meshData;
 		readFile(path, meshData, startLine + 1, startLine + 7);
-		string line = meshData[5];
 	   	string name = meshData[0].substr(getCharId(meshData[0], ':') + 2, string::npos);
+		string line = meshData[5];
 	   	string data[3];
 	   	getLineData(line, data, 3);
 
 		int numBones = atoi(data[1].c_str());
 		int numAnimations = atoi(data[2].c_str());
-		int boneStartLine = startLine + 8;
+		int boneStartLine = startLine + 7;
 		int animationStartLine = boneStartLine + numBones + 1;
 
 		Skeleton *skeleton = new Skeleton(name);
@@ -254,7 +254,7 @@ namespace vb01{
 		}
 
 		meshData.clear();
-		readFile(path, meshData, faceStartLine, faceStartLine + numFaces);
+		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
 		int i = 0;
 		for(string line : meshData){
 			int numData = 9;
@@ -281,10 +281,8 @@ namespace vb01{
 				}
 			}
 
-			vertices[i * numVertsPerFace] = vert;
-			indices[i * numVertsPerFace] = i * numVertsPerFace;
-			for(int j = 0; j < numVertsPerFace; j++){
-			}
+			vertices[i] = vert;
+			indices[i] = i;
 
 			i++;
 		}

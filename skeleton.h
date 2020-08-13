@@ -11,6 +11,7 @@ namespace vb01{
 	class Skeleton{
 		public:
 			Skeleton(std::string="");
+			void update();
 			void addBone(Bone*,Bone*);
 			Bone* getBone(std::string);
 			Animation* getAnimation(std::string);

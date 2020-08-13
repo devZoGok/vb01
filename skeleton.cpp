@@ -9,6 +9,9 @@ namespace vb01{
 		this->name=name;
 	}
 
+	void Skeleton::update(){
+	}
+
 	void Skeleton::addBone(Bone *bone, Bone *parent){
 		parent->attachChild(bone);
 		bone->setSkeleton(this);

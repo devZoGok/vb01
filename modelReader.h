@@ -2,17 +2,15 @@
 #define MODEL_READER
 
 #include<string>
+#include"model.h"
 
 namespace vb01{
 	class ModelReader{
 		public:
-			ModelReader(std::string);
+		protected:
+			ModelReader(Model*, std::string);
 			~ModelReader();
-		private:
-			void readSkeletons(int, int);
-			void readMeshes(int, int);
-			void readLights(int, int);
-
+			Model *model = nullptr;
 			std::string path;
 	};
 }

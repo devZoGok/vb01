@@ -1,11 +1,13 @@
-#ifndef MODEL_READER
-#define MODEL_READER
+#ifndef VB_MODEL_READER
+#define VB_MODEL_READER
 
-#include<string>
 #include"modelReader.h"
+#include<string>
+#include<vector>
 
 namespace vb01{
 	class Model;
+	class Node;
 	class Mesh;
 	class Skeleton;
 
@@ -18,7 +20,6 @@ namespace vb01{
 			void readMeshes(int, int);
 			void readLights(int, int);
 
-			std::string path;
 			std::vector<std::string> relationships;
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
