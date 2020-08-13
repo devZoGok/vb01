@@ -17,7 +17,7 @@ namespace vb01{
 
 	class Model : public Node{
 		public:
-			Model(std::string,bool=true);
+			Model(std::string);
 			~Model();
 			void update();
 			void setMaterial(Material*);
@@ -25,11 +25,6 @@ namespace vb01{
 			void setReflect(bool);
 			void setWireframe(bool);
 		private:
-			void processNode(aiNode*, const aiScene*, Node*);
-			void processMesh(aiMesh*, const aiScene*, Node*);
-//			std::vector<Texture*> processTexture(aiMaterial*, Assimp::aiTextureType);
-			void processMaterial();
-
 			Material* material;
 			bool castShadow=false,reflect=false,wireframe=false;
 	};

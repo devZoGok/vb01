@@ -21,7 +21,7 @@ namespace vb01{
 
 	void readFile(std::string, std::vector<std::string>&, int = 0, int = -1);
 	void getLineData(std::string&, std::string[], int, int = 0);
-	int getCharId(char);
+	int getCharId(std::string, char, bool = false);
 
 	inline s64 getTime(){return s64(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));}
 }

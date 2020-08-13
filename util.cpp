@@ -34,13 +34,24 @@ namespace vb01{
 		}
 	}
 
-	int getCharId(char ch){
+	int getCharId(string line, char ch, bool reverse){
 		int charId = -1;
-		for(int i = 0; i < line.length(); i++)
-			if(line[i] == ch){
-				colonId = i;
-				break;
+		if(!reverse){
+			for(int i = 0; i < line.length(); i++){
+				if(line[i] == ch){
+					charId = i;
+					break;
+				}
 			}
+		}
+		else{
+			for(int i = line.length() - 1; i >= 0; i--){
+				if(line[i] == ch){
+					charId = i;
+					break;
+				}
+			}
+		}
 		return charId;
 	}
 }

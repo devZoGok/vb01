@@ -1,14 +1,20 @@
 import sys
 
 def exportData(ob):
-    par=ob.parent
+    par = ob.parent
+    if(par is not None and par.type == 'ARMATURE'):
+        while(par is not None):
+            par = par.parent
+
     file.write('{\n' + ob.type+": "+ob.name+"\n")
     file.write("pos: "+str(ob.location.x)+" "+str(ob.location.y)+" "+str(ob.location.z)+"\n")
     file.write("rot: "+str(ob.rotation_quaternion.w)+" "+str(ob.rotation_quaternion.x)+" "+str(ob.rotation_quaternion.y)+" "+str(-ob.rotation_quaternion.z)+"\n")
     file.write("scale: "+str(ob.scale.x)+" "+str(ob.scale.y)+" "+str(ob.scale.z)+"\n")
     file.write("parent: "+('-' if par is None else par.name)+"\n")
     if(ob.type=="ARMATURE"):
-        file.write("bones: "+str(len(ob.data.bones)))
+        numAnims=len(ob.animation_data.nla_tracks[0].strips)
+        file.write("bones: "+str(len(ob.data.bones)) + ' ' + str(numAnims) + ' ')
+
         for bone in ob.data.bones:
             head=bone.head
             tail=bone.tail
@@ -16,7 +22,6 @@ def exportData(ob):
             yAxis=bone.y_axis
             file.write("\n"+bone.name+": "+('None' if bone.parent is None else bone.parent.name)+" "+str(bone.length)+" "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(xAxis.x)+" "+str(xAxis.y)+" "+str(xAxis.z)+" "+str(yAxis.x)+" "+str(yAxis.y)+" "+str(yAxis.z)+" ")
 
-        numAnims=len(ob.animation_data.nla_tracks[0].strips)
         if numAnims>0:
             file.write("\nanimations: "+str(numAnims))
             for nlaStrip in ob.animation_data.nla_tracks[0].strips:
@@ -80,6 +85,7 @@ def exportData(ob):
                                 file.write(str(keyframe.handle_right_type)+" "+str(keyframe.handle_right.x)+" "+str(keyframe.handle_right.y))
                             file.write("\n")
     elif(ob.type=="MESH"):
+        file.write('skeleton: ' + ob.modifiers['Armature'].object.name + '\n')
         mesh=ob.data
 
         numFaces=len(mesh.polygons)
