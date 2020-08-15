@@ -10,7 +10,7 @@ namespace vb01{
 	class Animation{
 		public:
 			struct KeyframeGroup{
-				struct Keyframe{
+				struct KeyframeChannel{
 					enum Type{
 						POS_X,
 						POS_Y,
@@ -23,16 +23,22 @@ namespace vb01{
 						SCALE_Y,
 						SCALE_Z
 					};
-					enum Interpolation{CONSTANT, LINEAR, BEZIER};
-	
+					struct Keyframe{
+						enum Interpolation{CONSTANT, LINEAR, BEZIER};
+
+						float value;
+						int frame;
+						Interpolation interpolation;
+					};
+
 					Type type;
-					Interpolation interpolation;
-					float value;
-					int frame;
+					std::vector<Keyframe> keyframes;
 				};
+
 				Bone *bone = nullptr;
-				std::vector<Keyframe> keyframes;
+				std::vector<KeyframeChannel> keyframeChannels;
 			};
+
 
 			Animation(std::string);
 			~Animation();
@@ -44,6 +50,12 @@ namespace vb01{
 			std::string name;
 			std::vector<KeyframeGroup> keyframeGroups;
 	};
+
+	typedef Animation::KeyframeGroup KeyframeGroup; 
+	typedef Animation::KeyframeGroup::KeyframeChannel KeyframeChannel; 
+	typedef Animation::KeyframeGroup::KeyframeChannel::Type KeyframeChannelType; 
+	typedef Animation::KeyframeGroup::KeyframeChannel::Keyframe Keyframe; 
+	typedef Animation::KeyframeGroup::KeyframeChannel::Keyframe::Interpolation KeyframeInterpolation; 
 }
 
 #endif

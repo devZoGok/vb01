@@ -12,7 +12,7 @@ namespace vb01{
 		public:
 			AnimationChannel(AnimationController*);
 			~AnimationChannel();
-			void setAnimationName(std::string name);
+			inline void setAnimationName(std::string name){this->animationName = name;}
 			inline std::vector<Bone*> getBones(){return bones;}
 			inline void addBone(Bone *bone){bones.push_back(bone);}
 			inline void removeAllBones(){bones.clear();}
@@ -20,14 +20,13 @@ namespace vb01{
 			inline float getSpeed(){return speed;}
 			inline int getCurrentFrame(){return currentFrame;}
 			inline void setCurrentFrame(int frame){this->currentFrame = frame;}
-			inline int getNumFrames(){return numFrames;}
 			inline void setLoop(bool loop){this->loop = loop;}
 			inline bool isLoop(){return loop;}
 			inline std::string getAnimationName(){return animationName;}
 		private:
 			AnimationController *controller = nullptr;
 			float speed = 1.f;
-			int currentFrame = 0, numFrames;
+			int currentFrame = 0;
 			bool loop = false;
 			std::string animationName;
 			std::vector<Bone*> bones;

@@ -127,9 +127,10 @@ namespace vb01{
 			bone->lookAt(zAxis, yAxis, parent);
 		}
 
+		AnimationController *controller = skeleton->getAnimationController();
 		string animName = "";
 		Bone *animBone = nullptr;
-		Animation::KeyframeGroup::Keyframe::Type type;
+		Animation::KeyframeGroup::KeyframeChannel::Type type;
 		meshData.clear();
 		readFile(path, meshData, animationStartLine, endLine + 1);
 		for(string l : meshData){
@@ -138,13 +139,13 @@ namespace vb01{
 			if(preColon == "animationName"){
 				string postColon = l.substr(colonId + 2, string::npos);
 				animName = postColon;
-				skeleton->getAnimationController()->addAnimation(new Animation(animName));
+				controller->addAnimation(new Animation(animName));
 				continue;
 			}
 			Bone *b = skeleton->getBone(preColon);
 			if(b){
 				animBone = b;
-				Animation *anim = skeleton->getAnimationController()->getAnimation(animName);
+				Animation *anim = controller->getAnimation(animName);
 				Animation::KeyframeGroup *group = anim->getKeyframeGroup(animBone);
 				if(!group){
 					Animation::KeyframeGroup kg;
@@ -153,38 +154,65 @@ namespace vb01{
 				}
 			}
 			else{
-				Animation::KeyframeGroup::Keyframe::Interpolation interp;
+				KeyframeGroup *keyframeGroup = controller->getAnimation(animName)->getKeyframeGroup(animBone);
+				KeyframeInterpolation interp;
+				KeyframeChannel channel;
+
 				if(l == "}")
 					break;
-				else if(preColon == "pos_x")
-					type=Animation::KeyframeGroup::Keyframe::Type::POS_X;
-				else if(preColon == "pos_y")
-					type = Animation::KeyframeGroup::Keyframe::Type::POS_Y;
-				else if(preColon == "pos_z")
-					type = Animation::KeyframeGroup::Keyframe::Type::POS_Z;
-				else if(preColon == "rot_w")
-					type = Animation::KeyframeGroup::Keyframe::Type::ROT_W;
-				else if(preColon == "rot_x")
-					type = Animation::KeyframeGroup::Keyframe::Type::ROT_X;
-				else if(preColon == "rot_y")
-					type = Animation::KeyframeGroup::Keyframe::Type::ROT_Y;
-				else if(preColon == "rot_z")
-					type = Animation::KeyframeGroup::Keyframe::Type::ROT_Z;
+				else if(preColon == "pos_x"){
+					type = KeyframeChannelType::POS_X;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "pos_y"){
+					type = KeyframeChannelType::POS_Y;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "pos_z"){
+					type = KeyframeChannelType::POS_Z;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "rot_w"){
+					type = KeyframeChannelType::ROT_W;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "rot_x"){
+					type = KeyframeChannelType::ROT_X;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "rot_y"){
+					type = KeyframeChannelType::ROT_Y;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
+				else if(preColon == "rot_z"){
+					type = KeyframeChannelType::ROT_Z;
+					channel.type = type;
+					keyframeGroup->keyframeChannels.push_back(channel);
+				}
 				else{
 					int numData = 3;
 					string data[numData];
 
-					getLineData(l,data,numData);
+					getLineData(l, data, numData);
 
 					float value = atof(data[0].c_str()), frame = atoi(data[1].c_str());
-					interp = (Animation::KeyframeGroup::Keyframe::Interpolation)atoi(data[2].c_str());
+					interp = (KeyframeInterpolation)atoi(data[2].c_str());
 
-					Animation::KeyframeGroup::Keyframe keyframe;
-					keyframe.type = type;
+					Animation::KeyframeGroup::KeyframeChannel::Keyframe keyframe;
+					//keyframe.type = type;
 					keyframe.interpolation = interp;
 					keyframe.value = value;
 					keyframe.frame = frame;
-					skeleton->getAnimationController()->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
+					for(KeyframeChannel &channel : keyframeGroup->keyframeChannels)
+						if(channel.type == type)
+							channel.keyframes.push_back(keyframe);
+					//skeleton->getAnimationController()->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
 				}
 			}
 		}

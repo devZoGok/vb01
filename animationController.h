@@ -18,8 +18,6 @@ namespace vb01{
 			inline void addAnimation(Animation *anim){animations.push_back(anim);}
 			inline void addAnimationChannel(AnimationChannel *channel){channels.push_back(channel);}
 		private:
-			void applyBoneTransforms(Animation::KeyframeGroup*);
-
 			Skeleton *skeleton = nullptr;
 			std::vector<Animation*> animations;
 			std::vector<AnimationChannel*> channels;
