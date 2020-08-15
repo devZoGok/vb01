@@ -6,6 +6,7 @@
 #include"bone.h"
 #include"model.h"
 #include"animation.h"
+#include"animationController.h"
 
 #include<vector>
 #include<fstream>
@@ -137,13 +138,13 @@ namespace vb01{
 			if(preColon == "animationName"){
 				string postColon = l.substr(colonId + 2, string::npos);
 				animName = postColon;
-				skeleton->addAnimation(new Animation(animName));
+				skeleton->getAnimationController()->addAnimation(new Animation(animName));
 				continue;
 			}
 			Bone *b = skeleton->getBone(preColon);
 			if(b){
 				animBone = b;
-				Animation *anim = skeleton->getAnimation(animName);
+				Animation *anim = skeleton->getAnimationController()->getAnimation(animName);
 				Animation::KeyframeGroup *group = anim->getKeyframeGroup(animBone);
 				if(!group){
 					Animation::KeyframeGroup kg;
@@ -183,7 +184,7 @@ namespace vb01{
 					keyframe.interpolation = interp;
 					keyframe.value = value;
 					keyframe.frame = frame;
-					skeleton->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
+					skeleton->getAnimationController()->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
 				}
 			}
 		}
