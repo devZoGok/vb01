@@ -15,7 +15,7 @@ namespace vb01{
 			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
 			exit(-1);	
 		}
-		//processNode(scene->mRootNode, scene, this);
+		processNode(scene->mRootNode, scene, model);
 	}
 
 	void AssimpModelReader::processNode(aiNode *node, const aiScene *scene, Node *currentNode){
