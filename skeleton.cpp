@@ -10,10 +10,13 @@ namespace vb01{
 	}
 
 	void Skeleton::update(){
+		for(Bone *b : bones)
+			b->update();
 	}
 
 	void Skeleton::addBone(Bone *bone, Bone *parent){
-		parent->attachChild(bone);
+		if(parent)
+			parent->attachChild(bone);
 		bone->setSkeleton(this);
 		bones.push_back(bone);
 	}
