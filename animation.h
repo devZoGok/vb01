@@ -23,14 +23,14 @@ namespace vb01{
 						SCALE_Y,
 						SCALE_Z
 					};
-					enum Interpolation{CONSTANT,LINEAR,BEZIER};
+					enum Interpolation{CONSTANT, LINEAR, BEZIER};
 	
 					Type type;
 					Interpolation interpolation;
 					float value;
 					int frame;
 				};
-				Bone *bone=nullptr;
+				Bone *bone = nullptr;
 				std::vector<Keyframe> keyframes;
 			};
 

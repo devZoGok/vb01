@@ -1,5 +1,6 @@
 #include"skeleton.h"
 #include"animation.h"
+#include"animationController.h"
 #include"box.h"
 
 using namespace std;
@@ -7,6 +8,7 @@ using namespace std;
 namespace vb01{
 	Skeleton::Skeleton(string name){
 		this->name=name;
+		controller = new AnimationController(this);
 	}
 
 	void Skeleton::update(){
@@ -31,13 +33,4 @@ namespace vb01{
 		return bone;
 	}
 
-	Animation* Skeleton::getAnimation(string name){
-		Animation *anim=nullptr;
-		for(Animation *a : animations)
-			if(a->getName()==name){
-				anim=a;
-				break;
-			}
-		return anim;
-	}
 }
