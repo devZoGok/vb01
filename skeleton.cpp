@@ -12,8 +12,11 @@ namespace vb01{
 	}
 
 	void Skeleton::update(){
+		/*
 		for(Bone *b : bones)
 			b->update();
+			*/
+		controller->update();
 	}
 
 	void Skeleton::addBone(Bone *bone, Bone *parent){

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "util.h"
 
 namespace vb01{
 	class AnimationController;
@@ -12,22 +13,29 @@ namespace vb01{
 		public:
 			AnimationChannel(AnimationController*);
 			~AnimationChannel();
-			inline void setAnimationName(std::string name){this->animationName = name;}
+			void update();
+			void setAnimationName(std::string name);
 			inline std::vector<Bone*> getBones(){return bones;}
 			inline void addBone(Bone *bone){bones.push_back(bone);}
 			inline void removeAllBones(){bones.clear();}
-			inline void setSpeed(float speed){this->speed = speed;}
-			inline float getSpeed(){return speed;}
+			inline void setUpdateRate(float updateRate){this->updateRate = updateRate;}
+			inline int getUpdateRate(){return updateRate;}
 			inline int getCurrentFrame(){return currentFrame;}
 			inline void setCurrentFrame(int frame){this->currentFrame = frame;}
+			inline int getNumnFrames(){return numFrames;}
 			inline void setLoop(bool loop){this->loop = loop;}
 			inline bool isLoop(){return loop;}
+			inline void setForward(bool forward){this->forward = forward;}
+			inline bool isForward(){return forward;}
 			inline std::string getAnimationName(){return animationName;}
 		private:
+			inline bool canUpdate(){return getTime() - lastUpdateTime > updateRate;}
+
+			s64 lastUpdateTime = 0;
+		    int updateRate = 16;
 			AnimationController *controller = nullptr;
-			float speed = 1.f;
-			int currentFrame = 0;
-			bool loop = false;
+			int firstFrame = 0, currentFrame = 1, numFrames = 0;
+			bool loop = false, forward = true;
 			std::string animationName;
 			std::vector<Bone*> bones;
 	};

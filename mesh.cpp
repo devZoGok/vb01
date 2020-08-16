@@ -175,7 +175,7 @@ namespace vb01{
 		shader->setMat4(model,"model");
 
 		if(skeleton){
-			//skeleton->update();
+			skeleton->update();
 
 			shader->editShader(Shader::VERTEX_SHADER,2,"const int numBones="+to_string(skeleton->getNumBones())+";");
 			shader->editShader(Shader::VERTEX_SHADER,3,"const int numVertGroups="+to_string(numVertexGroups)+";");
