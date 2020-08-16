@@ -14,25 +14,26 @@ namespace vb01{
 
 	void AnimationController::update(){
 		for(AnimationChannel *channel : channels){
+			channel->update();
+
 			Animation *animation = skeleton->getAnimationController()->getAnimation(channel->getAnimationName());
 			for(Bone *channelBone : channel->getBones()){
 				Animation::KeyframeGroup *keyframeGroup = animation->getKeyframeGroup(channelBone);
-				int keyframeId = -1;
+				int pastKeyframeId = -1;
 
 				Vector3 pastPos, currentPos, nextPos, pastScale, currentScale, nextScale;
 				Quaternion pastRot, currentRot, nextRot;
 
-				for(Animation::KeyframeGroup::KeyframeChannel &animChannel : keyframeGroup->keyframeChannels){
+				for(KeyframeChannel animChannel : keyframeGroup->keyframeChannels){
 					for(int i = 0 ; i < animChannel.keyframes.size(); i++){
 						Keyframe keyframe = animChannel.keyframes[i];
-						if(keyframe.frame > channel->getCurrentFrame()){
-							keyframeId = i;
-							break;
+						if(channel->getCurrentFrame() >= keyframe.frame){
+							pastKeyframeId = i;
 						}
 					}
 	
-					Keyframe pastKeyframe = animChannel.keyframes[keyframeId - 1];
-					Keyframe nextKeyframe = animChannel.keyframes[keyframeId];
+					Keyframe pastKeyframe = animChannel.keyframes[pastKeyframeId];
+					Keyframe nextKeyframe = animChannel.keyframes[pastKeyframeId + 1];
 					int pastFrame = pastKeyframe.frame;
 					int nextFrame = nextKeyframe.frame;
 					float ratio = (float)(channel->getCurrentFrame() - pastFrame) / (nextFrame - pastFrame);
@@ -101,7 +102,7 @@ namespace vb01{
 
 				channelBone->setPosePos(currentPos);
 				channelBone->setPoseRot(currentRot);
-				channelBone->setPoseScale(currentScale);
+				//channelBone->setPoseScale(currentScale);
 			}
 		}
 	}
