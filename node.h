@@ -16,11 +16,11 @@ namespace vb01{
 	class Node{
 		public:
 			struct Transform{
-				Vector3 position=Vector3::VEC_ZERO,scale=Vector3::VEC_IJK;
-				Quaternion orientation=Quaternion::QUAT_W;	
+				Vector3 position = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
+				Quaternion orientation = Quaternion::QUAT_W;	
 			};
 
-			Node(Vector3=Vector3::VEC_ZERO,Quaternion=Quaternion::QUAT_W,Vector3=Vector3::VEC_IJK,std::string="");
+			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
 			virtual ~Node();
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
@@ -30,7 +30,8 @@ namespace vb01{
 			void addLight(Light*);
 			void removeLight(int);
 			void addText(Text*);
-			virtual void lookAt(Vector3,Vector3,Node*);
+			virtual void lookAt(Vector3, Vector3, Node*);
+			virtual void lookAt(Vector3, Node*);
 			void updateAxis();
 			void setOrientation(Quaternion);
 			void getDescendants(Node*,std::vector<Node*>&);
@@ -61,6 +62,10 @@ namespace vb01{
 			inline bool isVisible(){return visible;}
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible=v;}
+		private:
+			void adjustUp(Vector3, Node*);
+			void adjustDir(Vector3, Node*);
+			void adjustPosOrRot(std::vector<Node*>, Vector3&, Quaternion&, bool);
 		protected:
 			void updateShaders();
 			

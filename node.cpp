@@ -101,14 +101,22 @@ namespace vb01{
 		text->setNode(this);	
 	}
 
-	void Node::lookAt(Vector3 newDir,Vector3 newUp,Node *node){
+	void Node::lookAt(Vector3 newDir, Vector3 newUp, Node *node){
+		adjustDir(newDir, node);
+		adjustUp(newUp, node);
+	}
+
+	void Node::lookAt(Vector3 newDir, Node *node){
+		adjustDir(newDir, node);
+	}
+
+	void Node::adjustDir(Vector3 newDir, Node *node){
 		Vector3 parAxis[]{
 			node->getGlobalAxis(0),
 			node->getGlobalAxis(1),
 			node->getGlobalAxis(2)
 		};
 		newDir=(parAxis[0]*newDir.x+parAxis[1]*newDir.y+parAxis[2]*newDir.z).norm();
-		newUp=(parAxis[0]*newUp.x+parAxis[1]*newUp.y+parAxis[2]*newUp.z).norm();
 
 		float angle=globalAxis[2].getAngleBetween(newDir);
 		Vector3 rotAxis=globalAxis[2].cross(newDir).norm();
@@ -118,6 +126,15 @@ namespace vb01{
 		Quaternion oldRot = node->localToGlobalOrientation(orientation);
 		Quaternion newRot = node->globalToLocalOrientation(Quaternion(angle,rotAxis));
 		setOrientation(newRot*oldRot);
+	}
+
+	void Node::adjustUp(Vector3 newUp, Node *node){
+		Vector3 parAxis[]{
+			node->getGlobalAxis(0),
+			node->getGlobalAxis(1),
+			node->getGlobalAxis(2)
+		};
+		newUp=(parAxis[0]*newUp.x+parAxis[1]*newUp.y+parAxis[2]*newUp.z).norm();
 
 		mat3 mat;
 		mat[0][0]=globalAxis[0].x;
@@ -133,10 +150,10 @@ namespace vb01{
 
 		vec3 nu=vec3(newUp.x,newUp.y,newUp.z)*mat;
 		newUp=(globalAxis[0]*nu.x+globalAxis[1]*nu.y).norm();
-		angle=globalAxis[1].getAngleBetween(newUp);
+		float angle=globalAxis[1].getAngleBetween(newUp);
 
-		oldRot = node->localToGlobalOrientation(orientation);
-		newRot = node->globalToLocalOrientation(Quaternion(angle*(nu.x<0?1:-1),globalAxis[2]));
+		Quaternion oldRot = node->localToGlobalOrientation(orientation);
+		Quaternion newRot = node->globalToLocalOrientation(Quaternion(angle*(nu.x<0?1:-1),globalAxis[2]));
 		setOrientation(newRot*oldRot);
 	}
 
@@ -151,7 +168,7 @@ namespace vb01{
 
 	vector<Node*> Node::getAncestors(Node *node, Node *topAncestor){
 		vector<Node*> ancestors;
-		Node *parent=node;
+		Node *parent = node;
 		if(!topAncestor)
 			topAncestor = Root::getSingleton()->getRootNode();
 
@@ -159,7 +176,7 @@ namespace vb01{
 			ancestors.push_back(parent);
 			if(parent == topAncestor)
 				break;
-			parent=parent->getParent();
+			parent = parent->getParent();
 		}
 		return ancestors;
 	}
@@ -171,34 +188,25 @@ namespace vb01{
 			parent->getGlobalAxis(2)
 		};
 
-		float rotAngle=orientation.getAngle();
-		Vector3 rotAxis=orientation.getAxis();
-		Vector3 newAxis=(parGlobalAxis[0]*rotAxis.x+parGlobalAxis[1]*rotAxis.y+parGlobalAxis[2]*rotAxis.z).norm();
+		float rotAngle = orientation.getAngle();
+		Vector3 rotAxis = orientation.getAxis();
+		Vector3 newAxis = (parGlobalAxis[0] * rotAxis.x + parGlobalAxis[1] * rotAxis.y + parGlobalAxis[2] * rotAxis.z).norm();
 		Quaternion rotQuat=Quaternion(rotAngle,newAxis);
 
-		for(int i=0;i<3;i++)
+		for(int i = 0; i < 3; i++)
 			globalAxis[i] = (rotQuat * parGlobalAxis[i]).norm();
 		for(Node *ch : children)
 			ch->updateAxis();
 	}
 
 	Vector3 Node::localToGlobalPosition(Vector3 localPos){
-		vector<Node*> ancestors=getAncestors(this);
-		Vector3 origin=Vector3::VEC_ZERO;
+		vector<Node*> ancestors = getAncestors(this);
+		Vector3 origin = Vector3::VEC_ZERO;
+		Quaternion quat;
 
-		while(!ancestors.empty()){
-			int id=ancestors.size()-1;
-			Node *par=ancestors[id]->getParent();
-			Vector3 parAxis[]={
-				par?par->getGlobalAxis(0):Vector3::VEC_I,
-				par?par->getGlobalAxis(1):Vector3::VEC_J,
-				par?par->getGlobalAxis(2):Vector3::VEC_K
-			};
-			Vector3 p=ancestors[id]->getPosition();
-			origin=origin+parAxis[0]*p.x+parAxis[1]*p.y+parAxis[2]*p.z;
-			ancestors.pop_back();
-		}
-		return origin+globalAxis[0]*localPos.x+globalAxis[1]*localPos.y+globalAxis[2]*localPos.z;
+		adjustPosOrRot(ancestors, origin, quat, true);
+
+		return origin + globalAxis[0] * localPos.x + globalAxis[1] * localPos.y + globalAxis[2] * localPos.z;
 	}
 
 	Vector3 Node::globalToLocalPosition(Vector3 globalPos){
@@ -219,43 +227,59 @@ namespace vb01{
 	}
 
 	Quaternion Node::localToGlobalOrientation(Quaternion localRot){
-		Quaternion origin=Quaternion::QUAT_W;
-		vector<Node*> ancestors=getAncestors(this);
+		Vector3 vec;
+		Quaternion origin = Quaternion::QUAT_W;
+		vector<Node*> ancestors = getAncestors(this);
 
-		while(!ancestors.empty()){
-			int id=ancestors.size()-1;
-			Vector3 ancAxis[]{
-				ancestors[id]->getGlobalAxis(0),
-				ancestors[id]->getGlobalAxis(1),
-				ancestors[id]->getGlobalAxis(2)
-			};
-			float angle = ancestors[id]->getOrientation().getAngle();
-			Vector3 axis = ancestors[id]->getOrientation().getAxis();
-			Quaternion o = Quaternion(angle, (ancAxis[0]*axis.x+ancAxis[1]*axis.y+ancAxis[2]*axis.z).norm());
-			origin=o*origin;
-			ancestors.pop_back();
-		}
-		return localRot*origin;
+		adjustPosOrRot(ancestors, vec, origin, true);
+
+		return localRot * origin;
 	}
 
 	Quaternion Node::globalToLocalOrientation(Quaternion globalRot){
-		Quaternion origin=globalRot;
-		vector<Node*> ancestors=getAncestors(this);
+		Vector3 vec;
+		Quaternion origin = globalRot;
+		vector<Node*> ancestors = getAncestors(this);
+
+		adjustPosOrRot(ancestors, vec, origin, false);
+
+		return origin;
+	}
+
+	void Node::adjustPosOrRot(vector<Node*> ancestors, Vector3 &adjustablePos, Quaternion &adjustableRot, bool localToGlobal){
+		Vector3 pOrigin = Vector3::VEC_ZERO;
+		Quaternion rOrigin = Quaternion::QUAT_W;
 
 		while(!ancestors.empty()){
-			int id=ancestors.size()-1;
-			Vector3 ancAxis[]{
+			int id = ancestors.size() - 1;
+			Vector3 parAxis[]{
 				ancestors[id]->getGlobalAxis(0),
 				ancestors[id]->getGlobalAxis(1),
 				ancestors[id]->getGlobalAxis(2)
 			};
+
+			Vector3 p = ancestors[id]->getPosition();
+			pOrigin = pOrigin + parAxis[0] * p.x + parAxis[1] * p.y + parAxis[2] * p.z;
+
 			float angle = ancestors[id]->getOrientation().getAngle();
 			Vector3 axis = ancestors[id]->getOrientation().getAxis();
-			Quaternion o = Quaternion(-angle, (ancAxis[0]*axis.x+ancAxis[1]*axis.y+ancAxis[2]*axis.z).norm());
-			origin=origin*o;
+			Vector3 rotAxis = (parAxis[0] * axis.x + parAxis[1] * axis.y + parAxis[2] * axis.z).norm();
+
+			Quaternion o;
+			if(localToGlobal){
+				o = Quaternion(angle, rotAxis);
+				rOrigin = rOrigin * o;
+			}
+			else{
+				o = Quaternion(-angle, rotAxis);
+				rOrigin = o * rOrigin;
+			}
+
 			ancestors.pop_back();
 		}
-		return origin;
+
+		adjustablePos = pOrigin;
+		adjustableRot = rOrigin;
 	}
 
 	void Node::updateShaders(){

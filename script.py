@@ -20,7 +20,25 @@ def exportData(ob):
             tail=bone.tail
             xAxis=bone.x_axis
             yAxis=bone.y_axis
-            file.write("\n"+bone.name+": "+('None' if bone.parent is None else bone.parent.name)+" "+str(bone.length)+" "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(xAxis.x)+" "+str(xAxis.y)+" "+str(xAxis.z)+" "+str(yAxis.x)+" "+str(yAxis.y)+" "+str(yAxis.z)+" ")
+            ikTarget = '-'
+            chainLength = -1
+
+            ikConstraint = None
+            for constr in ob.pose.bones[bone.name].constraints:
+                if constr.name == 'IK':
+                    ikConstraint = constr
+            if(ikConstraint is not None and ikConstraint.subtarget):
+                ikTarget = ikConstraint.subtarget
+                if ikConstraint.chain_count == 0: 
+                    chainLength = 1
+                    bonePar = bone.parent
+                    while(bonePar is not None):
+                        chainLength = chain_count + 1
+                        bonePar = bonePar.parent
+                else:
+                    chainLength = ikConstraint.chain_count
+
+            file.write('\n'+bone.name+': '+('None' if bone.parent is None else bone.parent.name)+" "+str(bone.length)+" "+str(head.x)+" "+str(head.y)+" "+str(head.z)+" "+str(xAxis.x)+" "+str(xAxis.y)+" "+str(xAxis.z)+" "+str(yAxis.x)+" "+str(yAxis.y)+" "+str(yAxis.z)+ " " + ikTarget + ' ' + str(chainLength) + ' ')
 
         if numAnims>0:
             file.write("\nanimations: "+str(numAnims))
@@ -85,7 +103,11 @@ def exportData(ob):
                                 file.write(str(keyframe.handle_right_type)+" "+str(keyframe.handle_right.x)+" "+str(keyframe.handle_right.y))
                             file.write("\n")
     elif(ob.type=="MESH"):
-        file.write('skeleton: ' + ob.modifiers['Armature'].object.name + '\n')
+        skeletonName = '-'
+        skeleton = ob.modifiers['Armature'].object
+        if(skeleton):
+            skeletonName = skeleton.name
+        file.write('skeleton: ' + skeletonName + '\n')
         mesh=ob.data
 
         numFaces=len(mesh.polygons)

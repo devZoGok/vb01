@@ -5,13 +5,22 @@ using namespace std;
 
 namespace vb01{
 	Bone::Bone(string name, float length, Vector3 pos,Quaternion rot, Vector3 scale) : Node(pos,rot,scale,name){
-		this->name=name;
-		this->length=length;
+		this->name = name;
+		this->length = length;
 	}
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp, Node *par){
-		Node::lookAt(newDir,newUp,par);
-		for(int i=0;i<3;i++)
+		Node::lookAt(newDir, newUp, par);
+		for(int i = 0; i < 3; i++)
+			this->initAxis[i] = globalAxis[i];
+		restPos = pos;
+		restRot = orientation;
+		restScale = scale;
+	}
+
+	void Bone::lookAt(Vector3 newDir, Node *par){
+		Node::lookAt(newDir, par);
+		for(int i = 0; i < 3; i++)
 			this->initAxis[i] = globalAxis[i];
 		restPos = pos;
 		restRot = orientation;
@@ -21,7 +30,7 @@ namespace vb01{
 	Vector3 Bone::getModelSpacePos(){
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;
 		Bone *rootBone = skeleton->getRootBone();
-		vector<Node*> boneHierarchy = getAncestors(this, rootBone);
+		vector<Node*> boneHierarchy = getAncestors(this, rootBone->getParent());
 
 		while(!boneHierarchy.empty()){
 			int id = boneHierarchy.size() - 1;
@@ -43,19 +52,21 @@ namespace vb01{
 	}
 
 	void Bone::setPosePos(Vector3 p){
-		this->posePos=p;
-		Vector3 parentSpacePosePos=parent->globalToLocalPosition(localToGlobalPosition(p));
-		//setPosition(parentSpacePosePos);
+		this->posePos = p;
+		setPosition(restPos);
+		Vector3 parentSpacePosePos = parent->globalToLocalPosition(localToGlobalPosition(p));
+		setPosition(parentSpacePosePos);
 	}
 
 	void Bone::setPoseRot(Quaternion r){
-		this->poseRot=r;
+		this->poseRot = r;
+		setOrientation(r);
 		Quaternion parentSpacePoseRot = parent->globalToLocalOrientation(localToGlobalOrientation(r));
 		setOrientation(parentSpacePoseRot);
 	}
 
 	void Bone::setPoseScale(Vector3 s){
-		this->poseScale=s;
+		this->poseScale = s;
 		//setScale(restScale+poseScale);
 	}
 }
