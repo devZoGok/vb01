@@ -101,7 +101,7 @@ namespace vb01{
 				}
 
 				channelBone->setPosePos(currentPos);
-				channelBone->setPoseRot(currentRot);
+				//channelBone->setPoseRot(currentRot);
 				//channelBone->setPoseScale(currentScale);
 			}
 		}

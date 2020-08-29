@@ -92,12 +92,13 @@ namespace vb01{
 
 		meshData.clear();
 		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
+		vector<string> ikRelationships;
 		for(string line : meshData){
 			int colonId = getCharId(line, ':');
 			string preColon = line.substr(0, colonId);
-			string postColon = line.substr(colonId + 2, string::npos);
+			string postColon = line.substr(colonId + 2);
 
-			int numData = 11;
+			int numData = 13;
 			string data[numData];
 			getLineData(postColon, data, numData);
 
@@ -105,6 +106,8 @@ namespace vb01{
 			Vector3 head = Vector3(atof(data[2].c_str()), atof(data[3].c_str()), atof(data[4].c_str()));
 			Vector3 xAxis = Vector3(atof(data[5].c_str()), atof(data[6].c_str()), atof(data[7].c_str()));
 			Vector3 yAxis = Vector3(atof(data[8].c_str()), atof(data[9].c_str()), atof(data[10].c_str()));
+			string ikTarget = data[11].c_str();
+			int ikChainLength = atoi(data[12].c_str());
 			Vector3 zAxis = xAxis.cross(yAxis);
 			Vector3 pos = head;
 
@@ -123,8 +126,17 @@ namespace vb01{
 				pos = pos + Vector3(0, ((Bone*)parent)->getLength(), 0);
 
 			Bone *bone = new Bone(preColon, length, pos);
+			bone->setIkChainLength(ikChainLength);
 			skeleton->addBone(bone, (Bone*)parent);
 			bone->lookAt(zAxis, yAxis, parent);
+			if(ikTarget != "-")
+				ikRelationships.push_back(preColon + " " + ikTarget);
+		}
+		for(string ikRelationship : ikRelationships){
+			int spaceId = getCharId(ikRelationship, ' ');
+			string targetBoneName = ikRelationship.substr(0, spaceId);
+			string ikTargetBoneName = ikRelationship.substr(spaceId + 1);
+			skeleton->getBone(targetBoneName)->setIkTarget(skeleton->getBone(ikTargetBoneName));
 		}
 
 		AnimationController *controller = skeleton->getAnimationController();
