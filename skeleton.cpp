@@ -21,11 +21,16 @@ namespace vb01{
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){
+		Bone *rootBone = getRootBone();
+		Node *model = rootBone->getParent();
+
 		const int chainLength = ikBone->getIkChainLength();
 		Bone *ikTarget = ikBone->getIkTarget();
 		Bone *boneChain[chainLength];
 		Bone *ikBoneAncestor = ikBone;
-		Vector3 boneIkPos[chainLength], targetPos = ikTarget->getModelSpacePos();
+		Vector3 boneIkPos[chainLength];
+	   	Vector3 targetPos = ikTarget->getModelSpacePos() + model->globalToLocalPosition(ikTarget->localToGlobalPosition(ikTarget->getPosePos()));
+
 		float sumLengths = 0;
 
 		for(int i = 0; i < chainLength; i++){
@@ -40,11 +45,12 @@ namespace vb01{
 			int numIterations = 500;
 	
 			for(int i = 0 ; i < numIterations; i++){
-				bool backward = i % 2;
+				bool backward = (i % 2 == 0);
 				for(int j = 0; j < chainLength; j++){
 					int boneId = (backward ? j : chainLength - 1 - j);
 					Vector3 ikPos = (j == 0 ? (backward ? targetPos : startPos) : boneIkPos[boneId]);
-					Vector3 fromBoneToIkPos = ikPos - boneChain[boneId]->getModelSpacePos();
+					Vector3 bonePos = boneChain[boneId]->getModelSpacePos();
+					Vector3 fromBoneToIkPos = (ikPos - bonePos).norm();
 					boneIkPos[boneId] = ikPos - fromBoneToIkPos * boneChain[boneId]->getLength();
 				}
 			}
@@ -57,9 +63,20 @@ namespace vb01{
 		}
 		*/
 
-		Bone *rootBone = getRootBone();
-		for(int i = 0; i < chainLength; i++)
-			(boneChain[i])->lookAt(boneIkPos[i], rootBone->getParent());
+		for(int i = chainLength - 1; i >= 0; i--){
+			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneChain[i]->getModelSpacePos()).norm() * -1;
+			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
+			Vector3 rotAxis = dir.cross(boneAxis).norm();
+			//rotAxis = (model->localToGlobalPosition(boneChain[i]->globalToLocalPosition(rotAxis))).norm();
+			float angle = boneAxis.getAngleBetween(dir);
+			if(rotAxis == Vector3::VEC_ZERO){
+				angle = 0;
+				rotAxis = Vector3::VEC_I;
+			}
+
+			boneChain[i]->setPoseRot(Quaternion(angle, rotAxis));
+			//((Node*)boneChain[i])->lookAt(dir, model);
+		}
 	}
 
 	void Skeleton::addBone(Bone *bone, Bone *parent){
@@ -70,10 +87,10 @@ namespace vb01{
 	}
 
 	Bone* Skeleton::getBone(string name){
-		Bone *bone=nullptr;
+		Bone *bone = nullptr;
 		for(Bone *b : bones)
-			if(b->getName()==name){
-				bone=b;
+			if(b->getName() == name){
+				bone = b;
 				break;
 			}
 		return bone;
