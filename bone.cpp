@@ -60,7 +60,7 @@ namespace vb01{
 
 	void Bone::setPoseRot(Quaternion r){
 		this->poseRot = r;
-		setOrientation(r);
+		setOrientation(restRot);
 		Quaternion parentSpacePoseRot = parent->globalToLocalOrientation(localToGlobalOrientation(r));
 		setOrientation(parentSpacePoseRot);
 	}

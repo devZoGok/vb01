@@ -65,7 +65,7 @@ namespace vb01{
 		private:
 			void adjustUp(Vector3, Node*);
 			void adjustDir(Vector3, Node*);
-			void adjustPosOrRot(std::vector<Node*>, Vector3&, Quaternion&, bool);
+			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
 		protected:
 			void updateShaders();
 			
