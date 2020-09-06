@@ -21,9 +21,6 @@ namespace vb01{
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){
-		Bone *rootBone = getRootBone();
-		Node *model = rootBone->getParent();
-
 		const int chainLength = ikBone->getIkChainLength();
 		Bone *ikTarget = ikBone->getIkTarget();
 		Bone *boneChain[chainLength];
@@ -97,7 +94,7 @@ namespace vb01{
 		for(int i = chainLength - 1; i >= 0; i--){
 			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
 			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
-			Vector3 rotAxis = dir.cross(boneAxis).norm();
+			Vector3 rotAxis = boneAxis.cross(dir).norm();
 			float angle = boneAxis.getAngleBetween(dir);
 
 			if(rotAxis == Vector3::VEC_ZERO){
