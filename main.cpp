@@ -1,23 +1,15 @@
-#include"box.h"
-#include"camera.h"
-#include"light.h"
-#include"material.h"
-#include"mesh.h"
-#include"model.h"
-#include"node.h"
-#include"particleEmitter.h"
-#include"quad.h"
-#include"quaternion.h"
-#include"rectangle.h"
-#include"root.h"
-#include"shader.h"
-#include"stb_image.h"
-#include"text.h"
-#include"texture.h"
-#include"util.h"
-#include"vector.h"
-#include"waterPlane.h"
+#include <cppunit/TestSuite.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestCaller.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include "cameraTest.h"
+
+using namespace CppUnit;
+using namespace vb01;
 
 int main(){
+	TextUi::TestRunner runner;
+	runner.addTest(CameraTest::suite());
+	runner.run();
 	return 0;
 }
