@@ -121,6 +121,10 @@ namespace vb01{
 				yAxis.z = -yAxis.z;
 				swap(zAxis.y, zAxis.z);
 				zAxis.z = -zAxis.z;
+				swap(pos.y, pos.z);
+				pos.z = -pos.z;
+				/*
+				*/
 			}
 			else
 				pos = pos + Vector3(0, ((Bone*)parent)->getLength(), 0);
