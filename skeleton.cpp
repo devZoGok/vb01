@@ -29,7 +29,7 @@ namespace vb01{
 		Bone *boneChain[chainLength];
 		Bone *ikBoneAncestor = ikBone;
 		Vector3 boneIkPos[chainLength];
-	   	Vector3 targetPos = ikTarget->getModelSpacePos() + model->globalToLocalPosition(ikTarget->localToGlobalPosition(ikTarget->getPosePos()));
+	   	Vector3 targetPos = ikTarget->getPosition();
 
 		float sumLengths = 0;
 
@@ -42,40 +42,84 @@ namespace vb01{
 
 		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
-			int numIterations = 500;
+			int numIterations = 2;
 	
 			for(int i = 0 ; i < numIterations; i++){
 				bool backward = (i % 2 == 0);
 				for(int j = 0; j < chainLength; j++){
-					int boneId = (backward ? j : chainLength - 1 - j);
-					Vector3 ikPos = (j == 0 ? (backward ? targetPos : startPos) : boneIkPos[boneId]);
-					Vector3 bonePos = boneChain[boneId]->getModelSpacePos();
-					Vector3 fromBoneToIkPos = (ikPos - bonePos).norm();
-					boneIkPos[boneId] = ikPos - fromBoneToIkPos * boneChain[boneId]->getLength();
+					int boneId;
+					float length;
+					Vector3 ikPos, bonePos, fromBoneToIkPos;
+					if(backward){
+						boneId = j;
+						length = boneChain[boneId]->getLength();
+						ikPos = (j == 0 ? targetPos : boneIkPos[boneId - 1]);
+						bonePos = boneIkPos[boneId];
+						fromBoneToIkPos = (ikPos - bonePos).norm();
+						boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
+					}
+					else{
+						boneId = chainLength - 1 - j;
+						if(j == 0){
+							ikPos = startPos;
+							length = 0;
+						}
+						else{
+							ikPos = boneIkPos[boneId + 1];
+							length = boneChain[boneId + 0]->getLength();
+						}
+						bonePos = boneIkPos[boneId];
+						fromBoneToIkPos = (ikPos - bonePos).norm();
+						boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
+					}
 				}
 			}
 		}
-		/*
 		else{
-			Vector3 fromStartToTarget = targetPos - startPos;
-			for(int i = 0; i < chainLength; i++){
+			Vector3 startToEndVec = (targetPos - startPos).norm();
+			for(int i = chainLength - 1; i >= 0; i--){
+				float length;
+				Vector3 bonePos;
+				if(i == chainLength - 1){
+					length = 0;
+					bonePos = boneIkPos[i];
+				}
+				else{
+					length = boneChain[i]->getLength();
+					bonePos = boneIkPos[i + 1];
+				}
+				boneIkPos[i] = bonePos + startToEndVec * length;
 			}
 		}
-		*/
 
+		float boneAngles[chainLength];
+		Vector3 axis[chainLength];
 		for(int i = chainLength - 1; i >= 0; i--){
-			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneChain[i]->getModelSpacePos()).norm() * -1;
+			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
 			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
 			Vector3 rotAxis = dir.cross(boneAxis).norm();
-			//rotAxis = (model->localToGlobalPosition(boneChain[i]->globalToLocalPosition(rotAxis))).norm();
 			float angle = boneAxis.getAngleBetween(dir);
+
 			if(rotAxis == Vector3::VEC_ZERO){
 				angle = 0;
 				rotAxis = Vector3::VEC_I;
 			}
 
+			boneAngles[i] = angle; 
+			axis[i] = rotAxis;
+		}
+		for(int i = 0; i < chainLength; i++){
+			for(int j = i + 1; j < chainLength; j++){
+				boneAngles[i] -= boneAngles[j];
+				if(boneAngles[i] <= 0){
+					boneAngles[i] = 0;
+					break;
+				}
+			}
+			float angle = boneAngles[i];
+			Vector3 rotAxis = axis[i];
+
 			boneChain[i]->setPoseRot(Quaternion(angle, rotAxis));
-			//((Node*)boneChain[i])->lookAt(dir, model);
 		}
 	}
 
