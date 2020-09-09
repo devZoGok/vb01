@@ -19,13 +19,15 @@ set(model modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
 set(anim animationController.cpp animationChannel.cpp animation.cpp)
 set(armature skeleton.cpp bone.cpp)
 set(library ${render} ${math} ${model} ${utils} ${gui} ${armature} ${anim})
-set(test cameraTest.cpp)
+
+set(test cameraTest.cpp nodeTest.cpp)
 
 add_library(vb01 SHARED ${library})
 target_link_libraries(vb01 glfw)
 target_link_libraries(vb01 glad)
 target_link_libraries(vb01 assimp)
 target_link_libraries(vb01 freetype)
+
 add_executable(vb01Tests main.cpp ${test} ${library})
 target_link_libraries(vb01Tests cppunit)
 target_link_libraries(vb01Tests glfw)
