@@ -37,6 +37,12 @@ namespace vb01{
 			boneIkPos[i] = boneChain[i]->getModelSpacePos();
 		}
 
+		calculateFabrik(chainLength, boneChain, boneIkPos, targetPos, sumLengths);
+
+		transformIkChain(chainLength, boneChain, boneIkPos, targetPos);
+	}
+
+	void Skeleton::calculateFabrik(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos, float sumLengths){
 		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 2;
@@ -51,9 +57,6 @@ namespace vb01{
 						boneId = j;
 						length = boneChain[boneId]->getLength();
 						ikPos = (j == 0 ? targetPos : boneIkPos[boneId - 1]);
-						bonePos = boneIkPos[boneId];
-						fromBoneToIkPos = (ikPos - bonePos).norm();
-						boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
 					}
 					else{
 						boneId = chainLength - 1 - j;
@@ -65,10 +68,10 @@ namespace vb01{
 							ikPos = boneIkPos[boneId + 1];
 							length = boneChain[boneId + 0]->getLength();
 						}
-						bonePos = boneIkPos[boneId];
-						fromBoneToIkPos = (ikPos - bonePos).norm();
-						boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
 					}
+					bonePos = boneIkPos[boneId];
+					fromBoneToIkPos = (ikPos - bonePos).norm();
+					boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
 				}
 			}
 		}
@@ -88,9 +91,12 @@ namespace vb01{
 				boneIkPos[i] = bonePos + startToEndVec * length;
 			}
 		}
+	}
 
+	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
 		float boneAngles[chainLength];
 		Vector3 axis[chainLength];
+
 		for(int i = chainLength - 1; i >= 0; i--){
 			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
 			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
@@ -105,6 +111,7 @@ namespace vb01{
 			boneAngles[i] = angle; 
 			axis[i] = rotAxis;
 		}
+
 		for(int i = 0; i < chainLength; i++){
 			for(int j = i + 1; j < chainLength; j++){
 				boneAngles[i] -= boneAngles[j];
