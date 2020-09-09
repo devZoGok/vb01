@@ -1,8 +1,9 @@
 #ifndef CAMERA_TEST_H
 #define CAMERA_TEST_H
 
-#include<cppunit/TestFixture.h>
-#include"camera.h"
+#include "camera.h"
+
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace CppUnit{
@@ -14,12 +15,14 @@ namespace vb01{
 		CPPUNIT_TEST_SUITE( CameraTest );
 		CPPUNIT_TEST( testLookAt );
 		CPPUNIT_TEST_SUITE_END();
+
 		public:
 			CameraTest();
 			void setUp();
 			void tearDown();
-			void testLookAt();
 		private:
+			void testLookAt();
+
 			Camera *cam = nullptr;
 	};
 }
