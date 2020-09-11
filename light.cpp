@@ -7,7 +7,6 @@
 #include"mesh.h"
 #include<glad.h>
 #include<glfw3.h>
-#include<glm.hpp>
 #include<ext.hpp>
 #include<iostream>
 
@@ -52,11 +51,9 @@ namespace vb01{
 	void Light::update(){
 		Root *root=Root::getSingleton();
 		Node *rootNode=root->getRootNode();
-		Camera *cam=root->getCamera();
 		std::vector<Node*> descendants;
 		std::vector<Material*> materials;
-		rootNode->getDescendants(rootNode,descendants);
-		descendants.push_back(rootNode);
+		Camera *cam=root->getCamera();
 		int thisId=-1;
 		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
 
@@ -69,6 +66,14 @@ namespace vb01{
 			for(Mesh *m : d->getMeshes())
 				materials.push_back(m->getMaterial());
 		}
+		mat4 proj=mat4(1.), view=mat4(1.);
+
+		renderShadow(descendants, proj, view);
+		updateShader(materials, thisId, proj, view);
+
+	}
+
+	void Light::renderShadow(std::vector<Node*> descendants, mat4 &proj, mat4 &view){
 		vec3 dirs[]{
 			vec3(1,0,0),
 			vec3(-1,0,0),
@@ -77,7 +82,8 @@ namespace vb01{
 			vec3(0,0,1),
 			vec3(0,0,-1)
 		};
-		mat4 proj=mat4(1.),view=mat4(1.);
+		Root *root = Root::getSingleton();
+
 		glViewport(0,0,depthMapSize,depthMapSize);
 		glBindFramebuffer(GL_FRAMEBUFFER,depthmapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -127,7 +133,9 @@ namespace vb01{
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
 		glViewport(0,0,root->getWidth(),root->getHeight());
+	}
 
+	void Light::updateShader(vector<Material*> materials, int thisId, mat4 &proj, mat4 &view){
 		for(Material *m : materials){
 			Shader *shader=m->getShader();
 			shader->use();

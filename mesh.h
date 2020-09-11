@@ -46,6 +46,9 @@ namespace vb01{
 			inline Skeleton* getSkeleton(){return skeleton;}
 			inline unsigned int* getIndices(){return indices;}
 		private:
+			void updateSkeleton(Shader*);
+			void updateReflection(Shader*, Vector3, int, int);
+
 			Shader *environmentShader=nullptr;
 			u32 environmentBuffer;
 			Texture *environmentMap;

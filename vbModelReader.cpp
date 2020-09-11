@@ -74,25 +74,11 @@ namespace vb01{
 	VbModelReader::~VbModelReader(){
 	}
 
-	void VbModelReader::readSkeletons(int startLine, int endLine){
-		vector<string> meshData;
-		readFile(path, meshData, startLine + 1, startLine + 7);
-	   	string name = meshData[0].substr(getCharId(meshData[0], ':') + 2, string::npos);
-		string line = meshData[5];
-	   	string data[3];
-	   	getLineData(line, data, 3);
-
-		int numBones = atoi(data[1].c_str());
-		int numAnimations = atoi(data[2].c_str());
-		int boneStartLine = startLine + 7;
-		int animationStartLine = boneStartLine + numBones + 1;
-
-		Skeleton *skeleton = new Skeleton(name);
-		skeletons.push_back(skeleton);
-
+	void VbModelReader::readBones(vector<string> &meshData, Skeleton *skeleton, int boneStartLine, int numBones){
 		meshData.clear();
 		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
 		vector<string> ikRelationships;
+
 		for(string line : meshData){
 			int colonId = getCharId(line, ':');
 			string preColon = line.substr(0, colonId);
@@ -136,19 +122,23 @@ namespace vb01{
 			if(ikTarget != "-")
 				ikRelationships.push_back(preColon + " " + ikTarget);
 		}
+
 		for(string ikRelationship : ikRelationships){
 			int spaceId = getCharId(ikRelationship, ' ');
 			string targetBoneName = ikRelationship.substr(0, spaceId);
 			string ikTargetBoneName = ikRelationship.substr(spaceId + 1);
 			skeleton->getBone(targetBoneName)->setIkTarget(skeleton->getBone(ikTargetBoneName));
 		}
+	}
 
+	void VbModelReader::readAnimations(vector<string> &meshData, Skeleton *skeleton, int animationStartLine, int endLine){
 		AnimationController *controller = skeleton->getAnimationController();
 		string animName = "";
 		Bone *animBone = nullptr;
 		Animation::KeyframeGroup::KeyframeChannel::Type type;
 		meshData.clear();
 		readFile(path, meshData, animationStartLine, endLine + 1);
+
 		for(string l : meshData){
 			int colonId = getCharId(l, ':');
 			string preColon = l.substr(0, colonId);
@@ -163,6 +153,7 @@ namespace vb01{
 				animBone = b;
 				Animation *anim = controller->getAnimation(animName);
 				Animation::KeyframeGroup *group = anim->getKeyframeGroup(animBone);
+
 				if(!group){
 					Animation::KeyframeGroup kg;
 					kg.bone = animBone;
@@ -176,38 +167,22 @@ namespace vb01{
 
 				if(l == "}")
 					break;
-				else if(preColon == "pos_x"){
-					type = KeyframeChannelType::POS_X;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "pos_y"){
-					type = KeyframeChannelType::POS_Y;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "pos_z"){
-					type = KeyframeChannelType::POS_Z;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "rot_w"){
-					type = KeyframeChannelType::ROT_W;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "rot_x"){
-					type = KeyframeChannelType::ROT_X;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "rot_y"){
-					type = KeyframeChannelType::ROT_Y;
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else if(preColon == "rot_z"){
-					type = KeyframeChannelType::ROT_Z;
+				else if(preColon == "pos_x" || preColon == "pos_y" || preColon == "pos_z" || preColon == "rot_w" || preColon == "rot_x" || preColon == "rot_y" || preColon == "rot_z"){
+					if(preColon == "pos_x")
+						type = KeyframeChannelType::POS_X;
+					else if(preColon == "pos_y")
+						type = KeyframeChannelType::POS_Y;
+					else if(preColon == "pos_z")
+						type = KeyframeChannelType::POS_Z;
+					else if(preColon == "rot_w")
+						type = KeyframeChannelType::ROT_W;
+					else if(preColon == "rot_x")
+						type = KeyframeChannelType::ROT_X;
+					else if(preColon == "rot_y")
+						type = KeyframeChannelType::ROT_Y;
+					else if(preColon == "rot_z")
+						type = KeyframeChannelType::ROT_Z;
+
 					channel.type = type;
 					keyframeGroup->keyframeChannels.push_back(channel);
 				}
@@ -231,6 +206,100 @@ namespace vb01{
 					//skeleton->getAnimationController()->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
 				}
 			}
+		}
+	}
+
+	void VbModelReader::readSkeletons(int startLine, int endLine){
+		vector<string> meshData;
+		readFile(path, meshData, startLine + 1, startLine + 7);
+	   	string name = meshData[0].substr(getCharId(meshData[0], ':') + 2, string::npos);
+		string line = meshData[5];
+	   	string data[3];
+	   	getLineData(line, data, 3);
+
+		int numBones = atoi(data[1].c_str());
+		int numAnimations = atoi(data[2].c_str());
+		int boneStartLine = startLine + 7;
+		int animationStartLine = boneStartLine + numBones + 1;
+
+		Skeleton *skeleton = new Skeleton(name);
+		skeletons.push_back(skeleton);
+
+		readBones(meshData, skeleton, boneStartLine, numBones);
+		
+		readAnimations(meshData, skeleton, animationStartLine, endLine);
+
+	}
+
+	void VbModelReader::readVertices(
+			vector<string> &meshData,
+		   	vector<Vector3> &vertPos,
+		   	vector<Vector3> &vertNorm,
+		   	vector<float> &vertWeights,
+		   	int vertexStartLine,
+		   	int numVertices,
+		   	int numBones
+			){
+		meshData.clear();
+		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
+		for(string line : meshData){
+			int numData = 6 + numBones;
+			string data[numData];
+			getLineData(line, data, numData);
+			Vector3 vPos = Vector3(atof(data[0].c_str()), atof(data[2].c_str()), -atof(data[1].c_str()));
+			Vector3 vNorm = Vector3(atof(data[3].c_str()), atof(data[5].c_str()), -atof(data[4].c_str()));
+			vertPos.push_back(vPos);
+			vertNorm.push_back(vNorm);
+
+			for(int j = 0; j < numBones; j++)
+				vertWeights.push_back(atof(data[6 + j].c_str()));
+		}
+	}
+
+	void VbModelReader::readFaces(
+			vector<string> &meshData,
+		   	vector<Vector3> &vertPos,
+		   	vector<Vector3> &vertNorm,
+		   	vector<float> &vertWeights,
+		   	int faceStartLine,
+		   	int numFaces,
+		   	int numVertsPerFace,
+		   	int numBones,
+			Mesh::Vertex *vertices,
+			u32 *indices
+			){
+		int i = 0;
+		meshData.clear();
+		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
+		for(string line : meshData){
+			int numData = 9;
+			string data[numData];
+			getLineData(line,data,numData);
+			int index = atoi(data[0].c_str());
+
+			Vector2 uv = Vector2(atof(data[1].c_str()), atof(data[2].c_str()));
+			Vector3 tan = Vector3(atof(data[3].c_str()), atof(data[5].c_str()), -atof(data[4].c_str()));
+			Vector3 biTan = Vector3(atof(data[6].c_str()), atof(data[8].c_str()), -atof(data[7].c_str())); 
+
+			Mesh::Vertex vert;
+			vert.pos = vertPos[index];
+			vert.norm = vertNorm[index];
+			vert.tan = tan;
+			vert.biTan = biTan;
+			vert.uv = uv;
+
+			for(int j = 0, boneIndex = 0; j < numBones; j++){
+				if(vertWeights[index * numBones + j] > 0){
+					vert.boneIndices[boneIndex] = j;
+					vert.weights[boneIndex] = vertWeights[index * numBones + j];
+					boneIndex++;
+				}
+			}
+
+			vertices[i] = vert;
+			indices[i] = i;
+
+			i++;
 		}
 	}
 
@@ -283,54 +352,8 @@ namespace vb01{
 			groups[i] = meshData[i];
 		}
 
-		meshData.clear();
-		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
-		for(string line : meshData){
-			int numData = 6 + numBones;
-			string data[numData];
-			getLineData(line, data, numData);
-			Vector3 vPos = Vector3(atof(data[0].c_str()), atof(data[2].c_str()), -atof(data[1].c_str()));
-			Vector3 vNorm = Vector3(atof(data[3].c_str()), atof(data[5].c_str()), -atof(data[4].c_str()));
-			vertPos.push_back(vPos);
-			vertNorm.push_back(vNorm);
-
-			for(int j = 0; j < numBones; j++)
-				vertWeights.push_back(atof(data[6 + j].c_str()));
-		}
-
-		meshData.clear();
-		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
-		int i = 0;
-		for(string line : meshData){
-			int numData = 9;
-			string data[numData];
-			getLineData(line,data,numData);
-			int index = atoi(data[0].c_str());
-
-			Vector2 uv = Vector2(atof(data[1].c_str()), atof(data[2].c_str()));
-			Vector3 tan = Vector3(atof(data[3].c_str()), atof(data[5].c_str()), -atof(data[4].c_str()));
-			Vector3 biTan = Vector3(atof(data[6].c_str()), atof(data[8].c_str()), -atof(data[7].c_str())); 
-
-			Mesh::Vertex vert;
-			vert.pos = vertPos[index];
-			vert.norm = vertNorm[index];
-			vert.tan = tan;
-			vert.biTan = biTan;
-			vert.uv = uv;
-
-			for(int j = 0, boneIndex = 0; j < numBones; j++){
-				if(vertWeights[index * numBones + j] > 0){
-					vert.boneIndices[boneIndex] = j;
-					vert.weights[boneIndex] = vertWeights[index * numBones + j];
-					boneIndex++;
-				}
-			}
-
-			vertices[i] = vert;
-			indices[i] = i;
-
-			i++;
-		}
+		readVertices(meshData, vertPos, vertNorm, vertWeights, vertexGroupStartLine, numVertices, numBones);
+		readFaces(meshData, vertPos, vertNorm, vertWeights, faceStartLine, numFaces, numVertsPerFace, numBones, vertices, indices);
 
 		meshData.clear();
 

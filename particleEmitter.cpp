@@ -15,34 +15,37 @@ using namespace std;
 
 namespace vb01{
 	ParticleEmitter::ParticleEmitter(int numParticles){
-		this->numParticles=numParticles;
+		this->numParticles = numParticles;
+		Vertex v1, v2, v3, v4, v5, v6;
+		ParticleEmitter::Vertex vertices[] = {v1, v2, v3, v4, v5, v6};
+		u32 indices[] = {0, 1, 2, 3, 4, 5};
 
+		setupParticles(vertices);
+		setupDisplay(vertices, indices);
+	}
+
+	void ParticleEmitter::setupParticles(Vertex vertices[]){
 		particles=new Particle*[numParticles];
 
-		Vertex v1,v2,v3,v4,v5,v6;
 		Vector2 size=Vector2(.5,.5);
-		v1.pos=Vector3(size.x/2,size.y/2,0);
-		v1.texCoords=Vector2(1,1);
+		vertices[0].pos=Vector3(size.x/2,size.y/2,0);
+		vertices[0].texCoords=Vector2(1,1);
 
-		v2.pos=Vector3(-size.x/2,size.y/2,0);
-		v2.texCoords=Vector2(0,1);
+		vertices[1].pos=Vector3(-size.x/2,size.y/2,0);
+		vertices[1].texCoords=Vector2(0,1);
 
-		v3.pos=Vector3(-size.x/2,-size.y/2,0);
-		v3.texCoords=Vector2(0,0);
+		vertices[2].pos=Vector3(-size.x/2,-size.y/2,0);
+		vertices[2].texCoords=Vector2(0,0);
 
-		v4.pos=Vector3(-size.x/2,-size.y/2,0);
-		v4.texCoords=Vector2(0,0);
+		vertices[3].pos=Vector3(-size.x/2,-size.y/2,0);
+		vertices[3].texCoords=Vector2(0,0);
 
-		v5.pos=Vector3(size.x/2,-size.y/2,0);
-		v5.texCoords=Vector2(1,0);
+		vertices[4].pos=Vector3(size.x/2,-size.y/2,0);
+		vertices[4].texCoords=Vector2(1,0);
 
-		v6.pos=Vector3(size.x/2,size.y/2,0);
-		v6.texCoords=Vector2(1,1);
+		vertices[5].pos=Vector3(size.x/2,size.y/2,0);
+		vertices[5].texCoords=Vector2(1,1);
 		
-		ParticleEmitter::Vertex vertices[]={v1,v2,v3,v4,v5,v6};
-		unsigned int indices[]={0,1,2,3,4,5};
-
-		u32 MBO;
 		mat4 *matrices=new mat4[numParticles];
 
 		for(int i=0;i<numParticles;i++){
@@ -52,6 +55,10 @@ namespace vb01{
 			matrices[i]=mat4(1.f);
 		}
 
+	}
+
+	void ParticleEmitter::setupDisplay(Vertex vertices[], u32 indices[]){
+		u32 MBO;
 		glGenVertexArrays(1,&VAO);
 		glGenBuffers(1,&VBO);
 		glGenBuffers(1,&EBO);
@@ -59,7 +66,7 @@ namespace vb01{
 		glBindBuffer(GL_ARRAY_BUFFER,VBO);
 		glBufferData(GL_ARRAY_BUFFER,6*sizeof(Vertex),vertices,GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,6*sizeof(unsigned int),indices,GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,6*sizeof(u32),indices,GL_STATIC_DRAW);
 		glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)0);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,texCoords)));
@@ -172,15 +179,11 @@ namespace vb01{
 			Vector3 v0=particles[i]->trans;
 			particles[i]->d=cos(camDir.getAngleBetween((v0-camPos).norm()))*camPos.getDistanceFrom(v0);
 		}
+
 		heapSort();
 		glBindVertexArray(VAO);
 		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
-		for(int i=0;i<numParticles;i++){
-		}
-			
-		//glDisable(GL_CULL_FACE);
-		//glEnable(GL_CULL_FACE);
 	}
 
 	void ParticleEmitter::setDirection(Vector3 dir){

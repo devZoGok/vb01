@@ -110,49 +110,6 @@ namespace vb01{
 			camPos=cam->getPosition();
 		}
 
-		if(reflect){
-			glViewport(0,0,width,width);
-			glBindFramebuffer(GL_FRAMEBUFFER,environmentBuffer);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			vec3 dirs[]{
-				vec3(1,0,0),
-				vec3(-1,0,0),
-				vec3(0,1,0),
-				vec3(0,-1,0),
-				vec3(0,0,1),
-				vec3(0,0,-1)
-			};
-			environmentShader->use();
-			Node *rootNode=root->getRootNode();
-			vector<Node*> descendants;
-			rootNode->getDescendants(rootNode,descendants);
-			for(Node *n : descendants){
-				for(Mesh *m : n->getMeshes())
-					if(m!=this){
-						Vector3 position=n->localToGlobalPosition(Vector3::VEC_ZERO);
-						Quaternion rotation=n->localToGlobalOrientation(Quaternion::QUAT_W);
-						Vector3 rotAxis=rotation.norm().getAxis();
-
-						if(rotAxis==Vector3::VEC_ZERO)
-							rotAxis=Vector3::VEC_I;
-						float far=100;
-						vec3 p=vec3(position.x,position.y,position.z);
-						mat4 proj=perspective(radians(90.f),1.f,.1f,far);
-						mat4 model=translate(mat4(1.),p);
-						model=rotate(model,rotation.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
-						environmentShader->setMat4(model,"model");
-						environmentShader->setBool(true,"point");
-						environmentShader->setVec3(pos,"lightPos");
-						environmentShader->setFloat(far,"farPlane");
-						for(int i=0;i<6;i++)
-							environmentShader->setMat4(proj*lookAt(p,p+dirs[i],1<i&&i<4?vec3(0,0,-1):vec3(0,-1,0)),"shadowMat["+to_string(i)+"]");
-						m->render();
-					}
-			}
-			glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
-			glViewport(0,0,root->getWidth(),root->getHeight());
-		}
-
 		Vector3 rotAxis=orient.getAxis();
 		if(rotAxis==Vector3::VEC_ZERO)
 			rotAxis=Vector3::VEC_I;
@@ -166,6 +123,13 @@ namespace vb01{
 		material->update();
 		Shader *shader=material->getShader();
 
+
+		if(reflect)
+			updateReflection(shader, pos, width, height);
+
+		if(skeleton)
+			updateSkeleton(shader);
+
 		shader->setBool(castShadow,"castShadow");
 		shader->setBool(skeleton,"animated");
 		shader->setBool(false,"environment");
@@ -174,52 +138,6 @@ namespace vb01{
 		shader->setVec3(camPos,"camPos");
 		shader->setMat4(model,"model");
 
-		if(skeleton){
-			skeleton->update();
-
-			shader->editShader(Shader::VERTEX_SHADER,2,"const int numBones="+to_string(skeleton->getNumBones())+";");
-			shader->editShader(Shader::VERTEX_SHADER,3,"const int numVertGroups="+to_string(numVertexGroups)+";");
-
-			Node *modelNode = skeleton->getRootBone()->getParent();
-			for(int i=0;i<skeleton->getNumBones();i++){
-				Bone *bone = skeleton->getBone(i), *parent = (Bone*)bone->getParent();
-				Vector3 boneAxis[]{
-					bone->getInitAxis(0),
-					bone->getInitAxis(1),
-					bone->getInitAxis(2)
-				};
-				Vector3 posePos = bone->getPosePos();
-				Quaternion poseRot = bone->getPoseRot();
-				Vector3 trans = boneAxis[0]*posePos.x+boneAxis[1]*posePos.y+boneAxis[2]*posePos.z;
-				Vector3 scale = bone->getPoseScale();
-				Vector3 bonePos = bone->getModelSpacePos();
-
-				int vertGroupId = -1, parentId = -1;
-				for(int j=0;j<numVertexGroups;j++)
-					if(bone->getName() == vertexGroups[j])
-						vertGroupId = j;
-				for(int j = 0;j < skeleton->getNumBones();j++)
-					if(skeleton->getBone(j) == parent){
-						parentId = j;
-						break;
-					}	
-
-				shader->setVec3(bonePos,"bones["+to_string(i)+"].pos");
-				shader->setVec3(trans,"bones["+to_string(i)+"].trans");
-				shader->setVec3(poseRot.getAxis(),"bones["+to_string(i)+"].rotAxis");
-				shader->setFloat(poseRot.getAngle(),"bones["+to_string(i)+"].angle");
-				shader->setVec3(scale,"bones["+to_string(i)+"].scale");
-				shader->setInt(vertGroupId,"bones["+to_string(i)+"].vertGroup");
-				shader->setInt(parentId,"bones["+to_string(i)+"].parent");
-			}
-		}
-
-		if(reflect){
-			shader->setBool(reflect,"environmentMapEnabled");
-			root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
-			environmentMap->select(4);
-		}
-
 		if(material->getType()==Material::MATERIAL_GUI){
 			shader->setVec2(Vector2((float)width,(float)height),"screen");
 			if(node)
@@ -227,6 +145,95 @@ namespace vb01{
 		}
 
 		render();
+	}
+
+	void Mesh::updateSkeleton(Shader *shader){
+		skeleton->update();
+
+		shader->editShader(Shader::VERTEX_SHADER,2,"const int numBones="+to_string(skeleton->getNumBones())+";");
+		shader->editShader(Shader::VERTEX_SHADER,3,"const int numVertGroups="+to_string(numVertexGroups)+";");
+
+		Node *modelNode = skeleton->getRootBone()->getParent();
+		for(int i=0;i<skeleton->getNumBones();i++){
+			Bone *bone = skeleton->getBone(i), *parent = (Bone*)bone->getParent();
+			Vector3 boneAxis[]{
+				bone->getInitAxis(0),
+				bone->getInitAxis(1),
+				bone->getInitAxis(2)
+			};
+			Vector3 posePos = bone->getPosePos();
+			Quaternion poseRot = bone->getPoseRot();
+			Vector3 trans = boneAxis[0]*posePos.x+boneAxis[1]*posePos.y+boneAxis[2]*posePos.z;
+			Vector3 scale = bone->getPoseScale();
+			Vector3 bonePos = bone->getModelSpacePos();
+
+			int vertGroupId = -1, parentId = -1;
+			for(int j=0;j<numVertexGroups;j++)
+				if(bone->getName() == vertexGroups[j])
+					vertGroupId = j;
+			for(int j = 0;j < skeleton->getNumBones();j++)
+				if(skeleton->getBone(j) == parent){
+					parentId = j;
+					break;
+				}	
+
+			shader->setVec3(bonePos,"bones["+to_string(i)+"].pos");
+			shader->setVec3(trans,"bones["+to_string(i)+"].trans");
+			shader->setVec3(poseRot.getAxis(),"bones["+to_string(i)+"].rotAxis");
+			shader->setFloat(poseRot.getAngle(),"bones["+to_string(i)+"].angle");
+			shader->setVec3(scale,"bones["+to_string(i)+"].scale");
+			shader->setInt(vertGroupId,"bones["+to_string(i)+"].vertGroup");
+			shader->setInt(parentId,"bones["+to_string(i)+"].parent");
+		}
+	}
+
+	void Mesh::updateReflection(Shader *shader, Vector3 pos, int width, int height){
+		Root *root = Root::getSingleton();
+		vec3 dirs[]{
+			vec3(1,0,0),
+			vec3(-1,0,0),
+			vec3(0,1,0),
+			vec3(0,-1,0),
+			vec3(0,0,1),
+			vec3(0,0,-1)
+		};
+
+		glViewport(0,0,width,width);
+		glBindFramebuffer(GL_FRAMEBUFFER,environmentBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		environmentShader->use();
+		Node *rootNode=root->getRootNode();
+		vector<Node*> descendants;
+		rootNode->getDescendants(rootNode,descendants);
+		for(Node *n : descendants){
+			for(Mesh *m : n->getMeshes())
+				if(m!=this){
+					Vector3 position=n->localToGlobalPosition(Vector3::VEC_ZERO);
+					Quaternion rotation=n->localToGlobalOrientation(Quaternion::QUAT_W);
+					Vector3 rotAxis=rotation.norm().getAxis();
+
+					if(rotAxis==Vector3::VEC_ZERO)
+						rotAxis=Vector3::VEC_I;
+					float far=100;
+					vec3 p=vec3(position.x,position.y,position.z);
+					mat4 proj=perspective(radians(90.f),1.f,.1f,far);
+					mat4 model=translate(mat4(1.),p);
+					model=rotate(model,rotation.norm().getAngle(),vec3(rotAxis.x,rotAxis.y,rotAxis.z));
+					environmentShader->setMat4(model,"model");
+					environmentShader->setBool(true,"point");
+					environmentShader->setVec3(pos,"lightPos");
+					environmentShader->setFloat(far,"farPlane");
+					for(int i=0;i<6;i++)
+						environmentShader->setMat4(proj*lookAt(p,p+dirs[i],1<i&&i<4?vec3(0,0,-1):vec3(0,-1,0)),"shadowMat["+to_string(i)+"]");
+					m->render();
+				}
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER,*(root->getFBO()));
+		glViewport(0,0,root->getWidth(),root->getHeight());
+
+		shader->setBool(reflect,"environmentMapEnabled");
+		root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
+		environmentMap->select(4);
 	}
 
 	void Mesh::render(){
