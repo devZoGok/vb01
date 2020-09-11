@@ -44,6 +44,8 @@ namespace vb01{
 
 			void makeHeap(int);
 			void heapSort();
+			void setupParticles(Vertex[]);
+			void setupDisplay(Vertex[], u32[]);
 
 			unsigned int VAO,VBO,EBO,MBO;
 			glm::mat4 *matrices;

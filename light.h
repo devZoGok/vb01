@@ -2,11 +2,15 @@
 #define LIGHT_H
 
 #include"vector.h"
+#include<vector>
+#include<glm.hpp>
 
 namespace vb01{
 	class Node;
 	class Texture;
 	class Shader;
+	class Material;
+
 
 	class Light{
 		public:
@@ -36,6 +40,9 @@ namespace vb01{
 			inline float getShadowFarPlane(){return farPlane;}
 			inline Node* getNode(){return node;}
 		private:
+			void renderShadow(std::vector<Node*>, glm::mat4&, glm::mat4&);
+			void updateShader(std::vector<Material*>, int, glm::mat4&, glm::mat4&);
+
 			Type type;
 			Shader *depthMapShader;
 			Texture *depthMap=nullptr;
