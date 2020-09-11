@@ -74,8 +74,8 @@ namespace vb01{
 	VbModelReader::~VbModelReader(){
 	}
 
-	void VbModelReader::readBones(vector<string> &meshData, Skeleton *skeleton, int boneStartLine, int numBones){
-		meshData.clear();
+	void VbModelReader::readBones(Skeleton *skeleton, int boneStartLine, int numBones){
+		vector<string> meshData;
 		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
 		vector<string> ikRelationships;
 
@@ -131,12 +131,12 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(vector<string> &meshData, Skeleton *skeleton, int animationStartLine, int endLine){
+	void VbModelReader::readAnimations(Skeleton *skeleton, int animationStartLine, int endLine){
 		AnimationController *controller = skeleton->getAnimationController();
 		string animName = "";
 		Bone *animBone = nullptr;
 		Animation::KeyframeGroup::KeyframeChannel::Type type;
-		meshData.clear();
+		vector<string> meshData;
 		readFile(path, meshData, animationStartLine, endLine + 1);
 
 		for(string l : meshData){
@@ -225,14 +225,13 @@ namespace vb01{
 		Skeleton *skeleton = new Skeleton(name);
 		skeletons.push_back(skeleton);
 
-		readBones(meshData, skeleton, boneStartLine, numBones);
+		readBones(skeleton, boneStartLine, numBones);
 		
-		readAnimations(meshData, skeleton, animationStartLine, endLine);
+		readAnimations(skeleton, animationStartLine, endLine);
 
 	}
 
 	void VbModelReader::readVertices(
-			vector<string> &meshData,
 		   	vector<Vector3> &vertPos,
 		   	vector<Vector3> &vertNorm,
 		   	vector<float> &vertWeights,
@@ -240,7 +239,7 @@ namespace vb01{
 		   	int numVertices,
 		   	int numBones
 			){
-		meshData.clear();
+		vector<string> meshData;
 		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
 		for(string line : meshData){
 			int numData = 6 + numBones;
@@ -257,7 +256,6 @@ namespace vb01{
 	}
 
 	void VbModelReader::readFaces(
-			vector<string> &meshData,
 		   	vector<Vector3> &vertPos,
 		   	vector<Vector3> &vertNorm,
 		   	vector<float> &vertWeights,
@@ -269,7 +267,7 @@ namespace vb01{
 			u32 *indices
 			){
 		int i = 0;
-		meshData.clear();
+		vector<string> meshData;
 		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
 		for(string line : meshData){
 			int numData = 9;
@@ -352,11 +350,11 @@ namespace vb01{
 			groups[i] = meshData[i];
 		}
 
-		readVertices(meshData, vertPos, vertNorm, vertWeights, vertexGroupStartLine, numVertices, numBones);
-		readFaces(meshData, vertPos, vertNorm, vertWeights, faceStartLine, numFaces, numVertsPerFace, numBones, vertices, indices);
+		readVertices(vertPos, vertNorm, vertWeights, vertexStartLine, numVertices, numBones);
+
+		readFaces(vertPos, vertNorm, vertWeights, faceStartLine, numFaces, numVertsPerFace, numBones, vertices, indices);
 
 		meshData.clear();
-
 		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
 		for(int i = 0; i < numShapes; i++){
 		}
