@@ -17,11 +17,11 @@ namespace vb01{
 			VbModelReader(Model*, std::string);
 			~VbModelReader();
 		private:
-			void readBones(std::vector<std::string>&, Skeleton*, int, int);
-			void readAnimations(std::vector<std::string>&, Skeleton*, int, int);
+			void readBones(Skeleton*, int, int);
+			void readAnimations(Skeleton*, int, int);
 			void readSkeletons(int, int);
-			void readVertices(std::vector<std::string>&, std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int);
-			void readFaces(std::vector<std::string>&, std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int, int, Mesh::Vertex*, u32*);
+			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int);
+			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int, int, Mesh::Vertex*, u32*);
 			void readMeshes(int, int);
 			void readLights(int, int);
 
