@@ -30,7 +30,7 @@ namespace vb01{
 	Vector3 Bone::getModelSpacePos(){
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;
 		Bone *rootBone = skeleton->getRootBone();
-		vector<Node*> boneHierarchy = getAncestors(this, rootBone->getParent());
+		vector<Node*> boneHierarchy = getAncestors(this, rootBone);
 
 		while(!boneHierarchy.empty()){
 			int id = boneHierarchy.size() - 1;
