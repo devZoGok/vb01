@@ -45,10 +45,13 @@ namespace vb01{
 	}
 
 	void Mesh::construct(){
-		int width=Root::getSingleton()->getWidth();
+		Root *root = Root::getSingleton();
+		int width = root->getWidth();
 
+		/*
+		*/
 		u32 RBO;
-		string basePath="../../vb01/depthMap.";
+		string basePath = root->getBasePath() + "depthMap.";
 		environmentShader=new Shader(basePath+"vert",basePath+"frag",basePath+"geo");
 		environmentMap=new Texture(width,false);
 
@@ -56,17 +59,16 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER,environmentBuffer);
 		glFramebufferTexture(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,*(environmentMap->getTexture()),0);
 
-		/*
 		glGenRenderbuffers(1,&RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
 		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,width);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
-		*/
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 
 		glGenVertexArrays(1,&VAO);
 		glGenBuffers(1,&VBO);

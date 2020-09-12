@@ -20,7 +20,7 @@ namespace vb01{
 	class Root{
 		public:
 			void update();
-			void start(int,int,std::string);
+			void start(int,int,std::string, std::string = "../../vb01/");
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
 			inline Node* getGuiNode(){return guiNode;}
@@ -34,11 +34,14 @@ namespace vb01{
 			inline void setBloom(bool bloom){this->bloom=bloom;}
 			inline void setBlurLevel(bool level){this->blurLevel=level;}
 			inline Box* getSkybox(){return skybox;}
+			inline void setBasePath(std::string basePath){this->basePath = basePath;}
+			inline std::string getBasePath(){return basePath;}
 			void createSkybox(std::string[6]);
 			void removeSkybox();
 			static Root* getSingleton();
 			int numLights=0;
 		private:
+			std::string basePath;
 			bool bloom=false,hdr=false;
 			float exposure=1,gamma=1;
 			Box *skybox=nullptr;

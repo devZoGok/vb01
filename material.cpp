@@ -8,7 +8,8 @@ namespace vb01{
 	Material::Material(Type type){
 		this->type=type;
 
-		string basePath="../../vb01/",shaderName;
+		Root *root = Root::getSingleton();
+		string basePath = root->getBasePath(), shaderName;
 		switch(type){
 			case MATERIAL_2D:
 				shaderName="texture.";

@@ -31,9 +31,10 @@ namespace vb01{
 		camera=new Camera();
 	}
 
-	void Root::start(int width,int height,string name){
+	void Root::start(int width,int height,string name, string basePath){
 		this->width=width;
 		this->height=height;
+		this->basePath = basePath;
 
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
@@ -84,8 +85,8 @@ namespace vb01{
 		mat->addDiffuseMap(brightTexture);
 		guiPlane->setMaterial(mat);
 
-		string basePath="../../vb01/blur.";
-		blurShader=new Shader(basePath+"vert",basePath+"frag");
+		string blurBasePath = basePath + "blur.";
+		blurShader=new Shader(blurBasePath + "vert", blurBasePath+"frag");
 		glGenFramebuffers(2,pingpongBuffers);
 		for(int i=0;i<2;i++){
 			glBindFramebuffer(GL_FRAMEBUFFER,pingpongBuffers[i]);
