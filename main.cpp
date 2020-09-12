@@ -5,6 +5,7 @@
 
 #include "cameraTest.h"
 #include "nodeTest.h"
+#include "boneTest.h"
 
 using namespace CppUnit;
 using namespace vb01;
@@ -13,6 +14,7 @@ int main(){
 	TextUi::TestRunner runner;
 	runner.addTest(CameraTest::suite());
 	runner.addTest(NodeTest::suite());
+	runner.addTest(BoneTest::suite());
 	runner.run();
 	return 0;
 }

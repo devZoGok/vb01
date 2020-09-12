@@ -20,7 +20,7 @@ set(anim animationController.cpp animationChannel.cpp animation.cpp)
 set(armature skeleton.cpp bone.cpp)
 set(library ${render} ${math} ${model} ${utils} ${gui} ${armature} ${anim})
 
-set(test cameraTest.cpp nodeTest.cpp)
+set(test cameraTest.cpp nodeTest.cpp boneTest.cpp)
 
 add_library(vb01 SHARED ${library})
 target_link_libraries(vb01 glfw)
