@@ -108,6 +108,8 @@ namespace vb01{
 				rotAxis = Vector3::VEC_I;
 			}
 
+			//rotAxis = (boneChain[i]->getInitAxis(0) * rotAxis.x + boneChain[i]->getInitAxis(1) * rotAxis.y + boneChain[i]->getInitAxis(2) * rotAxis.z).norm();
+
 			boneAngles[i] = angle; 
 			axis[i] = rotAxis;
 		}

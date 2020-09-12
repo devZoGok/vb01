@@ -220,6 +220,8 @@ namespace vb01{
 	}
 
 	Vector3 Node::globalToLocalPosition(Vector3 globalPos){
+		Vector3 currentGlobalPos = localToGlobalPosition(Vector3::VEC_ZERO);
+
 		mat3 mat;
 		mat[0][0]=globalAxis[0].x;
 		mat[1][0]=globalAxis[0].y;
@@ -232,7 +234,7 @@ namespace vb01{
 		mat[2][2]=globalAxis[2].z;
 		mat=inverse(mat);
 
-		vec3 local = vec3(globalPos.x, globalPos.y, globalPos.z) * mat;
+		vec3 local = vec3(globalPos.x - currentGlobalPos.x, globalPos.y - currentGlobalPos.y, globalPos.z - currentGlobalPos.z) * mat;
 		return Vector3(local.x, local.y, local.z);
 	}
 
