@@ -144,6 +144,11 @@ namespace vb01{
 			shader->setVec3(color,"light["+to_string(thisId)+"].color");
 			shader->setFloat(nearPlane,"light["+to_string(thisId)+"].near");
 			shader->setFloat(farPlane,"light["+to_string(thisId)+"].far");
+			shader->setInt(0,"diffuseMap");
+			shader->setInt(1,"normalMap");
+			shader->setInt(2,"specularMap");
+			shader->setInt(3,"parallaxMap");
+			shader->setInt(4,"environmentMap");
 			shader->setInt(5,"light["+to_string(thisId)+"].depthMapCube");
 			shader->setInt(6,"light["+to_string(thisId)+"].depthMap");
 			depthMap->select(type==POINT?5:6);

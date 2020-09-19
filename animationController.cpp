@@ -99,12 +99,8 @@ namespace vb01{
 							break;
 					}
 				}
-				/*
-				swap(currentPos.y, currentPos.z);
-				currentPos.z = -currentPos.z;
 				swap(currentRot.y, currentRot.z);
 				currentRot.z = -currentRot.z;
-				*/
 
 				channelBone->setPosePos(currentPos);
 				channelBone->setPoseRot(currentRot);

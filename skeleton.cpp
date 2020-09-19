@@ -22,11 +22,12 @@ namespace vb01{
 
 	void Skeleton::solveIk(Bone *ikBone){
 		const int chainLength = ikBone->getIkChainLength();
+		Bone *rootBone = getRootBone();
 		Bone *ikTarget = ikBone->getIkTarget();
 		Bone *boneChain[chainLength];
 		Bone *ikBoneAncestor = ikBone;
 		Vector3 boneIkPos[chainLength];
-	   	Vector3 targetPos = ikTarget->getPosition();
+	   	Vector3 targetPos = rootBone->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 
 		float sumLengths = 0;
 
@@ -45,7 +46,7 @@ namespace vb01{
 	void Skeleton::calculateFabrik(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos, float sumLengths){
 		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
-			int numIterations = 2;
+			int numIterations = 200;
 	
 			for(int i = 0 ; i < numIterations; i++){
 				bool backward = (i % 2 == 0);
@@ -94,11 +95,19 @@ namespace vb01{
 	}
 
 	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
+		/*
+		Bone *rootBone = getRootBone();
+		for(int i = chainLength - 1; i >= 0; i--){
+			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneChain[i]->getModelSpacePos()).norm();
+			boneChain[i]->lookAt(dir, rootBone);
+		}
+		*/
+
 		float boneAngles[chainLength];
 		Vector3 axis[chainLength];
-
 		for(int i = chainLength - 1; i >= 0; i--){
 			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
+
 			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
 			Vector3 rotAxis = boneAxis.cross(dir).norm();
 			float angle = boneAxis.getAngleBetween(dir);
@@ -107,8 +116,6 @@ namespace vb01{
 				angle = 0;
 				rotAxis = Vector3::VEC_I;
 			}
-
-			//rotAxis = (boneChain[i]->getInitAxis(0) * rotAxis.x + boneChain[i]->getInitAxis(1) * rotAxis.y + boneChain[i]->getInitAxis(2) * rotAxis.z).norm();
 
 			boneAngles[i] = angle; 
 			axis[i] = rotAxis;
