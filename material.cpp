@@ -66,7 +66,6 @@ namespace vb01{
 			shader->setInt(2,"specularMap");
 			shader->setInt(3,"parallaxMap");
 			shader->setInt(4,"environmentMap");
-
 			for(Texture *t : diffuseMapTextures)
 				t->update(0);
 			for(Texture *t : normalMapTextures)

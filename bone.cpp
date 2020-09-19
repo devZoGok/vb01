@@ -61,7 +61,15 @@ namespace vb01{
 	void Bone::setPoseRot(Quaternion r){
 		this->poseRot = r;
 		setOrientation(restRot);
-		Quaternion parentSpacePoseRot = parent->globalToLocalOrientation(localToGlobalOrientation(r));
+
+		Quaternion parentSpacePoseRot = Quaternion::QUAT_W;
+		vector<Node*> ancestors = getAncestors(this);
+		for(int i = 0; i < ancestors.size(); i++)
+			parentSpacePoseRot = parentSpacePoseRot * ancestors[i]->getOrientation();
+		for(int i = ancestors.size() - 1; i > 0; i--)
+			parentSpacePoseRot = parentSpacePoseRot * ancestors[i]->getOrientation().conj();
+		parentSpacePoseRot = r * parentSpacePoseRot;
+
 		setOrientation(parentSpacePoseRot);
 	}
 

@@ -101,14 +101,12 @@ namespace vb01{
 			Node *parent = skeleton->getBone(parName);
 			if(!parent){
 				parent = model;
-				swap(xAxis.y, xAxis.z);
-				xAxis.z = -xAxis.z;
+				swap(pos.y, pos.z);
+				pos.z = -pos.z;
 				swap(yAxis.y, yAxis.z);
 				yAxis.z = -yAxis.z;
 				swap(zAxis.y, zAxis.z);
 				zAxis.z = -zAxis.z;
-				swap(pos.y, pos.z);
-				pos.z = -pos.z;
 				/*
 				*/
 			}
