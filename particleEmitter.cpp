@@ -46,7 +46,7 @@ namespace vb01{
 		vertices[5].pos=Vector3(size.x/2,size.y/2,0);
 		vertices[5].texCoords=Vector2(1,1);
 		
-		mat4 *matrices=new mat4[numParticles];
+		matrices=new mat4[numParticles];
 
 		for(int i=0;i<numParticles;i++){
 			Particle *p=new Particle;
