@@ -51,23 +51,26 @@ namespace vb01{
 	void Light::update(){
 		Root *root=Root::getSingleton();
 		Node *rootNode=root->getRootNode();
-		std::vector<Node*> descendants;
+		vector<Node*> descendants;
+		vector<Light*> lights;
 		rootNode->getDescendants(rootNode, descendants);
+		descendants.push_back(rootNode);
 		std::vector<Material*> materials;
 		Camera *cam=root->getCamera();
-		int thisId=-1;
-		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
+
+		int thisId = -1;
+		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight();
 
 		for(Node *d : descendants){
-			std::vector<Light*> lights=d->getLights();
-			for(int i=0;i<lights.size();i++){
-				if(lights[i]==this)
-					thisId=i;
-			}
+			for(Light *l : d->getLights())
+				lights.push_back(l);
 			for(Mesh *m : d->getMeshes())
 				materials.push_back(m->getMaterial());
 		}
-		mat4 proj=mat4(1.), view=mat4(1.);
+		for(int i = 0; i < lights.size(); i++)
+			if(lights[i] == this)
+				thisId = i;
+		mat4 proj = mat4(1.), view = mat4(1.);
 
 		renderShadow(descendants, proj, view);
 		updateShader(materials, thisId, proj, view);
@@ -144,11 +147,6 @@ namespace vb01{
 			shader->setVec3(color,"light["+to_string(thisId)+"].color");
 			shader->setFloat(nearPlane,"light["+to_string(thisId)+"].near");
 			shader->setFloat(farPlane,"light["+to_string(thisId)+"].far");
-			shader->setInt(0,"diffuseMap");
-			shader->setInt(1,"normalMap");
-			shader->setInt(2,"specularMap");
-			shader->setInt(3,"parallaxMap");
-			shader->setInt(4,"environmentMap");
 			shader->setInt(5,"light["+to_string(thisId)+"].depthMapCube");
 			shader->setInt(6,"light["+to_string(thisId)+"].depthMap");
 			depthMap->select(type==POINT?5:6);

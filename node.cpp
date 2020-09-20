@@ -158,11 +158,11 @@ namespace vb01{
 	}
 
 	void Node::getDescendants(Node *node, vector<Node*> &descendants){
-		for(int i=0;i<node->getNumChildren();i++){
-			if(node->getChild(i)->getNumChildren()>0)
-				getDescendants(node->getChild(i),descendants);
+		for(Node *child : node->getChildren()){
+			if(child->getNumChildren() > 0)
+				getDescendants(child, descendants);
 			else
-				descendants.push_back(node->getChild(i));
+				descendants.push_back(child);
 		}
 	}
 
@@ -290,21 +290,20 @@ namespace vb01{
 	}
 
 	void Node::updateShaders(){
-		Root *root=Root::getSingleton();
-		Node *rootNode=Root::getSingleton()->getRootNode();
+		Root *root = Root::getSingleton();
+		Node *rootNode = Root::getSingleton()->getRootNode();
 		vector<Node*> descendants;
-		rootNode->getDescendants(rootNode,descendants);
+		rootNode->getDescendants(rootNode, descendants);
 		descendants.push_back(rootNode);
-		for(Node *n : descendants){
-			vector<Mesh*> meshes=n->getMeshes();
-			for(Mesh *m : meshes){
-				Material *mat=m->getMaterial();
-				string str="const int numLights="+to_string(root->numLights>0?root->numLights:1)+";";
 
-				if(mat){
-					//mat->getShader()->editShader(true,'=',';',str);
-					mat->getShader()->editShader(Shader::FRAGMENT_SHADER,1,str);
-				}
+		for(Node *n : descendants){
+			vector<Mesh*> meshes = n->getMeshes();
+			for(Mesh *m : meshes){
+				Material *mat = m->getMaterial();
+				string str = "const int numLights = " + to_string(root->numLights > 0 ? root->numLights : 1) + ";";
+
+				if(mat)
+					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 1, str);
 			}
 		}
 	}

@@ -53,6 +53,11 @@ namespace vb01{
 		if(type==MATERIAL_2D){
 			shader->setBool(lightingEnabled,"lightingEnabled");
 			shader->setBool(normalMapEnabled,"normalMapEnabled");
+			shader->setInt(0,"diffuseMap");
+			shader->setInt(1,"normalMap");
+			shader->setInt(2,"specularMap");
+			shader->setInt(3,"parallaxMap");
+			shader->setInt(4,"environmentMap");
 		}
 		shader->setBool(texturingEnabled,"texturingEnabled");
 		if(type==MATERIAL_GUI){
@@ -61,11 +66,6 @@ namespace vb01{
 				shader->setVec4(diffuseColor,"diffuseColor");
 		}
 		if(texturingEnabled){
-			shader->setInt(0,"diffuseMap");
-			shader->setInt(1,"normalMap");
-			shader->setInt(2,"specularMap");
-			shader->setInt(3,"parallaxMap");
-			shader->setInt(4,"environmentMap");
 			for(Texture *t : diffuseMapTextures)
 				t->update(0);
 			for(Texture *t : normalMapTextures)
