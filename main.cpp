@@ -6,6 +6,7 @@
 #include "cameraTest.h"
 #include "nodeTest.h"
 #include "boneTest.h"
+#include "cameraTest.h"
 
 using namespace CppUnit;
 using namespace vb01;

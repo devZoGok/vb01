@@ -9,7 +9,7 @@ namespace vb01{
 
 	class NodeTest : public CppUnit::TestFixture{
 		CPPUNIT_TEST_SUITE(NodeTest);
-		//CPPUNIT_TEST(testDetachChild);
+		CPPUNIT_TEST(testDetachChild);
 		CPPUNIT_TEST(testAdjustDir);
 		CPPUNIT_TEST(testAdjustUp);
 		CPPUNIT_TEST(testGetDescendants);
