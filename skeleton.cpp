@@ -32,6 +32,7 @@ namespace vb01{
 		for(int i = 0; i < chainLength; i++){
 			boneChain[i] = ikBoneAncestor;
 			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
+			boneIkPos[i] = rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 			boneIkPos[i] = boneChain[i]->getModelSpacePos();
 		}
 
@@ -47,7 +48,7 @@ namespace vb01{
 		
 		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
-			int numIterations = 200;
+			int numIterations = 500;
 	
 			for(int i = 0 ; i < numIterations; i++){
 				bool backward = (i % 2 == 0);
@@ -96,20 +97,17 @@ namespace vb01{
 	}
 
 	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
-		/*
-		Bone *rootBone = getRootBone();
-		for(int i = chainLength - 1; i >= 0; i--){
-			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneChain[i]->getModelSpacePos()).norm();
-			boneChain[i]->lookAt(dir, rootBone);
-		}
-		*/
-
+		Node *rootBone = getRootBone()->getParent();
 		float boneAngles[chainLength];
 		Vector3 axis[chainLength];
 		for(int i = chainLength - 1; i >= 0; i--){
+			boneChain[i]->setOrientation(boneChain[i]->getRestRot());
 			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
+			Vector3 boneAxis = 
+					(rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_J)) - 
+					rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO)))
+					.norm();
 
-			Vector3 boneAxis = boneChain[i]->getInitAxis(1);
 			Vector3 rotAxis = boneAxis.cross(dir).norm();
 			float angle = boneAxis.getAngleBetween(dir);
 
@@ -120,18 +118,6 @@ namespace vb01{
 
 			boneAngles[i] = angle; 
 			axis[i] = rotAxis;
-		}
-
-		for(int i = 0; i < chainLength; i++){
-			for(int j = i + 1; j < chainLength; j++){
-				boneAngles[i] -= boneAngles[j];
-				if(boneAngles[i] <= 0){
-					boneAngles[i] = 0;
-					break;
-				}
-			}
-			float angle = boneAngles[i];
-			Vector3 rotAxis = axis[i];
 
 			boneChain[i]->setPoseRot(Quaternion(angle, rotAxis));
 		}
