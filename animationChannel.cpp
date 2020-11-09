@@ -29,14 +29,18 @@ namespace vb01{
 
 	void AnimationChannel::setAnimationName(string animName){
 		this->animationName = animName;
+		numFrames = getMaxKeyframeNum(animName);
+	}
+
+	int AnimationChannel::getMaxKeyframeNum(string animName){
+		int maxKeyframeNum;
 
 		Animation *animation = controller->getAnimation(animName);
 		KeyframeGroup *startGroup = animation->getKeyframeGroup(bones[0]);
 		int numStartKeyframes = startGroup->keyframeChannels[0].keyframes.size();
-		numFrames = startGroup->keyframeChannels[0].keyframes[numStartKeyframes - 1].frame;
-		//firstFrame = startGroup->keyframeChannels[0].keyframes[0].frame;
+		maxKeyframeNum = startGroup->keyframeChannels[0].keyframes[numStartKeyframes - 1].frame;
 
-		for(int i = 0; i < bones.size() ; i++){
+		for(int i = 0; i < bones.size(); i++){
 			KeyframeGroup *kg = animation->getKeyframeGroup(bones[i]);
 
 			for(int j = 0 ; j < kg->keyframeChannels.size(); j++){
@@ -45,16 +49,13 @@ namespace vb01{
 				for(int k = 0; k < ch.keyframes.size(); k++){
 					int numKeyframes = ch.keyframes.size();
 					int maxFrame = ch.keyframes[numKeyframes - 1].frame;
-					int minFrame = ch.keyframes[0].frame;
 
 					if(numFrames < maxFrame)
-						numFrames = maxFrame;
-					/*
-					if(firstFrame > minFrame)
-						firstFrame = minFrame;
-						*/
+						maxKeyframeNum = maxFrame;
 				}
 			}
 		}
+
+		return maxKeyframeNum;
 	}
 }

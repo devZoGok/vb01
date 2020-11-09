@@ -30,6 +30,7 @@ namespace vb01{
 			inline std::string getAnimationName(){return animationName;}
 		private:
 			inline bool canUpdate(){return getTime() - lastUpdateTime > updateRate;}
+			int getMaxKeyframeNum(std::string);
 
 			s64 lastUpdateTime = 0;
 		    int updateRate = 16;

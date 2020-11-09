@@ -14,12 +14,12 @@ namespace vb01{
 	}
 
 	Animation::KeyframeGroup* Animation::getKeyframeGroup(Bone *b){
-		int id=-1;
-		for(int i=0;i<keyframeGroups.size();i++)
-			if(keyframeGroups[i].bone==b){
-				id=i;
+		int id = -1;
+		for(int i = 0;i < keyframeGroups.size(); i++)
+			if(keyframeGroups[i].bone == b){
+				id = i;
 				break;
 			}
-		return id>-1?&(keyframeGroups[id]):nullptr;
+		return id > -1 ? &(keyframeGroups[id]) : nullptr;
 	}
 }
