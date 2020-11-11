@@ -29,21 +29,22 @@ namespace vb01{
 		Vector3 boneIkPos[chainLength];
 	   	Vector3 targetPos = rootBone->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 
-		float sumLengths = 0;
-
 		for(int i = 0; i < chainLength; i++){
-			sumLengths += ikBoneAncestor->getLength();
 			boneChain[i] = ikBoneAncestor;
 			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
 			boneIkPos[i] = boneChain[i]->getModelSpacePos();
 		}
 
-		calculateFabrik(chainLength, boneChain, boneIkPos, targetPos, sumLengths);
+		calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);
 
 		transformIkChain(chainLength, boneChain, boneIkPos, targetPos);
 	}
 
-	void Skeleton::calculateFabrik(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos, float sumLengths){
+	void Skeleton::calculateFabrik(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
+		float sumLengths = 0;
+		for(int i = 0; i < chainLength; i++)
+			sumLengths += boneChain[i]->getLength();
+		
 		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 200;

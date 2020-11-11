@@ -18,33 +18,8 @@ namespace vb01{
 		this->path = path;
 		this->model = model;
 
-		const string meshType = "MESH", skeletonType = "ARMATURE", lightType = "LIGHT";
-		vector<int> meshBracketIds, skeletonBracketIds, lightBracketIds;	
-		int curBracketId = -1, lineIndex = 0;
-		string line, type;
-		ifstream file(path);
-
-		while(getline(file, line)){
-			if(line[0] == '{' || line[0] == '}'){
-				curBracketId = lineIndex;
-				if(line[0] == '{'){
-					getline(file, line);
-					lineIndex++;
-
-					int colonId = getCharId(line, ':');
-					type = line.substr(0, colonId);
-				}
-				if(type == meshType)
-					meshBracketIds.push_back(curBracketId);
-				else if(type == skeletonType)
-					skeletonBracketIds.push_back(curBracketId);
-				else if(type == lightType)
-					lightBracketIds.push_back(curBracketId);
-			}
-			lineIndex++;
-		}
-
-		file.close();
+		map<int, int> meshBracketIds, skeletonBracketIds, lightBracketIds;	
+		getObjectBounds(meshBracketIds, skeletonBracketIds, lightBracketIds);
 
 		for(int i = 0; i < skeletonBracketIds.size() / 2; i++)
 			readSkeletons(skeletonBracketIds[i * 2], skeletonBracketIds[i * 2 + 1]);
@@ -53,6 +28,49 @@ namespace vb01{
 		for(int i = 0; i < lightBracketIds.size() / 2; i++)
 			readLights(lightBracketIds[i * 2], lightBracketIds[i * 2 + 1]);
 
+		connectNodes();
+	}
+
+	VbModelReader::~VbModelReader(){
+	}
+
+	void VbModelReader::getObjectBounds(map<int, int> &meshBracketIds, map<int, int> &skeletonBracketIds, map<int, int> &lightBracketIds){
+		const string meshType = "MESH", skeletonType = "ARMATURE", lightType = "LIGHT";
+
+		int lineIndex = 0;
+		string line, type;
+		ifstream file(path);
+
+		while(getline(file, line)){
+			int leftBracket, rightBracket;
+
+			if(line[0] == '{'){
+				leftBracket = lineIndex;
+
+				getline(file, line);
+				lineIndex++;
+
+				int colonId = getCharId(line, ':');
+				type = line.substr(0, colonId);
+			}
+			else if(line[0] == '}')
+				rightBracket = lineIndex;
+
+			if(type == meshType)
+				meshBracketIds.emplace(leftBracket, rightBracket);
+			else if(type == skeletonType)
+				skeletonBracketIds.emplace(leftBracket, rightBracket);
+			else if(type == lightType)
+				lightBracketIds.emplace(leftBracket, rightBracket);
+
+			getline(file, line);
+			lineIndex++;
+		}
+
+		file.close();
+	}
+
+	void VbModelReader::connectNodes(){
 		for(string line : relationships){
 			Node *child = nullptr, *parent = nullptr;
 			int spaceId = getCharId(line, ' ');
@@ -69,9 +87,6 @@ namespace vb01{
 		for(Node *node : nodes)
 			if(!node->getParent())
 				model->attachChild(node);
-	}
-
-	VbModelReader::~VbModelReader(){
 	}
 
 	void VbModelReader::readBones(Skeleton *skeleton, int boneStartLine, int numBones){
@@ -299,6 +314,22 @@ namespace vb01{
 		}
 	}
 
+	void VbModelReader::readVertexGroups(string *groups, int vertexGroupStartLine, int numBones){
+		vector<string> meshData;
+		readFile(path, meshData, vertexGroupStartLine, vertexGroupStartLine + numBones);
+		groups = new string[numBones];
+		for(int i = 0; i < numBones; i++){
+			groups[i] = meshData[i];
+		}
+	}
+
+	void VbModelReader::readShapeKeys(int shapeKeyStartLine, int numShapes){
+		vector<string> meshData;
+		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
+		for(int i = 0; i < numShapes; i++){
+		}
+	}
+
 	void VbModelReader::readMeshes(int startLine, int endLine){
 		vector<string> meshData;
 		readFile(path, meshData, startLine + 1, startLine + 8);
@@ -341,21 +372,14 @@ namespace vb01{
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
 
-		meshData.clear();
-		readFile(path, meshData, vertexGroupStartLine, vertexGroupStartLine + numBones);
-		groups = new string[numBones];
-		for(int i = 0; i < numBones; i++){
-			groups[i] = meshData[i];
-		}
 
 		readVertices(vertPos, vertNorm, vertWeights, vertexStartLine, numVertices, numBones);
 
 		readFaces(vertPos, vertNorm, vertWeights, faceStartLine, numFaces, numVertsPerFace, numBones, vertices, indices);
 
-		meshData.clear();
-		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
-		for(int i = 0; i < numShapes; i++){
-		}
+		readVertexGroups(groups, vertexGroupStartLine, vertexGroupStartLine + numBones);
+
+		readShapeKeys(shapeKeyStartLine, shapeKeyStartLine + numShapes);
 
 		Skeleton *skeleton = nullptr;
 		for(Skeleton *sk : skeletons)

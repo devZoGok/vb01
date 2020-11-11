@@ -18,6 +18,7 @@ namespace vb01{
 		restScale = scale;
 	}
 
+	/*
 	void Bone::lookAt(Vector3 newDir, Node *par){
 		Node::lookAt(newDir, par);
 		for(int i = 0; i < 3; i++)
@@ -26,6 +27,7 @@ namespace vb01{
 		restRot = orientation;
 		restScale = scale;
 	}
+	*/
 
 	Vector3 Bone::getModelSpacePos(){
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;
@@ -53,6 +55,7 @@ namespace vb01{
 
 	void Bone::setPosePos(Vector3 p){
 		this->posePos = p;
+
 		setPosition(restPos);
 		Vector3 parentSpacePosePos = parent->globalToLocalPosition(localToGlobalPosition(p));
 		setPosition(parentSpacePosePos);
@@ -60,6 +63,7 @@ namespace vb01{
 
 	void Bone::setPoseRot(Quaternion r){
 		this->poseRot = r;
+
 		setOrientation(restRot);
 
 		Quaternion parentSpacePoseRot = Quaternion::QUAT_W;
