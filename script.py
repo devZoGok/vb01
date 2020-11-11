@@ -46,14 +46,53 @@ def exportData(ob):
                 animName=nlaStrip.name
                 action=bpy.data.actions[animName]
                 numAnimBones=len(action.groups)
-                file.write("\nanimationName: "+animName+"\n")
+                file.write('\nanimation: ' + animName + ' ')
     
                 print('Exporting animation '+animName+'...\n')
+
+                file.write(str(len(action.groups)) + ' ')
+                for group in action.groups:
+                    file.write(group.name + ' ')
+                file.write('\n')
+
                 for group in action.groups:
                     bone=ob.data.bones[group.name]
                     start=nlaStrip.frame_start
                     end=nlaStrip.frame_end
-                    file.write(group.name+":\n")
+
+                    file.write(group.name + ': ')
+
+                    for channel in group.channels:
+                        numKeyframes=len(channel.keyframe_points)
+                        file.write(str(numKeyframes) + ' ')
+
+                        dotId=-1
+                        typeLen=len(channel.data_path)-1
+                        i=typeLen
+                        while(i>=0):
+                            if channel.data_path[i]=='.':
+                                dotId=i
+                                break
+                            i=i-1
+
+                        coordType=channel.data_path[dotId+1:typeLen+1]
+                        arrInd=channel.array_index
+                        coords="wxyz"
+
+                        if coordType=="location":
+                            file.write("pos_"+coords[arrInd+1])
+                        elif coordType=="rotation_quaternion":
+                            file.write("rot_"+coords[arrInd])
+                        elif coordType=="scale":
+                            file.write("scale_"+coords[arrInd+1])
+                        file.write(' ')
+                    file.write('\n')
+
+                for group in action.groups:
+                    bone=ob.data.bones[group.name]
+                    start=nlaStrip.frame_start
+                    end=nlaStrip.frame_end
+
                     for channel in group.channels:
                         numKeyframes=len(channel.keyframe_points)
                         dotId=-1
@@ -67,6 +106,7 @@ def exportData(ob):
                         coordType=channel.data_path[dotId+1:typeLen+1]
                         arrInd=channel.array_index
                         coords="wxyz"
+                        '''
                         if coordType=="location":
                             file.write("pos_"+coords[arrInd+1])
                         elif coordType=="rotation_quaternion":
@@ -74,6 +114,7 @@ def exportData(ob):
                         elif coordType=="scale":
                             file.write("scale_"+coords[arrInd+1])
                         file.write(': '+str(numKeyframes)+'\n')
+                        '''
     
                         for keyframe in channel.keyframe_points:
                             keyframeId=keyframe.co[0]
