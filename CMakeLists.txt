@@ -15,7 +15,7 @@ set(utils util.cpp)
 set(math quaternion.cpp vector.cpp matrix.cpp ray.cpp)
 set(render particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(model modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
-set(anim animationController.cpp  animationChannel.cpp animation.cpp)
+set(anim animationController.cpp animationChannel.cpp animation.cpp)
 set(armature skeleton.cpp bone.cpp)
 
 add_library(vb01 SHARED main.cpp ${render} ${math} ${model} ${utils} ${gui} ${armature} ${anim})

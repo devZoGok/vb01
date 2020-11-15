@@ -472,6 +472,8 @@ getIkTarget	bone.h	/^			inline Bone* getIkTarget(){return ikTarget;}$/;"	f	class
 getIndices	mesh.h	/^			inline unsigned int* getIndices(){return indices;}$/;"	f	class:vb01::Mesh	typeref:typename:unsigned int *
 getInitAxis	bone.h	/^			inline Vector3 getInitAxis(int i){return initAxis[i];}$/;"	f	class:vb01::Bone	typeref:typename:Vector3
 getInnerAngle	light.h	/^			inline float getInnerAngle(){return innerAngle;}$/;"	f	class:vb01::Light	typeref:typename:float
+getKeyframeChannel	animation.cpp	/^	KeyframeChannel Animation::getKeyframeChannel(Bone *bone, KeyframeChannelType type){$/;"	f	class:vb01::Animation	typeref:typename:KeyframeChannel
+getKeyframeChannelType	animation.cpp	/^	KeyframeChannelType Animation::getKeyframeChannelType(string &typeString){$/;"	f	class:vb01::Animation	typeref:typename:KeyframeChannelType
 getKeyframeGroup	animation.cpp	/^	Animation::KeyframeGroup* Animation::getKeyframeGroup(Bone *b){$/;"	f	class:vb01::Animation	typeref:typename:Animation::KeyframeGroup *
 getLeft	camera.h	/^			inline Vector3 getLeft(){return left;}$/;"	f	class:vb01::Camera	typeref:typename:Vector3
 getLength	bone.h	/^			inline float getLength(){return length;}$/;"	f	class:vb01::Bone	typeref:typename:float
@@ -757,6 +759,8 @@ read	stb_image.h	/^   int      (*read)  (void *user,char *data,int size);   \/\/
 readAnimations	vbModelReader.cpp	/^	void VbModelReader::readAnimations(Skeleton *skeleton, vector<string> &meshData){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readFaces	vbModelReader.cpp	/^	void VbModelReader::readFaces($/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readFile	util.cpp	/^	void readFile(string path, vector<string> &lines, int firstLine, int lastLine){$/;"	f	namespace:vb01	typeref:typename:void
+readKeyframes	vbModelReader.cpp	/^	void VbModelReader::readKeyframes(Skeleton *skeleton, vector<string> &meshData){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
+readKeyframesGroups	vbModelReader.cpp	/^	void VbModelReader::readKeyframesGroups(Skeleton *skeleton, vector<string> &meshData){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readLights	vbModelReader.cpp	/^	void VbModelReader::readLights(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readMeshes	vbModelReader.cpp	/^	void VbModelReader::readMeshes(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readShapeKeys	vbModelReader.cpp	/^	void VbModelReader::readShapeKeys(int shapeKeyStartLine, int numShapes){$/;"	f	class:vb01::VbModelReader	typeref:typename:void

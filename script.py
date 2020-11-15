@@ -86,12 +86,8 @@ def exportData(ob):
                         elif coordType=="scale":
                             file.write("scale_"+coords[arrInd+1])
                         file.write(' ')
-                    file.write('\n')
 
-                for group in action.groups:
-                    bone=ob.data.bones[group.name]
-                    start=nlaStrip.frame_start
-                    end=nlaStrip.frame_end
+                    file.write('\n')
 
                     for channel in group.channels:
                         numKeyframes=len(channel.keyframe_points)
@@ -115,7 +111,6 @@ def exportData(ob):
                             file.write("scale_"+coords[arrInd+1])
                         file.write(': '+str(numKeyframes)+'\n')
                         '''
-    
                         for keyframe in channel.keyframe_points:
                             keyframeId=keyframe.co[0]
                             interp=keyframe.interpolation
@@ -143,6 +138,13 @@ def exportData(ob):
                                 file.write(" "+str(keyframe.handle_left_type)+" "+str(keyframe.handle_left.x)+" "+str(keyframe.handle_left.y)+" ")
                                 file.write(str(keyframe.handle_right_type)+" "+str(keyframe.handle_right.x)+" "+str(keyframe.handle_right.y))
                             file.write("\n")
+
+                for group in action.groups:
+                    bone=ob.data.bones[group.name]
+                    start=nlaStrip.frame_start
+                    end=nlaStrip.frame_end
+
+    
     elif(ob.type=="MESH"):
         skeletonName = '-'
         skeleton = ob.modifiers['Armature'].object

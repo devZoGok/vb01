@@ -144,77 +144,62 @@ namespace vb01{
 
 	void VbModelReader::readAnimations(Skeleton *skeleton, vector<string> &meshData){
 		AnimationController *controller = skeleton->getAnimationController();
-		string animName = "";
-		Bone *animBone = nullptr;
-		Animation::KeyframeGroup::KeyframeChannel::Type type;
-
 		for(string line : meshData){
-			int colonId = getCharId(line, ':');
-			string preColon = line.substr(0, colonId);
-			if(preColon == "animationName"){
-				string postColon = line.substr(colonId + 2, string::npos);
-				animName = postColon;
+			int colonId = line.find_first_of(':');
+			if(colonId != -1){
+				string data[2];
+				string postCol = line.substr(colonId + 1);
+				getLineData(postCol, data, 2);
+				string animName = data[0];
+				int numBones = atoi(data[1].c_str());
 				controller->addAnimation(new Animation(animName));
-				continue;
 			}
-			Bone *b = skeleton->getBone(preColon);
-			if(b){
-				animBone = b;
-				Animation *anim = controller->getAnimation(animName);
-				Animation::KeyframeGroup *group = anim->getKeyframeGroup(animBone);
+		}
+	}
 
-				if(!group){
-					Animation::KeyframeGroup kg;
-					kg.bone = animBone;
-					anim->addKeyframeGroup(kg);
+	void VbModelReader::readKeyframesGroups(Skeleton *skeleton, vector<string> &meshData){
+		AnimationController *controller = skeleton->getAnimationController();
+		for(string line : meshData){
+			string data[17];
+			getLineData(line, data, 3);
+
+			Animation *anim = controller->getAnimation(data[0]);
+			Bone *animBone = skeleton->getBone(data[1]);
+			int numChannelTypes = atoi(data[2].c_str());
+
+			getLineData(line, data, numChannelTypes * 2, 3);
+			KeyframeGroup keyframeGroup;
+			for(int i = 0; i < numChannelTypes * 2; i++){
+				string typeString = data[i * 2];
+				int numChannels = atoi(data[i * 2 + 1].c_str());
+				KeyframeChannelType type = anim->getKeyframeChannelType(typeString);
+
+				for(int j = 0; j < numChannels; j++){
+					KeyframeChannel keyframeChannel;
+					keyframeChannel.type = type;
+					keyframeGroup.keyframeChannels.push_back(keyframeChannel);
 				}
 			}
-			else{
-				KeyframeGroup *keyframeGroup = controller->getAnimation(animName)->getKeyframeGroup(animBone);
-				KeyframeInterpolation interp;
-				KeyframeChannel channel;
+			anim->addKeyframeGroup(keyframeGroup);
+		}
+	}
 
-				if(line == "}")
-					break;
-				else if(preColon == "pos_x" || preColon == "pos_y" || preColon == "pos_z" || preColon == "rot_w" || preColon == "rot_x" || preColon == "rot_y" || preColon == "rot_z"){
-					if(preColon == "pos_x")
-						type = KeyframeChannelType::POS_X;
-					else if(preColon == "pos_y")
-						type = KeyframeChannelType::POS_Y;
-					else if(preColon == "pos_z")
-						type = KeyframeChannelType::POS_Z;
-					else if(preColon == "rot_w")
-						type = KeyframeChannelType::ROT_W;
-					else if(preColon == "rot_x")
-						type = KeyframeChannelType::ROT_X;
-					else if(preColon == "rot_y")
-						type = KeyframeChannelType::ROT_Y;
-					else if(preColon == "rot_z")
-						type = KeyframeChannelType::ROT_Z;
+	void VbModelReader::readKeyframes(Skeleton *skeleton, vector<string> &meshData){
+		AnimationController *controller = skeleton->getAnimationController();
+		for(string line : meshData){
+			int numData = 6;
+			string data[numData];
+			getLineData(line, data, numData);
+			Animation *anim = controller->getAnimation(data[0]);
+			Bone *animBone = skeleton->getBone(data[1]); 
+			KeyframeChannelType type = anim->getKeyframeChannelType(data[2]);
+			KeyframeChannel channel = anim->getKeyframeChannel(animBone, type);
 
-					channel.type = type;
-					keyframeGroup->keyframeChannels.push_back(channel);
-				}
-				else{
-					int numData = 3;
-					string data[numData];
-
-					getLineData(line, data, numData);
-
-					float value = atof(data[0].c_str()), frame = atoi(data[1].c_str());
-					interp = (KeyframeInterpolation)atoi(data[2].c_str());
-
-					Animation::KeyframeGroup::KeyframeChannel::Keyframe keyframe;
-					//keyframe.type = type;
-					keyframe.interpolation = interp;
-					keyframe.value = value;
-					keyframe.frame = frame;
-					for(KeyframeChannel &channel : keyframeGroup->keyframeChannels)
-						if(channel.type == type)
-							channel.keyframes.push_back(keyframe);
-					//skeleton->getAnimationController()->getAnimation(animName)->getKeyframeGroup(animBone)->keyframes.push_back(keyframe);
-				}
-			}
+			Keyframe keyframe;
+			keyframe.value = atof(data[3].c_str());
+			keyframe.frame = atoi(data[4].c_str());
+			keyframe.interpolation = (KeyframeInterpolation)atoi(data[5].c_str());
+			channel.keyframes.push_back(keyframe);
 		}
 	}
 
@@ -227,9 +212,13 @@ namespace vb01{
 	   	getLineData(line, data, 3);
 
 		int numBones = atoi(data[1].c_str());
+		int numKeyframeGroups = -2;
 		int numAnimations = atoi(data[2].c_str());
+
 		int boneStartLine = startLine + 7;
 		int animationStartLine = boneStartLine + numBones + 1;
+		int keyframeGroupStartLine = animationStartLine + numKeyframeGroups + 1;
+		int keyframeStartLine = animationStartLine + numAnimations + 1;
 
 		Skeleton *skeleton = new Skeleton(name);
 		skeletons.push_back(skeleton);
@@ -239,9 +228,16 @@ namespace vb01{
 		createBones(skeleton, meshData);
 		
 		meshData.clear();
-		readFile(path, meshData, animationStartLine, endLine + 1);
+		readFile(path, meshData, animationStartLine, animationStartLine + numAnimations);
 		readAnimations(skeleton, meshData);
 
+		meshData.clear();
+		readFile(path, meshData, keyframeGroupStartLine, keyframeGroupStartLine + numKeyframeGroups);
+		readKeyframesGroups(skeleton, meshData);
+
+		meshData.clear();
+		readFile(path, meshData, keyframeStartLine);
+		readKeyframes(skeleton, meshData);
 	}
 
 	void VbModelReader::readVertices(
