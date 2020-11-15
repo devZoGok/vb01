@@ -6,11 +6,11 @@ def exportData(ob):
         while(par is not None):
             par = par.parent
 
-    file.write('{\n' + ob.type+": "+ob.name+"\n")
-    file.write("pos: "+str(ob.location.x)+" "+str(ob.location.y)+" "+str(ob.location.z)+"\n")
-    file.write("rot: "+str(ob.rotation_quaternion.w)+" "+str(ob.rotation_quaternion.x)+" "+str(ob.rotation_quaternion.y)+" "+str(-ob.rotation_quaternion.z)+"\n")
-    file.write("scale: "+str(ob.scale.x)+" "+str(ob.scale.y)+" "+str(ob.scale.z)+"\n")
-    file.write("parent: "+('-' if par is None else par.name)+"\n")
+    file.write('{\n' + ob.type + ": " + ob.name + '\n')
+    file.write('pos: ' + str(ob.location.x) + ' ' + str(ob.location.y) + ' ' + str(ob.location.z) + '\n')
+    file.write('rot: ' + str(ob.rotation_quaternion.w) + ' ' + str(ob.rotation_quaternion.x) + ' ' + str(ob.rotation_quaternion.y) + ' ' + str(-ob.rotation_quaternion.z) + '\n')
+    file.write('scale: ' + str(ob.scale.x) + ' ' + str(ob.scale.y) + ' ' + str(ob.scale.z) + '\n')
+    file.write('parent: ' + ('-' if par is None else par.name) + '\n')
     if(ob.type=="ARMATURE"):
         numAnims=len(ob.animation_data.nla_tracks[0].strips)
         file.write("bones: "+str(len(ob.data.bones)) + ' ' + str(numAnims) + ' ')
