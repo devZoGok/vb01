@@ -22,7 +22,7 @@ namespace vb01{
 		getObjectBounds(meshBracketIds, skeletonBracketIds, lightBracketIds);
 
 		for(int i = 0; i < skeletonBracketIds.size() / 2; i++)
-			readSkeletons(skeletonBracketIds[i * 2], skeletonBracketIds[i * 2 + 1]);
+			readSkeleton(skeletonBracketIds[i * 2], skeletonBracketIds[i * 2 + 1]);
 		for(int i = 0; i < meshBracketIds.size() / 2; i++)
 			readMeshes(meshBracketIds[i * 2], meshBracketIds[i * 2 + 1]);
 		for(int i = 0; i < lightBracketIds.size() / 2; i++)
@@ -89,9 +89,7 @@ namespace vb01{
 				model->attachChild(node);
 	}
 
-	void VbModelReader::readBones(Skeleton *skeleton, int boneStartLine, int numBones){
-		vector<string> meshData;
-		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
+	void VbModelReader::createBones(Skeleton *skeleton, vector<string> &meshData){
 		vector<string> ikRelationships;
 
 		for(string line : meshData){
@@ -144,19 +142,17 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(Skeleton *skeleton, int animationStartLine, int endLine){
+	void VbModelReader::readAnimations(Skeleton *skeleton, vector<string> &meshData){
 		AnimationController *controller = skeleton->getAnimationController();
 		string animName = "";
 		Bone *animBone = nullptr;
 		Animation::KeyframeGroup::KeyframeChannel::Type type;
-		vector<string> meshData;
-		readFile(path, meshData, animationStartLine, endLine + 1);
 
-		for(string l : meshData){
-			int colonId = getCharId(l, ':');
-			string preColon = l.substr(0, colonId);
+		for(string line : meshData){
+			int colonId = getCharId(line, ':');
+			string preColon = line.substr(0, colonId);
 			if(preColon == "animationName"){
-				string postColon = l.substr(colonId + 2, string::npos);
+				string postColon = line.substr(colonId + 2, string::npos);
 				animName = postColon;
 				controller->addAnimation(new Animation(animName));
 				continue;
@@ -178,7 +174,7 @@ namespace vb01{
 				KeyframeInterpolation interp;
 				KeyframeChannel channel;
 
-				if(l == "}")
+				if(line == "}")
 					break;
 				else if(preColon == "pos_x" || preColon == "pos_y" || preColon == "pos_z" || preColon == "rot_w" || preColon == "rot_x" || preColon == "rot_y" || preColon == "rot_z"){
 					if(preColon == "pos_x")
@@ -203,7 +199,7 @@ namespace vb01{
 					int numData = 3;
 					string data[numData];
 
-					getLineData(l, data, numData);
+					getLineData(line, data, numData);
 
 					float value = atof(data[0].c_str()), frame = atoi(data[1].c_str());
 					interp = (KeyframeInterpolation)atoi(data[2].c_str());
@@ -222,7 +218,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readSkeletons(int startLine, int endLine){
+	void VbModelReader::readSkeleton(int startLine, int endLine){
 		vector<string> meshData;
 		readFile(path, meshData, startLine + 1, startLine + 7);
 	   	string name = meshData[0].substr(getCharId(meshData[0], ':') + 2, string::npos);
@@ -238,9 +234,13 @@ namespace vb01{
 		Skeleton *skeleton = new Skeleton(name);
 		skeletons.push_back(skeleton);
 
-		readBones(skeleton, boneStartLine, numBones);
+		meshData.clear();
+		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
+		createBones(skeleton, meshData);
 		
-		readAnimations(skeleton, animationStartLine, endLine);
+		meshData.clear();
+		readFile(path, meshData, animationStartLine, endLine + 1);
+		readAnimations(skeleton, meshData);
 
 	}
 
@@ -248,12 +248,9 @@ namespace vb01{
 		   	vector<Vector3> &vertPos,
 		   	vector<Vector3> &vertNorm,
 		   	vector<float> &vertWeights,
-		   	int vertexStartLine,
-		   	int numVertices,
+			vector<string> &meshData,
 		   	int numBones
 			){
-		vector<string> meshData;
-		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
 		for(string line : meshData){
 			int numData = 6 + numBones;
 			string data[numData];
@@ -272,20 +269,15 @@ namespace vb01{
 		   	vector<Vector3> &vertPos,
 		   	vector<Vector3> &vertNorm,
 		   	vector<float> &vertWeights,
-		   	int faceStartLine,
-		   	int numFaces,
-		   	int numVertsPerFace,
+			vector<string> &meshData,
 		   	int numBones,
 			Mesh::Vertex *vertices,
 			u32 *indices
 			){
-		int i = 0;
-		vector<string> meshData;
-		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
-		for(string line : meshData){
+		for(int i = 0; i < meshData.size(); i++){
 			int numData = 9;
 			string data[numData];
-			getLineData(line,data,numData);
+			getLineData(meshData[i], data, numData);
 			int index = atoi(data[0].c_str());
 
 			Vector2 uv = Vector2(atof(data[1].c_str()), atof(data[2].c_str()));
@@ -309,14 +301,10 @@ namespace vb01{
 
 			vertices[i] = vert;
 			indices[i] = i;
-
-			i++;
 		}
 	}
 
-	void VbModelReader::readVertexGroups(string *groups, int vertexGroupStartLine, int numBones){
-		vector<string> meshData;
-		readFile(path, meshData, vertexGroupStartLine, vertexGroupStartLine + numBones);
+	void VbModelReader::readVertexGroups(string *groups, vector<string> &meshData, int numBones){
 		groups = new string[numBones];
 		for(int i = 0; i < numBones; i++){
 			groups[i] = meshData[i];
@@ -324,8 +312,6 @@ namespace vb01{
 	}
 
 	void VbModelReader::readShapeKeys(int shapeKeyStartLine, int numShapes){
-		vector<string> meshData;
-		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
 		for(int i = 0; i < numShapes; i++){
 		}
 	}
@@ -334,18 +320,12 @@ namespace vb01{
 		vector<string> meshData;
 		readFile(path, meshData, startLine + 1, startLine + 8);
 
-		string nameLine = meshData[0], parentLine = meshData[4], skeletonLine = meshData[5], numElementsLine = meshData[6];
-
-		int skeletonLineColonId = getCharId(skeletonLine, ':');
-		string skeletonName = skeletonLine.substr(skeletonLineColonId + 2, string::npos);
-
-		int parentLineColonId = getCharId(parentLine, ':');
-		string parent = parentLine.substr(parentLineColonId + 2, string::npos);
-
+		string nameLine = meshData[0];
 		int nameLineColonId = getCharId(nameLine, ':');
 		string preColonNameLine = nameLine.substr(0, nameLineColonId);
 		string postColonNameLine = nameLine.substr(nameLineColonId + 2, string::npos);
 
+		string numElementsLine = meshData[6];
 		int numElementsColonId = getCharId(numElementsLine, ':');
 		string numElementsPreColon = numElementsLine.substr(0, numElementsColonId);
 		string numElementsPostColon = numElementsLine.substr(numElementsColonId + 2, string::npos);
@@ -354,6 +334,9 @@ namespace vb01{
 		getLineData(numElementsPostColon, data, 4);
 		string name = postColonNameLine;
 
+	   	string parentLine = meshData[4];
+		int parentLineColonId = getCharId(parentLine, ':');
+		string parent = parentLine.substr(parentLineColonId + 2, string::npos);
 		relationships.push_back(postColonNameLine + " " + parent);
 
 		const int numVertsPerFace = 3;
@@ -372,14 +355,25 @@ namespace vb01{
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
 
+		meshData.clear();
+		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
+		readVertices(vertPos, vertNorm, vertWeights, meshData, numBones);
 
-		readVertices(vertPos, vertNorm, vertWeights, vertexStartLine, numVertices, numBones);
+		meshData.clear();
+		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
+		readFaces(vertPos, vertNorm, vertWeights, meshData, numBones, vertices, indices);
 
-		readFaces(vertPos, vertNorm, vertWeights, faceStartLine, numFaces, numVertsPerFace, numBones, vertices, indices);
+		meshData.clear();
+		readFile(path, meshData, vertexGroupStartLine, vertexGroupStartLine + numBones);
+		readVertexGroups(groups, meshData, numBones);
 
-		readVertexGroups(groups, vertexGroupStartLine, vertexGroupStartLine + numBones);
+		meshData.clear();
+		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
+		readShapeKeys(shapeKeyStartLine, numShapes);
 
-		readShapeKeys(shapeKeyStartLine, shapeKeyStartLine + numShapes);
+		string skeletonLine = meshData[5];
+		int skeletonLineColonId = getCharId(skeletonLine, ':');
+		string skeletonName = skeletonLine.substr(skeletonLineColonId + 2, string::npos);
 
 		Skeleton *skeleton = nullptr;
 		for(Skeleton *sk : skeletons)

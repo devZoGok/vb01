@@ -347,6 +347,7 @@ connectNodes	vbModelReader.cpp	/^	void VbModelReader::connectNodes(){$/;"	f	clas
 construct	mesh.cpp	/^	void Mesh::construct(){$/;"	f	class:vb01::Mesh	typeref:typename:void
 controller	animationChannel.h	/^			AnimationController *controller = nullptr;$/;"	m	class:vb01::AnimationChannel	typeref:typename:AnimationController *
 controller	skeleton.h	/^			AnimationController *controller = nullptr;$/;"	m	class:vb01::Skeleton	typeref:typename:AnimationController *
+createBones	vbModelReader.cpp	/^	void VbModelReader::createBones(Skeleton *skeleton, vector<string> &meshData){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 createSkybox	root.cpp	/^	void Root::createSkybox(string textures[6]){$/;"	f	class:vb01::Root	typeref:typename:void
 cross	vector.h	/^		Vector3 cross(Vector3 v){return Vector3(y * v.z - v.y * z, z * v.x - x * v.z, x * v.y - v.x * /;"	f	struct:vb01::Vector3	typeref:typename:Vector3
 cur_x	stb_image.h	/^   int cur_x, cur_y;$/;"	m	struct:__anon84e4e8861308	typeref:typename:int
@@ -753,15 +754,14 @@ ratio	stb_image.h	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	str
 raw_coeff	stb_image.h	/^      void *raw_data, *raw_coeff;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:void **
 raw_data	stb_image.h	/^      void *raw_data, *raw_coeff;$/;"	m	struct:__anon84e4e8860808::__anon84e4e8860908	typeref:typename:void *
 read	stb_image.h	/^   int      (*read)  (void *user,char *data,int size);   \/\/ fill 'data' with 'size' bytes.  re/;"	m	struct:__anon84e4e8860208	typeref:typename:int (*)(void * user,char * data,int size)
-readAnimations	vbModelReader.cpp	/^	void VbModelReader::readAnimations(Skeleton *skeleton, int animationStartLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
-readBones	vbModelReader.cpp	/^	void VbModelReader::readBones(Skeleton *skeleton, int boneStartLine, int numBones){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
+readAnimations	vbModelReader.cpp	/^	void VbModelReader::readAnimations(Skeleton *skeleton, vector<string> &meshData){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readFaces	vbModelReader.cpp	/^	void VbModelReader::readFaces($/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readFile	util.cpp	/^	void readFile(string path, vector<string> &lines, int firstLine, int lastLine){$/;"	f	namespace:vb01	typeref:typename:void
 readLights	vbModelReader.cpp	/^	void VbModelReader::readLights(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readMeshes	vbModelReader.cpp	/^	void VbModelReader::readMeshes(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readShapeKeys	vbModelReader.cpp	/^	void VbModelReader::readShapeKeys(int shapeKeyStartLine, int numShapes){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
-readSkeletons	vbModelReader.cpp	/^	void VbModelReader::readSkeletons(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
-readVertexGroups	vbModelReader.cpp	/^	void VbModelReader::readVertexGroups(string *groups, int vertexGroupStartLine, int numBones){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
+readSkeleton	vbModelReader.cpp	/^	void VbModelReader::readSkeleton(int startLine, int endLine){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
+readVertexGroups	vbModelReader.cpp	/^	void VbModelReader::readVertexGroups(string *groups, vector<string> &meshData, int numBones){$/;"	f	class:vb01::VbModelReader	typeref:typename:void
 readVertices	vbModelReader.cpp	/^	void VbModelReader::readVertices($/;"	f	class:vb01::VbModelReader	typeref:typename:void
 read_from_callbacks	stb_image.h	/^   int read_from_callbacks;$/;"	m	struct:__anon84e4e8860308	typeref:typename:int
 recip	quaternion.h	/^			inline Quaternion recip(){return conj()\/getLengthSq();}$/;"	f	class:vb01::Quaternion	typeref:typename:Quaternion

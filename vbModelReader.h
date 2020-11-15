@@ -22,12 +22,12 @@ namespace vb01{
 			void getObjectBounds(std::map<int, int>&, std::map<int, int>&, std::map<int, int>&);
 			void connectNodes();
 
-			void readBones(Skeleton*, int, int);
-			void readAnimations(Skeleton*, int, int);
-			void readSkeletons(int, int);
-			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int);
-			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, int, int, int, int, Mesh::Vertex*, u32*);
-			void readVertexGroups(std::string*, int, int);
+			void createBones(Skeleton*, std::vector<std::string>&);
+			void readAnimations(Skeleton*, std::vector<std::string>&);
+			void readSkeleton(int, int);
+			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
+			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
+			void readVertexGroups(std::string*, std::vector<std::string>&, int);
 			void readShapeKeys(int, int);
 			void readMeshes(int, int);
 			void readLights(int, int);
