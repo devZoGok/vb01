@@ -20,7 +20,7 @@ namespace vb01{
 	class Root{
 		public:
 			void update();
-			void start(int,int,std::string);
+			void start(int, int, std::string);
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
 			inline Node* getGuiNode(){return guiNode;}
@@ -28,32 +28,38 @@ namespace vb01{
 			inline int getHeight(){return height;}
 			inline unsigned int* getFBO(){return &FBO;}
 			inline GLFWwindow* getWindow(){return window;}
-			inline void setHDREnabled(bool hdr){this->hdr=hdr;}
-			inline void setExposure(float exposure){this->exposure=exposure;}
-			inline void setGamma(float gamme){this->gamma=gamma;}
-			inline void setBloom(bool bloom){this->bloom=bloom;}
-			inline void setBlurLevel(bool level){this->blurLevel=level;}
+			inline void setHDREnabled(bool hdr){this->hdr = hdr;}
+			inline void setExposure(float exposure){this->exposure = exposure;}
+			inline void setGamma(float gamma){this->gamma = gamma;}
+			inline void setBloom(bool bloom){this->bloom = bloom;}
+			inline void setBlurLevel(bool level){this->blurLevel = level;}
 			inline Box* getSkybox(){return skybox;}
 			void createSkybox(std::string[6]);
 			void removeSkybox();
 			static Root* getSingleton();
-			int numLights=0;
+			inline void shiftNumLights(bool increase){numLights += (increase ? 1 : -1);}
+			inline int getNumLights(){return numLights;}
 		private:
-			bool bloom=false,hdr=false;
-			float exposure=1,gamma=1;
-			Box *skybox=nullptr;
-			Quad *guiPlane=nullptr;
-			int width,height,blurLevel=10;
-			unsigned int FBO,RBO,pingpongBuffers[2];
+			int numLights = 0;
+			bool bloom = false, hdr = false;
+			float exposure = 1, gamma = 1;
+			Box *skybox = nullptr;
+			Quad *guiPlane = nullptr;
+			int width, height, blurLevel = 10; 
+			unsigned int FBO, RBO, pingpongBuffers[2];
 			GLFWwindow *window;
-			Node *rootNode,*guiNode;
+			Node *rootNode, *guiNode;
 			Camera *camera;
 			Shader *blurShader;
 			Texture *pingPongTextures[2];
 			std::vector<Mesh*> meshes;
 
-			void framebuffer_size_callback(GLFWwindow*,int,int);
+			void framebuffer_size_callback(GLFWwindow*, int, int);
 			Root();
+			void initWindow(std::string);
+			void initBloomFramebuffer();
+			void initGuiPlane();
+			void updateBloomFramebuffer();
 	};
 }
 

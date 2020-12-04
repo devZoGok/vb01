@@ -26,7 +26,7 @@ namespace vb01{
 			void setWireframe(bool);
 		private:
 			Material* material;
-			bool castShadow=false,reflect=false,wireframe=false;
+			bool castShadow = false, reflect = false, wireframe = false;
 	};
 }
 

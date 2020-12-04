@@ -16,6 +16,7 @@ using namespace std;
 namespace vb01{
 	ParticleEmitter::ParticleEmitter(int numParticles){
 		this->numParticles = numParticles;
+
 		Vertex v1, v2, v3, v4, v5, v6;
 		ParticleEmitter::Vertex vertices[] = {v1, v2, v3, v4, v5, v6};
 		u32 indices[] = {0, 1, 2, 3, 4, 5};
@@ -25,73 +26,74 @@ namespace vb01{
 	}
 
 	void ParticleEmitter::setupParticles(Vertex vertices[]){
-		particles=new Particle*[numParticles];
+		particles = new Particle*[numParticles];
 
-		Vector2 size=Vector2(.5,.5);
-		vertices[0].pos=Vector3(size.x/2,size.y/2,0);
-		vertices[0].texCoords=Vector2(1,1);
+		Vector2 size = Vector2(.5,.5);
+		vertices[0].pos = Vector3(size.x / 2, size.y / 2, 0);
+		vertices[0].texCoords = Vector2(1, 1);
 
-		vertices[1].pos=Vector3(-size.x/2,size.y/2,0);
-		vertices[1].texCoords=Vector2(0,1);
+		vertices[1].pos = Vector3(-size.x / 2, size.y / 2, 0);
+		vertices[1].texCoords = Vector2(0, 1);
 
-		vertices[2].pos=Vector3(-size.x/2,-size.y/2,0);
+		vertices[2].pos = Vector3(-size.x / 2,-size.y / 2, 0);
 		vertices[2].texCoords=Vector2(0,0);
 
-		vertices[3].pos=Vector3(-size.x/2,-size.y/2,0);
-		vertices[3].texCoords=Vector2(0,0);
+		vertices[3].pos = Vector3(-size.x / 2, -size.y / 2, 0);
+		vertices[3].texCoords = Vector2(0, 0);
 
-		vertices[4].pos=Vector3(size.x/2,-size.y/2,0);
-		vertices[4].texCoords=Vector2(1,0);
+		vertices[4].pos = Vector3(size.x / 2, -size.y / 2, 0);
+		vertices[4].texCoords = Vector2(1, 0);
 
-		vertices[5].pos=Vector3(size.x/2,size.y/2,0);
-		vertices[5].texCoords=Vector2(1,1);
+		vertices[5].pos = Vector3(size.x / 2, size.y / 2, 0);
+		vertices[5].texCoords = Vector2(1, 1);
 		
-		matrices=new mat4[numParticles];
+		matrices = new mat4[numParticles];
 
-		for(int i=0;i<numParticles;i++){
-			Particle *p=new Particle;
-			p->dir=direction;
-			particles[i]=p;
-			matrices[i]=mat4(1.f);
+		for(int i = 0; i < numParticles; i++){
+			Particle *p = new Particle;
+			p->dir = direction;
+			particles[i] = p;
+			matrices[i] = mat4(1.f);
 		}
 
 	}
 
 	void ParticleEmitter::setupDisplay(Vertex vertices[], u32 indices[]){
 		u32 MBO;
-		glGenVertexArrays(1,&VAO);
-		glGenBuffers(1,&VBO);
-		glGenBuffers(1,&EBO);
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glGenBuffers(1, &EBO);
 		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER,VBO);
-		glBufferData(GL_ARRAY_BUFFER,6*sizeof(Vertex),vertices,GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,6*sizeof(u32),indices,GL_STATIC_DRAW);
-		glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(u32), indices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(offsetof(Vertex,texCoords)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
 		glEnableVertexAttribArray(1);
-		glGenBuffers(1,&MBO);
-		glBindBuffer(GL_ARRAY_BUFFER,MBO);
-		glBufferData(GL_ARRAY_BUFFER,numParticles*sizeof(mat4),&matrices[0],GL_STATIC_DRAW);
-		glVertexAttribPointer(2,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)0);
+
+		glGenBuffers(1, &MBO);
+		glBindBuffer(GL_ARRAY_BUFFER, MBO);
+		glBufferData(GL_ARRAY_BUFFER, numParticles * sizeof(mat4), &matrices[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)0);
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(1*sizeof(vec4)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(1 * sizeof(vec4)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(2*sizeof(vec4)));
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(2 * sizeof(vec4)));
 		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(5,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(3*sizeof(vec4)));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(3 * sizeof(vec4)));
 		glEnableVertexAttribArray(5);
 
-		glVertexAttribDivisor(2,1);
-		glVertexAttribDivisor(3,1);
-		glVertexAttribDivisor(4,1);
-		glVertexAttribDivisor(5,1);
+		glVertexAttribDivisor(2, 1);
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
 	}
 
 	ParticleEmitter::~ParticleEmitter(){
-		glDeleteVertexArrays(1,&VAO);	
-		glDeleteBuffers(1,&VBO);	
+		glDeleteVertexArrays(1, &VAO);	
+		glDeleteBuffers(1, &VBO);	
 
 		delete material;
 
@@ -99,96 +101,107 @@ namespace vb01{
 	}
 
 	void ParticleEmitter::makeHeap(int offset){
-		bool heap=false;
+		bool heap = false;
 		while(!heap){
-			bool end=true;
-			for(int i=0;2*i+1+offset<numParticles;i++){
-				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d)){
-					bool leftChild=particles[2*i+1+offset]->d>particles[2*i+2+offset]->d;
-					swap(particles[i+offset],leftChild?particles[2*i+1+offset]:particles[2*i+2+offset]);
+			bool end = true;
+			for(int i = 0; 2 * i + 1 + offset < numParticles; i++){
+				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->d < particles[2 * i + 1 + offset]->d || particles[i + offset]->d < particles[2 * i + 2 + offset]->d)){
+					bool leftChild = particles[2 * i + 1 + offset]->d > particles[2 * i + 2 + offset]->d;
+					swap(particles[i + offset], leftChild ? particles[2 * i + 1 + offset] : particles[2 * i + 2 + offset]);
 				}
-				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d)
-					swap(particles[i+offset],particles[2*i+1+offset]);
+				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->d < particles[2 * i + 1 + offset]->d)
+					swap(particles[i + offset], particles[2 * i + 1 + offset]);
 			}
-			for(int i=0;2*i+1<numParticles;i++){
-				if(2*i+2+offset<numParticles&&(particles[i+offset]->d<particles[2*i+1+offset]->d||particles[i+offset]->d<particles[2*i+2+offset]->d))
-					end=false;
-				else if(2*i+2+offset==numParticles&&particles[i+offset]->d<particles[2*i+1+offset]->d)
-					end=false;
+			for(int i = 0; 2 * i + 1 < numParticles; i++){
+				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->d < particles[2 * i + 1 + offset]->d || particles[i + offset]->d < particles[2 * i + 2 + offset]->d))
+					end = false;
+				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->d < particles[2 * i + 1 + offset]->d)
+					end = false;
 			}
 			if(end)
-				heap=true;
+				heap = true;
 		}
 	}
 	
 	void ParticleEmitter::heapSort(){
-		for(int i=0;i<numParticles;i++)
+		for(int i = 0; i < numParticles; i++)
 			makeHeap(i);
 	}
 	
 	void ParticleEmitter::update(){
-		Root *root=Root::getSingleton();
-		Camera *cam=root->getCamera();
-		float fov=cam->getFov(),width=root->getWidth(),height=root->getHeight();
-		float nearPlane=cam->getNearPlane(),farPlane=cam->getFarPlane();
-		Vector3 pos=node->getPosition();
-		Vector3 camDir=cam->getDirection(),up=cam->getUp(),left=cam->getLeft(),camPos=cam->getPosition();
+		Root *root = Root::getSingleton();
+		Camera *cam = root->getCamera();
+		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight();
+		float nearPlane = cam->getNearPlane(), farPlane = cam->getFarPlane();
+		Vector3 pos = node->getPosition();
+		Vector3 camDir = cam->getDirection(), up = cam->getUp(), left = cam->getLeft(), camPos = cam->getPosition();
 
-		mat4 view=lookAt(vec3(camPos.x,camPos.y,camPos.z),vec3(camPos.x+camDir.x,camPos.y+camDir.y,camPos.z+camDir.z),vec3(up.x,up.y,up.z));
-		mat4 proj=perspective(radians(fov),width/height,nearPlane,farPlane);
+		mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + camDir.x, camPos.y + camDir.y, camPos.z + camDir.z), vec3(up.x, up.y, up.z));
+		mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
+
+		updateParticles(camDir, camPos);
 
 		material->update();	
 		Shader *shader=material->getShader();
-		shader->setMat4(view,"view");
-		shader->setMat4(proj,"proj");
-		shader->setVec4(startColor,"startColor");
-		shader->setVec4(endColor,"endColor");
-		shader->setVec2(startSize,"startSize");
-		shader->setVec2(endSize,"endSize");
-
-		Vector3 nodePos=node->localToGlobalPosition(Vector3::VEC_ZERO);
-		Vector3 nodeDir=node->getGlobalAxis(2);
-		Vector3 nodeUp=node->getGlobalAxis(1);
-		Vector3 nodeLeft=node->getGlobalAxis(0);
-		for(int i=0;i<numParticles;i++){
-			Vector3 dir=particles[i]->dir;
-			if(getTime()-particles[i]->time>=particles[i]->timeToLive){
-				particles[i]->time=getTime();
-				float factor=(float)(rand()%100)/100;
-				float s1=float(rand()%(int)spread)/180*PI,s2=float(rand()%360)/180*PI;
-				Vector3 ra1=(Vector3(0,1,0).cross(dir)).norm(),ra2=dir.norm();
-				if(ra1==Vector3::VEC_ZERO) ra1=Vector3(1,0,0);
-				dir=Quaternion(s1,ra1)*dir;
-				dir=Quaternion(s2,ra2)*dir;
-				particles[i]->timeToLive=s64(1000*((highLife-lowLife)*factor+lowLife));
-				//particles[i].mat=translate(mat4(1.f),vec3(nodePos.x,nodePos.y,nodePos.z));
-				particles[i]->trans=nodePos;
-			}
-			//dir=nodeLeft*dir.x+nodeUp*dir.y+nodeDir*dir.z;
-			particles[i]->dir=dir.norm()*direction.getLengthSq()+gravity;
-			float lifePercentage=(float)(getTime()-particles[i]->time)/particles[i]->timeToLive;
-			particles[i]->color=startColor+(endColor-startColor)*lifePercentage;
-			particles[i]->size=startSize+(endSize-startSize)*lifePercentage;
-			//particles[i].mat=translate(particles[i].mat,vec3(dir.x,dir.y,dir.z));
-			particles[i]->trans=particles[i]->trans+dir;
-
-			shader->setVec3(particles[i]->trans,"trans["+to_string(i)+"]");
-			shader->setFloat(lifePercentage,"lifePercentage["+to_string(i)+"]");
-			//shader->setVec2(particles[i]->size,"size["+to_string(i)+"]");
-
-			Vector3 v0=particles[i]->trans;
-			particles[i]->d=cos(camDir.getAngleBetween((v0-camPos).norm()))*camPos.getDistanceFrom(v0);
-		}
+		shader->setMat4(view, "view");
+		shader->setMat4(proj, "proj");
+		shader->setVec4(startColor, "startColor");
+		shader->setVec4(endColor, "endColor");
+		shader->setVec2(startSize, "startSize");
+		shader->setVec2(endSize, "endSize");
+		for(int i = 0; i < numParticles; i++)
+			shader->setVec3(particles[i]->trans, "trans[" + to_string(i) + "]");
 
 		heapSort();
-		glBindVertexArray(VAO);
-		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-		glDrawElementsInstanced(GL_TRIANGLES,6,GL_UNSIGNED_INT,0,numParticles);	
+		render();
+	}
+
+	void ParticleEmitter::updateParticles(Vector3 camDir, Vector3 camPos){
+		Shader *shader=material->getShader();
+		Vector3 nodePos = node->localToGlobalPosition(Vector3::VEC_ZERO);
+		Vector3 nodeDir = node->getGlobalAxis(2);
+		Vector3 nodeUp = node->getGlobalAxis(1);
+		Vector3 nodeLeft = node->getGlobalAxis(0);
+
+		for(int i = 0; i < numParticles; i++){
+			Vector3 dir = particles[i]->dir;
+			if(getTime() - particles[i]->time >= particles[i]->timeToLive){
+				particles[i]->time = getTime();
+				float factor = (float)(rand() % 100) / 100;
+				float s1 = float(rand() % (int)spread) / 180 * PI, s2 = float(rand() % 360) / 180 * PI;
+				Vector3 ra1 = (Vector3(0, 1, 0).cross(dir)).norm(), ra2 = dir.norm();
+				if(ra1 == Vector3::VEC_ZERO)
+				   	ra1 = Vector3::VEC_I;
+				dir = Quaternion(s1, ra1) * dir;
+				dir = Quaternion(s2, ra2) * dir;
+
+				particles[i]->timeToLive = s64(1000 * ((highLife - lowLife) * factor + lowLife));
+
+				particles[i]->trans = nodePos;
+			}
+
+			particles[i]->dir = dir.norm() * direction.getLengthSq() + gravity;
+			float lifePercentage = (float)(getTime() - particles[i]->time) / particles[i]->timeToLive;
+			particles[i]->color = startColor + (endColor - startColor) * lifePercentage;
+			particles[i]->size = startSize + (endSize - startSize) * lifePercentage;
+			particles[i]->trans = particles[i]->trans + dir;
+
+			Vector3 trans = particles[i]->trans;
+			particles[i]->d = cos(camDir.getAngleBetween((trans - camPos).norm())) * camPos.getDistanceFrom(trans);
+
+			shader->setFloat(lifePercentage, "lifePercentage[" + to_string(i) + "]");
+		}
 	}
 
 	void ParticleEmitter::setDirection(Vector3 dir){
-		this->direction=dir;
-		for(int i=0;i<numParticles;i++)
-			particles[i]->dir=dir;
+		this->direction = dir;
+		for(int i = 0; i < numParticles; i++)
+			particles[i]->dir = dir;
+	}
+
+	void ParticleEmitter::render(){
+		glBindVertexArray(VAO);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, numParticles);	
 	}
 }

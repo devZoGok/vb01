@@ -9,27 +9,31 @@
 namespace vb01{
 	class Texture{
 		public:
-			enum TextureType{TEXTURE_2D,TEXTURE_CUBEMAP};
+			enum TextureType{TEXTURE_2D, TEXTURE_CUBEMAP};
+			enum TextureTypeId{DIFFUSE, NORMAL, SPECULAR, PARALLAX, ENVIRONMENT};
 
 			~Texture();
-			Texture(int,int,bool=true);
-			Texture(std::string[],int,int=0,bool=false);
-			Texture(std::string[6],bool=false);
-			Texture(int,bool=true);
-			Texture(FT_Face&,char);
-			void select(int=0);
-			void update(int=0);
-			inline unsigned int* getTexture(int i=0){return &(texture[i]);}
+			Texture(int, int, bool = true);
+			Texture(std::string[], int, int = 0, bool = false);
+			Texture(std::string[6], bool = false);
+			Texture(int, bool = true);
+			Texture(FT_Face&, char);
+			void select(int = 0);
+			void update(int = 0);
+			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 		private:
-			TextureType type=TextureType::TEXTURE_2D;
-			u32 *texture=nullptr;
-			s32 updateRate=0,numFrames=0,frame=0;
-			s64 lastUpdateTime=0;
-			int width,height,numChannels;
+			TextureType type = TextureType::TEXTURE_2D;
+			u32 *texture = nullptr;
+			s32 updateRate = 0, numFrames = 0,frame = 0;
+			s64 lastUpdateTime = 0;
+			int width, height, numChannels;
 			float weight;
 			u8 *data;
-			std::string path="",paths[6];
+			std::string path = "", paths[6];
+
+			void createCubemap(bool);
+			void updateFrame();
 	};
 }
 

@@ -40,7 +40,7 @@ namespace vb01{
 				mesh->setMaterial(nullptr);
 
 		while(!children.empty()){
-			Node *c=children[children.size()-1];
+			Node *c = children[children.size() - 1];
 			dettachChild(c);
 			delete c;
 		}
@@ -52,7 +52,7 @@ namespace vb01{
 
 	void Model::setMaterial(Material *mat){
 		vector<Node*> descendants;
-		getDescendants(this,descendants);
+		getDescendants(this, descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(mat);
@@ -60,28 +60,28 @@ namespace vb01{
 
 	void Model::setCastShadow(bool castShadow){
 		vector<Node*> descendants;
-		getDescendants(this,descendants);
+		getDescendants(this, descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setCastShadow(castShadow);
-		this->castShadow=castShadow;
+		this->castShadow = castShadow;
 	}
 
 	void Model::setReflect(bool reflect){
 		vector<Node*> descendants;
-		getDescendants(this,descendants);
+		getDescendants(this, descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setReflect(reflect);
-		this->reflect=reflect;
+		this->reflect = reflect;
 	}
 
 	void Model::setWireframe(bool wirefame){
 		vector<Node*> descendants;
-		getDescendants(this,descendants);
+		getDescendants(this, descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setWireframe(wirefame);
-		this->wireframe=wireframe;
+		this->wireframe = wireframe;
 	}
 }

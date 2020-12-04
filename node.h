@@ -3,6 +3,7 @@
 
 #include"quaternion.h"
 #include"vector.h"
+#include"root.h"
 #include<vector>
 #include<string>
 
@@ -34,8 +35,8 @@ namespace vb01{
 			virtual void lookAt(Vector3, Node*);
 			void updateAxis();
 			void setOrientation(Quaternion);
-			void getDescendants(Node*,std::vector<Node*>&);
-			std::vector<Node*> getAncestors(Node*, Node *anc = nullptr);
+			void getDescendants(Node*, std::vector<Node*>&);
+			std::vector<Node*> getAncestors(Node *anc = Root::getSingleton()->getRootNode());
 			Vector3 localToGlobalPosition(Vector3);
 			Vector3 globalToLocalPosition(Vector3);
 			Quaternion localToGlobalOrientation(Quaternion);
@@ -46,13 +47,13 @@ namespace vb01{
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline Mesh* getMesh(int i){return meshes[i];}
 			inline Node* getParent(){return parent;}
-			inline void setParent(Node *par){this->parent=par;}
+			inline void setParent(Node *par){this->parent = par;}
 			inline Node* getChild(int i){return children[i];}
 			inline Vector3 getGlobalAxis(int i){return globalAxis[i];}
 			inline Vector3 getPosition(){return pos;}
 			inline Vector3 getScale(){return scale;}
-			inline void setPosition(Vector3 pos){this->pos=pos;}
-			inline void setScale(Vector3 scale){this->scale=scale;}
+			inline void setPosition(Vector3 pos){this->pos = pos;}
+			inline void setScale(Vector3 scale){this->scale = scale;}
 			inline std::vector<Node*>& getChildren(){return children;}
 			inline std::vector<Light*>& getLights(){return lights;}
 			inline Light* getLight(int i){return lights[i];}
@@ -61,7 +62,7 @@ namespace vb01{
 			inline Quaternion getOrientation(){return orientation;}
 			inline bool isVisible(){return visible;}
 			inline std::string getName(){return name;}
-			inline void setVisible(bool v){this->visible=v;}
+			inline void setVisible(bool v){this->visible = v;}
 		private:
 			void adjustUp(Vector3, Node*);
 			void adjustDir(Vector3, Node*);
@@ -69,8 +70,8 @@ namespace vb01{
 		protected:
 			void updateShaders();
 			
-			bool visible=true;
-			Vector3 pos,scale,globalAxis[3];
+			bool visible = true;
+			Vector3 pos, scale, globalAxis[3];
 			Quaternion orientation;
 			std::vector<Mesh*> meshes;
 			std::vector<ParticleEmitter*> emitters;
@@ -78,7 +79,7 @@ namespace vb01{
 			std::vector<Light*> lights;
 			std::vector<Text*> texts;
 			std::string name;
-			Node *parent=nullptr;
+			Node *parent = nullptr;
 	};
 }
 
