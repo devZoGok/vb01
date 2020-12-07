@@ -10,7 +10,7 @@ using namespace Assimp;
 namespace vb01{
 	AssimpModelReader::AssimpModelReader(Model *model, string path) : ModelReader(model, path){
 		Importer importer;
-		const aiScene *scene = importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+		const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
 			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
 			exit(-1);	

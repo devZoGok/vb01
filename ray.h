@@ -6,12 +6,17 @@ namespace vb01{
 	class Node;
 	class Mesh;
 
-	struct CollisionResult{
-		Vector3 pos;
-		float distance;
-		Mesh *mesh=nullptr;
+	class Ray{
+		public:
+			struct CollisionResult{
+				Vector3 pos;
+				float distance;
+				Mesh *mesh = nullptr;
+			};
+			static void retrieveCollisions(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float = .0);
+		private:
+			static void castRay(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float);
+			static void sortResults(std::vector<CollisionResult>&);
 	};
 
-	void retrieveCollisions(Vector3,Vector3,Node*,std::vector<CollisionResult>&,const float=.0);
-	void sortResults(std::vector<CollisionResult>&);
 }
