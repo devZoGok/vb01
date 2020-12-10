@@ -68,7 +68,9 @@ namespace vb01{
 		this->type = TextureType::TEXTURE_CUBEMAP;
 		texture = new u32;
 
-		createCubemap(flip);
+		for(int i = 0; i < 6; i++)
+			this->paths[i] = paths[i];
+		createCubemap(false, flip);
 	}
 
 	Texture::Texture(int width, bool depth){
@@ -76,10 +78,10 @@ namespace vb01{
 		this->type = TextureType::TEXTURE_CUBEMAP;
 		texture = new u32;
 
-		createCubemap(false);
+		createCubemap(true, false);
 	}
 
-	void Texture::createCubemap(bool flip){
+	void Texture::createCubemap(bool depth, bool flip){
 		glGenTextures(1, &texture[0]);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture[0]);
 
@@ -87,7 +89,7 @@ namespace vb01{
 			stbi_set_flip_vertically_on_load(flip);
 
 		for(int i = 0; i < 6; i++){
-			if(flip){
+			if(!depth){
 				data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
 				if(data){
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);	

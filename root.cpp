@@ -36,8 +36,12 @@ namespace vb01{
 		this->height = height;
 
 		initWindow(name);
-		initBloomFramebuffer();
-		initGuiPlane();
+
+		Texture *fragTexture = new Texture(width, height, false);
+		Texture *brightTexture = new Texture(width, height, false);
+
+		initBloomFramebuffer(fragTexture, brightTexture);
+		initGuiPlane(fragTexture, brightTexture);
 	}
 
 	void Root::initWindow(string name){
@@ -65,10 +69,12 @@ namespace vb01{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	void Root::initBloomFramebuffer(){
+	void Root::initBloomFramebuffer(Texture *fragTexture, Texture *brightTexture){
 		glGenFramebuffers(1, &FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
 
+		for(int i = 0; i < 2; i++)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
 		u32 colorAttachments[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 		glDrawBuffers(2, colorAttachments);
 
@@ -93,11 +99,7 @@ namespace vb01{
 		}
 	}
 
-	void Root::initGuiPlane(){
-		Texture *fragTexture = new Texture(width, height, false);
-		Texture *brightTexture = new Texture(width, height, false);
-		for(int i = 0; i < 2; i++)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
+	void Root::initGuiPlane(Texture *fragTexture, Texture *brightTexture){
 
 		guiPlane = new Quad(Vector3(width, height, -1), false);
 		Material *mat = new Material(Material::MATERIAL_POST);

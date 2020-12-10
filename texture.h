@@ -32,7 +32,7 @@ namespace vb01{
 			u8 *data;
 			std::string path = "", paths[6];
 
-			void createCubemap(bool);
+			void createCubemap(bool, bool);
 			void updateFrame();
 	};
 }
