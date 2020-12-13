@@ -32,7 +32,7 @@ namespace vb01{
 	Vector3 Bone::getModelSpacePos(){
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;
 		Bone *rootBone = skeleton->getRootBone();
-		vector<Node*> boneHierarchy = getAncestors(rootBone);
+		vector<Node*> boneHierarchy = getAncestors();
 
 		while(!boneHierarchy.empty()){
 			int id = boneHierarchy.size() - 1;
@@ -67,7 +67,7 @@ namespace vb01{
 		setOrientation(restRot);
 
 		Quaternion parentSpacePoseRot = Quaternion::QUAT_W;
-		vector<Node*> ancestors = getAncestors(this);
+		vector<Node*> ancestors = getAncestors();
 		for(int i = 0; i < ancestors.size(); i++)
 			parentSpacePoseRot = parentSpacePoseRot * ancestors[i]->getOrientation();
 		for(int i = ancestors.size() - 1; i > 0; i--)

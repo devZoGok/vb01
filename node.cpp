@@ -198,7 +198,7 @@ namespace vb01{
 	}
 
 	Vector3 Node::localToGlobalPosition(Vector3 localPos){
-		vector<Node*> ancestors = getAncestors(this);
+		vector<Node*> ancestors = getAncestors();
 		Vector3 origin = Vector3::VEC_ZERO;
 		
 		while(!ancestors.empty()){
@@ -272,7 +272,7 @@ namespace vb01{
 	}
 
 	Quaternion Node::localToGlobalOrientation(Quaternion localRot){
-		vector<Node*> ancestors = getAncestors(this);
+		vector<Node*> ancestors = getAncestors();
 
 		Quaternion origin = adjustRot(ancestors, Quaternion::QUAT_W, true);
 
@@ -280,7 +280,7 @@ namespace vb01{
 	}
 
 	Quaternion Node::globalToLocalOrientation(Quaternion globalRot){
-		vector<Node*> ancestors = getAncestors(this);
+		vector<Node*> ancestors = getAncestors();
 		
 		Quaternion origin = adjustRot(ancestors, globalRot, false);
 
