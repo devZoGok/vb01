@@ -34,7 +34,7 @@ namespace vb01{
 		delete children[0]->getMesh(0)->getMaterial();
 
 		vector<Node*> descendants;
-		getDescendants(this,descendants);
+		getDescendants(descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(nullptr);
@@ -52,7 +52,7 @@ namespace vb01{
 
 	void Model::setMaterial(Material *mat){
 		vector<Node*> descendants;
-		getDescendants(this, descendants);
+		getDescendants(descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(mat);
@@ -60,7 +60,7 @@ namespace vb01{
 
 	void Model::setCastShadow(bool castShadow){
 		vector<Node*> descendants;
-		getDescendants(this, descendants);
+		getDescendants(descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setCastShadow(castShadow);
@@ -69,19 +69,19 @@ namespace vb01{
 
 	void Model::setReflect(bool reflect){
 		vector<Node*> descendants;
-		getDescendants(this, descendants);
+		getDescendants(descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setReflect(reflect);
 		this->reflect = reflect;
 	}
 
-	void Model::setWireframe(bool wirefame){
+	void Model::setWireframe(bool wireframe){
 		vector<Node*> descendants;
-		getDescendants(this, descendants);
+		getDescendants(descendants);
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
-				mesh->setWireframe(wirefame);
+				mesh->setWireframe(wireframe);
 		this->wireframe = wireframe;
 	}
 }

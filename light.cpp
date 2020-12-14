@@ -56,7 +56,7 @@ namespace vb01{
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
 		vector<Light*> lights;
-		rootNode->getDescendants(rootNode, descendants);
+		rootNode->getDescendants(descendants);
 		descendants.push_back(rootNode);
 		std::vector<Material*> materials;
 		Camera *cam=root->getCamera();

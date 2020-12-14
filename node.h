@@ -35,7 +35,7 @@ namespace vb01{
 			virtual void lookAt(Vector3, Node*);
 			void updateAxis();
 			void setOrientation(Quaternion);
-			void getDescendants(Node*, std::vector<Node*>&);
+			void getDescendants(std::vector<Node*>&);
 			std::vector<Node*> getAncestors(Node *anc = Root::getSingleton()->getRootNode());
 			Vector3 localToGlobalPosition(Vector3);
 			Vector3 globalToLocalPosition(Vector3);

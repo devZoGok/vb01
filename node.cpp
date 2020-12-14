@@ -157,12 +157,11 @@ namespace vb01{
 		setOrientation(newRot * oldRot);
 	}
 
-	void Node::getDescendants(Node *node, vector<Node*> &descendants){
-		for(Node *child : node->getChildren()){
-			if(child->getNumChildren() > 0)
-				getDescendants(child, descendants);
-			else
-				descendants.push_back(child);
+	void Node::getDescendants(vector<Node*> &descendants){
+		for(Node *child : getChildren()){
+			descendants.push_back(child);
+			if(!child->getChildren().empty())
+				child->getDescendants(descendants);
 		}
 	}
 
@@ -292,7 +291,7 @@ namespace vb01{
 
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
-		rootNode->getDescendants(rootNode, descendants);
+		rootNode->getDescendants(descendants);
 		descendants.push_back(rootNode);
 
 		for(Node *n : descendants){

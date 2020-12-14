@@ -45,7 +45,7 @@ namespace vb01{
 	}
 
 	void Mesh::construct(){
-		initFramebuffer();
+		//initFramebuffer();
 		initMesh();
 	}
 
@@ -70,11 +70,11 @@ namespace vb01{
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout<<"Not complete\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void Mesh::initMesh(){
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);	
@@ -211,7 +211,7 @@ namespace vb01{
 		environmentShader->use();
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
-		rootNode->getDescendants(rootNode, descendants);
+		rootNode->getDescendants(descendants);
 		for(Node *n : descendants){
 			for(Mesh *m : n->getMeshes())
 				if(m != this){
