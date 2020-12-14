@@ -21,12 +21,19 @@ namespace vb01{
 		map<int, int> meshBracketIds, skeletonBracketIds, lightBracketIds;	
 		getObjectBounds(meshBracketIds, skeletonBracketIds, lightBracketIds);
 
-		for(int i = 0; i < skeletonBracketIds.size() / 2; i++)
-			readSkeleton(skeletonBracketIds[i * 2], skeletonBracketIds[i * 2 + 1]);
-		for(int i = 0; i < meshBracketIds.size() / 2; i++)
-			readMeshes(meshBracketIds[i * 2], meshBracketIds[i * 2 + 1]);
-		for(int i = 0; i < lightBracketIds.size() / 2; i++)
-			readLights(lightBracketIds[i * 2], lightBracketIds[i * 2 + 1]);
+		map<int, int>::iterator it;
+		for(it = skeletonBracketIds.begin(); it != skeletonBracketIds.end(); ++it){
+			int key = it->first;
+			readSkeleton(key, skeletonBracketIds[key]);
+		}
+		for(it = meshBracketIds.begin(); it != meshBracketIds.end(); ++it){
+			int key = it->first;
+			readMeshes(key, meshBracketIds[key]);
+		}
+		for(it = lightBracketIds.begin(); it != lightBracketIds.end(); ++it){
+			int key = it->first;
+			readLights(key, lightBracketIds[key]);
+		}
 
 		connectNodes();
 	}
@@ -37,13 +44,11 @@ namespace vb01{
 	void VbModelReader::getObjectBounds(map<int, int> &meshBracketIds, map<int, int> &skeletonBracketIds, map<int, int> &lightBracketIds){
 		const string meshType = "MESH", skeletonType = "ARMATURE", lightType = "LIGHT";
 
-		int lineIndex = 0;
+		int lineIndex = 0, leftBracket = -1, rightBracket = -1;
 		string line, type;
 		ifstream file(path);
 
 		while(getline(file, line)){
-			int leftBracket, rightBracket;
-
 			if(line[0] == '{'){
 				leftBracket = lineIndex;
 
@@ -56,14 +61,17 @@ namespace vb01{
 			else if(line[0] == '}')
 				rightBracket = lineIndex;
 
-			if(type == meshType)
-				meshBracketIds.emplace(leftBracket, rightBracket);
-			else if(type == skeletonType)
-				skeletonBracketIds.emplace(leftBracket, rightBracket);
-			else if(type == lightType)
-				lightBracketIds.emplace(leftBracket, rightBracket);
+			if(leftBracket != -1 && rightBracket != -1){
+				if(type == meshType)
+					meshBracketIds.emplace(leftBracket, rightBracket);
+				else if(type == skeletonType)
+					skeletonBracketIds.emplace(leftBracket, rightBracket);
+				else if(type == lightType)
+					lightBracketIds.emplace(leftBracket, rightBracket);
 
-			getline(file, line);
+				leftBracket = -1, rightBracket = -1;
+			}
+
 			lineIndex++;
 		}
 
