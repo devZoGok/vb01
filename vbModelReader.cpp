@@ -22,17 +22,24 @@ namespace vb01{
 		getObjectBounds(meshBracketIds, skeletonBracketIds, lightBracketIds);
 
 		map<int, int>::iterator it;
+		vector<string> data;
 		for(it = skeletonBracketIds.begin(); it != skeletonBracketIds.end(); ++it){
 			int key = it->first;
-			readSkeleton(key, skeletonBracketIds[key]);
+			readFile(path, data, key, skeletonBracketIds[key]);
+			readSkeleton(data);
+			data.clear();
 		}
 		for(it = meshBracketIds.begin(); it != meshBracketIds.end(); ++it){
 			int key = it->first;
-			readMeshes(key, meshBracketIds[key]);
+			readFile(path, data, key, meshBracketIds[key]);
+			readMeshes(data);
+			data.clear();
 		}
 		for(it = lightBracketIds.begin(); it != lightBracketIds.end(); ++it){
 			int key = it->first;
-			readLights(key, lightBracketIds[key]);
+			readFile(path, data, key, lightBracketIds[key]);
+			readLights(data);
+			data.clear();
 		}
 
 		connectNodes();
@@ -211,11 +218,10 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readSkeleton(int startLine, int endLine){
-		vector<string> meshData;
-		readFile(path, meshData, startLine + 1, startLine + 7);
-	   	string name = meshData[0].substr(getCharId(meshData[0], ':') + 2, string::npos);
-		string line = meshData[5];
+	void VbModelReader::readSkeleton(vector<string> &skeletonData){
+		//vector<string> skeletonMetaData(skeletonData.begin() + 1, skeletonData.begin() + 7);
+	   	string name = skeletonData[0].substr(getCharId(skeletonData[0], ':') + 2, string::npos);
+		string line = skeletonData[5];
 	   	string data[3];
 	   	getLineData(line, data, 3);
 
@@ -223,7 +229,7 @@ namespace vb01{
 		int numKeyframeGroups = -2;
 		int numAnimations = atoi(data[2].c_str());
 
-		int boneStartLine = startLine + 7;
+		int boneStartLine = 7;
 		int animationStartLine = boneStartLine + numBones + 1;
 		int keyframeGroupStartLine = animationStartLine + numKeyframeGroups + 1;
 		int keyframeStartLine = animationStartLine + numAnimations + 1;
@@ -231,21 +237,25 @@ namespace vb01{
 		Skeleton *skeleton = new Skeleton(name);
 		skeletons.push_back(skeleton);
 
-		meshData.clear();
-		readFile(path, meshData, boneStartLine, boneStartLine + numBones);
-		createBones(skeleton, meshData);
+		vector<string> *skeletonSubData = new vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
+		createBones(skeleton, *skeletonSubData);
+		skeletonSubData->clear();
+		delete skeletonSubData;
 		
-		meshData.clear();
-		readFile(path, meshData, animationStartLine, animationStartLine + numAnimations);
-		readAnimations(skeleton, meshData);
+		skeletonSubData = new vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + animationStartLine + numAnimations);
+		readAnimations(skeleton, *skeletonSubData);
+		skeletonSubData->clear();
+		delete skeletonSubData;
 
-		meshData.clear();
-		readFile(path, meshData, keyframeGroupStartLine, keyframeGroupStartLine + numKeyframeGroups);
-		readKeyframesGroups(skeleton, meshData);
+		skeletonSubData = new vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.begin() + keyframeGroupStartLine + numKeyframeGroups);
+		readKeyframesGroups(skeleton, *skeletonSubData);
+		skeletonSubData->clear();
+		delete skeletonSubData;
 
-		meshData.clear();
-		readFile(path, meshData, keyframeStartLine);
-		readKeyframes(skeleton, meshData);
+		skeletonSubData = new vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.end());
+		readKeyframes(skeleton, *skeletonSubData);
+		skeletonSubData->clear();
+		delete skeletonSubData;
 	}
 
 	void VbModelReader::readVertices(
@@ -320,9 +330,8 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readMeshes(int startLine, int endLine){
-		vector<string> meshData;
-		readFile(path, meshData, startLine + 1, startLine + 8);
+	void VbModelReader::readMeshes(vector<string> &meshData){
+		//readFile(path, meshData, startLine + 1, startLine + 8);
 
 		string nameLine = meshData[0];
 		int nameLineColonId = getCharId(nameLine, ':');
@@ -348,7 +357,7 @@ namespace vb01{
 		int numFaces = atoi(data[1].c_str());
 		int numBones = atoi(data[2].c_str());
 		int numShapes = atoi(data[3].c_str());
-	   	int vertexGroupStartLine = startLine + 9;
+	   	int vertexGroupStartLine = 8;
 		int vertexStartLine = vertexGroupStartLine + numBones + 1;
 	   	int faceStartLine = vertexStartLine + numVertices + 1;
 	   	int shapeKeyStartLine = faceStartLine + numFaces + 1;
@@ -359,21 +368,21 @@ namespace vb01{
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
 
-		meshData.clear();
-		readFile(path, meshData, vertexStartLine, vertexStartLine + numVertices);
-		readVertices(vertPos, vertNorm, vertWeights, meshData, numBones);
+		vector<string> vertexData(meshData.begin() + vertexStartLine, meshData.begin() + vertexStartLine + numVertices);
+		readVertices(vertPos, vertNorm, vertWeights, vertexData, numBones);
+		vertexData.clear();
 
-		meshData.clear();
-		readFile(path, meshData, faceStartLine, faceStartLine + numFaces * numVertsPerFace);
-		readFaces(vertPos, vertNorm, vertWeights, meshData, numBones, vertices, indices);
+		vector<string> faceData(meshData.begin() + faceStartLine, meshData.begin() + faceStartLine + numFaces * numVertsPerFace);
+		readFaces(vertPos, vertNorm, vertWeights, faceData, numBones, vertices, indices);
+		faceData.clear();
 
-		meshData.clear();
-		readFile(path, meshData, vertexGroupStartLine, vertexGroupStartLine + numBones);
-		readVertexGroups(groups, meshData, numBones);
+		vector<string> vertexGroupData(meshData.begin() + vertexGroupStartLine, meshData.begin() + vertexGroupStartLine + numBones);
+		readVertexGroups(groups, vertexGroupData, numBones);
+		vertexGroupData.clear();
 
-		meshData.clear();
-		readFile(path, meshData, shapeKeyStartLine, shapeKeyStartLine + numShapes);
+		vector<string> shapeKeyData(meshData.begin() + shapeKeyStartLine, meshData.begin() + shapeKeyStartLine + numShapes);
 		readShapeKeys(shapeKeyStartLine, numShapes);
+		shapeKeyData.clear();
 
 		string skeletonLine = meshData[5];
 		int skeletonLineColonId = getCharId(skeletonLine, ':');
@@ -392,7 +401,7 @@ namespace vb01{
 		nodes.push_back(node);
 	}
 
-	void VbModelReader::readLights(int startLine, int endLine){
+	void VbModelReader::readLights(vector<string> &lightData){
 
 	}
 }

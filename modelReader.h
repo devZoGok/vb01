@@ -8,6 +8,7 @@ namespace vb01{
 	class ModelReader{
 		public:
 		protected:
+			ModelReader(){}
 			ModelReader(Model*, std::string);
 			~ModelReader();
 			Model *model = nullptr;

@@ -6,6 +6,7 @@
 #include "cameraTest.h"
 #include "nodeTest.h"
 #include "boneTest.h"
+#include "vbModelReaderTest.h"
 
 using namespace CppUnit;
 using namespace vb01;
@@ -15,6 +16,7 @@ int main(){
 	runner.addTest(CameraTest::suite());
 	runner.addTest(NodeTest::suite());
 	runner.addTest(BoneTest::suite());
+	runner.addTest(VbModelReaderTest::suite());
 	runner.run();
 	return 0;
 }

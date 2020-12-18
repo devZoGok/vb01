@@ -33,7 +33,9 @@ namespace vb01{
 			inline std::string getText(){return entry;}
 		private:
 			void initFont(std::string);
-			void renderGlyphs();
+			void prepareGlyphs(char);
+			void renderGlyphs(Glyph, float[], u32);
+			Glyph getGlyph(char);
 
 			Node *node = nullptr;
 			std::string entry;

@@ -130,9 +130,9 @@ namespace vb01{
 		material->update();
 		Shader *shader = material->getShader();
 
-
-		if(reflect)
+		if(reflect){
 			updateReflection(shader, pos, width, height);
+		}
 
 		if(skeleton)
 			updateSkeleton(shader);
@@ -196,45 +196,50 @@ namespace vb01{
 
 	void Mesh::updateReflection(Shader *shader, Vector3 pos, int width, int height){
 		Root *root = Root::getSingleton();
-		vec3 dirs[]{
-			vec3(1, 0, 0),
-			vec3(-1, 0, 0),
-			vec3(0, 1, 0),
-			vec3(0, -1, 0),
-			vec3(0, 0, 1),
-			vec3(0, 0, -1)
-		};
 
 		glViewport(0, 0, width, width);
 		glBindFramebuffer(GL_FRAMEBUFFER, environmentBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		environmentShader->use();
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
 		rootNode->getDescendants(descendants);
-		for(Node *n : descendants){
-			for(Mesh *m : n->getMeshes())
-				if(m != this){
-					Vector3 position = n->localToGlobalPosition(Vector3::VEC_ZERO);
-					Quaternion rotation = n->localToGlobalOrientation(Quaternion::QUAT_W);
+		for(Node *node : descendants){
+			for(Mesh *mesh : node->getMeshes())
+				if(mesh != this){
+					Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO);
+					Quaternion rotation = node->localToGlobalOrientation(Quaternion::QUAT_W);
+					float far = 100;
+
+					vec3 p = vec3(position.x, position.y, position.z);
+					mat4 proj = perspective(radians(90.f), 1.f, .1f, far);
+					mat4 model = translate(mat4(1.), p);
 					Vector3 rotAxis = rotation.norm().getAxis();
 
 					if(rotAxis == Vector3::VEC_ZERO)
 						rotAxis = Vector3::VEC_I;
-					float far = 100;
-					vec3 p = vec3(position.x, position.y, position.z);
-					mat4 proj = perspective(radians(90.f), 1.f, .1f, far);
-					mat4 model = translate(mat4(1.), p);
 					model = rotate(model, rotation.norm().getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
+
 					environmentShader->setMat4(model, "model");
 					environmentShader->setBool(true, "point");
 					environmentShader->setVec3(pos, "lightPos");
 					environmentShader->setFloat(far, "farPlane");
-					for(int i = 0; i < 6; i++)
-						environmentShader->setMat4(proj * lookAt(p, p + dirs[i], 1 < i && i < 4 ? vec3(0, 0, -1) : vec3(0, -1, 0)), "shadowMat[" + to_string(i) + "]");
-					m->render();
+					vec3 dirs[]{
+						vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)
+				   	};
+					for(int i = 0; i < 6; i++){
+						vec3 upVec;
+						if(1 < i && i < 4)
+							upVec = vec3(0, 0, -1);
+						else
+							upVec = vec3(0, -1, 0);
+						environmentShader->setMat4(proj * lookAt(p, p + dirs[i], upVec), "shadowMat[" + to_string(i) + "]");
+					}
+					mesh->render();
 				}
 		}
+
 		glBindFramebuffer(GL_FRAMEBUFFER, *(root->getFBO()));
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 

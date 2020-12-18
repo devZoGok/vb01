@@ -100,7 +100,6 @@ namespace vb01{
 	}
 
 	void Root::initGuiPlane(Texture *fragTexture, Texture *brightTexture){
-
 		guiPlane = new Quad(Vector3(width, height, -1), false);
 		Material *mat = new Material(Material::MATERIAL_POST);
 		mat->addDiffuseMap(fragTexture);

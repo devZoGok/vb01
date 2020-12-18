@@ -66,9 +66,11 @@ namespace vb01{
 				indices[numFaceIndices * i + j] = mesh->mFaces[i].mIndices[j];		
 			}
 		}
-		//if(mesh->mMaterialIndex>=0){
-		//	aiMaterial *material=scene->mMaterial[mesh->mMaterialIndex];
-		//}
+		/*
+		if(mesh->mMaterialIndex>=0){
+			aiMaterial *material=scene->mMaterial[mesh->mMaterialIndex];
+		}
+		*/
 		currentNode->attachMesh(new Mesh(vertices, indices, numTris));
 	}
 }

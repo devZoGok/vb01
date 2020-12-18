@@ -16,7 +16,6 @@ namespace vb01{
 		string PATH="/home/dominykas/c++/v/";
 
 		Root *root = Root::getSingleton();
-		root->setBasePath("../");
 		rootNode = root->getRootNode();
 		model = new Model(PATH + "../vb01/test.vb");
 		Material *glMat=new Material();

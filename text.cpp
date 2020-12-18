@@ -59,47 +59,43 @@ namespace vb01{
 
 	void Text::update(){
 		Root *root = Root::getSingleton();
-		int width = root->getWidth(), height=root->getHeight();
+		int width = root->getWidth(), height = root->getHeight();
 
 		shader->use();
 		shader->setVec4(color, "color");
 		shader->setVec2(Vector2(width, height), "screen");
 		shader->setVec3(node->getPosition(), "pos");
 
-		renderGlyphs();
+		for(int i = 0; i < entry.length(); i++){
+			prepareGlyphs(entry[i]);
+		}
 	}
 
-	void Text::renderGlyphs(){
+	void Text::prepareGlyphs(char c){
 		Vector3 origin = node->getPosition();
-		for(int i = 0; i < entry.length(); i++){
-			Glyph ch;
-			bool foundChar = false;
-			for(Glyph c : characters)
-				if(entry.c_str()[i] == c.ch){
-					ch = c;
-					foundChar = true;
-				}
-			if(!foundChar)
-				continue;
+		Glyph glyph = getGlyph(c);
 
-			Vector2 size = ch.size * scale, bearing = ch.bearing * scale;
-			float data[] = {
-				origin.x + bearing.x, origin.y - bearing.y, 0, 0,
-				origin.x + bearing.x + size.x, origin.y - bearing.y, 1, 0,
-				origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
+		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
+		float data[] = {
+			origin.x + bearing.x, origin.y - bearing.y, 0, 0,
+			origin.x + bearing.x + size.x, origin.y - bearing.y, 1, 0,
+			origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
 
-				origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
-				origin.x + bearing.x, origin.y - bearing.y + size.y, 0, 1,
-				origin.x + bearing.x, origin.y - bearing.y, 0, 0
-			};
+			origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
+			origin.x + bearing.x, origin.y - bearing.y + size.y, 0, 1,
+			origin.x + bearing.x, origin.y - bearing.y, 0, 0
+		};
+		//origin.x += (glyph.advance >> 6) * scale;
 
-			origin.x += (ch.advance >> 6) * scale;
-			glBindVertexArray(VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
-			ch.texture->select();
-			glDrawArrays(GL_TRIANGLES, 0, 6);	
-		}
+		renderGlyphs(glyph, data, sizeof(data));
+	}
+
+	void Text::renderGlyphs(Glyph glyph, float data[], u32 dataSize){
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
+		glyph.texture->select();
+		glDrawArrays(GL_TRIANGLES, 0, 6);	
 	}
 
 	void Text::setText(string text){
@@ -116,9 +112,15 @@ namespace vb01{
 		glBindVertexArray(0);
 	}
 
-	float Text::getCharWidth(char c){
+	Text::Glyph Text::getGlyph(char ch){
+		Glyph glyph;
 		for(Glyph g : characters)
-			if(g.ch == c)
-				return g.size.x * scale;
+			if(g.ch == ch)
+				glyph = g;
+		return glyph;
+	}
+
+	float Text::getCharWidth(char c){
+		return getGlyph(c).size.x * scale;
 	}
 }

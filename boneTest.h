@@ -10,7 +10,7 @@ namespace vb01{
 
 	class BoneTest : public CppUnit::TestFixture{
 		CPPUNIT_TEST_SUITE(BoneTest);
-		CPPUNIT_TEST(testGetModelSpacePos);
+		//CPPUNIT_TEST(testGetModelSpacePos);
 		CPPUNIT_TEST_SUITE_END();
 
 		public:

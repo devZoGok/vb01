@@ -58,11 +58,13 @@ namespace vb01{
 	}
 
 	void NodeTest::tearDown(){
+		/*
 		delete nodeD;
 		delete nodeC;
 		delete nodeB;
 		nodeA->dettachChild(nodeB);
 		delete nodeA;
+		*/
 	}
 
 	void NodeTest::testDetachChild(){
@@ -115,12 +117,12 @@ namespace vb01{
 		vector<Node*> parentCDescendants;
 		vector<Node*> parentDDescendants;
 
-	   	parentA->getDescendants(parentA, parentADescendants);
-	   	parentB->getDescendants(parentB, parentBDescendants);
-	   	parentC->getDescendants(parentC, parentCDescendants);
-	   	parentD->getDescendants(parentD, parentDDescendants);
+	   	parentA->getDescendants(parentADescendants);
+	   	parentB->getDescendants(parentBDescendants);
+	   	parentC->getDescendants(parentCDescendants);
+	   	parentD->getDescendants(parentDDescendants);
 
-		parentD->getDescendants(parentD, parentDDescendants);
+		parentD->getDescendants(parentDDescendants);
 		CPPUNIT_ASSERT(parentDDescendants[0] == childD0);
 		CPPUNIT_ASSERT(parentDDescendants[1] == childD1);
 		CPPUNIT_ASSERT(parentDDescendants[2] == childD2);

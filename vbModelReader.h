@@ -4,6 +4,7 @@
 #include"modelReader.h"
 #include"util.h"
 #include"mesh.h"
+
 #include<string>
 #include<vector>
 #include<iterator>
@@ -16,6 +17,7 @@ namespace vb01{
 
 	class VbModelReader : public ModelReader{
 		public:
+			VbModelReader(){}
 			VbModelReader(Model*, std::string);
 			~VbModelReader();
 		private:
@@ -26,18 +28,20 @@ namespace vb01{
 			void readAnimations(Skeleton*, std::vector<std::string>&);
 			void readKeyframesGroups(Skeleton*, std::vector<std::string>&);
 			void readKeyframes(Skeleton*, std::vector<std::string>&);
-			void readSkeleton(int, int);
+			void readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
 			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
 			void readVertexGroups(std::string*, std::vector<std::string>&, int);
 			void readShapeKeys(int, int);
-			void readMeshes(int, int);
-			void readLights(int, int);
+			void readMeshes(std::vector<std::string>&);
+			void readLights(std::vector<std::string>&);
 
 			std::vector<std::string> relationships;
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
 			std::vector<Node*> nodes;
+
+			friend class VbModelReaderTest;
 	};
 }
 
