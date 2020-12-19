@@ -71,6 +71,8 @@ namespace vb01{
 			aiMaterial *material=scene->mMaterial[mesh->mMaterialIndex];
 		}
 		*/
-		currentNode->attachMesh(new Mesh(vertices, indices, numTris));
+		Mesh *vbMesh = new Mesh(vertices, indices, numTris);
+		vbMesh ->construct();
+		currentNode->attachMesh(vbMesh);
 	}
 }

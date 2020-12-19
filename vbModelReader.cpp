@@ -26,13 +26,13 @@ namespace vb01{
 		for(it = skeletonBracketIds.begin(); it != skeletonBracketIds.end(); ++it){
 			int key = it->first;
 			readFile(path, data, key, skeletonBracketIds[key]);
-			readSkeleton(data);
+			skeletons.push_back(readSkeleton(data));
 			data.clear();
 		}
 		for(it = meshBracketIds.begin(); it != meshBracketIds.end(); ++it){
 			int key = it->first;
 			readFile(path, data, key, meshBracketIds[key]);
-			readMeshes(data);
+			buildMesh(data);
 			data.clear();
 		}
 		for(it = lightBracketIds.begin(); it != lightBracketIds.end(); ++it){
@@ -86,10 +86,9 @@ namespace vb01{
 	}
 
 	void VbModelReader::connectNodes(){
-		for(string line : relationships){
+		for(map<string, string>::iterator it = relationships.begin(); it != relationships.end(); it++){
 			Node *child = nullptr, *parent = nullptr;
-			int spaceId = getCharId(line, ' ');
-			string childName = line.substr(0, spaceId), parentName = line.substr(spaceId + 1, string::npos);
+			string childName = it->first, parentName = relationships[childName];
 			for(Node *node : nodes){
 				if(node->getName() == childName)
 					child = node;
@@ -104,10 +103,10 @@ namespace vb01{
 				model->attachChild(node);
 	}
 
-	void VbModelReader::createBones(Skeleton *skeleton, vector<string> &meshData){
-		vector<string> ikRelationships;
+	void VbModelReader::createBones(Skeleton *skeleton, vector<string> &skeletonData){
+		map<string, string> ikRelationships;
 
-		for(string line : meshData){
+		for(string line : skeletonData){
 			int colonId = getCharId(line, ':');
 			string preColon = line.substr(0, colonId);
 			string postColon = line.substr(colonId + 2);
@@ -146,13 +145,13 @@ namespace vb01{
 			skeleton->addBone(bone, (Bone*)parent);
 			bone->lookAt(zAxis, yAxis, parent);
 			if(ikTarget != "-")
-				ikRelationships.push_back(preColon + " " + ikTarget);
+				ikRelationships.emplace(preColon, ikTarget);
 		}
 
-		for(string ikRelationship : ikRelationships){
-			int spaceId = getCharId(ikRelationship, ' ');
-			string targetBoneName = ikRelationship.substr(0, spaceId);
-			string ikTargetBoneName = ikRelationship.substr(spaceId + 1);
+		map<string, string>::iterator it;
+		for(it = ikRelationships.begin(); it != ikRelationships.end(); it++){
+			string targetBoneName = it->first;
+			string ikTargetBoneName = ikRelationships[targetBoneName];
 			skeleton->getBone(targetBoneName)->setIkTarget(skeleton->getBone(ikTargetBoneName));
 		}
 	}
@@ -218,7 +217,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readSkeleton(vector<string> &skeletonData){
+	Skeleton* VbModelReader::readSkeleton(vector<string> &skeletonData){
 		//vector<string> skeletonMetaData(skeletonData.begin() + 1, skeletonData.begin() + 7);
 	   	string name = skeletonData[0].substr(getCharId(skeletonData[0], ':') + 2, string::npos);
 		string line = skeletonData[5];
@@ -235,27 +234,24 @@ namespace vb01{
 		int keyframeStartLine = animationStartLine + numAnimations + 1;
 
 		Skeleton *skeleton = new Skeleton(name);
-		skeletons.push_back(skeleton);
 
-		vector<string> *skeletonSubData = new vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
-		createBones(skeleton, *skeletonSubData);
-		skeletonSubData->clear();
-		delete skeletonSubData;
+		vector<string> skeletonSubData = vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
+		createBones(skeleton, skeletonSubData);
+		skeletonSubData.clear();
 		
-		skeletonSubData = new vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + animationStartLine + numAnimations);
-		readAnimations(skeleton, *skeletonSubData);
-		skeletonSubData->clear();
-		delete skeletonSubData;
+		skeletonSubData = vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + animationStartLine + numAnimations);
+		readAnimations(skeleton, skeletonSubData);
+		skeletonSubData.clear();
 
-		skeletonSubData = new vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.begin() + keyframeGroupStartLine + numKeyframeGroups);
-		readKeyframesGroups(skeleton, *skeletonSubData);
-		skeletonSubData->clear();
-		delete skeletonSubData;
+		skeletonSubData = vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.begin() + keyframeGroupStartLine + numKeyframeGroups);
+		readKeyframesGroups(skeleton, skeletonSubData);
+		skeletonSubData.clear();
 
-		skeletonSubData = new vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.end());
-		readKeyframes(skeleton, *skeletonSubData);
-		skeletonSubData->clear();
-		delete skeletonSubData;
+		skeletonSubData = vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.end());
+		readKeyframes(skeleton, skeletonSubData);
+		skeletonSubData.clear();
+
+		return skeleton;
 	}
 
 	void VbModelReader::readVertices(
@@ -319,7 +315,6 @@ namespace vb01{
 	}
 
 	void VbModelReader::readVertexGroups(string *groups, vector<string> &meshData, int numBones){
-		groups = new string[numBones];
 		for(int i = 0; i < numBones; i++){
 			groups[i] = meshData[i];
 		}
@@ -330,9 +325,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readMeshes(vector<string> &meshData){
-		//readFile(path, meshData, startLine + 1, startLine + 8);
-
+	Mesh* VbModelReader::readMeshes(vector<string> &meshData){
 		string nameLine = meshData[0];
 		int nameLineColonId = getCharId(nameLine, ':');
 		string preColonNameLine = nameLine.substr(0, nameLineColonId);
@@ -350,7 +343,7 @@ namespace vb01{
 	   	string parentLine = meshData[4];
 		int parentLineColonId = getCharId(parentLine, ':');
 		string parent = parentLine.substr(parentLineColonId + 2, string::npos);
-		relationships.push_back(postColonNameLine + " " + parent);
+		relationships.emplace(name, parent);
 
 		const int numVertsPerFace = 3;
 		int numVertices = atoi(data[0].c_str());
@@ -368,21 +361,21 @@ namespace vb01{
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
 
-		vector<string> vertexData(meshData.begin() + vertexStartLine, meshData.begin() + vertexStartLine + numVertices);
-		readVertices(vertPos, vertNorm, vertWeights, vertexData, numBones);
-		vertexData.clear();
+		vector<string> meshSubData = vector<string>(meshData.begin() + vertexStartLine, meshData.begin() + vertexStartLine + numVertices);
+		readVertices(vertPos, vertNorm, vertWeights, meshSubData, numBones);
+		meshSubData.clear();
 
-		vector<string> faceData(meshData.begin() + faceStartLine, meshData.begin() + faceStartLine + numFaces * numVertsPerFace);
-		readFaces(vertPos, vertNorm, vertWeights, faceData, numBones, vertices, indices);
-		faceData.clear();
+		meshSubData = vector<string>(meshData.begin() + faceStartLine, meshData.begin() + faceStartLine + numFaces * numVertsPerFace);
+		readFaces(vertPos, vertNorm, vertWeights, meshSubData, numBones, vertices, indices);
+		meshSubData.clear();
 
-		vector<string> vertexGroupData(meshData.begin() + vertexGroupStartLine, meshData.begin() + vertexGroupStartLine + numBones);
-		readVertexGroups(groups, vertexGroupData, numBones);
-		vertexGroupData.clear();
+		meshSubData = vector<string>(meshData.begin() + vertexGroupStartLine, meshData.begin() + vertexGroupStartLine + numBones);
+		readVertexGroups(groups, meshSubData, numBones);
+		meshSubData.clear();
 
-		vector<string> shapeKeyData(meshData.begin() + shapeKeyStartLine, meshData.begin() + shapeKeyStartLine + numShapes);
+		meshSubData = vector<string>(meshData.begin() + shapeKeyStartLine, meshData.begin() + shapeKeyStartLine + numShapes);
 		readShapeKeys(shapeKeyStartLine, numShapes);
-		shapeKeyData.clear();
+		meshSubData.clear();
 
 		string skeletonLine = meshData[5];
 		int skeletonLineColonId = getCharId(skeletonLine, ':');
@@ -395,8 +388,14 @@ namespace vb01{
 
 		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, nullptr, numShapes, name);
 		mesh->setSkeleton(skeleton);
+		return mesh;
+	}
 
-		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name);
+	void VbModelReader::buildMesh(vector<string> &meshData){
+		Mesh *mesh = readMeshes(meshData);
+		mesh->construct();
+
+		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, mesh->getName());
 		node->attachMesh(mesh);
 		nodes.push_back(node);
 	}

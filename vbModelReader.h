@@ -28,15 +28,16 @@ namespace vb01{
 			void readAnimations(Skeleton*, std::vector<std::string>&);
 			void readKeyframesGroups(Skeleton*, std::vector<std::string>&);
 			void readKeyframes(Skeleton*, std::vector<std::string>&);
-			void readSkeleton(std::vector<std::string>&);
+			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
 			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
 			void readVertexGroups(std::string*, std::vector<std::string>&, int);
 			void readShapeKeys(int, int);
-			void readMeshes(std::vector<std::string>&);
+			void buildMesh(std::vector<std::string>&);
+			Mesh* readMeshes(std::vector<std::string>&);
 			void readLights(std::vector<std::string>&);
 
-			std::vector<std::string> relationships;
+			std::map<std::string, std::string> relationships;
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
 			std::vector<Node*> nodes;

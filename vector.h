@@ -65,6 +65,8 @@ namespace vb01{
 			this->x = x;
 			this->y = y;
 		}
+		bool operator!=(const Vector2 &v){return x != v.x || y != v.y;}
+		bool operator==(const Vector2 &v){return x == v.x && y == v.y;}
 		Vector2 operator-(const Vector2 &v){return Vector2(x - v.x, y - v.y);}
 		Vector2 operator+(const Vector2 &v){return Vector2(x + v.x, y + v.y);}
 		template<typename T>Vector2 operator+(T s){return Vector2(x + s, y + s);}

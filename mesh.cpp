@@ -26,7 +26,6 @@ namespace vb01{
 		this->numShapeKeys = numShapeKeys;
 		this->name = name;
 
-		construct();
 	}
 
 	Mesh::~Mesh(){
@@ -63,13 +62,13 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, environmentBuffer);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *(environmentMap->getTexture()), 0);
 
-		glGenRenderbuffers(1,&RBO);
-		glBindRenderbuffer(GL_RENDERBUFFER,RBO);
-		glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,width);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+		glGenRenderbuffers(1, &RBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, width);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			cout<<"Not complete\n";
+			cout << "Not complete\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

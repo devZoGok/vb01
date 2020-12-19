@@ -28,6 +28,7 @@ namespace vb01{
 
 			Mesh(Vertex*, unsigned int*, int, std::string *vg = nullptr, int = 0, std::string *sk = nullptr, int = 0, std::string = "");
 			~Mesh();
+			void construct();
 			virtual void update();
 			void render();
 			void setMaterial(Material *mat){this->material = mat;}
@@ -44,10 +45,12 @@ namespace vb01{
 			inline Vertex* getVerts(){return vertices;}
 			inline std::string getName(){return name;}
 			inline Skeleton* getSkeleton(){return skeleton;}
+			inline std::string* getVertexGroups(){return vertexGroups;}
+			inline int getNumVertexGroups(){return numVertexGroups;}
 			inline unsigned int* getIndices(){return indices;}
 		private:
-			void initFramebuffer();
 			void initMesh();
+			void initFramebuffer();
 			void updateSkeleton(Shader*);
 			void updateReflection(Shader*, Vector3, int, int);
 
@@ -61,7 +64,6 @@ namespace vb01{
 			Skeleton *skeleton = nullptr;
 		protected:
 			Mesh();
-			void construct();
 
 			bool staticVerts = true, castShadow = false, reflect = false, wireframe = false;
 			Vertex *vertices;
