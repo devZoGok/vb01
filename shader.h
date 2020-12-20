@@ -12,6 +12,7 @@ namespace vb01{
 			enum ErrorType{VERTEX_ERROR, GEOMETRY_ERROR, FRAGMENT_ERROR, PROGRAM_ERROR};
 			enum ShaderType{VERTEX_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER};
 
+			Shader(){}
 			Shader(std::string, std::string, std::string = "");
 			~Shader();
 			void setNumLights(int);
@@ -33,6 +34,8 @@ namespace vb01{
 			unsigned int id;
 			bool geometry = false;
 			std::string vString, fString, gString;
+
+			friend class ShaderTest;
 	};
 }
 
