@@ -72,7 +72,7 @@ namespace vb01{
 			Keyframe nextKeyframe = animChannel.keyframes[pastKeyframeId + 1];
 			int pastFrame = pastKeyframe.frame;
 			int nextFrame = nextKeyframe.frame;
-			ratio = (float)(channel->getCurrentFrame() - pastFrame) / (nextFrame - pastFrame);
+			ratio = (float)(max(0, channel->getCurrentFrame() - pastFrame)) / (nextFrame - pastFrame);
 			interpMode = pastKeyframe.interpolation;
 			
 			switch(animChannel.type){

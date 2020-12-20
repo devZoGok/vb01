@@ -7,6 +7,7 @@
 #include "nodeTest.h"
 #include "boneTest.h"
 #include "vbModelReaderTest.h"
+#include "animationChannelTest.h"
 
 using namespace CppUnit;
 using namespace vb01;
@@ -17,6 +18,7 @@ int main(){
 	runner.addTest(NodeTest::suite());
 	runner.addTest(BoneTest::suite());
 	runner.addTest(VbModelReaderTest::suite());
+	runner.addTest(AnimationChannelTest::suite());
 	runner.run();
 	return 0;
 }

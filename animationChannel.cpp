@@ -14,14 +14,12 @@ namespace vb01{
 
 	void AnimationChannel::update(){
 		if(canUpdate()){
-			if(firstFrame < currentFrame && currentFrame < numFrames)
-				currentFrame += (forward? 1 : -1);
-			else if(loop){
-				if(!forward && currentFrame <= firstFrame)
-					currentFrame = numFrames - 1;
-				else if(forward && currentFrame >= numFrames)
-					currentFrame = firstFrame + 1;
-			}
+			if(firstFrame <= currentFrame && currentFrame <= numFrames)
+				currentFrame += (forward ? 1 : -1);
+			if(currentFrame < firstFrame)
+				currentFrame = (loop ? numFrames : firstFrame);
+			else if(currentFrame > numFrames)
+				currentFrame = (loop ? firstFrame : numFrames);
 
 			lastUpdateTime = getTime();
 		}

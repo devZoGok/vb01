@@ -4,7 +4,7 @@
 using namespace std;
 
 namespace vb01{
-	Bone::Bone(string name, float length, Vector3 pos,Quaternion rot, Vector3 scale) : Node(pos,rot,scale,name){
+	Bone::Bone(string name, float length, Vector3 pos, Quaternion rot, Vector3 scale) : Node(pos, rot, scale, name){
 		this->name = name;
 		this->length = length;
 	}

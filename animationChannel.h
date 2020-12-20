@@ -20,9 +20,10 @@ namespace vb01{
 			inline void removeAllBones(){bones.clear();}
 			inline void setUpdateRate(float updateRate){this->updateRate = updateRate;}
 			inline int getUpdateRate(){return updateRate;}
+			inline int getFirstFrame(){return firstFrame;}
 			inline int getCurrentFrame(){return currentFrame;}
 			inline void setCurrentFrame(int frame){this->currentFrame = frame;}
-			inline int getNumnFrames(){return numFrames;}
+			inline int getNumFrames(){return numFrames;}
 			inline void setLoop(bool loop){this->loop = loop;}
 			inline bool isLoop(){return loop;}
 			inline void setForward(bool forward){this->forward = forward;}
@@ -39,6 +40,8 @@ namespace vb01{
 			bool loop = false, forward = true;
 			std::string animationName;
 			std::vector<Bone*> bones;
+
+			friend class AnimationChannelTest;
 	};
 }
 
