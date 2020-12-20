@@ -9,6 +9,7 @@
 #include "vbModelReaderTest.h"
 #include "animationChannelTest.h"
 #include "shaderTest.h"
+#include "particleEmitterTest.h"
 
 using namespace CppUnit;
 using namespace vb01;
@@ -21,6 +22,7 @@ int main(){
 	runner.addTest(VbModelReaderTest::suite());
 	runner.addTest(AnimationChannelTest::suite());
 	runner.addTest(ShaderTest::suite());
+	runner.addTest(ParticleEmitterTest::suite());
 	runner.run();
 	return 0;
 }

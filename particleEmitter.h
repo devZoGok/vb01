@@ -12,7 +12,8 @@ namespace vb01{
 
 	class ParticleEmitter{
 		public:
-			ParticleEmitter(int = 1);
+			ParticleEmitter(){}
+			ParticleEmitter(int);
 			~ParticleEmitter();
 			void update();
 			inline void setMaterial(Material *mat){this->material = mat;}
@@ -59,6 +60,8 @@ namespace vb01{
 			Vector3 direction = Vector3(0, .1, 0), gravity = Vector3::VEC_ZERO;
 			Vector4 startColor, endColor;
 			float spread = 1, lowLife = 1, highLife = 2;
+
+			friend class ParticleEmitterTest;
 	};
 }
 

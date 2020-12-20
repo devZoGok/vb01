@@ -26,7 +26,7 @@ target_link_libraries(vb01 glad)
 target_link_libraries(vb01 assimp)
 target_link_libraries(vb01 freetype)
 
-set(renderTest nodeTest.cpp cameraTest.cpp shaderTest.cpp)
+set(renderTest nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
 set(armatureTest boneTest.cpp)
 set(modelTest vbModelReaderTest.cpp)
 set(animationTest animationChannelTest.cpp)
