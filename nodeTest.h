@@ -9,10 +9,16 @@ namespace vb01{
 
 	class NodeTest : public CppUnit::TestFixture{
 		CPPUNIT_TEST_SUITE(NodeTest);
-		//CPPUNIT_TEST(testDetachChild);
+		/*
+		CPPUNIT_TEST(testDetachChild);
 		CPPUNIT_TEST(testAdjustDir);
 		CPPUNIT_TEST(testAdjustUp);
 		CPPUNIT_TEST(testGetDescendants);
+		*/
+		CPPUNIT_TEST(testLocalToGlobalPosition);
+		CPPUNIT_TEST(testGlobalToLocalPosition);
+		CPPUNIT_TEST(testLocalToGlobalOrientation);
+		CPPUNIT_TEST(testGlobalToLocalOrientation);
 		CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -24,28 +30,19 @@ namespace vb01{
 			void testAdjustUp();
 			void testDetachChild();
 			void testGetDescendants();
+			void testLocalToGlobalPosition();
+			void testGlobalToLocalPosition();
+			void testLocalToGlobalOrientation();
+			void testGlobalToLocalOrientation();
 
 			Node *rootNode = nullptr,
-				 *parentA = nullptr,
-				 *childA0 = nullptr,
-				 *childA1 = nullptr,
-				 *childA2 = nullptr,
-				 *parentB = nullptr,
-				 *childB0 = nullptr,
-				 *childB1 = nullptr,
-				 *childB2 = nullptr,
-				 *parentC = nullptr,
-				 *childC0 = nullptr,
-				 *childC1 = nullptr,
-				 *childC2 = nullptr,
-				 *parentD = nullptr,
-				 *childD0 = nullptr,
-				 *childD1 = nullptr,
-				 *childD2 = nullptr,
 				 *nodeA = nullptr,
 				 *nodeB = nullptr,
 				 *nodeC = nullptr,
-				 *nodeD = nullptr;
+				 *nodeD = nullptr,
+				 *firstChainNode = nullptr,
+				 *secondChainNode = nullptr,
+				 *thirdChainNode = nullptr;
 	};
 }
 

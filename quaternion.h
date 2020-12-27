@@ -17,6 +17,8 @@ namespace vb01{
 				*this = this->fromAngle(angle, axis);
 			}
 			Quaternion(){}
+			inline bool operator==(Quaternion q){return w == q.w && x == q.x && y == q.y && z == q.z;}
+			inline bool operator!=(Quaternion q){return w != q.w || x != q.x || y != q.y || z != q.z;}
 			inline Quaternion operator- (){return Quaternion(w, -x, -y, -z);}
 			inline Quaternion operator* (Quaternion q){
 				float a1 = this->w, a2 = q.w,

@@ -17,44 +17,12 @@ namespace vb01{
 		nodeC = new Node();
 		nodeD = new Node();
 
-		parentA = new Node();
-		childA0 = new Node();
-		childA1 = new Node();
-		childA2 = new Node();
-		parentA->attachChild(childA0);
-		parentA->attachChild(childA1);
-		parentA->attachChild(childA2);
-		parentB = new Node();
-		childB0 = new Node();
-		childB1 = new Node();
-		childB2 = new Node();
-		parentB->attachChild(childB0);
-		parentB->attachChild(childB1);
-		parentB->attachChild(childB2);
-		parentC = new Node();
-		childC0 = new Node();
-		childC1 = new Node();
-		childC2 = new Node();
-		parentC->attachChild(childC0);
-		parentC->attachChild(childC1);
-		parentC->attachChild(childC2);
-		parentD = new Node();
-		childD0 = new Node();
-		childD1 = new Node();
-		childD2 = new Node();
-		parentD->attachChild(childD0);
-		parentD->attachChild(childD1);
-		parentD->attachChild(childD2);
-		parentA->attachChild(parentB);
-		parentB->attachChild(parentC);
-		parentC->attachChild(parentD);
-
-		rootNode->attachChild(nodeA);
-		nodeA->attachChild(nodeB);
-		/*
-		nodeA->attachChild(nodeC);
-		nodeA->attachChild(nodeD);
-		*/
+		firstChainNode = new Node();
+		rootNode->attachChild(firstChainNode);
+		secondChainNode = new Node();
+		firstChainNode->attachChild(secondChainNode);
+		thirdChainNode = new Node();
+		secondChainNode->attachChild(thirdChainNode);
 	}
 
 	void NodeTest::tearDown(){
@@ -67,6 +35,92 @@ namespace vb01{
 		*/
 	}
 
+	void NodeTest::testLocalToGlobalPosition(){
+		firstChainNode->setPosition(Vector3::VEC_ZERO);
+		secondChainNode->setPosition(Vector3::VEC_ZERO);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+
+		CPPUNIT_ASSERT(firstChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+
+		Vector3 pos0 = Vector3(1, 1, 1);
+		thirdChainNode->setPosition(pos0);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos0);
+
+		Vector3 pos1 = Vector3(1, 2, 3);
+		secondChainNode->setPosition(pos1);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos1);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos1);
+
+		Vector3 pos2 = Vector3(1, 2, 1);
+		Vector3 pos22 = Vector3(1, 2, 2);
+		secondChainNode->setPosition(pos2);
+		thirdChainNode->setPosition(pos22);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos2);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalPosition(pos22) == pos2 + pos22);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos2 +  pos22);
+
+		Vector3 pos3 = Vector3(1, 2, 1);
+		firstChainNode->setPosition(pos3);
+		secondChainNode->setPosition(Vector3::VEC_ZERO);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(firstChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos3);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos3);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalPosition(Vector3::VEC_ZERO) == pos3);
+	}
+
+	void NodeTest::testGlobalToLocalPosition(){
+		firstChainNode->setPosition(Vector3::VEC_ZERO);
+		secondChainNode->setPosition(Vector3::VEC_ZERO);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+
+		CPPUNIT_ASSERT(firstChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(secondChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(thirdChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == Vector3::VEC_ZERO);
+
+		Vector3 pos0 = Vector3(1, 1, 1);
+		thirdChainNode->setPosition(pos0);
+		CPPUNIT_ASSERT(thirdChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos0);
+
+		Vector3 pos1 = Vector3(1, 2, 3);
+		secondChainNode->setPosition(pos1);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(secondChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos1);
+		CPPUNIT_ASSERT(thirdChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos1);
+
+		Vector3 pos2 = Vector3(1, 2, 3);
+		secondChainNode->setPosition(pos2);
+		thirdChainNode->setPosition(pos2);
+		CPPUNIT_ASSERT(secondChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos2);
+		CPPUNIT_ASSERT(thirdChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos2 * 2);
+
+		Vector3 pos3 = Vector3(1, 2, 3);
+		firstChainNode->setPosition(pos3);
+		secondChainNode->setPosition(Vector3::VEC_ZERO);
+		thirdChainNode->setPosition(Vector3::VEC_ZERO);
+		CPPUNIT_ASSERT(firstChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos3);
+		CPPUNIT_ASSERT(secondChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos3);
+		CPPUNIT_ASSERT(thirdChainNode->globalToLocalPosition(Vector3::VEC_ZERO) == -pos3);
+	}
+
+	void NodeTest::testGlobalToLocalOrientation(){
+	}
+
+	void NodeTest::testLocalToGlobalOrientation(){
+		firstChainNode->setOrientation(Quaternion::QUAT_W);
+		secondChainNode->setOrientation(Quaternion::QUAT_W);
+		thirdChainNode->setOrientation(Quaternion::QUAT_W);
+
+		CPPUNIT_ASSERT(firstChainNode->localToGlobalOrientation(Quaternion::QUAT_W) == Quaternion::QUAT_W);
+		CPPUNIT_ASSERT(secondChainNode->localToGlobalOrientation(Quaternion::QUAT_W) == Quaternion::QUAT_W);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalOrientation(Quaternion::QUAT_W) == Quaternion::QUAT_W);
+
+		Quaternion q0 = Quaternion(.2, Vector3(0, 1, 0));
+		thirdChainNode->setOrientation(q0);
+		CPPUNIT_ASSERT(thirdChainNode->localToGlobalOrientation(Quaternion::QUAT_W) == q0);
+	}
 	void NodeTest::testDetachChild(){
 		nodeA->dettachChild(nodeB);
 		CPPUNIT_ASSERT(nodeA->getChild(0) != nodeB);
@@ -117,6 +171,7 @@ namespace vb01{
 		vector<Node*> parentCDescendants;
 		vector<Node*> parentDDescendants;
 
+		/*
 	   	parentA->getDescendants(parentADescendants);
 	   	parentB->getDescendants(parentBDescendants);
 	   	parentC->getDescendants(parentCDescendants);
@@ -126,5 +181,6 @@ namespace vb01{
 		CPPUNIT_ASSERT(parentDDescendants[0] == childD0);
 		CPPUNIT_ASSERT(parentDDescendants[1] == childD1);
 		CPPUNIT_ASSERT(parentDDescendants[2] == childD2);
+		*/
 	}
 }
