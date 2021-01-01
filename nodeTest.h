@@ -9,12 +9,9 @@ namespace vb01{
 
 	class NodeTest : public CppUnit::TestFixture{
 		CPPUNIT_TEST_SUITE(NodeTest);
-		/*
-		CPPUNIT_TEST(testDetachChild);
+		CPPUNIT_TEST(testGetAncestors);
 		CPPUNIT_TEST(testAdjustDir);
 		CPPUNIT_TEST(testAdjustUp);
-		CPPUNIT_TEST(testGetDescendants);
-		*/
 		CPPUNIT_TEST(testLocalToGlobalPosition);
 		CPPUNIT_TEST(testGlobalToLocalPosition);
 		CPPUNIT_TEST(testLocalToGlobalOrientation);
@@ -29,17 +26,19 @@ namespace vb01{
 			void testAdjustDir();
 			void testAdjustUp();
 			void testDetachChild();
-			void testGetDescendants();
+			void testGetAncestors();
 			void testLocalToGlobalPosition();
 			void testGlobalToLocalPosition();
 			void testLocalToGlobalOrientation();
 			void testGlobalToLocalOrientation();
 
 			Node *rootNode = nullptr,
-				 *nodeA = nullptr,
-				 *nodeB = nullptr,
-				 *nodeC = nullptr,
-				 *nodeD = nullptr,
+				 *ancestorA = nullptr,
+				 *ancestorB = nullptr,
+				 *ancestorC = nullptr,
+				 *ancestorD = nullptr,
+				 *lookNodeParent = nullptr,
+				 *lookNode = nullptr,
 				 *firstChainNode = nullptr,
 				 *secondChainNode = nullptr,
 				 *thirdChainNode = nullptr;

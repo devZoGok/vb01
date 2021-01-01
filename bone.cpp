@@ -10,7 +10,7 @@ namespace vb01{
 	}
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp, Node *par){
-		Node::lookAt(newDir, newUp, par);
+		Node::lookAt(newDir, newUp);
 		for(int i = 0; i < 3; i++)
 			this->initAxis[i] = globalAxis[i];
 		restPos = pos;

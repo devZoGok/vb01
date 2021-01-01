@@ -101,60 +101,42 @@ namespace vb01{
 		text->setNode(this);	
 	}
 
-	void Node::lookAt(Vector3 newDir, Vector3 newUp, Node *node){
-		adjustDir(newDir, node);
-		adjustUp(newUp, node);
+	void Node::lookAt(Vector3 newDir, Vector3 newUp){
+		adjustDir(newDir);
+		adjustUp(newUp);
 	}
 
-	void Node::lookAt(Vector3 newDir, Node *node){
-		adjustDir(newDir, node);
+	void Node::lookAt(Vector3 newDir){
+		adjustDir(newDir);
 	}
 
-	void Node::adjustDir(Vector3 newDir, Node *node){
-		Vector3 parAxis[]{
-			node->getGlobalAxis(0),
-			node->getGlobalAxis(1),
-			node->getGlobalAxis(2)
-		};
-		newDir = (parAxis[0] * newDir.x + parAxis[1] * newDir.y + parAxis[2] * newDir.z).norm();
-
-		float angle = globalAxis[2].getAngleBetween(newDir);
-		Vector3 rotAxis = globalAxis[2].cross(newDir).norm();
+	void Node::adjustDir(Vector3 newDir){
+		float angle = Vector3(0, 0, 1).getAngleBetween(newDir);
+		Vector3 rotAxis = Vector3(0, 0, 1).cross(newDir).norm();
 		if(rotAxis == Vector3::VEC_ZERO)
-			rotAxis = globalAxis[1];
+			rotAxis = Vector3::VEC_I;
 
-		Quaternion oldRot = node->localToGlobalOrientation(orientation);
-		Quaternion newRot = node->globalToLocalOrientation(Quaternion(angle,rotAxis));
-		setOrientation(newRot * oldRot);
+		setOrientation(Quaternion(angle, rotAxis));
 	}
 
-	void Node::adjustUp(Vector3 newUp, Node *node){
-		Vector3 parAxis[]{
-			node->getGlobalAxis(0),
-			node->getGlobalAxis(1),
-			node->getGlobalAxis(2)
-		};
-		newUp = (parAxis[0] * newUp.x + parAxis[1] * newUp.y + parAxis[2] * newUp.z).norm();
-
+	void Node::adjustUp(Vector3 newUp){
 		mat3 mat;
-		mat[0][0] = globalAxis[0].x;
-		mat[1][0] = globalAxis[0].y;
-		mat[2][0] = globalAxis[0].z;
-		mat[0][1] = globalAxis[1].x;
-		mat[1][1] = globalAxis[1].y;
-		mat[2][1] = globalAxis[1].z;
-		mat[0][2] = globalAxis[2].x;
-		mat[1][2] = globalAxis[2].y;
-		mat[2][2] = globalAxis[2].z;
+		mat[0][0] = 1;
+		mat[1][0] = 0;
+		mat[2][0] = 0;
+		mat[0][1] = 0;
+		mat[1][1] = 1;
+		mat[2][1] = 0;
+		mat[0][2] = 0;
+		mat[1][2] = 0;
+		mat[2][2] = 1;
 		mat = inverse(mat);
 
 		vec3 nu = vec3(newUp.x, newUp.y, newUp.z) * mat;
-		newUp = (globalAxis[0] * nu.x + globalAxis[1] * nu.y).norm();
-		float angle = globalAxis[1].getAngleBetween(newUp);
+		newUp = (Vector3(1, 0, 0) * nu.x + Vector3(0, 1, 0) * nu.y).norm();
+		float angle = Vector3(0, 1, 0).getAngleBetween(newUp);
 
-		Quaternion oldRot = node->localToGlobalOrientation(orientation);
-		Quaternion newRot = node->globalToLocalOrientation(Quaternion(angle * (nu.x < 0 ? 1 : -1), globalAxis[2]));
-		setOrientation(newRot * oldRot);
+		setOrientation(Quaternion(angle * (nu.x < 0 ? 1 : -1), Vector3::VEC_K));
 	}
 
 	void Node::getDescendants(vector<Node*> &descendants){

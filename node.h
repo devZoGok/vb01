@@ -31,8 +31,8 @@ namespace vb01{
 			void addLight(Light*);
 			void removeLight(int);
 			void addText(Text*);
-			virtual void lookAt(Vector3, Vector3, Node*);
-			virtual void lookAt(Vector3, Node*);
+			virtual void lookAt(Vector3, Vector3);
+			virtual void lookAt(Vector3);
 			void updateAxis();
 			void setOrientation(Quaternion);
 			void getDescendants(std::vector<Node*>&);
@@ -64,8 +64,8 @@ namespace vb01{
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
 		private:
-			void adjustUp(Vector3, Node*);
-			void adjustDir(Vector3, Node*);
+			void adjustUp(Vector3);
+			void adjustDir(Vector3);
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
 		protected:
 			void updateShaders();
