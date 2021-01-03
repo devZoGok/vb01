@@ -162,11 +162,12 @@ namespace vb01{
 			int colonId = line.find_first_of(':');
 			if(colonId != -1){
 				string data[2];
-				string postCol = line.substr(colonId + 1);
+				string postCol = line.substr(colonId + 2);
 				getLineData(postCol, data, 2);
 				string animName = data[0];
-				int numBones = atoi(data[1].c_str());
-				controller->addAnimation(new Animation(animName));
+
+				Animation *animation = new Animation(animName);
+				controller->addAnimation(animation);
 			}
 		}
 	}
@@ -181,18 +182,15 @@ namespace vb01{
 			Bone *animBone = skeleton->getBone(data[1]);
 			int numChannelTypes = atoi(data[2].c_str());
 
-			getLineData(line, data, numChannelTypes * 2, 3);
+			getLineData(line, data, numChannelTypes, 3);
 			KeyframeGroup keyframeGroup;
-			for(int i = 0; i < numChannelTypes * 2; i++){
-				string typeString = data[i * 2];
-				int numChannels = atoi(data[i * 2 + 1].c_str());
+			keyframeGroup.bone = animBone;
+			for(int i = 0; i < numChannelTypes; i++){
+				string typeString = data[i];
 				KeyframeChannelType type = anim->getKeyframeChannelType(typeString);
-
-				for(int j = 0; j < numChannels; j++){
-					KeyframeChannel keyframeChannel;
-					keyframeChannel.type = type;
-					keyframeGroup.keyframeChannels.push_back(keyframeChannel);
-				}
+				KeyframeChannel keyframeChannel;
+				keyframeChannel.type = type;
+				keyframeGroup.keyframeChannels.push_back(keyframeChannel);
 			}
 			anim->addKeyframeGroup(keyframeGroup);
 		}
@@ -205,40 +203,42 @@ namespace vb01{
 			string data[numData];
 			getLineData(line, data, numData);
 			Animation *anim = controller->getAnimation(data[0]);
-			Bone *animBone = skeleton->getBone(data[1]); 
+			Bone *animBone = skeleton->getBone(data[1]);
 			KeyframeChannelType type = anim->getKeyframeChannelType(data[2]);
-			KeyframeChannel channel = anim->getKeyframeChannel(animBone, type);
+			KeyframeChannel *channel = anim->getKeyframeChannel(animBone, type);
 
 			Keyframe keyframe;
 			keyframe.value = atof(data[3].c_str());
 			keyframe.frame = atoi(data[4].c_str());
 			keyframe.interpolation = (KeyframeInterpolation)atoi(data[5].c_str());
-			channel.keyframes.push_back(keyframe);
+
+			channel->keyframes.push_back(keyframe);
 		}
 	}
 
 	Skeleton* VbModelReader::readSkeleton(vector<string> &skeletonData){
-		//vector<string> skeletonMetaData(skeletonData.begin() + 1, skeletonData.begin() + 7);
-	   	string name = skeletonData[0].substr(getCharId(skeletonData[0], ':') + 2, string::npos);
+	   	string name = skeletonData[0].substr(getCharId(skeletonData[0], ':') + 2);
 		string line = skeletonData[5];
 	   	string data[3];
 	   	getLineData(line, data, 3);
 
 		int numBones = atoi(data[1].c_str());
-		int numKeyframeGroups = -2;
-		int numAnimations = atoi(data[2].c_str());
+		line = skeletonData[6 + numBones].substr(getCharId(skeletonData[6 + numBones], ':') + 2);
+		int numAnimations = atoi(line.c_str());
+		line = skeletonData[7 + numBones].substr(getCharId(skeletonData[7 + numBones], ':') + 2);
+		int numKeyframeGroups = atoi(line.c_str());
 
-		int boneStartLine = 7;
-		int animationStartLine = boneStartLine + numBones + 1;
-		int keyframeGroupStartLine = animationStartLine + numKeyframeGroups + 1;
-		int keyframeStartLine = animationStartLine + numAnimations + 1;
+		int boneStartLine = 6;
+		int animationStartLine = boneStartLine + numBones + 2;
+		int keyframeGroupStartLine = animationStartLine + numAnimations;
+		int keyframeStartLine = keyframeGroupStartLine + numKeyframeGroups;
 
 		Skeleton *skeleton = new Skeleton(name);
 
 		vector<string> skeletonSubData = vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
 		createBones(skeleton, skeletonSubData);
 		skeletonSubData.clear();
-		
+
 		skeletonSubData = vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + animationStartLine + numAnimations);
 		readAnimations(skeleton, skeletonSubData);
 		skeletonSubData.clear();
@@ -247,7 +247,7 @@ namespace vb01{
 		readKeyframesGroups(skeleton, skeletonSubData);
 		skeletonSubData.clear();
 
-		skeletonSubData = vector<string>(skeletonData.begin() + keyframeGroupStartLine, skeletonData.end());
+		skeletonSubData = vector<string>(skeletonData.begin() + keyframeStartLine, skeletonData.end());
 		readKeyframes(skeleton, skeletonSubData);
 		skeletonSubData.clear();
 

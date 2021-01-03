@@ -42,8 +42,17 @@ namespace vb01{
 		return type;
 	}
 
-	KeyframeChannel Animation::getKeyframeChannel(Bone *bone, KeyframeChannelType type){
-		KeyframeChannel k;
+	KeyframeChannel* Animation::getKeyframeChannel(Bone *bone, KeyframeChannelType type){
+		KeyframeChannel *k = nullptr;
+
+		KeyframeGroup *group = getKeyframeGroup(bone);
+		for(KeyframeChannel &channel : group->keyframeChannels){
+			if(channel.type == type){
+				k = &channel;
+				break;
+			}
+		}
+
 		return k;
 	}
 }

@@ -17,6 +17,7 @@ namespace vb01{
 
 	class Model : public Node{
 		public:
+			Model(){}
 			Model(std::string);
 			~Model();
 			void update();

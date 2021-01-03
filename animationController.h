@@ -17,6 +17,7 @@ namespace vb01{
 			~AnimationController();
 			void update();
 			Animation* getAnimation(std::string);
+			inline std::vector<Animation*> getAnimations(){return animations;}
 			inline void addAnimation(Animation *anim){animations.push_back(anim);}
 			inline void addAnimationChannel(AnimationChannel *channel){channels.push_back(channel);}
 		private:

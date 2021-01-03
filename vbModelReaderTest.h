@@ -8,6 +8,7 @@
 
 #include "vector.h"
 #include "animation.h"
+#include "model.h"
 
 namespace vb01{
 	class VbModelReader;
@@ -49,7 +50,9 @@ namespace vb01{
 				int ikChainLength;
 			};
 
+			Node *rootNode = nullptr;
 			VbModelReader *modelReader = nullptr;
+			Model *model = nullptr;
 			std::string meshName, skeletonName, meshParent, skeletonParent;
 			std::vector<std::string> vertexGroups;
 			std::vector<Vector3> vertPos, vertNorm, vertTan, vertBiTan;

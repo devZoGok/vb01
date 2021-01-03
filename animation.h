@@ -44,8 +44,9 @@ namespace vb01{
 			~Animation();
 			void update();
 			KeyframeGroup* getKeyframeGroup(Bone *b);
-			KeyframeGroup::KeyframeChannel getKeyframeChannel(Bone *b, KeyframeGroup::KeyframeChannel::Type);
+			KeyframeGroup::KeyframeChannel* getKeyframeChannel(Bone *b, KeyframeGroup::KeyframeChannel::Type);
 			static KeyframeGroup::KeyframeChannel::Type getKeyframeChannelType(std::string&);
+			inline int getNumKeyframeGroups(){return keyframeGroups.size();}
 			inline std::string getName(){return name;}
 			inline void addKeyframeGroup(KeyframeGroup k){keyframeGroups.push_back(k);}
 		private:

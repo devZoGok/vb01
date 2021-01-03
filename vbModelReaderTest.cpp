@@ -1,6 +1,7 @@
 #include "vbModelReaderTest.h"
 #include "vbModelReader.h"
 #include "skeleton.h"
+#include "animationController.h"
 
 using namespace std;
 
@@ -10,6 +11,7 @@ namespace vb01{
 	VbModelReaderTest::~VbModelReaderTest(){}
 
 	void VbModelReaderTest::setUp(){
+		rootNode = Root::getSingleton()->getRootNode();
 		modelReader = new VbModelReader();
 		setupSkeleton();
 		setupMesh();
@@ -20,13 +22,16 @@ namespace vb01{
 	}
 
 	void VbModelReaderTest::setupSkeleton(){
+		model = new Model();
+		rootNode->attachChild(model);
+		modelReader->model = model;
+
 		bones = vector<vbReader::Bone>({
-				Bone("", "", Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), "", 0)
+				Bone("bipod", "-", Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 1, 0), "", 0),
+				Bone("bipod.L", "bipod", Vector3(1, 0, 2), Vector3(1, 0, 0), Vector3(0, 0, -1), "", 0),
+				Bone("bipod.R", "bipod", Vector3(-1, 0, 2), Vector3(-1, 0, 0), Vector3(0, 0, -1), "", 0)
 		});
 		skeletonParent = "-";
-
-		animations = vector<Animation>({
-		});
 
 		int numBones = bones.size();
 
@@ -35,16 +40,44 @@ namespace vb01{
 		skeletonData.push_back("rot: 1.0 0.0 0.0 -0.0");
 		skeletonData.push_back("scale: 1.0 1.0 1.0");
 		skeletonData.push_back("parent: " + skeletonParent);
-		skeletonData.push_back("bones: " + to_string(numBones) + " 1 ");
+		skeletonData.push_back("bones: " + to_string(numBones) + " ");
 		for(vbReader::Bone b : bones){
 			string headStr = to_string(b.head.x) + " " + to_string(b.head.y) + " " + to_string(b.head.z) + " ";
 			string xAxisStr = to_string(b.xAxis.x) + " " + to_string(b.xAxis.y) + " " + to_string(b.xAxis.z) + " ";
 			string yAxisStr = to_string(b.yAxis.x) + " " + to_string(b.yAxis.y) + " " + to_string(b.yAxis.z) + " ";
-			skeletonData.push_back(b.name + ": " + " " + b.parent + " " + headStr + xAxisStr + yAxisStr + b.ikTarget + " " + to_string(b.ikChainLength) + " ");
+			skeletonData.push_back(b.name + ": " + b.parent + " " + headStr + xAxisStr + yAxisStr + b.ikTarget + " " + to_string(b.ikChainLength) + " ");
 		}
-		skeletonData.push_back("animations: 1");
-		skeletonData.push_back("animation: Action 3 bipod bipod.R bipod.L ");
-		skeletonData.push_back("bipod: 3 pos_x 3 pos_y 3 pos_z 3 rot_w 3 rot_x 3 rot_y 3 rot_z ");
+		skeletonData.push_back("animations: 1 ");
+		skeletonData.push_back("channels: 2 ");
+		skeletonData.push_back("animation: Action ");
+		skeletonData.push_back("Action bipod.L 7 pos_x pos_y pos_z rot_w rot_x rot_y rot_z ");
+		skeletonData.push_back("Action bipod.R 6 pos_x pos_y pos_z rot_w rot_x rot_y ");
+		skeletonData.push_back("Action bipod.L pos_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L pos_x 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L pos_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L pos_y 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L pos_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L pos_z 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_w 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_w 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_x 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_y 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.L rot_z 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_x 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_y 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R pos_z 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_w 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_w 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_x 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("Action bipod.R rot_y 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
 	}
 
 	void VbModelReaderTest::setupMesh(){
@@ -105,7 +138,36 @@ namespace vb01{
 	}
 
 	void VbModelReaderTest::testReadSkeletons(){
-		//Skeleton *skeleton = modelReader->readSkeleton(skeletonData);
+		Skeleton *skeleton = modelReader->readSkeleton(skeletonData);
+		int numBones = skeleton->getNumBones();
+		for(int i = 0; i < numBones; i++){
+			CPPUNIT_ASSERT(skeleton->getBone(i)->getName() == bones[i].name);
+
+			vb01::Bone *parent = (vb01::Bone*)skeleton->getBone(i)->getParent();
+			/*
+			if(parent->getName() != "")
+				CPPUNIT_ASSERT(parent->getName() == bones[i].parent);
+			else
+				CPPUNIT_ASSERT(bones[i].parent == "-");
+				*/
+		}
+		AnimationController *controller = skeleton->getAnimationController();
+		Animation *animation = controller->getAnimation("Action");
+		CPPUNIT_ASSERT(animation);
+
+		KeyframeGroup *leftBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.L"));
+		KeyframeGroup *rightBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.R"));
+		CPPUNIT_ASSERT(leftBipodGroup);
+		CPPUNIT_ASSERT(rightBipodGroup);
+		for(KeyframeChannel keyframeChannel : leftBipodGroup->keyframeChannels)
+			CPPUNIT_ASSERT(keyframeChannel.keyframes.size() == 2);
+		for(KeyframeChannel keyframeChannel : rightBipodGroup->keyframeChannels)
+			CPPUNIT_ASSERT(keyframeChannel.keyframes.size() == 2);
+
+		Keyframe lastRightBipodKeyframe = animation->getKeyframeChannel(skeleton->getBone("bipod.R"), KeyframeChannelType::ROT_Y)->keyframes[1];
+		CPPUNIT_ASSERT(lastRightBipodKeyframe.value == 10);
+		CPPUNIT_ASSERT(lastRightBipodKeyframe.frame == 10);
+		CPPUNIT_ASSERT(lastRightBipodKeyframe.interpolation == KeyframeInterpolation::BEZIER);
 	}
 
 	void VbModelReaderTest::testReadMeshes(){
