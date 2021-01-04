@@ -25,19 +25,19 @@ namespace vb01{
 		vector<string> data;
 		for(it = skeletonBracketIds.begin(); it != skeletonBracketIds.end(); ++it){
 			int key = it->first;
-			readFile(path, data, key, skeletonBracketIds[key]);
+			readFile(path, data, key + 1, skeletonBracketIds[key]);
 			skeletons.push_back(readSkeleton(data));
 			data.clear();
 		}
 		for(it = meshBracketIds.begin(); it != meshBracketIds.end(); ++it){
 			int key = it->first;
-			readFile(path, data, key, meshBracketIds[key]);
+			readFile(path, data, key + 1, meshBracketIds[key]);
 			buildMesh(data);
 			data.clear();
 		}
 		for(it = lightBracketIds.begin(); it != lightBracketIds.end(); ++it){
 			int key = it->first;
-			readFile(path, data, key, lightBracketIds[key]);
+			readFile(path, data, key + 1, lightBracketIds[key]);
 			readLights(data);
 			data.clear();
 		}
@@ -222,13 +222,15 @@ namespace vb01{
 	   	string data[3];
 	   	getLineData(line, data, 3);
 
+		int boneStartLine = 6;
 		int numBones = atoi(data[1].c_str());
-		line = skeletonData[6 + numBones].substr(getCharId(skeletonData[6 + numBones], ':') + 2);
+
+		line = skeletonData[boneStartLine + numBones].substr(getCharId(skeletonData[boneStartLine + numBones], ':') + 2);
 		int numAnimations = atoi(line.c_str());
-		line = skeletonData[7 + numBones].substr(getCharId(skeletonData[7 + numBones], ':') + 2);
+
+		line = skeletonData[boneStartLine + numBones + 1].substr(getCharId(skeletonData[boneStartLine + numBones + 1], ':') + 2);
 		int numKeyframeGroups = atoi(line.c_str());
 
-		int boneStartLine = 6;
 		int animationStartLine = boneStartLine + numBones + 2;
 		int keyframeGroupStartLine = animationStartLine + numAnimations;
 		int keyframeStartLine = keyframeGroupStartLine + numKeyframeGroups;

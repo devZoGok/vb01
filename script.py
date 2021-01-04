@@ -41,7 +41,16 @@ def exportData(ob):
             file.write('\n' + bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' ')
 
         if numAnims > 0:
-            file.write("\nanimations: " + str(numAnims))
+            numGroups = 0
+            for nlaStrip in ob.animation_data.nla_tracks[0].strips:
+                animName = nlaStrip.name
+                action = bpy.data.actions[animName]
+                for group in action.groups:
+                    numGroups += 1;
+
+
+            file.write('\nanimations: ' + str(numAnims))
+            file.write('\ngroups: ' + str(numGroups))
             for nlaStrip in ob.animation_data.nla_tracks[0].strips:
                 animName = nlaStrip.name
                 action = bpy.data.actions[animName]
@@ -57,12 +66,12 @@ def exportData(ob):
                     start = nlaStrip.frame_start
                     end = nlaStrip.frame_end
 
-                    file.write(animName + ' ' + group.name + ' ')
+                    file.write(animName + ' ' + group.name + ' ' + str(len(group.channels)) + ' ')
 
                     for channel in group.channels:
                         numKeyframes = len(channel.keyframe_points)
                         channelType = getChannelType(channel)
-                        file.write(str(numKeyframes) + ' ' + channelType + ' ')
+                        file.write(channelType + ' ')
 
                     file.write('\n')
 

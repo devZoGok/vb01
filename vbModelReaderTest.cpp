@@ -48,7 +48,7 @@ namespace vb01{
 			skeletonData.push_back(b.name + ": " + b.parent + " " + headStr + xAxisStr + yAxisStr + b.ikTarget + " " + to_string(b.ikChainLength) + " ");
 		}
 		skeletonData.push_back("animations: 1 ");
-		skeletonData.push_back("channels: 2 ");
+		skeletonData.push_back("groups: 2 ");
 		skeletonData.push_back("animation: Action ");
 		skeletonData.push_back("Action bipod.L 7 pos_x pos_y pos_z rot_w rot_x rot_y rot_z ");
 		skeletonData.push_back("Action bipod.R 6 pos_x pos_y pos_z rot_w rot_x rot_y ");
@@ -144,12 +144,10 @@ namespace vb01{
 			CPPUNIT_ASSERT(skeleton->getBone(i)->getName() == bones[i].name);
 
 			vb01::Bone *parent = (vb01::Bone*)skeleton->getBone(i)->getParent();
-			/*
 			if(parent->getName() != "")
 				CPPUNIT_ASSERT(parent->getName() == bones[i].parent);
 			else
 				CPPUNIT_ASSERT(bones[i].parent == "-");
-				*/
 		}
 		AnimationController *controller = skeleton->getAnimationController();
 		Animation *animation = controller->getAnimation("Action");
