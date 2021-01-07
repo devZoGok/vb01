@@ -9,6 +9,7 @@
 #include"animationController.h"
 
 #include<vector>
+#include<algorithm>
 #include<fstream>
 
 using namespace std;
@@ -117,11 +118,26 @@ namespace vb01{
 
 			float length = atof(data[1].c_str());
 			Vector3 head = Vector3(atof(data[2].c_str()), atof(data[3].c_str()), atof(data[4].c_str()));
-			Vector3 xAxis = Vector3(atof(data[5].c_str()), atof(data[6].c_str()), atof(data[7].c_str()));
-			Vector3 yAxis = Vector3(atof(data[8].c_str()), atof(data[9].c_str()), atof(data[10].c_str()));
+			Vector3 xAxis = Vector3(atof(data[5].c_str()), atof(data[6].c_str()), atof(data[7].c_str())).norm();
+			Vector3 yAxis = Vector3(atof(data[8].c_str()), atof(data[9].c_str()), atof(data[10].c_str())).norm();
+
+			float eps = pow(10, -2);
+			if(fabs(xAxis.x) < eps)
+				xAxis.x = 0;
+			if(fabs(xAxis.y) < eps)
+				xAxis.y = 0;
+			if(fabs(xAxis.z) < eps)
+				xAxis.z = 0;
+			if(fabs(yAxis.x) < eps)
+				yAxis.x = 0;
+			if(fabs(yAxis.y) < eps)
+				yAxis.y = 0;
+			if(fabs(yAxis.z) < eps)
+				yAxis.z = 0;
+
 			string ikTarget = data[11].c_str();
 			int ikChainLength = atoi(data[12].c_str());
-			Vector3 zAxis = xAxis.cross(yAxis);
+			Vector3 zAxis = xAxis.cross(yAxis).norm();
 			Vector3 pos = head;
 
 			string parName = string(data[0].c_str());
@@ -143,7 +159,7 @@ namespace vb01{
 			Bone *bone = new Bone(preColon, length, pos);
 			bone->setIkChainLength(ikChainLength);
 			skeleton->addBone(bone, (Bone*)parent);
-			bone->lookAt(zAxis, yAxis, parent);
+			bone->lookAt(zAxis, yAxis);
 			if(ikTarget != "-")
 				ikRelationships.emplace(preColon, ikTarget);
 		}

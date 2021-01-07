@@ -120,23 +120,34 @@ namespace vb01{
 	}
 
 	void Node::adjustUp(Vector3 newUp){
+		Vector3 xDir =
+		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_I)) - 
+		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
+
+		Vector3 yDir =
+		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_J)) - 
+		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
+
+		Vector3 zDir = xDir.cross(yDir).norm();
+
 		mat3 mat;
-		mat[0][0] = 1;
-		mat[1][0] = 0;
-		mat[2][0] = 0;
-		mat[0][1] = 0;
-		mat[1][1] = 1;
-		mat[2][1] = 0;
-		mat[0][2] = 0;
-		mat[1][2] = 0;
-		mat[2][2] = 1;
-		mat = inverse(mat);
+		mat[0][0] = xDir.x;
+		mat[1][0] = xDir.y;
+		mat[2][0] = xDir.z;
+		mat[0][1] = yDir.x;
+		mat[1][1] = yDir.y;
+		mat[2][1] = yDir.z;
+		mat[0][2] = zDir.x;
+		mat[1][2] = zDir.y;
+		mat[2][2] = zDir.z;
 
-		vec3 nu = vec3(newUp.x, newUp.y, newUp.z) * mat;
-		newUp = (Vector3(1, 0, 0) * nu.x + Vector3(0, 1, 0) * nu.y).norm();
-		float angle = Vector3(0, 1, 0).getAngleBetween(newUp);
+		vec3 nu = vec3(newUp.x, newUp.y, newUp.z) * inverse(mat);
+		newUp = (xDir * nu.x + yDir * nu.y).norm();
+		if(newUp != Vector3::VEC_ZERO){
+			float angle = yDir.getAngleBetween(newUp);
 
-		setOrientation(Quaternion(angle * (nu.x < 0 ? 1 : -1), Vector3::VEC_K));
+			setOrientation(Quaternion(angle * (nu.x < 0 ? 1 : -1), zDir) * orientation);
+		}
 	}
 
 	void Node::getDescendants(vector<Node*> &descendants){

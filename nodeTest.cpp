@@ -256,6 +256,9 @@ namespace vb01{
 			Vector3 upClamped = Vector3(up[i].x, up[i].y, 0).norm();
 			CPPUNIT_ASSERT(lookNode->getGlobalAxis(1).getAngleBetween(upClamped) < maxAngle);
 		}
+		lookNode->setOrientation(Quaternion::QUAT_W);
+		lookNode->lookAt(Vector3::VEC_K, Vector3::VEC_K);
+		CPPUNIT_ASSERT(lookNode->getGlobalAxis(1) == Vector3::VEC_J);
 
 		Quaternion rotQuat = Quaternion(.707, Vector3(1, 0 ,0));
 		lookNodeParent->setOrientation(rotQuat);

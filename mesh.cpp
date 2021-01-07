@@ -169,6 +169,8 @@ namespace vb01{
 			};
 			Vector3 posePos = bone->getPosePos();
 			Quaternion poseRot = bone->getPoseRot();
+			Vector3 rotAxis = poseRot.getAxis(); 
+			rotAxis = boneAxis[0] * rotAxis.x + boneAxis[1] * rotAxis.y + boneAxis[2] * rotAxis.z;
 			Vector3 trans = boneAxis[0] * posePos.x + boneAxis[1] * posePos.y + boneAxis[2] * posePos.z;
 			Vector3 scale = bone->getPoseScale();
 			Vector3 bonePos = bone->getModelSpacePos();
@@ -185,7 +187,7 @@ namespace vb01{
 
 			shader->setVec3(bonePos, "bones[" + to_string(i) + "].pos");
 			shader->setVec3(trans, "bones[" + to_string(i) + "].trans");
-			shader->setVec3(poseRot.getAxis(), "bones[" + to_string(i) + "].rotAxis");
+			shader->setVec3(rotAxis, "bones[" + to_string(i) + "].rotAxis");
 			shader->setFloat(poseRot.getAngle(), "bones[" + to_string(i) + "].angle");
 			shader->setVec3(scale, "bones[" + to_string(i) + "].scale");
 			shader->setInt(vertGroupId, "bones[" + to_string(i) + "].vertGroup");

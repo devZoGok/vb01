@@ -9,7 +9,7 @@ namespace vb01{
 		this->length = length;
 	}
 
-	void Bone::lookAt(Vector3 newDir, Vector3 newUp, Node *par){
+	void Bone::lookAt(Vector3 newDir, Vector3 newUp){
 		Node::lookAt(newDir, newUp);
 		for(int i = 0; i < 3; i++)
 			this->initAxis[i] = globalAxis[i];
@@ -17,17 +17,6 @@ namespace vb01{
 		restRot = orientation;
 		restScale = scale;
 	}
-
-	/*
-	void Bone::lookAt(Vector3 newDir, Node *par){
-		Node::lookAt(newDir, par);
-		for(int i = 0; i < 3; i++)
-			this->initAxis[i] = globalAxis[i];
-		restPos = pos;
-		restRot = orientation;
-		restScale = scale;
-	}
-	*/
 
 	Vector3 Bone::getModelSpacePos(){
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;

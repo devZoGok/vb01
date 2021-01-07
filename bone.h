@@ -13,8 +13,7 @@ namespace vb01{
 			void setPosePos(Vector3 p);
 			void setPoseRot(Quaternion r);
 			void setPoseScale(Vector3 s);
-			void lookAt(Vector3, Vector3, Node*);
-			//void lookAt(Vector3, Node*);
+			void lookAt(Vector3, Vector3);
 			Vector3 getModelSpacePos();
 			inline Bone* getIkTarget(){return ikTarget;}
 			inline void setIkTarget(Bone *target){this->ikTarget = target;}
