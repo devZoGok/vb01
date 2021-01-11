@@ -20,6 +20,8 @@ namespace vb01{
 			inline int getIkChainLength(){return ikChainLength;}
 			inline void setIkChainLength(int ikChainLength){this->ikChainLength = ikChainLength;}
 			inline float getLength(){return length;}
+			inline bool isIkFromTail(){return ikFromTail;}
+			inline void setIkFromTail(bool ikFromTail){this->ikFromTail = ikFromTail;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
 			inline Vector3 getInitAxis(int i){return initAxis[i];}
 			inline std::string getName(){return name;}
@@ -33,6 +35,7 @@ namespace vb01{
 			float length;
 			Bone *ikTarget = nullptr;
 			int ikChainLength = -1;
+			bool ikFromTail = true;
 			Skeleton *skeleton = nullptr;
 			Vector3 initAxis[3], restPos, posePos = Vector3::VEC_ZERO, restScale, poseScale = Vector3::VEC_IJK;
 			Quaternion restRot, poseRot = Quaternion::QUAT_W;

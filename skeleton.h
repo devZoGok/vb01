@@ -23,7 +23,6 @@ namespace vb01{
 			inline int getNumBones(){return bones.size();}
 		private:
 			void solveIk(Bone*);
-			void calculateFabrik(int, Bone*[], Vector3[], Vector3);
 			void transformIkChain(int, Bone*[], Vector3[], Vector3);
 
 			std::string name;
