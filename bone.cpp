@@ -19,6 +19,7 @@ namespace vb01{
 	}
 
 	Vector3 Bone::getModelSpacePos(){
+		/*
 		Vector3 modelSpacePos = Vector3::VEC_ZERO;
 		Bone *rootBone = skeleton->getRootBone();
 		vector<Node*> boneHierarchy = getAncestors(rootBone);
@@ -38,6 +39,9 @@ namespace vb01{
 			modelSpacePos = modelSpacePos + axis[0] * rPos.x + axis[1] * rPos.y + axis[2] * rPos.z;
 			boneHierarchy.pop_back();
 		}
+		*/
+		Node *modelNode = skeleton->getRootBone()->getParent();
+		Vector3 modelSpacePos = modelNode->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
 
 		return modelSpacePos;
 	}
