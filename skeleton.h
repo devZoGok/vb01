@@ -23,7 +23,7 @@ namespace vb01{
 			inline int getNumBones(){return bones.size();}
 		private:
 			void solveIk(Bone*);
-			void transformIkChain(int, Bone*[], Vector3[], Vector3);
+			void transformIkChain(int, Bone*[], Vector3[], Bone*);
 
 			std::string name;
 			std::vector<Bone*> bones;

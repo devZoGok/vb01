@@ -3,8 +3,11 @@
 #include "animationController.h"
 #include "box.h"
 #include "ikSolver.h"
+#include <glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 using namespace std;
+using namespace glm;
 
 namespace vb01{
 	Skeleton::Skeleton(string name){
@@ -22,51 +25,83 @@ namespace vb01{
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){
-		const int chainLength = ikBone->getIkChainLength();
-		Bone *rootBone = getRootBone();
 		Bone *ikTarget = ikBone->getIkTarget();
+		Bone *subBase = (Bone*)ikTarget->getParent();
+
+		const int chainLength = ikBone->getIkChainLength();
+		Vector3 boneIkPos[chainLength];
 		Bone *boneChain[chainLength];
 		Bone *ikBoneAncestor = ikBone;
-		Vector3 boneIkPos[chainLength];
-	   	Vector3 targetPos = rootBone->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 
 		for(int i = 0; i < chainLength; i++){
 			boneChain[i] = ikBoneAncestor;
 			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
-			boneIkPos[i] = rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
-			boneIkPos[i] = boneChain[i]->getModelSpacePos();
+			boneIkPos[i] = boneChain[i]->getBoneSpaceRestPos(subBase);
 		}
 
+	   	Vector3 targetPos = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 		IkSolver::calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);
-
-		transformIkChain(chainLength, boneChain, boneIkPos, targetPos);
+		transformIkChain(chainLength, boneChain, boneIkPos, ikTarget);
 	}
 
-	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
-		Node *rootBone = getRootBone()->getParent();
-		float boneAngles[chainLength];
-		Vector3 axis[chainLength];
-		for(int i = chainLength - 1; i >= 0; i--){
-			boneChain[i]->setOrientation(boneChain[i]->getRestRot());
-			Vector3 dir = ((i == 0 ? targetPos : boneIkPos[i - 1]) - boneIkPos[i]).norm();
-			Vector3 boneAxis = 
-					(rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_J)) - 
-					rootBone->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO)))
-					.norm();
+	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Bone* ikTarget){
+		Bone *subBase = (Bone*)ikTarget->getParent();
+		Vector3 rotAxis[chainLength];
+		float angles[chainLength];
 
-			Vector3 rotAxis = boneAxis.cross(dir).norm();
-			float angle = boneAxis.getAngleBetween(dir);
-
-			if(rotAxis == Vector3::VEC_ZERO){
-				angle = 0;
-				rotAxis = Vector3::VEC_I;
+		for(int i = 0; i < chainLength; i++){
+			Vector3 tailPosBoneSpace;
+			Vector3 tailRestPosBoneSpace;
+			if(i == 0){
+				tailPosBoneSpace = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
+				tailRestPosBoneSpace = ikTarget->getBoneSpaceRestPos(subBase);
 			}
+			else{
+				tailPosBoneSpace = boneIkPos[i - 1];
+				tailRestPosBoneSpace = boneChain[i - 1]->getBoneSpaceRestPos(subBase);
+			}
+			Vector3 headRestPosBoneSpace = boneChain[i]->getBoneSpaceRestPos(subBase);
+			Vector3 headDir = (tailPosBoneSpace - headRestPosBoneSpace).norm();
+			Vector3 boneDir = (tailRestPosBoneSpace - headRestPosBoneSpace).norm();
 
-			boneAngles[i] = angle; 
-			axis[i] = rotAxis;
+			float angle = boneDir.getAngleBetween(headDir);
+			angles[i] = angle;
 
-			boneChain[i]->setPoseRot(Quaternion(angle, rotAxis));
+			Vector3 axis = boneDir.cross(headDir).norm();
+			if(axis == Vector3::VEC_ZERO)
+				axis = Vector3::VEC_I;
+
+			axis = (
+					subBase->getInitAxis(0) * axis.x +
+					subBase->getInitAxis(1) * axis.y +
+					subBase->getInitAxis(2) * axis.z 
+				).norm();
+
+			mat3 mat;
+			mat[0][0] = boneChain[i]->getInitAxis(0).x;
+			mat[1][0] = boneChain[i]->getInitAxis(0).y;
+			mat[2][0] = boneChain[i]->getInitAxis(0).z;
+			mat[0][1] = boneChain[i]->getInitAxis(1).x;
+			mat[1][1] = boneChain[i]->getInitAxis(1).y;
+			mat[2][1] = boneChain[i]->getInitAxis(1).z;
+			mat[0][2] = boneChain[i]->getInitAxis(2).x;
+			mat[1][2] = boneChain[i]->getInitAxis(2).y;
+			mat[2][2] = boneChain[i]->getInitAxis(2).z;
+			vec3 localAxis = vec3(axis.x, axis.y, axis.z) * inverse(mat);
+
+			rotAxis[i] = Vector3(localAxis.x, localAxis.y, localAxis.z).norm();
 		}
+
+		for(int i = 0; i < chainLength; i++){
+			for(int j = i + 1; j < chainLength; j++)
+				angles[i] -= angles[j];
+
+			if(angles[i] < 0)
+				angles[i] = 0;
+		}
+
+		for(int i = 0; i < chainLength; i++)
+			boneChain[i]->setPoseRot(Quaternion(angles[i], rotAxis[i]));
 	}
 
 	void Skeleton::addBone(Bone *bone, Bone *parent){

@@ -41,25 +41,26 @@ namespace vb01{
 		float eps = .0001;
 		Bone *lowerArm = skeleton->getBone("lowerArm.R");
 		Vector3 testModelSpacePos = Vector3(-1, 4, 0);
+		Bone *rootBone = skeleton->getRootBone();
 
-		CPPUNIT_ASSERT(lowerArm->getModelSpacePos().getDistanceFrom(testModelSpacePos) <= eps);
+		CPPUNIT_ASSERT(lowerArm->getBoneSpaceRestPos(rootBone).getDistanceFrom(testModelSpacePos) <= eps);
 
 		modelNode->setPosition(Vector3::VEC_ZERO);
 		modelNode->setOrientation(Quaternion(.5, Vector3(1, 2, 3).norm()));
-		CPPUNIT_ASSERT(lowerArm->getModelSpacePos().getDistanceFrom(testModelSpacePos) <= eps);
+		CPPUNIT_ASSERT(lowerArm->getBoneSpaceRestPos(rootBone).getDistanceFrom(testModelSpacePos) <= eps);
 		
 		modelNode->setOrientation(Quaternion::QUAT_W);
 		modelNode->setPosition(Vector3(10, 20, 30));
-		CPPUNIT_ASSERT(lowerArm->getModelSpacePos().getDistanceFrom(testModelSpacePos) <= eps);
+		CPPUNIT_ASSERT(lowerArm->getBoneSpaceRestPos(rootBone).getDistanceFrom(testModelSpacePos) <= eps);
 
 		modelNode->setOrientation(Quaternion(.5, Vector3(1, 2, 3).norm()));
 		modelNode->setPosition(Vector3(10, 20, 30));
-		CPPUNIT_ASSERT(lowerArm->getModelSpacePos().getDistanceFrom(testModelSpacePos) <= eps);
+		CPPUNIT_ASSERT(lowerArm->getBoneSpaceRestPos(rootBone).getDistanceFrom(testModelSpacePos) <= eps);
 
 		modelNodeParent->setOrientation(Quaternion(.3, Vector3(1, 2, 3).norm()));
 		modelNodeParent->setPosition(Vector3(100, 200, 300));
 		modelNode->setOrientation(Quaternion(.5, Vector3(1, 2, 3).norm()));
 		modelNode->setPosition(Vector3(10, 20, 30));
-		CPPUNIT_ASSERT(lowerArm->getModelSpacePos().getDistanceFrom(testModelSpacePos) <= eps);
+		CPPUNIT_ASSERT(lowerArm->getBoneSpaceRestPos(rootBone).getDistanceFrom(testModelSpacePos) <= eps);
 	}
 }

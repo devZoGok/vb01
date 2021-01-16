@@ -7,7 +7,8 @@ namespace vb01{
 		for(int i = 0; i < chainLength; i++)
 			sumLengths += boneChain[i]->getLength();
 		
-		Vector3 startPos = boneChain[chainLength - 1]->getModelSpacePos();
+		Bone *subBase = (Bone*)boneChain[0]->getIkTarget()->getParent();
+		Vector3 startPos = boneChain[chainLength - 1]->getBoneSpaceRestPos(subBase);
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 500;
 	

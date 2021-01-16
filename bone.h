@@ -14,6 +14,7 @@ namespace vb01{
 			void setPoseRot(Quaternion r);
 			void setPoseScale(Vector3 s);
 			void lookAt(Vector3, Vector3);
+			Vector3 getBoneSpaceRestPos(Bone*);
 			Vector3 getModelSpacePos();
 			inline Bone* getIkTarget(){return ikTarget;}
 			inline void setIkTarget(Bone *target){this->ikTarget = target;}
@@ -32,6 +33,8 @@ namespace vb01{
 			inline Quaternion getPoseRot(){return poseRot;}
 			inline Vector3 getPoseScale(){return poseScale;}
 		private:
+			void updateBoneInfo();
+
 			float length;
 			Bone *ikTarget = nullptr;
 			int ikChainLength = -1;

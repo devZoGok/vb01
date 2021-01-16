@@ -11,6 +11,10 @@ namespace vb01{
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp){
 		Node::lookAt(newDir, newUp);
+		updateBoneInfo();
+	}
+
+	void Bone::updateBoneInfo(){
 		for(int i = 0; i < 3; i++)
 			this->initAxis[i] = globalAxis[i];
 		restPos = pos;
@@ -18,11 +22,10 @@ namespace vb01{
 		restScale = scale;
 	}
 
-	Vector3 Bone::getModelSpacePos(){
-		/*
-		Vector3 modelSpacePos = Vector3::VEC_ZERO;
+	Vector3 Bone::getBoneSpaceRestPos(Bone *bone){
 		Bone *rootBone = skeleton->getRootBone();
-		vector<Node*> boneHierarchy = getAncestors(rootBone);
+		Vector3 modelSpacePos = Vector3::VEC_ZERO;
+		vector<Node*> boneHierarchy = getAncestors(bone);
 
 		while(!boneHierarchy.empty()){
 			int id = boneHierarchy.size() - 1;
@@ -35,11 +38,15 @@ namespace vb01{
 				curBone != rootBone? par->getInitAxis(2) : Vector3::VEC_K
 			};
 
-			Vector3 rPos = curBone->getRestPos();
+			Vector3 rPos = (curBone == bone ? Vector3::VEC_ZERO : curBone->getRestPos());
 			modelSpacePos = modelSpacePos + axis[0] * rPos.x + axis[1] * rPos.y + axis[2] * rPos.z;
 			boneHierarchy.pop_back();
 		}
-		*/
+
+		return modelSpacePos;
+	}
+
+	Vector3 Bone::getModelSpacePos(){
 		Node *modelNode = skeleton->getRootBone()->getParent();
 		Vector3 modelSpacePos = modelNode->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
 
