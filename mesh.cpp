@@ -173,7 +173,7 @@ namespace vb01{
 			rotAxis = boneAxis[0] * rotAxis.x + boneAxis[1] * rotAxis.y + boneAxis[2] * rotAxis.z;
 			Vector3 trans = boneAxis[0] * posePos.x + boneAxis[1] * posePos.y + boneAxis[2] * posePos.z;
 			Vector3 scale = bone->getPoseScale();
-			Vector3 bonePos = bone->getModelSpacePos();
+			Vector3 bonePos = bone->getBoneSpaceRestPos(skeleton->getRootBone());
 
 			int vertGroupId = -1, parentId = -1;
 			for(int j = 0; j < numVertexGroups; j++)
