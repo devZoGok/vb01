@@ -170,7 +170,7 @@ namespace vb01{
 			Vector3 posePos = bone->getPosePos();
 			Quaternion poseRot = bone->getPoseRot();
 			Vector3 rotAxis = poseRot.getAxis(); 
-			rotAxis = boneAxis[0] * rotAxis.x + boneAxis[1] * rotAxis.y + boneAxis[2] * rotAxis.z;
+			rotAxis = (boneAxis[0] * rotAxis.x + boneAxis[1] * rotAxis.y + boneAxis[2] * rotAxis.z).norm();
 			Vector3 trans = boneAxis[0] * posePos.x + boneAxis[1] * posePos.y + boneAxis[2] * posePos.z;
 			Vector3 scale = bone->getPoseScale();
 			Vector3 bonePos = bone->getBoneSpaceRestPos(skeleton->getRootBone());

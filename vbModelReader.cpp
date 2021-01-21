@@ -288,8 +288,20 @@ namespace vb01{
 			vertPos.push_back(vPos);
 			vertNorm.push_back(vNorm);
 
-			for(int j = 0; j < numBones; j++)
-				vertWeights.push_back(atof(data[6 + j].c_str()));
+			float weightCoefs[numBones];
+			for(int i = 0; i < numBones; i++)
+				weightCoefs[i] = atof(data[6 + i].c_str());
+
+			int numPosWeights = 0;
+			float sumWeightCoefs = 0;
+			for(int i = 0; i < numBones; i++)
+				if(weightCoefs[i] > 0){
+					sumWeightCoefs += weightCoefs[i];
+				}
+
+			float root = 1. / sumWeightCoefs;
+			for(int i = 0; i < numBones; i++)
+				vertWeights.push_back(root * weightCoefs[i]);
 		}
 	}
 
