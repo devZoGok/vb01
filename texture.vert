@@ -4,6 +4,8 @@ const int numBones=1;
 const int numVertGroups=1;
 const int numMaxInfluences = 4;
 
+mat4 transform[numBones];
+
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec3 aNorm;
 layout (location=2) in vec2 aTexCoords;
@@ -21,7 +23,7 @@ out vec2 texCoords;
 struct Bone{
 	float angle;
 	vec3 pos,trans,rotAxis,scale;
-	int vertGroup,parent;
+	int vertGroup,parent,id;
 };
 
 uniform bool animated;
@@ -30,11 +32,20 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
-mat4 createMatrix(float angle, vec3 axis){
+mat4 createTranslationMatrix(vec3 trans){
+	mat4 transMat;
+	transMat[0] = vec4(1, 0, 0, trans.x);
+	transMat[1] = vec4(0, 1, 0, trans.y);
+	transMat[2] = vec4(0, 0, 1, trans.z);
+	transMat[3] = vec4(0, 0, 0, 1);
+	return transpose(transMat);
+}
+
+mat4 createRotationMatrix(float angle, vec3 axis){
 	mat4 rotMat;
 
-	float s = sin(angle);
-	float c = cos(angle);
+	float s = sin(-angle);
+	float c = cos(-angle);
 	float oc = 1.0 - c;
 
 	rotMat[0] = vec4(oc * axis.x * axis.x + c,oc * axis.x * axis.y + axis.z * s,oc * axis.z * axis.x - axis.y * s, 0.0);                              
@@ -42,36 +53,49 @@ mat4 createMatrix(float angle, vec3 axis){
 	rotMat[2] = vec4(oc * axis.z * axis.x + axis.y * s,oc * axis.y * axis.z - axis.x * s,oc * axis.z * axis.z + c, 0.0);                              
 	rotMat[3] = vec4(0, 0, 0, 1);
 
-	return rotMat;
+	return transpose(rotMat);
+}
+
+mat4 createScaleMatrix(vec3 scale){
+	mat4 scaleMat;
+	scaleMat[0] = vec4(scale.x, 0, 0, 0);
+	scaleMat[1] = vec4(0, scale.y, 0, 0);
+	scaleMat[2] = vec4(0, 0, scale.z, 0);
+	scaleMat[3] = vec4(0, 0, 0, 1);
+	return scaleMat;
+}
+
+float getWeight(Bone bone){
+	float weight = 0;
+	for(int i = 0; i < numMaxInfluences; i++){
+		if(bone.vertGroup == aBoneIndices[i])
+			weight = aWeight[i];
+	}
+	return weight;
 }
 
 void main(){
 	vec4 vertPos = vec4(aPos, 1);
 	if(animated){
 		for(int i = 0; i < numBones; i++){
-			float weight = 0;
-			for(int j = 0; j < numMaxInfluences; j++){
-				if(bones[i].vertGroup == aBoneIndices[j])
-					weight = aWeight[j];
-			}	
+			transform[i] = createTranslationMatrix(bones[i].pos);
+		}
 
+		for(int i = 0; i < numBones; i++){
 			Bone bone = bones[i];
+			float weight = getWeight(bone);
 			while(bone.parent != -1){
-				float angle = weight * bone.angle;
 				vec3 trans = bone.trans;
+				float angle = bone.angle;
 				vec3 axis = bone.rotAxis;
 				vec3 scale = bone.scale;
-				vec4 bonePos = vec4(bone.pos, 1);
-			
-				mat4 rotMat = createMatrix(angle, axis);
 				
-				vertPos += -(vertPos - bonePos) + rotMat * (vertPos - bonePos);
-				vec4 vertToBone = vec4(vertPos.xyz - bonePos.xyz, 1);
-				vertPos.xyz += -weight * vertToBone.xyz + weight * vec3(scale.x * vertToBone.x, scale.y * vertToBone.y, scale.z * vertToBone.z);
-				vertPos.xyz += weight * trans;
+				mat4 animTransform = createTranslationMatrix(weight * trans) * createRotationMatrix(weight * angle, axis);
 
+				vec4 boneLocalVert = inverse(transform[bone.id]) * vertPos;
+				vertPos = (transform[bone.id] * animTransform * boneLocalVert); 
+				
 				bone = bones[bone.parent];
-
 			}
 		}
 	}

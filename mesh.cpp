@@ -167,6 +167,19 @@ namespace vb01{
 				bone->getInitAxis(1),
 				bone->getInitAxis(2)
 			};
+
+			int vertGroupId = -1;
+			for(int j = 0; j < numVertexGroups; j++)
+				if(bone->getName() == vertexGroups[j])
+					vertGroupId = j;
+
+		   	int parentId = -1;
+			for(int j = 0; j < skeleton->getNumBones(); j++)
+				if(skeleton->getBone(j) == parent){
+					parentId = j;
+					break;
+				}	
+
 			Vector3 posePos = bone->getPosePos();
 			Quaternion poseRot = bone->getPoseRot();
 			Vector3 rotAxis = poseRot.getAxis(); 
@@ -174,17 +187,7 @@ namespace vb01{
 			Vector3 trans = boneAxis[0] * posePos.x + boneAxis[1] * posePos.y + boneAxis[2] * posePos.z;
 			Vector3 scale = bone->getPoseScale();
 			Vector3 bonePos = bone->getBoneSpaceRestPos(skeleton->getRootBone());
-
-			int vertGroupId = -1, parentId = -1;
-			for(int j = 0; j < numVertexGroups; j++)
-				if(bone->getName() == vertexGroups[j])
-					vertGroupId = j;
-			for(int j = 0; j < skeleton->getNumBones(); j++)
-				if(skeleton->getBone(j) == parent){
-					parentId = j;
-					break;
-				}	
-
+			
 			shader->setVec3(bonePos, "bones[" + to_string(i) + "].pos");
 			shader->setVec3(trans, "bones[" + to_string(i) + "].trans");
 			shader->setVec3(rotAxis, "bones[" + to_string(i) + "].rotAxis");
@@ -192,6 +195,7 @@ namespace vb01{
 			shader->setVec3(scale, "bones[" + to_string(i) + "].scale");
 			shader->setInt(vertGroupId, "bones[" + to_string(i) + "].vertGroup");
 			shader->setInt(parentId, "bones[" + to_string(i) + "].parent");
+			shader->setInt(i, "bones[" + to_string(i) + "].id");
 		}
 	}
 
