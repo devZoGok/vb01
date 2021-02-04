@@ -5,6 +5,7 @@ const int numVertGroups=1;
 const int numMaxInfluences = 4;
 
 mat4 transform[numBones];
+mat4 poseTransform[numBones];
 
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec3 aNorm;
@@ -23,7 +24,7 @@ out vec2 texCoords;
 struct Bone{
 	float angle;
 	vec3 pos,trans,rotAxis,scale;
-	int vertGroup,parent,id;
+	int vertGroup,parent;
 };
 
 uniform bool animated;
@@ -76,32 +77,39 @@ float getWeight(Bone bone){
 
 void main(){
 	vec4 vertPos = vec4(aPos, 1);
-	if(animated){
+	bool anyWeights = false;
+	for(int i = 0; i < numMaxInfluences; i++)
+		if(aWeight[i] > 0)
+			anyWeights = true;
+
+	if(animated && anyWeights){
 		for(int i = 0; i < numBones; i++){
 			transform[i] = createTranslationMatrix(bones[i].pos);
+			vec3 trans = bones[i].trans;
+			float angle = bones[i].angle;
+			vec3 axis = bones[i].rotAxis;
+			vec3 scale = bones[i].scale;
+			mat4 animTransform = createTranslationMatrix(trans) * createRotationMatrix(angle, axis) * createScaleMatrix(scale);
+			poseTransform[i] = transform[i] * animTransform;
 		}
 
+		for(int i = 1; i < numBones; i++){
+			mat4 localTransform = inverse(transform[bones[i].parent]) * poseTransform[i];
+			poseTransform[i] = poseTransform[bones[i].parent] * localTransform;
+		}
+
+		vec3 v = vec3(0);
 		for(int i = 0; i < numBones; i++){
-			Bone bone = bones[i];
-			float weight = getWeight(bone);
-			while(bone.parent != -1){
-				vec3 trans = bone.trans;
-				float angle = bone.angle;
-				vec3 axis = bone.rotAxis;
-				vec3 scale = bone.scale;
-				
-				mat4 animTransform = createTranslationMatrix(weight * trans) * createRotationMatrix(weight * angle, axis);
+			float weight = getWeight(bones[i]);
+			vec4 boneLocalVert = inverse(transform[i]) * vertPos;
+			v += (weight * poseTransform[i] * boneLocalVert).xyz; 
 
-				vec4 boneLocalVert = inverse(transform[bone.id]) * vertPos;
-				vertPos = (transform[bone.id] * animTransform * boneLocalVert); 
-				
-				bone = bones[bone.parent];
-			}
 		}
+		vertPos.xyz = v;
 	}
 
 	gl_Position = proj * view * model * vertPos;
-	fragPos = vec3(model * vec4(aPos, 1));
+	fragPos = vec3(model * vertPos);
 	norm = mat3(transpose(inverse(model))) * aNorm;
 	tan = mat3(transpose(inverse(model))) * aTan;
 	biTan = mat3(transpose(inverse(model))) * aBiTan;

@@ -195,7 +195,6 @@ namespace vb01{
 			shader->setVec3(scale, "bones[" + to_string(i) + "].scale");
 			shader->setInt(vertGroupId, "bones[" + to_string(i) + "].vertGroup");
 			shader->setInt(parentId, "bones[" + to_string(i) + "].parent");
-			shader->setInt(i, "bones[" + to_string(i) + "].id");
 		}
 	}
 
