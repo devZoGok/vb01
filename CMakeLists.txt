@@ -29,7 +29,7 @@ target_link_libraries(vb01 freetype)
 set(renderTest nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
 set(armatureTest boneTest.cpp ikSolverTest.cpp)
 set(modelTest vbModelReaderTest.cpp)
-set(animationTest animationChannelTest.cpp)
+set(animationTest animationControllerTest.cpp animationChannelTest.cpp)
 set(test ${library} ${renderTest} ${armatureTest} ${modelTest} ${animationTest})
 
 add_executable(vb01Tests main.cpp ${test})

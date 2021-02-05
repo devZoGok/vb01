@@ -11,6 +11,7 @@
 #include "shaderTest.h"
 #include "particleEmitterTest.h"
 #include "ikSolverTest.h"
+#include "animationControllerTest.h"
 
 using namespace CppUnit;
 using namespace vb01;

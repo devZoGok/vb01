@@ -1,6 +1,5 @@
 #include "animationChannel.h"
 #include "animationController.h"
-#include "animation.h"
 
 using namespace std;
 
@@ -28,32 +27,51 @@ namespace vb01{
 	void AnimationChannel::setAnimationName(string animName){
 		this->animationName = animName;
 		numFrames = getMaxKeyframeNum(animName);
+		firstFrame = getFirstFrameNum(animName);
+		currentFrame = firstFrame;
 	}
 
-	int AnimationChannel::getMaxKeyframeNum(string animName){
-		int maxKeyframeNum;
+	vector<Keyframe> AnimationChannel::getAllKeyframes(string animName){
+		vector<Keyframe> keyframes;
 
 		Animation *animation = controller->getAnimation(animName);
 		KeyframeGroup *startGroup = animation->getKeyframeGroup(bones[0]);
-		int numStartKeyframes = startGroup->keyframeChannels[0].keyframes.size();
-		maxKeyframeNum = startGroup->keyframeChannels[0].keyframes[numStartKeyframes - 1].frame;
-
 		for(int i = 0; i < bones.size(); i++){
 			KeyframeGroup *kg = animation->getKeyframeGroup(bones[i]);
 
 			for(int j = 0 ; j < kg->keyframeChannels.size(); j++){
 				KeyframeChannel ch = kg->keyframeChannels[j];
 
-				for(int k = 0; k < ch.keyframes.size(); k++){
-					int numKeyframes = ch.keyframes.size();
-					int maxFrame = ch.keyframes[numKeyframes - 1].frame;
-
-					if(numFrames < maxFrame)
-						maxKeyframeNum = maxFrame;
-				}
+				for(int k = 0; k < ch.keyframes.size(); k++)
+					keyframes.push_back(ch.keyframes[k]);
 			}
+		}
+		return keyframes;
+	}
+
+	int AnimationChannel::getMaxKeyframeNum(string animName){
+		vector<Keyframe> keyframes = getAllKeyframes(animName);
+		int maxKeyframeNum = 0;
+
+		for(int i = 0; i < keyframes.size(); i++){
+			int curFrameNum = keyframes[i].frame;
+			if(maxKeyframeNum < curFrameNum)
+				maxKeyframeNum = curFrameNum;
 		}
 
 		return maxKeyframeNum;
+	}
+
+	int AnimationChannel::getFirstFrameNum(string animName){
+		vector<Keyframe> keyframes = getAllKeyframes(animName);
+		int minKeyframeNum = keyframes[0].frame;
+
+		for(int i = 0; i < keyframes.size(); i++){
+			int curFrameNum = keyframes[i].frame;
+			if(minKeyframeNum > curFrameNum)
+				minKeyframeNum = curFrameNum;
+		}
+
+		return minKeyframeNum;
 	}
 }

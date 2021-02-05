@@ -35,12 +35,6 @@ namespace vb01{
 			Vector3 currentPos = interpolate(pastPos, nextPos, interp, ratio);
 			Quaternion currentRot = interpolate(pastRot, nextRot, interp, ratio);
 			Vector3 currentScale = interpolate(pastScale, nextScale, interp, ratio);
-			/*
-			swap(currentRot.y, currentRot.z);
-			currentRot.z = -currentRot.z;
-
-			//channelBone->setPoseScale(currentScale);
-			*/
 			channelBone->setPosePos(currentPos);
 			channelBone->setPoseRot(currentRot);
 		}
@@ -59,23 +53,24 @@ namespace vb01{
 			AnimationChannel *channel
 			){
 
-		int pastKeyframeId = -1;
-		for(KeyframeChannel animChannel : keyframeGroup->keyframeChannels){
-			for(int i = 0 ; i < animChannel.keyframes.size(); i++){
-				Keyframe keyframe = animChannel.keyframes[i];
+		for(KeyframeChannel keyframeChannel : keyframeGroup->keyframeChannels){
+			int pastKeyframeId = -1, nextKeyframeId = -1;
+			for(int i = 0; i < keyframeChannel.keyframes.size(); i++){
+				Keyframe keyframe = keyframeChannel.keyframes[i];
 				if(channel->getCurrentFrame() >= keyframe.frame){
 					pastKeyframeId = i;
 				}
 			}
+			nextKeyframeId = pastKeyframeId + 1;
 	
-			Keyframe pastKeyframe = animChannel.keyframes[pastKeyframeId];
-			Keyframe nextKeyframe = animChannel.keyframes[pastKeyframeId + 1];
+			Keyframe pastKeyframe = keyframeChannel.keyframes[pastKeyframeId];
+			Keyframe nextKeyframe = keyframeChannel.keyframes[nextKeyframeId];
 			int pastFrame = pastKeyframe.frame;
 			int nextFrame = nextKeyframe.frame;
 			ratio = (float)(max(0, channel->getCurrentFrame() - pastFrame)) / (nextFrame - pastFrame);
 			interpMode = pastKeyframe.interpolation;
 			
-			switch(animChannel.type){
+			switch(keyframeChannel.type){
 				case KeyframeChannel::POS_X:
 					pastPos.x = pastKeyframe.value;
 					nextPos.x = nextKeyframe.value;
@@ -117,7 +112,6 @@ namespace vb01{
 					nextScale.z = nextKeyframe.value;
 					break;
 			}
-
 		}
 	}
 

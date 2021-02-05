@@ -70,7 +70,6 @@ namespace vb01{
 		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO)); 
 
 		Quaternion parentSpacePoseRot = Quaternion(r.getAngle(), rotAxis);
-
 		setOrientation(parentSpacePoseRot * restRot);
 	}
 

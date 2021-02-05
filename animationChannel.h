@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+
+#include "animation.h"
 #include "util.h"
 
 namespace vb01{
@@ -32,6 +34,8 @@ namespace vb01{
 		private:
 			inline bool canUpdate(){return getTime() - lastUpdateTime > updateRate;}
 			int getMaxKeyframeNum(std::string);
+			int getFirstFrameNum(std::string);
+			std::vector<Keyframe> getAllKeyframes(std::string);
 
 			s64 lastUpdateTime = 0;
 		    int updateRate = 16;
@@ -42,6 +46,7 @@ namespace vb01{
 			std::vector<Bone*> bones;
 
 			friend class AnimationChannelTest;
+			friend class AnimationControllerTest;
 	};
 }
 

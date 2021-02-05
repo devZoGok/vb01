@@ -47,14 +47,14 @@ namespace vb01{
 		channel->setLoop(false);
 		channel->setForward(true);
 		channel->update();
-		CPPUNIT_ASSERT(channel->getCurrentFrame() == 2);
+		CPPUNIT_ASSERT(channel->getCurrentFrame() == firstFrame + 1);
 
 		channel->lastUpdateTime = 0;
 		channel->setCurrentFrame(numFrames - 1);
 		channel->setLoop(false);
 		channel->setForward(true);
 		channel->update();
-		CPPUNIT_ASSERT(channel->getCurrentFrame() == 10);
+		CPPUNIT_ASSERT(channel->getCurrentFrame() == numFrames);
 
 		channel->lastUpdateTime = 0;
 		channel->setCurrentFrame(1);
@@ -81,5 +81,10 @@ namespace vb01{
 	void AnimationChannelTest::testGetMaxKeyframeNum(){
 		int numFrames = channel->getMaxKeyframeNum("anim");
 		CPPUNIT_ASSERT(numFrames == 10);
+	}
+
+	void AnimationChannelTest::testGetFirstFrame(){
+		int firstFrame = channel->getFirstFrameNum("anim");
+		CPPUNIT_ASSERT(firstFrame == 0);
 	}
 }

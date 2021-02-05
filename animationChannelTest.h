@@ -12,6 +12,7 @@ namespace vb01{
 		CPPUNIT_TEST_SUITE(AnimationChannelTest);
 		CPPUNIT_TEST(testUpdate);
 		CPPUNIT_TEST(testGetMaxKeyframeNum);
+		CPPUNIT_TEST(testGetFirstFrame);
 		CPPUNIT_TEST_SUITE_END();
 	
 		public:
@@ -25,6 +26,7 @@ namespace vb01{
 
 			void testUpdate();
 			void testGetMaxKeyframeNum();
+			void testGetFirstFrame();
 	};
 }
 
