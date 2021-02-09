@@ -8,7 +8,7 @@ namespace vb01{
 			sumLengths += boneChain[i]->getLength();
 		
 		Bone *subBase = (Bone*)boneChain[0]->getIkTarget()->getParent();
-		Vector3 startPos = boneChain[chainLength - 1]->getBoneSpaceRestPos(subBase);
+		Vector3 startPos = subBase->globalToLocalPosition(boneChain[chainLength - 1]->localToGlobalPosition(Vector3::VEC_ZERO));
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 500;
 	

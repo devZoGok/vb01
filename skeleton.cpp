@@ -36,8 +36,12 @@ namespace vb01{
 		for(int i = 0; i < chainLength; i++){
 			boneChain[i] = ikBoneAncestor;
 			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
-			boneIkPos[i] = boneChain[i]->getBoneSpaceRestPos(subBase);
+			boneChain[i]->setPosePos(Vector3::VEC_ZERO);
+			boneChain[i]->setPoseRot(Quaternion::QUAT_W);
+			boneChain[i]->setPoseScale(Vector3::VEC_IJK);
 		}
+		for(int i = 0; i < chainLength; i++)
+			boneIkPos[i] = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 
 	   	Vector3 targetPos = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 		IkSolver::calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);
@@ -46,62 +50,30 @@ namespace vb01{
 
 	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Bone* ikTarget){
 		Bone *subBase = (Bone*)ikTarget->getParent();
-		Vector3 rotAxis[chainLength];
-		float angles[chainLength];
-
-		for(int i = 0; i < chainLength; i++){
-			Vector3 tailPosBoneSpace;
-			Vector3 tailRestPosBoneSpace;
+		for(int i = chainLength - 1; i >= 0; i--){
+			Vector3 tailPosBoneSpace, tailRestPosBoneSpace;
 			if(i == 0){
 				tailPosBoneSpace = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
-				tailRestPosBoneSpace = ikTarget->getBoneSpaceRestPos(subBase);
+				tailRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3(0, boneChain[i]->getLength(), 0)));
 			}
 			else{
 				tailPosBoneSpace = boneIkPos[i - 1];
-				tailRestPosBoneSpace = boneChain[i - 1]->getBoneSpaceRestPos(subBase);
+				tailRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i - 1]->localToGlobalPosition(Vector3::VEC_ZERO));
 			}
-			Vector3 headRestPosBoneSpace = boneChain[i]->getBoneSpaceRestPos(subBase);
+			Vector3 headRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 			Vector3 headDir = (tailPosBoneSpace - headRestPosBoneSpace).norm();
 			Vector3 boneDir = (tailRestPosBoneSpace - headRestPosBoneSpace).norm();
 
-			float angle = boneDir.getAngleBetween(headDir);
-			angles[i] = angle;
-
 			Vector3 axis = boneDir.cross(headDir).norm();
+			axis = 
+				boneChain[i]->globalToLocalPosition(subBase->localToGlobalPosition(axis)) - 
+				boneChain[i]->globalToLocalPosition(subBase->localToGlobalPosition(Vector3::VEC_ZERO));
 			if(axis == Vector3::VEC_ZERO)
 				axis = Vector3::VEC_I;
 
-			axis = (
-					subBase->getInitAxis(0) * axis.x +
-					subBase->getInitAxis(1) * axis.y +
-					subBase->getInitAxis(2) * axis.z 
-				).norm();
-
-			mat3 mat;
-			mat[0][0] = boneChain[i]->getInitAxis(0).x;
-			mat[1][0] = boneChain[i]->getInitAxis(0).y;
-			mat[2][0] = boneChain[i]->getInitAxis(0).z;
-			mat[0][1] = boneChain[i]->getInitAxis(1).x;
-			mat[1][1] = boneChain[i]->getInitAxis(1).y;
-			mat[2][1] = boneChain[i]->getInitAxis(1).z;
-			mat[0][2] = boneChain[i]->getInitAxis(2).x;
-			mat[1][2] = boneChain[i]->getInitAxis(2).y;
-			mat[2][2] = boneChain[i]->getInitAxis(2).z;
-			vec3 localAxis = vec3(axis.x, axis.y, axis.z) * inverse(mat);
-
-			rotAxis[i] = Vector3(localAxis.x, localAxis.y, localAxis.z).norm();
+			float angle = boneDir.getAngleBetween(headDir);
+			boneChain[i]->setPoseRot(Quaternion(angle, axis));
 		}
-
-		for(int i = 0; i < chainLength; i++){
-			for(int j = i + 1; j < chainLength; j++)
-				angles[i] -= angles[j];
-
-			if(angles[i] < 0)
-				angles[i] = 0;
-		}
-
-		for(int i = 0; i < chainLength; i++)
-			boneChain[i]->setPoseRot(Quaternion(angles[i], rotAxis[i]));
 	}
 
 	void Skeleton::addBone(Bone *bone, Bone *parent){
