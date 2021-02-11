@@ -17,7 +17,6 @@ namespace vb01{
 
 	void Skeleton::update(){
 		for(Bone *b : bones){
-			//b->update();
 			if(b->getIkTarget())
 				solveIk(b);
 		}
@@ -25,41 +24,35 @@ namespace vb01{
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){
+		const int chainLength = ikBone->getIkChainLength();
 		Bone *ikTarget = ikBone->getIkTarget();
 		Bone *subBase = (Bone*)ikTarget->getParent();
 
-		const int chainLength = ikBone->getIkChainLength();
+		Bone **boneChain = getIkBoneChain(ikBone);
 		Vector3 boneIkPos[chainLength];
-		Bone *boneChain[chainLength];
-		Bone *ikBoneAncestor = ikBone;
-
-		for(int i = 0; i < chainLength; i++){
-			boneChain[i] = ikBoneAncestor;
-			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
-			boneChain[i]->setPosePos(Vector3::VEC_ZERO);
-			boneChain[i]->setPoseRot(Quaternion::QUAT_W);
-			boneChain[i]->setPoseScale(Vector3::VEC_IJK);
-		}
-		for(int i = 0; i < chainLength; i++)
+		for(int i = chainLength - 1; i >= 0; i--){
 			boneIkPos[i] = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
+		}
 
 	   	Vector3 targetPos = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 		IkSolver::calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);
 		transformIkChain(chainLength, boneChain, boneIkPos, ikTarget);
+
+		delete[] boneChain;
 	}
 
-	void Skeleton::transformIkChain(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Bone* ikTarget){
+	void Skeleton::transformIkChain(int chainLength, Bone **boneChain, Vector3 boneIkPos[], Bone* ikTarget){
 		Bone *subBase = (Bone*)ikTarget->getParent();
 		for(int i = chainLength - 1; i >= 0; i--){
-			Vector3 tailPosBoneSpace, tailRestPosBoneSpace;
-			if(i == 0){
+			boneChain[i]->setPoseRot(Quaternion::QUAT_W);
+
+			Vector3 tailPosBoneSpace;
+			if(i == 0)
 				tailPosBoneSpace = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
-				tailRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3(0, boneChain[i]->getLength(), 0)));
-			}
-			else{
+			else
 				tailPosBoneSpace = boneIkPos[i - 1];
-				tailRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i - 1]->localToGlobalPosition(Vector3::VEC_ZERO));
-			}
+
+			Vector3 tailRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3(0, boneChain[i]->getLength(), 0)));
 			Vector3 headRestPosBoneSpace = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 			Vector3 headDir = (tailPosBoneSpace - headRestPosBoneSpace).norm();
 			Vector3 boneDir = (tailRestPosBoneSpace - headRestPosBoneSpace).norm();
@@ -93,4 +86,14 @@ namespace vb01{
 		return bone;
 	}
 
+	Bone** Skeleton::getIkBoneChain(Bone *ikBone){
+		int chainLength = ikBone->getIkChainLength();
+		Bone **chain = new Bone*[chainLength];
+		Bone *ikBoneAncestor = ikBone;
+		for(int i = 0; i < chainLength; i++){
+			chain[i] = ikBoneAncestor;
+			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
+		}
+		return chain;
+	}
 }

@@ -10,7 +10,7 @@ namespace vb01{
 		public:
 			IkSolver();
 			~IkSolver(){}
-			static void calculateFabrik(int, Bone*[], Vector3[], Vector3);
+			static void calculateFabrik(int, Bone**, Vector3[], Vector3);
 		private:
 	};
 }

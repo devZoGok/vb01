@@ -2,7 +2,7 @@
 #include "bone.h"
 
 namespace vb01{
-	void IkSolver::calculateFabrik(int chainLength, Bone *boneChain[], Vector3 boneIkPos[], Vector3 targetPos){
+	void IkSolver::calculateFabrik(int chainLength, Bone **boneChain, Vector3 boneIkPos[], Vector3 targetPos){
 		float sumLengths = 0;
 		for(int i = 0; i < chainLength; i++)
 			sumLengths += boneChain[i]->getLength();
