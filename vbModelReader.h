@@ -25,9 +25,7 @@ namespace vb01{
 			void connectNodes();
 
 			void createBones(Skeleton*, std::vector<std::string>&);
-			void readAnimations(Skeleton*, std::vector<std::string>&);
-			void readKeyframesGroups(Skeleton*, std::vector<std::string>&);
-			void readKeyframes(Skeleton*, std::vector<std::string>&);
+			void readAnimations(Skeleton*, std::vector<std::string>&, int);
 			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
 			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
@@ -41,6 +39,7 @@ namespace vb01{
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
 			std::vector<Node*> nodes;
+			std::string currentAnim = "";
 
 			friend class VbModelReaderTest;
 	};

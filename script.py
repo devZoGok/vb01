@@ -41,42 +41,32 @@ def exportData(ob):
             file.write('\n' + bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' ')
 
         if numAnims > 0:
-            numGroups = 0
             for nlaStrip in ob.animation_data.nla_tracks[0].strips:
                 animName = nlaStrip.name
                 action = bpy.data.actions[animName]
-                for group in action.groups:
-                    numGroups += 1;
 
-
-            file.write('\nanimations: ' + str(numAnims))
-            file.write('\ngroups: ' + str(numGroups))
+            file.write('\nanimations: ' + str(numAnims) + '\n')
             for nlaStrip in ob.animation_data.nla_tracks[0].strips:
                 animName = nlaStrip.name
                 action = bpy.data.actions[animName]
                 numAnimBones = len(action.groups)
-                file.write('\nanimation: ' + animName + ' ' + str(numAnimBones) + ' ')
+                file.write('animation: ' + animName)
+                file.write('\ngroups: ' + str(numAnimBones))
     
                 print('Exporting animation '+animName+'...\n')
 
                 file.write('\n')
 
                 for group in action.groups:
-                    bone = ob.data.bones[group.name]
-                    start = nlaStrip.frame_start
-                    end = nlaStrip.frame_end
-
-                    file.write(animName + ' ' + group.name + ' ' + str(len(group.channels)) + ' ')
+                    file.write(group.name + ' ' + str(len(group.channels)) + ' ')
 
                     for channel in group.channels:
                         numKeyframes = len(channel.keyframe_points)
                         channelType = getChannelType(channel)
-                        file.write(channelType + ' ')
+                        file.write(channelType + ' ' + str(numKeyframes) + ' ')
 
                     file.write('\n')
 
-
-                for group in action.groups:
                     bone = ob.data.bones[group.name]
                     start = nlaStrip.frame_start
                     end = nlaStrip.frame_end
@@ -101,8 +91,6 @@ def exportData(ob):
                             elif interp == 'BEZIER':
                                 interpInt = 2
 
-                            file.write(animName + ' ' + bone.name + ' ' + channelType + ' ')
-
                             if bpy.context.scene.frame_current > end:
                                     bpy.context.scene.frame_current = bpy.context.scene.frame_current - 1
                             if coordType == "location":
@@ -118,7 +106,7 @@ def exportData(ob):
                             file.write("\n")
 
     
-    elif(ob.type=="MESH"):
+    elif(ob.type == "MESH"):
         skeletonName = '-'
         skeleton = ob.modifiers['Armature'].object
         if(skeleton):
@@ -134,14 +122,14 @@ def exportData(ob):
             #numShapeKeys=len(mesh.shape_keys[0].key_blocks)-1
 
 
-        file.write("numElements: " + str(numVerts) + " " + str(numFaces) + " " + str(numGroups) + " " + str(numShapeKeys) + " \n")
+        file.write('numElements: ' + str(numVerts) + ' ' + str(numFaces) + ' ' + str(numGroups) + ' ' + str(numShapeKeys) + ' \n')
 
         if numGroups > 0:
             file.write('groups:\n')
             for group in ob.vertex_groups:
                 file.write(group.name + '\n')
 
-        file.write("vertices:\n")
+        file.write('vertices:\n')
         print('Exporting vertices...\n')
         for vert in mesh.vertices:
             pos = vert.co
@@ -151,12 +139,12 @@ def exportData(ob):
                 weights.append(0.0)
             for g in vert.groups:
                 weights[g.group] = g.weight
-            file.write(str(pos.x) + " " + str(pos.y) + " " + str(pos.z) + " " + str(norm.x) + " " + str(norm.y) + " " + str(norm.z) + " ")
+            file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' ' + str(norm.x) + ' ' + str(norm.y) + ' ' + str(norm.z) + ' ')
             for w in weights:
-                file.write(str(w)+" ")
+                file.write(str(w) + ' ')
             file.write('\n')
 
-        file.write("faces:\n")
+        file.write('faces:\n')
         print('Exporting faces...\n')
         mesh.calc_tangents()
         for face in mesh.polygons:
@@ -165,7 +153,7 @@ def exportData(ob):
                 loop = mesh.loops[loopInd]
                 tan = loop.tangent
                 bitan = loop.bitangent
-                file.write(str(vert) + " " + str(uv.x) + " " + str(uv.y) + " " + str(tan.x) + " " + str(tan.y) + " " + str(tan.z) + " " + str(bitan.x) + " " + str(bitan.y) + " " + str(bitan.z) + ' \n')
+                file.write(str(vert) + ' ' + str(uv.x) + ' ' + str(uv.y) + ' ' + str(tan.x) + ' ' + str(tan.y) + ' ' + str(tan.z) + ' ' + str(bitan.x) + ' ' + str(bitan.y) + ' ' + str(bitan.z) + ' \n')
         mesh.free_tangents()
 
 
@@ -224,12 +212,12 @@ def getChannelType(channel):
     arrInd = channel.array_index
     coords = 'wxyz'
 
-    if coordType == "location":
-        channelType = "pos_" + coords[arrInd + 1]
-    elif coordType == "rotation_quaternion":
-        channelType = "rot_" + coords[arrInd]
-    elif coordType == "scale":
-        channelType = "scale_" + coords[arrInd + 1]
+    if coordType == 'location':
+        channelType = 'pos_' + coords[arrInd + 1]
+    elif coordType == 'rotation_quaternion':
+        channelType = 'rot_' + coords[arrInd]
+    elif coordType == 'scale':
+        channelType = 'scale_' + coords[arrInd + 1]
     return channelType
 
 fl = bpy.data.filepath
@@ -238,7 +226,7 @@ for i in range(len(fl)):
     if(fl[i] == '.'):
         dotId = i
         break
-fl = fl[0 : dotId] + ".vb"
+fl = fl[0 : dotId] + '.vb'
 
 objects = []
 selectedObjects = bpy.context.selected_objects
@@ -255,8 +243,8 @@ for s in selectedObjects:
     if inObjects == False:
         objects.append(sPar)
 
-file=open(fl, "w")
+file=open(fl, 'w')
 for ob in selectedObjects:
     exportData(ob)
-    file.write("}\n")
+    file.write('}\n')
 file.close()

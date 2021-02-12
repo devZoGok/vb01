@@ -4,7 +4,7 @@ using namespace std;
 
 namespace vb01{
 	Animation::Animation(string name){
-		this->name=name;
+		this->name = name;
 	}
 
 	Animation::~Animation(){
@@ -23,7 +23,7 @@ namespace vb01{
 		return id > -1 ? &(keyframeGroups[id]) : nullptr;
 	}
 
-	KeyframeChannelType Animation::getKeyframeChannelType(string &typeString){
+	KeyframeChannelType Animation::getKeyframeChannelType(string typeString){
 		KeyframeChannelType type;
 		if(typeString == "pos_x")
 			type = KeyframeChannelType::POS_X;
@@ -39,6 +39,12 @@ namespace vb01{
 			type = KeyframeChannelType::ROT_Y;
 		else if(typeString == "rot_z")
 			type = KeyframeChannelType::ROT_Z;
+		else if(typeString == "scale_x")
+			type = KeyframeChannelType::SCALE_X;
+		else if(typeString == "scale_y")
+			type = KeyframeChannelType::SCALE_Y;
+		else if(typeString == "scale_z")
+			type = KeyframeChannelType::SCALE_Z;
 		return type;
 	}
 

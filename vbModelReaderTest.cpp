@@ -29,7 +29,8 @@ namespace vb01{
 		bones = vector<vbReader::Bone>({
 				Bone("bipod", "-", Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 1, 0), "", 0),
 				Bone("bipod.L", "bipod", Vector3(1, 0, 2), Vector3(1, 0, 0), Vector3(0, 0, -1), "", 0),
-				Bone("bipod.R", "bipod", Vector3(-1, 0, 2), Vector3(-1, 0, 0), Vector3(0, 0, -1), "", 0)
+				Bone("bipod.R", "bipod", Vector3(-1, 0, 2), Vector3(-1, 0, 0), Vector3(0, 0, -1), "", 0),
+				Bone("opening", "-", Vector3(0, 0, 2), Vector3(-1, 0, 0), Vector3(0, 0, -1), "", 0)
 		});
 		skeletonParent = "-";
 
@@ -47,37 +48,43 @@ namespace vb01{
 			string yAxisStr = to_string(b.yAxis.x) + " " + to_string(b.yAxis.y) + " " + to_string(b.yAxis.z) + " ";
 			skeletonData.push_back(b.name + ": " + b.parent + " " + headStr + xAxisStr + yAxisStr + b.ikTarget + " " + to_string(b.ikChainLength) + " ");
 		}
-		skeletonData.push_back("animations: 1 ");
+		skeletonData.push_back("animations: 2 ");
+		skeletonData.push_back("animation: Action");
 		skeletonData.push_back("groups: 2 ");
-		skeletonData.push_back("animation: Action ");
-		skeletonData.push_back("Action bipod.L 7 pos_x pos_y pos_z rot_w rot_x rot_y rot_z ");
-		skeletonData.push_back("Action bipod.R 6 pos_x pos_y pos_z rot_w rot_x rot_y ");
-		skeletonData.push_back("Action bipod.L pos_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L pos_x 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L pos_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L pos_y 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L pos_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L pos_z 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_w 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_w 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_x 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_y 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.L rot_z 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_x 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_y 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_z 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R pos_z 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_w 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_w 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_x 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_y 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("Action bipod.R rot_y 10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("bipod.L 7 pos_x 2 pos_y 2 pos_z 2 rot_w 2 rot_x 2 rot_y 2 rot_z 2 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("bipod.R 6 pos_x 2 pos_y 2 pos_z 2 rot_w 2 rot_x 2 rot_y 2 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("animation: open");
+		skeletonData.push_back("groups: 1 ");
+		skeletonData.push_back("opening 1 rot_w 2 rot_x 1");
+		skeletonData.push_back("opening rot_w 1 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("opening rot_w 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("opening rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
 	}
 
 	void VbModelReaderTest::setupMesh(){
@@ -150,8 +157,10 @@ namespace vb01{
 				CPPUNIT_ASSERT(bones[i].parent == "-");
 		}
 		AnimationController *controller = skeleton->getAnimationController();
-		Animation *animation = controller->getAnimation("Action");
-		CPPUNIT_ASSERT(animation);
+		string animNames[]{"Action", "open"};
+		CPPUNIT_ASSERT(controller->getAnimation(animNames[0]));
+		CPPUNIT_ASSERT(controller->getAnimation(animNames[1]));
+		Animation *animation = controller->getAnimation(animNames[0]);
 
 		KeyframeGroup *leftBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.L"));
 		KeyframeGroup *rightBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.R"));
