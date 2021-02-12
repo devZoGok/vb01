@@ -41,12 +41,10 @@ def exportData(ob):
             file.write('\n' + bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' ')
 
         if numAnims > 0:
-            for nlaStrip in ob.animation_data.nla_tracks[0].strips:
-                animName = nlaStrip.name
-                action = bpy.data.actions[animName]
-
             file.write('\nanimations: ' + str(numAnims) + '\n')
             for nlaStrip in ob.animation_data.nla_tracks[0].strips:
+                start = nlaStrip.frame_start
+                end = nlaStrip.frame_end
                 animName = nlaStrip.name
                 action = bpy.data.actions[animName]
                 numAnimBones = len(action.groups)
@@ -68,8 +66,6 @@ def exportData(ob):
                     file.write('\n')
 
                     bone = ob.data.bones[group.name]
-                    start = nlaStrip.frame_start
-                    end = nlaStrip.frame_end
                     for channel in group.channels:
                         channelType = getChannelType(channel)
 
@@ -91,22 +87,15 @@ def exportData(ob):
                             elif interp == 'BEZIER':
                                 interpInt = 2
 
-                            if bpy.context.scene.frame_current > end:
-                                    bpy.context.scene.frame_current = bpy.context.scene.frame_current - 1
-                            if coordType == "location":
-                                file.write(str(poseBone.location[arrInd]))
-                            elif coordType == "rotation_quaternion":
-                                file.write(str(poseBone.rotation_quaternion[arrInd]))
-                            elif coordType == "scale":
-                                file.write(str(poseBone.scale[arrInd]))
-                            file.write(" " + str(keyframeId) + " " + str(interpInt))
+                            keyframeValue = keyframe.co[1]
+                            file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
                             if interp == 'BEZIER':
-                                file.write(" " + str(keyframe.handle_left_type) + " " + str(keyframe.handle_left.x) + " " + str(keyframe.handle_left.y) + " ")
-                                file.write(str(keyframe.handle_right_type) + " " + str(keyframe.handle_right.x) + " " + str(keyframe.handle_right.y))
-                            file.write("\n")
+                                file.write(' ' + str(keyframe.handle_left_type) + ' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
+                                file.write(str(keyframe.handle_right_type) + ' ' + str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y))
+                            file.write('\n')
 
     
-    elif(ob.type == "MESH"):
+    elif(ob.type == 'MESH'):
         skeletonName = '-'
         skeleton = ob.modifiers['Armature'].object
         if(skeleton):

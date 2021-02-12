@@ -17,6 +17,18 @@ namespace vb01{
 
 	void Skeleton::update(){
 		for(Bone *b : bones){
+			if(b->getIkTarget()){
+				const int chainLength = b->getIkChainLength();
+				Bone **boneChain = getIkBoneChain(b);
+				for(int i = 0; i < chainLength; i++){
+					boneChain[i]->setPosePos(Vector3::VEC_ZERO);
+					boneChain[i]->setPoseRot(Quaternion::QUAT_W);
+					boneChain[i]->setPoseScale(Vector3::VEC_IJK);
+				}
+				delete[] boneChain;
+			}
+		}
+		for(Bone *b : bones){
 			if(b->getIkTarget())
 				solveIk(b);
 		}
