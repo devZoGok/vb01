@@ -11,7 +11,7 @@ namespace vb01{
 
 	class Skeleton{
 		public:
-			Skeleton(std::string = "");
+			Skeleton(AnimationController*, std::string = "");
 			void update();
 			void addBone(Bone*, Bone*);
 			Bone* getBone(std::string);
@@ -23,7 +23,7 @@ namespace vb01{
 			inline int getNumBones(){return bones.size();}
 		private:
 			void solveIk(Bone*);
-			void transformIkChain(int, Bone**, Vector3[], Bone*);
+			void transformIkChain(int, Bone*[], Vector3[], Bone*);
 			Bone** getIkBoneChain(Bone*);
 
 			std::string name;

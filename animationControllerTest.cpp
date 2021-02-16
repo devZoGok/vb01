@@ -45,7 +45,7 @@ namespace vb01{
 
 	void AnimationControllerTest::setUp(){
 		Node *rootNode = Root::getSingleton()->getRootNode();
-		skeleton = new Skeleton();
+		skeleton = new Skeleton(new AnimationController());
 		Bone *bone = new Bone("bone", 1.f, Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK);
 		skeleton->addBone(bone, (Bone*)rootNode);
 

@@ -1,11 +1,12 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 namespace vb01{
 	class Bone;
+	class Node;
 
 	class Animation{
 		public:
@@ -35,7 +36,7 @@ namespace vb01{
 					std::vector<Keyframe> keyframes;
 				};
 
-				Bone *bone = nullptr;
+				Node *bone = nullptr;
 				std::vector<KeyframeChannel> keyframeChannels;
 			};
 
@@ -43,8 +44,8 @@ namespace vb01{
 			Animation(std::string);
 			~Animation();
 			void update();
-			KeyframeGroup* getKeyframeGroup(Bone *b);
-			KeyframeGroup::KeyframeChannel* getKeyframeChannel(Bone *b, KeyframeGroup::KeyframeChannel::Type);
+			KeyframeGroup* getKeyframeGroup(Node*);
+			KeyframeGroup::KeyframeChannel* getKeyframeChannel(Node*, KeyframeGroup::KeyframeChannel::Type);
 			static KeyframeGroup::KeyframeChannel::Type getKeyframeChannelType(std::string);
 			inline int getNumKeyframeGroups(){return keyframeGroups.size();}
 			inline std::string getName(){return name;}

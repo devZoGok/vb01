@@ -172,8 +172,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(Skeleton *skeleton, vector<string> &skeletonData, int numAnimations){
-		AnimationController *controller = skeleton->getAnimationController();
+	void VbModelReader::readAnimations(AnimationController *controller, vector<string> &skeletonData, int numAnimations){
 		int animStartLine = 0;
 
 		for(int i = 0; i < numAnimations; i++){
@@ -191,7 +190,14 @@ namespace vb01{
 				getLineData(skeletonData[keyframeGroupStartLine], dataLine, 2);
 
 				KeyframeGroup keyframeGroup;
-				keyframeGroup.bone = skeleton->getBone(dataLine[0]);
+				string nodeName = dataLine[0];
+				Node *transformNode = nullptr;
+				if(controller->getSkeleton())
+					transformNode = (Node*)controller->getSkeleton()->getBone(nodeName);
+				if(!transformNode)
+					transformNode = controller->getNode();
+				keyframeGroup.bone = transformNode;
+
 				int numKeyframeChannels = atoi(dataLine[1].c_str());
 				string channelData[2 * numKeyframeChannels];
 				getLineData(skeletonData[keyframeGroupStartLine], channelData, 2 * numKeyframeChannels, 2);
@@ -249,16 +255,16 @@ namespace vb01{
 
 		line = skeletonData[boneStartLine + numBones].substr(getCharId(skeletonData[boneStartLine + numBones], ':') + 2);
 		int numAnimations = atoi(line.c_str());
-		int animStartLine = boneStartLine + numBones + 1;
 
-		Skeleton *skeleton = new Skeleton(name);
+		AnimationController *controller = new AnimationController();
+		Skeleton *skeleton = new Skeleton(controller, name);
 
 		vector<string> skeletonSubData = vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
 		createBones(skeleton, skeletonSubData);
 		skeletonSubData.clear();
 
-		skeletonSubData = vector<string>(skeletonData.begin() + animStartLine, skeletonData.end());
-		readAnimations(skeleton, skeletonSubData, numAnimations);
+		skeletonSubData = vector<string>(skeletonData.begin() + (boneStartLine + numBones + 1), skeletonData.end());
+		readAnimations(controller, skeletonSubData, numAnimations);
 		skeletonSubData.clear();
 
 		return skeleton;
@@ -399,6 +405,18 @@ namespace vb01{
 		readShapeKeys(shapeKeyStartLine, numShapes);
 		meshSubData.clear();
 
+		AnimationController *controller = new AnimationController();
+		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name, controller);
+		nodes.push_back(node);
+
+		int numAnimLineId = vertexStartLine + numVertices + numFaces * numVertsPerFace + numShapes + 1;
+		int numAnimations = atoi(meshData[numAnimLineId].substr(meshData[numAnimLineId].find_first_of(':') + 1).c_str());
+		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
+		readAnimations(controller, meshSubData, numAnimations);
+		meshSubData.clear();
+		/*
+		*/
+
 		string skeletonLine = meshData[5];
 		int skeletonLineColonId = getCharId(skeletonLine, ':');
 		string skeletonName = skeletonLine.substr(skeletonLineColonId + 2, string::npos);
@@ -410,6 +428,9 @@ namespace vb01{
 
 		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, nullptr, numShapes, name);
 		mesh->setSkeleton(skeleton);
+		node->attachMesh(mesh);
+
+
 		return mesh;
 	}
 
@@ -417,9 +438,6 @@ namespace vb01{
 		Mesh *mesh = readMeshes(meshData);
 		mesh->construct();
 
-		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, mesh->getName());
-		node->attachMesh(mesh);
-		nodes.push_back(node);
 	}
 
 	void VbModelReader::readLights(vector<string> &lightData){

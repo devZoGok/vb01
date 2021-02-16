@@ -1,11 +1,12 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include"quaternion.h"
-#include"vector.h"
-#include"root.h"
-#include<vector>
-#include<string>
+#include "quaternion.h"
+#include "vector.h"
+#include "root.h"
+
+#include <vector>
+#include <string>
 
 namespace vb01{
 	class Mesh;
@@ -13,6 +14,7 @@ namespace vb01{
 	class Light;
 	class ParticleEmitter;
 	class Text;
+	class AnimationController;
 
 	class Node{
 		public:
@@ -21,7 +23,7 @@ namespace vb01{
 				Quaternion orientation = Quaternion::QUAT_W;	
 			};
 
-			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
+			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "", AnimationController *c = nullptr);
 			virtual ~Node();
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
@@ -63,10 +65,12 @@ namespace vb01{
 			inline bool isVisible(){return visible;}
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
+			inline AnimationController* getAnimationController(){return controller;}
 		private:
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
+			AnimationController *controller = nullptr;
 		protected:
 			void updateShaders();
 			

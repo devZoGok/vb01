@@ -1,6 +1,7 @@
 #include "boneTest.h"
 #include "root.h"
 #include "skeleton.h"
+#include "animationController.h"
 
 #include <string>
 
@@ -14,7 +15,7 @@ namespace vb01{
 		rootNode->attachChild(modelNodeParent);
 		modelNodeParent->attachChild(modelNode);
 
-		skeleton = new Skeleton();
+		skeleton = new Skeleton(new AnimationController());
 
 		Bone *rootBone = new Bone("rootBone", 1, Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK);
 		Bone *pelvis = new Bone("pelvis", 1, Vector3(0, 2, 0), Quaternion::QUAT_W, Vector3::VEC_IJK);

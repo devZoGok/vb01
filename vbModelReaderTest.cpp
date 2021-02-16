@@ -48,7 +48,7 @@ namespace vb01{
 			string yAxisStr = to_string(b.yAxis.x) + " " + to_string(b.yAxis.y) + " " + to_string(b.yAxis.z) + " ";
 			skeletonData.push_back(b.name + ": " + b.parent + " " + headStr + xAxisStr + yAxisStr + b.ikTarget + " " + to_string(b.ikChainLength) + " ");
 		}
-		skeletonData.push_back("animations: 2 ");
+		skeletonData.push_back("animations: 2");
 		skeletonData.push_back("animation: Action");
 		skeletonData.push_back("groups: 2 ");
 		skeletonData.push_back("bipod.L 7 pos_x 2 pos_y 2 pos_z 2 rot_w 2 rot_x 2 rot_y 2 rot_z 2 ");
@@ -142,6 +142,7 @@ namespace vb01{
 
 			meshData.push_back(to_string(i) + " " + uvString + tanString + biTanString);
 		}
+		meshData.push_back("animations: 0");
 	}
 
 	void VbModelReaderTest::testReadSkeletons(){

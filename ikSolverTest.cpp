@@ -1,12 +1,13 @@
 #include "ikSolverTest.h"
 #include "ikSolver.h"
 #include "skeleton.h"
+#include "animationController.h"
 
 namespace vb01{
 	void IkSolverTest::setUp(){
 		rootNode = Root::getSingleton()->getRootNode();
 
-		skeleton = new Skeleton("");
+		skeleton = new Skeleton(new AnimationController());
 
 		Bone *boneA = new Bone("A", 1, Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK);
 		Bone *boneB = new Bone("B", 1, Vector3::VEC_J, Quaternion::QUAT_W, Vector3::VEC_IJK);

@@ -1,23 +1,29 @@
-#include"root.h"
-#include"node.h"
-#include"mesh.h"
-#include"particleEmitter.h"
-#include"light.h"
-#include"text.h"
-#include"material.h"
-#include"matrix.h"
-#include<glm.hpp>
-#include<glm/gtc/matrix_inverse.hpp>
+#include "root.h"
+#include "node.h"
+#include "mesh.h"
+#include "particleEmitter.h"
+#include "light.h"
+#include "text.h"
+#include "material.h"
+#include "matrix.h"
+#include "animationController.h"
+
+#include <glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale,string name){
+	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, AnimationController *controller){
 		this->pos = pos;
 		this->scale = scale;
 		this->orientation = orientation;
 		this->name = name;
+		this->controller = controller;
+		if(this->controller)
+			this->controller->setNode(this);
+
 		globalAxis[0] = Vector3::VEC_I;
 		globalAxis[1] = Vector3::VEC_J;
 		globalAxis[2] = Vector3::VEC_K;
@@ -50,6 +56,8 @@ namespace vb01{
 				c->update();
 			for(ParticleEmitter *p : emitters)
 				p->update();
+			if(controller)
+				controller->update();
 		}
 	}
 

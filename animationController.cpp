@@ -5,8 +5,7 @@
 using namespace std;
 
 namespace vb01{
-	AnimationController::AnimationController(Skeleton *skeleton){
-		this->skeleton = skeleton;
+	AnimationController::AnimationController(){
 	}
 
 	AnimationController::~AnimationController(){
@@ -16,15 +15,21 @@ namespace vb01{
 		for(AnimationChannel *channel : channels){
 			channel->update();
 
-			transformBones(channel);
+			transform(channel);
 		}
 	}
 
-	void AnimationController::transformBones(AnimationChannel *channel){
+	void AnimationController::transform(AnimationChannel *channel){
 		Animation *animation = getAnimation(channel->getAnimationName());
 
-		for(Bone *channelBone : channel->getBones()){
-			Animation::KeyframeGroup *keyframeGroup = animation->getKeyframeGroup(channelBone);
+		vector<Node*> transformNodes;
+		if(node)
+			transformNodes.push_back(node);
+		for(Bone *channelBone : channel->getBones())
+			transformNodes.push_back((Node*)channelBone);
+
+		for(Node *transformNode : transformNodes){
+			Animation::KeyframeGroup *keyframeGroup = animation->getKeyframeGroup(transformNode);
 			Vector3 pastPos, nextPos, pastScale, nextScale;
 			Quaternion pastRot, nextRot;
 			Keyframe::Interpolation interp;
@@ -35,8 +40,18 @@ namespace vb01{
 			Vector3 currentPos = interpolate(pastPos, nextPos, interp, ratio);
 			Quaternion currentRot = interpolate(pastRot, nextRot, interp, ratio);
 			Vector3 currentScale = interpolate(pastScale, nextScale, interp, ratio);
-			channelBone->setPosePos(currentPos);
-			channelBone->setPoseRot(currentRot);
+
+			if(node && node->getName() == transformNode->getName()){
+				transformNode->setPosition(currentPos);
+				transformNode->setOrientation(currentRot);
+				transformNode->setScale(currentScale);
+			}
+			else{
+				Bone *channelBone = (Bone*)transformNode;
+				channelBone->setPosePos(currentPos);
+				channelBone->setPoseRot(currentRot);
+				channelBone->setPoseScale(currentScale);
+			}
 		}
 	}
 

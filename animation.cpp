@@ -13,7 +13,7 @@ namespace vb01{
 	void Animation::update(){
 	}
 
-	Animation::KeyframeGroup* Animation::getKeyframeGroup(Bone *b){
+	Animation::KeyframeGroup* Animation::getKeyframeGroup(Node *b){
 		int id = -1;
 		for(int i = 0;i < keyframeGroups.size(); i++)
 			if(keyframeGroups[i].bone == b){
@@ -48,7 +48,7 @@ namespace vb01{
 		return type;
 	}
 
-	KeyframeChannel* Animation::getKeyframeChannel(Bone *bone, KeyframeChannelType type){
+	KeyframeChannel* Animation::getKeyframeChannel(Node *bone, KeyframeChannelType type){
 		KeyframeChannel *k = nullptr;
 
 		KeyframeGroup *group = getKeyframeGroup(bone);

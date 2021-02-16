@@ -10,9 +10,10 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Skeleton::Skeleton(string name){
+	Skeleton::Skeleton(AnimationController *controller, string name){
 		this->name = name;
-		controller = new AnimationController(this);
+		this->controller = controller;
+		this->controller->setSkeleton(this);
 	}
 
 	void Skeleton::update(){
@@ -42,9 +43,8 @@ namespace vb01{
 
 		Bone **boneChain = getIkBoneChain(ikBone);
 		Vector3 boneIkPos[chainLength];
-		for(int i = chainLength - 1; i >= 0; i--){
+		for(int i = chainLength - 1; i >= 0; i--)
 			boneIkPos[i] = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
-		}
 
 	   	Vector3 targetPos = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 		IkSolver::calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);

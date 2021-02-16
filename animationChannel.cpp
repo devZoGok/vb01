@@ -35,15 +35,29 @@ namespace vb01{
 		vector<Keyframe> keyframes;
 
 		Animation *animation = controller->getAnimation(animName);
-		KeyframeGroup *startGroup = animation->getKeyframeGroup(bones[0]);
-		for(int i = 0; i < bones.size(); i++){
-			KeyframeGroup *kg = animation->getKeyframeGroup(bones[i]);
-
-			for(int j = 0 ; j < kg->keyframeChannels.size(); j++){
-				KeyframeChannel ch = kg->keyframeChannels[j];
-
+		Node *controllerNode = controller->getNode();
+		KeyframeGroup *startGroup = nullptr;
+		if(controllerNode){
+			startGroup = animation->getKeyframeGroup(controllerNode);
+	
+			for(int j = 0 ; j < startGroup->keyframeChannels.size(); j++){
+				KeyframeChannel ch = startGroup->keyframeChannels[j];
+	
 				for(int k = 0; k < ch.keyframes.size(); k++)
 					keyframes.push_back(ch.keyframes[k]);
+			}
+		}
+		else{
+			startGroup = animation->getKeyframeGroup((Node*)bones[0]);
+			for(int i = 0; i < bones.size(); i++){
+				KeyframeGroup *kg = animation->getKeyframeGroup((Node*)bones[i]);
+	
+				for(int j = 0 ; j < kg->keyframeChannels.size(); j++){
+					KeyframeChannel ch = kg->keyframeChannels[j];
+	
+					for(int k = 0; k < ch.keyframes.size(); k++)
+						keyframes.push_back(ch.keyframes[k]);
+				}
 			}
 		}
 		return keyframes;

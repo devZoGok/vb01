@@ -11,9 +11,13 @@ def exportData(ob):
     file.write('rot: ' + str(ob.rotation_quaternion.w) + ' ' + str(ob.rotation_quaternion.x) + ' ' + str(ob.rotation_quaternion.y) + ' ' + str(-ob.rotation_quaternion.z) + '\n')
     file.write('scale: ' + str(ob.scale.x) + ' ' + str(ob.scale.y) + ' ' + str(ob.scale.z) + '\n')
     file.write('parent: ' + ('-' if par is None else par.name) + '\n')
-    if(ob.type == "ARMATURE"):
+
+    numAnims = 0
+    if(ob.animation_data is not None and len(ob.animation_data.nla_tracks) > 0):
         numAnims = len(ob.animation_data.nla_tracks[0].strips)
-        file.write("bones: "+str(len(ob.data.bones)) + ' ' + str(numAnims) + ' ')
+
+    if(ob.type == 'ARMATURE'):
+        file.write('bones: ' + str(len(ob.data.bones)) + ' ' + str(numAnims) + ' \n')
 
         for bone in ob.data.bones:
             head = bone.head
@@ -38,67 +42,15 @@ def exportData(ob):
                 else:
                     chainLength = ikConstraint.chain_count
 
-            file.write('\n' + bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' ')
+            file.write(bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' \n')
 
-        if numAnims > 0:
-            file.write('\nanimations: ' + str(numAnims) + '\n')
-            for nlaStrip in ob.animation_data.nla_tracks[0].strips:
-                start = nlaStrip.frame_start
-                end = nlaStrip.frame_end
-                animName = nlaStrip.name
-                action = bpy.data.actions[animName]
-                numAnimBones = len(action.groups)
-                file.write('animation: ' + animName)
-                file.write('\ngroups: ' + str(numAnimBones))
-    
-                print('Exporting animation '+animName+'...\n')
-
-                file.write('\n')
-
-                for group in action.groups:
-                    file.write(group.name + ' ' + str(len(group.channels)) + ' ')
-
-                    for channel in group.channels:
-                        numKeyframes = len(channel.keyframe_points)
-                        channelType = getChannelType(channel)
-                        file.write(channelType + ' ' + str(numKeyframes) + ' ')
-
-                    file.write('\n')
-
-                    bone = ob.data.bones[group.name]
-                    for channel in group.channels:
-                        channelType = getChannelType(channel)
-
-                        dotId = channel.data_path.rfind('.') + 1
-                        arrInd = channel.array_index
-                        coordType = channel.data_path[dotId :]
-
-                        for keyframe in channel.keyframe_points:
-                            keyframeId = keyframe.co[0]
-                            interp = keyframe.interpolation
-                            bpy.context.scene.frame_set(int(start) + int(keyframeId))
-                            poseBone = ob.pose.bones[group.name]
-                            interpInt = - 1
-
-                            if interp == 'CONSTANT':
-                                interpInt = 0
-                            elif interp == 'LINEAR':
-                                interpInt = 1
-                            elif interp == 'BEZIER':
-                                interpInt = 2
-
-                            keyframeValue = keyframe.co[1]
-                            file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
-                            if interp == 'BEZIER':
-                                file.write(' ' + str(keyframe.handle_left_type) + ' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
-                                file.write(str(keyframe.handle_right_type) + ' ' + str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y))
-                            file.write('\n')
 
     
     elif(ob.type == 'MESH'):
         skeletonName = '-'
-        skeleton = ob.modifiers['Armature'].object
-        if(skeleton):
+        skeleton = None
+        if(len(ob.modifiers) > 0 and ob.modifiers['Armature'] and ob.modifiers['Armature'].object):
+            skeleton = ob.modifiers['Armature'].object
             skeletonName = skeleton.name
         file.write('skeleton: ' + skeletonName + '\n')
         mesh = ob.data
@@ -113,8 +65,8 @@ def exportData(ob):
 
         file.write('numElements: ' + str(numVerts) + ' ' + str(numFaces) + ' ' + str(numGroups) + ' ' + str(numShapeKeys) + ' \n')
 
+        file.write('groups:\n')
         if numGroups > 0:
-            file.write('groups:\n')
             for group in ob.vertex_groups:
                 file.write(group.name + '\n')
 
@@ -192,6 +144,9 @@ def exportData(ob):
                     if(newPos!=mesh.vertices[i].co):
                         file.write('\n'+str(i)+" "+str(newPos.x)+' '+str(newPos.y)+' '+str(newPos.z))
         '''
+    file.write('animations: ' + str(numAnims) + '\n')
+    if numAnims > 0:
+        readAnimations(ob, numAnims)
 
 def getChannelType(channel):
     channelType = ''
@@ -208,6 +163,57 @@ def getChannelType(channel):
     elif coordType == 'scale':
         channelType = 'scale_' + coords[arrInd + 1]
     return channelType
+
+def readAnimations(ob, numAnims):
+    for nlaStrip in ob.animation_data.nla_tracks[0].strips:
+        start = nlaStrip.frame_start
+        end = nlaStrip.frame_end
+        animName = nlaStrip.name
+        action = bpy.data.actions[animName]
+        numAnimBones = len(action.groups)
+        file.write('animation: ' + animName)
+        file.write('\ngroups: ' + str(numAnimBones))
+    
+        print('Exporting animation ' + animName + '...\n')
+
+        file.write('\n')
+
+        for group in action.groups:
+            file.write((ob.name if group.name == 'Object Transforms' else group.name) + ' ' + str(len(group.channels)) + ' ')
+
+            for channel in group.channels:
+                numKeyframes = len(channel.keyframe_points)
+                channelType = getChannelType(channel)
+                file.write(channelType + ' ' + str(numKeyframes) + ' ')
+
+            file.write('\n')
+
+            for channel in group.channels:
+                channelType = getChannelType(channel)
+
+                dotId = channel.data_path.rfind('.') + 1
+                arrInd = channel.array_index
+                coordType = channel.data_path[dotId :]
+
+                for keyframe in channel.keyframe_points:
+                    keyframeId = keyframe.co[0]
+                    interp = keyframe.interpolation
+                    bpy.context.scene.frame_set(int(start) + int(keyframeId))
+                    interpInt = - 1
+
+                    if interp == 'CONSTANT':
+                        interpInt = 0
+                    elif interp == 'LINEAR':
+                        interpInt = 1
+                    elif interp == 'BEZIER':
+                        interpInt = 2
+
+                    keyframeValue = keyframe.co[1]
+                    file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
+                    if interp == 'BEZIER':
+                        file.write(' ' + str(keyframe.handle_left_type) + ' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
+                        file.write(str(keyframe.handle_right_type) + ' ' + str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y))
+                    file.write('\n')
 
 fl = bpy.data.filepath
 dotId = 0
