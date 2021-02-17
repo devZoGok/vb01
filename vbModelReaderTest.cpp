@@ -142,6 +142,7 @@ namespace vb01{
 
 			meshData.push_back(to_string(i) + " " + uvString + tanString + biTanString);
 		}
+		meshData.push_back("shapeKeys: 0");
 		meshData.push_back("animations: 0");
 	}
 

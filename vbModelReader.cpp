@@ -414,8 +414,6 @@ namespace vb01{
 		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
 		readAnimations(controller, meshSubData, numAnimations);
 		meshSubData.clear();
-		/*
-		*/
 
 		string skeletonLine = meshData[5];
 		int skeletonLineColonId = getCharId(skeletonLine, ':');
@@ -429,7 +427,6 @@ namespace vb01{
 		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, nullptr, numShapes, name);
 		mesh->setSkeleton(skeleton);
 		node->attachMesh(mesh);
-
 
 		return mesh;
 	}

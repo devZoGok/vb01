@@ -51,8 +51,6 @@ namespace vb01{
 	void Mesh::initFramebuffer(){
 		int width = Root::getSingleton()->getWidth();
 
-		/*
-		*/
 		u32 RBO;
 		string basePath = "../../vb01/depthMap.";
 		environmentShader = new Shader(basePath + "vert", basePath + "frag", basePath + "geo");

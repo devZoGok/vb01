@@ -59,9 +59,8 @@ def exportData(ob):
         numVerts = len(mesh.vertices)
         numGroups = len(ob.vertex_groups)
         numShapeKeys = 0
-        #if mesh.shape_keys is not NoneType:
-            #numShapeKeys=len(mesh.shape_keys[0].key_blocks)-1
-
+        if mesh.shape_keys:
+            numShapeKeys = len(mesh.shape_keys.key_blocks) - 1
 
         file.write('numElements: ' + str(numVerts) + ' ' + str(numFaces) + ' ' + str(numGroups) + ' ' + str(numShapeKeys) + ' \n')
 
@@ -98,52 +97,16 @@ def exportData(ob):
         mesh.free_tangents()
 
 
+        file.write('shapeKeys:\n')
         if numShapeKeys > 0:
-            file.write('shapeKeys:\n')
-            for shape_key in mesh.shape_keys.key_blocks:
-                if shape_key.name == 'Basis':
-                    continue
-                file.write(shape_key.name + '\n')
-        '''
-        for face in mesh.polygons:
-            for vert,loop in zip(face.vertices,mesh.loops):
-                pos=mesh.vertices[vert].co
-                norm=mesh.vertices[vert].normal
-                uv=mesh.uv_layers[0].data[loop.index].uv
-                tan=loop.tangent
-                bitan=loop.bitangent
-                file.write(str(pos.x)+" "+str(pos.y)+" "+str(pos.z)+" "+str(norm.x)+" "+str(norm.y)+" "+str(norm.z)+str(uv.x)+" "+str(uv.y)+" "+str(tan.x)+" "+str(tan.y)+" "+str(tan.z)+" "+str(bitan.x)+" "+str(bitan.y)+" "+str(bitan.z)+" \n")
-
-        if numGroups>0:
-            groupVerts=[]
-            file.write("groups: "+str(numGroups)+"\n")
-            print('Exporting vertex groups...\n')
-            for i in range(0,numGroups):
-                groupVerts.append([])
-                for vert in mesh.vertices:
-                    for g in vert.groups:
-                        if g.group==ob.vertex_groups[i].index:
-                            groupVerts[i].append(vert.index)
-
-            for i in range(0,numGroups):
-                group=ob.vertex_groups[i]
-                file.write(group.name+": "+str(len(groupVerts[i]))+"\n")
-                for vert in mesh.vertices:
-                    for g in vert.groups:
-                        if g.group==group.index:
-                            file.write(str(vert.index)+" "+str(g.weight)+" \n")
-
-        if numShapeKeys>0:
-            file.write('shapeKeys:\n')
             print('Exporting shape keys...\n')
             for shape_key in mesh.shape_keys.key_blocks:
-                if shape_key.name=='Basis':
-                    continue
-                for i in range(0,numVerts-1):
-                    newPos=shape_key.data[i].co
-                    if(newPos!=mesh.vertices[i].co):
-                        file.write('\n'+str(i)+" "+str(newPos.x)+' '+str(newPos.y)+' '+str(newPos.z))
-        '''
+                if shape_key.name != 'Basis':
+                    file.write(shape_key.name + '\n')
+                    for vert in shape_key.data:
+                        pos = vert.co
+                        file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' \n')
+
     file.write('animations: ' + str(numAnims) + '\n')
     if numAnims > 0:
         readAnimations(ob, numAnims)
