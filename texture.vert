@@ -23,8 +23,8 @@ out vec2 texCoords;
 
 struct Bone{
 	float angle;
-	vec3 pos,trans,rotAxis,scale;
-	int vertGroup,parent;
+	vec3 pos, trans, rotAxis, scale;
+	int vertGroup, parent;
 };
 
 uniform bool animated;

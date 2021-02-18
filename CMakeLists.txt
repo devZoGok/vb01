@@ -18,7 +18,7 @@ set(render particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.
 set(model modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
 set(anim animationController.cpp animationChannel.cpp animation.cpp)
 set(armature skeleton.cpp bone.cpp ikSolver.cpp)
-set(library ${render} ${math} ${model} ${utils} ${gui} ${armature} ${anim})
+set(library ${render} ${math} ${model} ${utils} ${gui} ${armature} ${assetManager} ${anim})
 
 add_library(vb01 SHARED ${library})
 target_link_libraries(vb01 glfw)
@@ -29,7 +29,7 @@ target_link_libraries(vb01 freetype)
 set(renderTest nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
 set(armatureTest boneTest.cpp ikSolverTest.cpp)
 set(modelTest vbModelReaderTest.cpp)
-set(animationTest animationControllerTest.cpp animationChannelTest.cpp)
+set(animationTest animationChannelTest.cpp)
 set(test ${library} ${renderTest} ${armatureTest} ${modelTest} ${animationTest})
 
 add_executable(vb01Tests main.cpp ${test})

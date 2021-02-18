@@ -82,9 +82,9 @@ namespace vb01{
 		skeletonData.push_back("animation: open");
 		skeletonData.push_back("groups: 1 ");
 		skeletonData.push_back("opening 1 rot_w 2 rot_x 1");
-		skeletonData.push_back("opening rot_w 1 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("opening rot_w 0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("opening rot_x 0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("1 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
 	}
 
 	void VbModelReaderTest::setupMesh(){
@@ -164,15 +164,21 @@ namespace vb01{
 		CPPUNIT_ASSERT(controller->getAnimation(animNames[1]));
 		Animation *animation = controller->getAnimation(animNames[0]);
 
-		KeyframeGroup *leftBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.L"));
-		KeyframeGroup *rightBipodGroup = animation->getKeyframeGroup(skeleton->getBone("bipod.R"));
-		CPPUNIT_ASSERT(leftBipodGroup);
-		CPPUNIT_ASSERT(rightBipodGroup);
-		for(KeyframeChannel keyframeChannel : leftBipodGroup->keyframeChannels)
+		const vector<KeyframeChannel> &keyframeChannels = animation->getKeyframeChannels();
+	   	vector<KeyframeChannel> leftBipodChannels, rightBipodChannels;
+		for(KeyframeChannel ch : keyframeChannels){
+			if(ch.bone->getName() == "bipod.L")
+				leftBipodChannels.push_back(ch);
+			else if(ch.bone->getName() == "bipod.R")
+				rightBipodChannels.push_back(ch);
+		}
+		CPPUNIT_ASSERT(!leftBipodChannels.empty());
+		CPPUNIT_ASSERT(!rightBipodChannels.empty());
+		for(KeyframeChannel keyframeChannel : leftBipodChannels)
 			CPPUNIT_ASSERT(keyframeChannel.keyframes.size() == 2);
-		for(KeyframeChannel keyframeChannel : rightBipodGroup->keyframeChannels)
+		for(KeyframeChannel keyframeChannel : rightBipodChannels)
 			CPPUNIT_ASSERT(keyframeChannel.keyframes.size() == 2);
-
+		
 		Keyframe lastRightBipodKeyframe = animation->getKeyframeChannel(skeleton->getBone("bipod.R"), KeyframeChannelType::ROT_Y)->keyframes[1];
 		CPPUNIT_ASSERT(lastRightBipodKeyframe.value == 10);
 		CPPUNIT_ASSERT(lastRightBipodKeyframe.frame == 10);

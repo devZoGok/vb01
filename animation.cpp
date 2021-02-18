@@ -13,16 +13,6 @@ namespace vb01{
 	void Animation::update(){
 	}
 
-	Animation::KeyframeGroup* Animation::getKeyframeGroup(Node *b){
-		int id = -1;
-		for(int i = 0;i < keyframeGroups.size(); i++)
-			if(keyframeGroups[i].bone == b){
-				id = i;
-				break;
-			}
-		return id > -1 ? &(keyframeGroups[id]) : nullptr;
-	}
-
 	KeyframeChannelType Animation::getKeyframeChannelType(string typeString){
 		KeyframeChannelType type;
 		if(typeString == "pos_x")
@@ -51,14 +41,22 @@ namespace vb01{
 	KeyframeChannel* Animation::getKeyframeChannel(Node *bone, KeyframeChannelType type){
 		KeyframeChannel *k = nullptr;
 
-		KeyframeGroup *group = getKeyframeGroup(bone);
-		for(KeyframeChannel &channel : group->keyframeChannels){
-			if(channel.type == type){
+		for(KeyframeChannel &channel : keyframeChannels)
+			if(channel.type == type && channel.bone == bone){
 				k = &channel;
 				break;
 			}
-		}
 
 		return k;
+	}
+
+	vector<KeyframeChannel> Animation::getKeyframeChannelsByNode(Node *bone){
+		vector<KeyframeChannel> channels;
+
+		for(KeyframeChannel channel : keyframeChannels)
+			if(channel.bone == bone)
+				channels.push_back(channel);
+
+		return channels;
 	}
 }

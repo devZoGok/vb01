@@ -10,56 +10,51 @@ namespace vb01{
 
 	class Animation{
 		public:
-			struct KeyframeGroup{
-				struct KeyframeChannel{
-					enum Type{
-						POS_X,
-						POS_Y,
-						POS_Z,
-						ROT_W,
-						ROT_X,
-						ROT_Y,
-						ROT_Z,
-						SCALE_X,
-						SCALE_Y,
-						SCALE_Z
-					};
-					struct Keyframe{
-						enum Interpolation{CONSTANT, LINEAR, BEZIER};
+			struct KeyframeChannel{
+				enum Type{
+					POS_X,
+					POS_Y,
+					POS_Z,
+					ROT_W,
+					ROT_X,
+					ROT_Y,
+					ROT_Z,
+					SCALE_X,
+					SCALE_Y,
+					SCALE_Z,
+					VALUE
+				};
+				struct Keyframe{
+					enum Interpolation{CONSTANT, LINEAR, BEZIER};
 
-						float value;
-						int frame;
-						Interpolation interpolation;
-					};
-
-					Type type;
-					std::vector<Keyframe> keyframes;
+					float value;
+					int frame;
+					Interpolation interpolation;
 				};
 
+				Type type;
 				Node *bone = nullptr;
-				std::vector<KeyframeChannel> keyframeChannels;
+				std::vector<Keyframe> keyframes;
 			};
-
 
 			Animation(std::string);
 			~Animation();
 			void update();
-			KeyframeGroup* getKeyframeGroup(Node*);
-			KeyframeGroup::KeyframeChannel* getKeyframeChannel(Node*, KeyframeGroup::KeyframeChannel::Type);
-			static KeyframeGroup::KeyframeChannel::Type getKeyframeChannelType(std::string);
-			inline int getNumKeyframeGroups(){return keyframeGroups.size();}
+			static KeyframeChannel::Type getKeyframeChannelType(std::string);
+			KeyframeChannel* getKeyframeChannel(Node*, KeyframeChannel::Type);
+			std::vector<KeyframeChannel> getKeyframeChannelsByNode(Node*);
+			inline void addKeyframeChannel(KeyframeChannel channel){keyframeChannels.push_back(channel);}
 			inline std::string getName(){return name;}
-			inline void addKeyframeGroup(KeyframeGroup k){keyframeGroups.push_back(k);}
+			inline const std::vector<KeyframeChannel>& getKeyframeChannels(){return keyframeChannels;}
 		private:
 			std::string name;
-			std::vector<KeyframeGroup> keyframeGroups;
+			std::vector<KeyframeChannel> keyframeChannels;
 	};
 
-	typedef Animation::KeyframeGroup KeyframeGroup; 
-	typedef Animation::KeyframeGroup::KeyframeChannel KeyframeChannel; 
-	typedef Animation::KeyframeGroup::KeyframeChannel::Type KeyframeChannelType; 
-	typedef Animation::KeyframeGroup::KeyframeChannel::Keyframe Keyframe; 
-	typedef Animation::KeyframeGroup::KeyframeChannel::Keyframe::Interpolation KeyframeInterpolation; 
+	typedef Animation::KeyframeChannel KeyframeChannel; 
+	typedef Animation::KeyframeChannel::Type KeyframeChannelType; 
+	typedef Animation::KeyframeChannel::Keyframe Keyframe; 
+	typedef Animation::KeyframeChannel::Keyframe::Interpolation KeyframeInterpolation; 
 }
 
 #endif

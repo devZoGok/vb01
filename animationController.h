@@ -31,9 +31,9 @@ namespace vb01{
 			std::vector<AnimationChannel*> channels;
 
 			void transform(AnimationChannel*);
-			void prepareAdjacentValues(Vector3&, Vector3&, Quaternion&, Quaternion&, Vector3&, Vector3&, Keyframe::Interpolation&, float&, KeyframeGroup*, AnimationChannel*); 
-			Vector3 interpolate(Vector3, Vector3, Keyframe::Interpolation, float);
-			Quaternion interpolate(Quaternion, Quaternion, Keyframe::Interpolation, float);
+			void setFrameValue(float, KeyframeChannelType, Vector3&, Quaternion&, Vector3&); 
+			Keyframe findKeyframe(AnimationChannel*, KeyframeChannel, bool);
+			float interpolate(float, float, Keyframe::Interpolation, float);
 		protected:
 			void onAnimationEnd(std::string){}
 			void onAnimationStart(std::string){}

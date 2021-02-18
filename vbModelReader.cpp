@@ -189,14 +189,12 @@ namespace vb01{
 				string dataLine[2];
 				getLineData(skeletonData[keyframeGroupStartLine], dataLine, 2);
 
-				KeyframeGroup keyframeGroup;
 				string nodeName = dataLine[0];
 				Node *transformNode = nullptr;
 				if(controller->getSkeleton())
 					transformNode = (Node*)controller->getSkeleton()->getBone(nodeName);
 				if(!transformNode)
 					transformNode = controller->getNode();
-				keyframeGroup.bone = transformNode;
 
 				int numKeyframeChannels = atoi(dataLine[1].c_str());
 				string channelData[2 * numKeyframeChannels];
@@ -211,6 +209,7 @@ namespace vb01{
 					keyframeChannel.type = Animation::getKeyframeChannelType(channelData[2 * k]);
 					numTypeKeyframes[k] = atoi(channelData[2 * k + 1].c_str());
 					numKeyframes += numTypeKeyframes[k];
+					keyframeChannel.bone = transformNode;
 
 					keyframeChannels.push_back(keyframeChannel);
 				}
@@ -235,8 +234,9 @@ namespace vb01{
 					}
 				}
 
-				keyframeGroup.keyframeChannels = keyframeChannels;
-				animation->addKeyframeGroup(keyframeGroup);
+				for(KeyframeChannel ch : keyframeChannels)
+					animation->addKeyframeChannel(ch);
+
 				keyframeGroupStartLine += numKeyframes + 1;
 			}
 
