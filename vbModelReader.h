@@ -28,9 +28,9 @@ namespace vb01{
 			void readAnimations(AnimationController*, std::vector<std::string>&, int);
 			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
-			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
+			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<u32>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
 			void readVertexGroups(std::string*, std::vector<std::string>&, int);
-			void readShapeKeys(int, int);
+			void readShapeKeys(Mesh::Vertex*, std::vector<u32>&, std::vector<std::string>&, std::string*, int, int);
 			void buildMesh(std::vector<std::string>&);
 			Mesh* readMeshes(std::vector<std::string>&);
 			void readLights(std::vector<std::string>&);

@@ -306,6 +306,7 @@ namespace vb01{
 	void VbModelReader::readFaces(
 		   	vector<Vector3> &vertPos,
 		   	vector<Vector3> &vertNorm,
+			vector<u32> &vertIds,
 		   	vector<float> &vertWeights,
 			vector<string> &meshData,
 		   	int numBones,
@@ -337,6 +338,7 @@ namespace vb01{
 				}
 			}
 
+			vertIds.push_back(index);
 			vertices[i] = vert;
 			indices[i] = i;
 		}
@@ -348,8 +350,30 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readShapeKeys(int shapeKeyStartLine, int numShapes){
+	void VbModelReader::readShapeKeys(Mesh::Vertex *vertices, vector<u32> &vertIds, vector<string> &meshData, string *shapeKeys, int numShapes, int numVertPos){
+		/*
+		for(int i = 0; i < vertIds.size(); i++)
+			vertices[i].shapeKeyOffsets = new Vector3[numShapes];
+			*/
+
+		int shapeKeyStartLine = 0;
 		for(int i = 0; i < numShapes; i++){
+			shapeKeys[i] = meshData[shapeKeyStartLine];
+			Vector3 *shapeKeyVertPos = new Vector3[numVertPos];
+
+			for(int j = 0; j < numVertPos; j++){
+				string line = meshData[shapeKeyStartLine + 1 + j];
+				string dataLine[3];
+				getLineData(line, dataLine, 3);
+				shapeKeyVertPos[j] = Vector3(atof(dataLine[0].c_str()), atof(dataLine[2].c_str()), -atof(dataLine[1].c_str()));
+			}
+			for(int j = 0; j < vertIds.size(); j++){
+				Vector3 offset = shapeKeyVertPos[vertIds[j]] - vertices[j].pos;
+				vertices[j].shapeKeyOffsets[i] = (offset);
+			}
+
+			delete[] shapeKeyVertPos;
+			shapeKeyStartLine += numVertPos + 1; 
 		}
 	}
 
@@ -381,35 +405,40 @@ namespace vb01{
 	   	int vertexGroupStartLine = 8;
 		int vertexStartLine = vertexGroupStartLine + numBones + 1;
 	   	int faceStartLine = vertexStartLine + numVertices + 1;
-	   	int shapeKeyStartLine = faceStartLine + numFaces + 1;
+	   	int shapeKeyStartLine = faceStartLine + numFaces * numVertsPerFace + 1;
 
 		vector<Vector3> vertPos, vertNorm;
 		vector<float> vertWeights;
+		vector<u32> vertIds;
 		Mesh::Vertex *vertices = new Mesh::Vertex[numFaces * numVertsPerFace];
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
+		string *shapeKeys = new string[numShapes];
 
 		vector<string> meshSubData = vector<string>(meshData.begin() + vertexStartLine, meshData.begin() + vertexStartLine + numVertices);
 		readVertices(vertPos, vertNorm, vertWeights, meshSubData, numBones);
 		meshSubData.clear();
 
 		meshSubData = vector<string>(meshData.begin() + faceStartLine, meshData.begin() + faceStartLine + numFaces * numVertsPerFace);
-		readFaces(vertPos, vertNorm, vertWeights, meshSubData, numBones, vertices, indices);
+		readFaces(vertPos, vertNorm, vertIds, vertWeights, meshSubData, numBones, vertices, indices);
 		meshSubData.clear();
+		vertPos.clear();
+		vertNorm.clear();
+		vertWeights.clear();
 
 		meshSubData = vector<string>(meshData.begin() + vertexGroupStartLine, meshData.begin() + vertexGroupStartLine + numBones);
 		readVertexGroups(groups, meshSubData, numBones);
 		meshSubData.clear();
 
-		meshSubData = vector<string>(meshData.begin() + shapeKeyStartLine, meshData.begin() + shapeKeyStartLine + numShapes);
-		readShapeKeys(shapeKeyStartLine, numShapes);
+		meshSubData = vector<string>(meshData.begin() + shapeKeyStartLine, meshData.begin() + (shapeKeyStartLine + numShapes * (1 + numVertices)));
+		readShapeKeys(vertices, vertIds, meshSubData, shapeKeys, numShapes, numVertices);
 		meshSubData.clear();
 
 		AnimationController *controller = new AnimationController();
 		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name, controller);
 		nodes.push_back(node);
 
-		int numAnimLineId = vertexStartLine + numVertices + numFaces * numVertsPerFace + numShapes + 1;
+		int numAnimLineId = shapeKeyStartLine + numShapes * (1 + numVertices);
 		int numAnimations = atoi(meshData[numAnimLineId].substr(meshData[numAnimLineId].find_first_of(':') + 1).c_str());
 		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
 		readAnimations(controller, meshSubData, numAnimations);
@@ -424,7 +453,7 @@ namespace vb01{
 			if(sk->getName() == skeletonName)
 				skeleton = sk;
 
-		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, nullptr, numShapes, name);
+		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, shapeKeys, numShapes, name);
 		mesh->setSkeleton(skeleton);
 		node->attachMesh(mesh);
 

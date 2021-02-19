@@ -23,7 +23,7 @@ namespace vb01{
 				//float *weights=nullptr;
 				float weights[4]{0, 0, 0, 0};
 				int boneIndices[4]{-1, -1, -1, -1};
-				Vector3 *shapeKeyOffsets = nullptr;
+				Vector3 shapeKeyOffsets[100];
 			};
 
 			Mesh(Vertex*, unsigned int*, int, std::string *vg = nullptr, int = 0, std::string *sk = nullptr, int = 0, std::string = "");
@@ -53,6 +53,7 @@ namespace vb01{
 			void initFramebuffer();
 			void updateSkeleton(Shader*);
 			void updateReflection(Shader*, Vector3, int, int);
+			void updateShapeKeys(Shader*);
 
 			Shader *environmentShader = nullptr;
 			u32 environmentBuffer;
@@ -68,7 +69,8 @@ namespace vb01{
 			bool staticVerts = true, castShadow = false, reflect = false, wireframe = false;
 			Vertex *vertices;
 			std::string *vertexGroups = nullptr, *shapeKeys = nullptr;
-			unsigned int *indices, VAO, VBO, EBO;
+			u32 *indices, VAO, VBO, EBO;
+			float *shapeKeyFactors = nullptr;
 			int numTris, numVertexGroups = 0, numShapeKeys = 0;
 	};
 }

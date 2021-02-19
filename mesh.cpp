@@ -26,6 +26,9 @@ namespace vb01{
 		this->numShapeKeys = numShapeKeys;
 		this->name = name;
 
+		shapeKeyFactors = new float[numShapeKeys];
+		for(int i = 0; i < numShapeKeys; i++)
+			shapeKeyFactors[i] = 1;
 	}
 
 	Mesh::~Mesh(){
@@ -98,6 +101,10 @@ namespace vb01{
 		glEnableVertexAttribArray(5);
 		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, boneIndices)));
 		glEnableVertexAttribArray(6);
+		for(int i = 0; i < numShapeKeys; i++){
+		}
+			glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, shapeKeyOffsets)));
+			glEnableVertexAttribArray(7);
 	}
 
 	void Mesh::update(){
@@ -134,6 +141,9 @@ namespace vb01{
 		if(skeleton)
 			updateSkeleton(shader);
 
+		if(numShapeKeys > 0)
+			updateShapeKeys(shader);
+
 		shader->setBool(castShadow, "castShadow");
 		shader->setBool(skeleton, "animated");
 		shader->setBool(false, "environment");
@@ -149,6 +159,13 @@ namespace vb01{
 		}
 
 		render();
+	}
+
+	void Mesh::updateShapeKeys(Shader *shader){
+		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(numShapeKeys) + ";");
+		for(int i = 0; i < numShapeKeys; i++){
+			shader->setFloat(shapeKeyFactors[i], "shapeKeyFactors[" + to_string(i) + "]");
+		}
 	}
 
 	void Mesh::updateSkeleton(Shader *shader){

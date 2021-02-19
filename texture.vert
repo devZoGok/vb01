@@ -1,8 +1,9 @@
 #version 330 core
 
-const int numBones=1;
-const int numVertGroups=1;
+const int numBones = 1;
+const int numVertGroups = 1;
 const int numMaxInfluences = 4;
+const int numShapeKeys = 1;
 
 mat4 transform[numBones];
 mat4 poseTransform[numBones];
@@ -14,6 +15,7 @@ layout (location=3) in vec3 aTan;
 layout (location=4) in vec3 aBiTan;
 layout (location=5) in vec4 aWeight;
 layout (location=6) in ivec4 aBoneIndices;
+layout (location=7) in vec3[numShapeKeys] aShapeKeyOffsets;
 
 out vec3 fragPos;
 out vec3 norm;
@@ -32,6 +34,7 @@ uniform Bone bones[numBones];
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform float[numShapeKeys] shapeKeyFactors; 
 
 mat4 createTranslationMatrix(vec3 trans){
 	mat4 transMat;
@@ -98,14 +101,18 @@ void main(){
 			poseTransform[i] = poseTransform[bones[i].parent] * localTransform;
 		}
 
-		vec3 v = vec3(0);
+		vec3 v0 = vec3(0);
 		for(int i = 0; i < numBones; i++){
 			float weight = getWeight(bones[i]);
 			vec4 boneLocalVert = inverse(transform[i]) * vertPos;
-			v += (weight * poseTransform[i] * boneLocalVert).xyz; 
+			v0 += (weight * poseTransform[i] * boneLocalVert).xyz; 
 
 		}
-		vertPos.xyz = v;
+		vertPos.xyz = v0;
+	}
+
+	for(int i = 0; i < numShapeKeys; i++){
+		vertPos.xyz += aShapeKeyOffsets[i] * shapeKeyFactors[i];
 	}
 
 	gl_Position = proj * view * model * vertPos;
