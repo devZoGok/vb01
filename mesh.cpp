@@ -28,7 +28,7 @@ namespace vb01{
 
 		shapeKeyFactors = new float[numShapeKeys];
 		for(int i = 0; i < numShapeKeys; i++)
-			shapeKeyFactors[i] = 1;
+			shapeKeyFactors[i] = 0;
 	}
 
 	Mesh::~Mesh(){
@@ -102,9 +102,9 @@ namespace vb01{
 		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, boneIndices)));
 		glEnableVertexAttribArray(6);
 		for(int i = 0; i < numShapeKeys; i++){
+			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
+			glEnableVertexAttribArray(7 + i);
 		}
-			glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, shapeKeyOffsets)));
-			glEnableVertexAttribArray(7);
 	}
 
 	void Mesh::update(){

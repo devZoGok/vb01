@@ -19,8 +19,6 @@ namespace vb01{
 			struct Vertex{
 				Vector3 pos, norm, tan, biTan;
 				Vector2 uv;	
-				//Vector4 weights;
-				//float *weights=nullptr;
 				float weights[4]{0, 0, 0, 0};
 				int boneIndices[4]{-1, -1, -1, -1};
 				Vector3 shapeKeyOffsets[100];

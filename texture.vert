@@ -15,7 +15,7 @@ layout (location=3) in vec3 aTan;
 layout (location=4) in vec3 aBiTan;
 layout (location=5) in vec4 aWeight;
 layout (location=6) in ivec4 aBoneIndices;
-layout (location=7) in vec3[numShapeKeys] aShapeKeyOffsets;
+layout (location=7) in vec3 aShapeKeyOffsets[numShapeKeys];
 
 out vec3 fragPos;
 out vec3 norm;
@@ -85,6 +85,9 @@ void main(){
 		if(aWeight[i] > 0)
 			anyWeights = true;
 
+	for(int i = 0; i < numShapeKeys; i++){
+		vertPos.xyz += aShapeKeyOffsets[i] * shapeKeyFactors[i];
+	}
 	if(animated && anyWeights){
 		for(int i = 0; i < numBones; i++){
 			transform[i] = createTranslationMatrix(bones[i].pos);
@@ -111,9 +114,6 @@ void main(){
 		vertPos.xyz = v0;
 	}
 
-	for(int i = 0; i < numShapeKeys; i++){
-		vertPos.xyz += aShapeKeyOffsets[i] * shapeKeyFactors[i];
-	}
 
 	gl_Position = proj * view * model * vertPos;
 	fragPos = vec3(model * vertPos);
