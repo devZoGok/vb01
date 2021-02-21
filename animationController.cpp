@@ -42,6 +42,19 @@ namespace vb01{
 			Vector3 currentPos;
 			Quaternion currentRot;
 			Vector3 currentScale;
+			bool objectNode = node && node->getName() == transformNode->getName();
+			if(objectNode){
+				currentPos = transformNode->getPosition();
+				currentRot = transformNode->getOrientation();
+				currentScale = transformNode->getScale();
+			}
+			else{
+				Bone *channelBone = (Bone*)transformNode;
+				currentPos = channelBone->getPosePos();
+				currentRot = channelBone->getPoseRot();
+				currentScale = channelBone->getPoseScale();
+			}
+
 			vector<KeyframeChannel> keyframeChannels = animation->getKeyframeChannelsByNode(transformNode);
 			for(KeyframeChannel keyframeChannel : keyframeChannels){
 				Keyframe pastKeyframe = findKeyframe(channel, keyframeChannel, true);
@@ -55,7 +68,7 @@ namespace vb01{
 				setFrameValue(value, keyframeChannel.type, currentPos, currentRot, currentScale);
 			}
 
-			if(node && node->getName() == transformNode->getName()){
+			if(objectNode){
 				transformNode->setPosition(currentPos);
 				transformNode->setOrientation(currentRot);
 				transformNode->setScale(currentScale);
