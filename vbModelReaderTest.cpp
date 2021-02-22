@@ -167,9 +167,10 @@ namespace vb01{
 		const vector<KeyframeChannel> &keyframeChannels = animation->getKeyframeChannels();
 	   	vector<KeyframeChannel> leftBipodChannels, rightBipodChannels;
 		for(KeyframeChannel ch : keyframeChannels){
-			if(ch.bone->getName() == "bipod.L")
+			vb01::Bone *bone = (vb01::Bone*)ch.animatable;
+			if(bone->getName() == "bipod.L")
 				leftBipodChannels.push_back(ch);
-			else if(ch.bone->getName() == "bipod.R")
+			else if(bone->getName() == "bipod.R")
 				rightBipodChannels.push_back(ch);
 		}
 		CPPUNIT_ASSERT(!leftBipodChannels.empty());

@@ -25,7 +25,7 @@ namespace vb01{
 			void connectNodes();
 
 			void createBones(Skeleton*, std::vector<std::string>&);
-			void readAnimations(AnimationController*, std::vector<std::string>&, int);
+			void readAnimations(Animatable*, std::vector<std::string>&, int);
 			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
 			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<u32>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);
@@ -36,6 +36,7 @@ namespace vb01{
 			void readLights(std::vector<std::string>&);
 
 			std::map<std::string, std::string> relationships;
+			Skeleton *currentSkeleton = nullptr;
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
 			std::vector<Node*> nodes;

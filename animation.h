@@ -5,8 +5,7 @@
 #include <vector>
 
 namespace vb01{
-	class Bone;
-	class Node;
+	class Animatable;
 
 	class Animation{
 		public:
@@ -33,7 +32,7 @@ namespace vb01{
 				};
 
 				Type type;
-				Node *bone = nullptr;
+				Animatable *animatable = nullptr;
 				std::vector<Keyframe> keyframes;
 			};
 
@@ -41,8 +40,8 @@ namespace vb01{
 			~Animation();
 			void update();
 			static KeyframeChannel::Type getKeyframeChannelType(std::string);
-			KeyframeChannel* getKeyframeChannel(Node*, KeyframeChannel::Type);
-			std::vector<KeyframeChannel> getKeyframeChannelsByNode(Node*);
+			KeyframeChannel* getKeyframeChannel(Animatable*, KeyframeChannel::Type);
+			std::vector<KeyframeChannel> getKeyframeChannelsByAnimatable(Animatable*);
 			inline void addKeyframeChannel(KeyframeChannel channel){keyframeChannels.push_back(channel);}
 			inline std::string getName(){return name;}
 			inline const std::vector<KeyframeChannel>& getKeyframeChannels(){return keyframeChannels;}

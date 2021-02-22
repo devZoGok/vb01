@@ -17,9 +17,9 @@ namespace vb01{
 			~AnimationChannel();
 			void update();
 			void setAnimationName(std::string name);
-			inline std::vector<Bone*> getBones(){return bones;}
-			inline void addBone(Bone *bone){bones.push_back(bone);}
-			inline void removeAllBones(){bones.clear();}
+			inline std::vector<Animatable*> getAnimatables(){return animatables;}
+			inline void addAnimatable(Animatable *animatable){animatables.push_back(animatable);}
+			inline void removeAllBones(){animatables.clear();}
 			inline void setUpdateRate(float updateRate){this->updateRate = updateRate;}
 			inline int getUpdateRate(){return updateRate;}
 			inline int getFirstFrame(){return firstFrame;}
@@ -43,7 +43,7 @@ namespace vb01{
 			int firstFrame = 0, currentFrame = 1, numFrames = 0;
 			bool loop = false, forward = true;
 			std::string animationName;
-			std::vector<Bone*> bones;
+			std::vector<Animatable*> animatables;
 
 			friend class AnimationChannelTest;
 			friend class AnimationControllerTest;

@@ -15,14 +15,12 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, AnimationController *controller){
+	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, AnimationController *controller) : Animatable(controller){
 		this->pos = pos;
 		this->scale = scale;
 		this->orientation = orientation;
 		this->name = name;
-		this->controller = controller;
-		if(this->controller)
-			this->controller->setNode(this);
+		Animatable::type = Animatable::NODE;
 
 		globalAxis[0] = Vector3::VEC_I;
 		globalAxis[1] = Vector3::VEC_J;
@@ -56,8 +54,7 @@ namespace vb01{
 				c->update();
 			for(ParticleEmitter *p : emitters)
 				p->update();
-			if(controller)
-				controller->update();
+			Animatable::update();
 		}
 	}
 
@@ -311,5 +308,45 @@ namespace vb01{
 	void Node::setOrientation(Quaternion q){
 		this->orientation = q;
 		updateAxis();
+	}
+
+	void Node::animate(float value, KeyframeChannel keyframeChannel){
+		Vector3 newPos = pos, newScale = scale;
+		Quaternion newRot = orientation;
+		switch(keyframeChannel.type){
+			case KeyframeChannel::POS_X:
+				newPos.x = value;
+				break;
+			case KeyframeChannel::POS_Y:
+				newPos.y = value;
+				break;
+			case KeyframeChannel::POS_Z:
+				newPos.z = value;
+				break;
+			case KeyframeChannel::ROT_W:
+				newRot.w = value;
+				break;
+			case KeyframeChannel::ROT_X:
+				newRot.x = value;
+				break;
+			case KeyframeChannel::ROT_Y:
+				newRot.y = value;
+				break;
+			case KeyframeChannel::ROT_Z:
+				newRot.z = value;
+				break;
+			case KeyframeChannel::SCALE_X:
+				newScale.x = value;
+				break;
+			case KeyframeChannel::SCALE_Y:
+				newScale.y = value;
+				break;
+			case KeyframeChannel::SCALE_Z:
+				newScale.z = value;
+				break;
+		}
+		setPosition(newPos);
+		setOrientation(newRot);
+		setScale(newScale);
 	}
 }

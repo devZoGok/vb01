@@ -1,8 +1,8 @@
 #ifndef BONE_H
 #define BONE_H
 
-#include"node.h"
-#include<string>
+#include "node.h"
+#include <string>
 
 namespace vb01{
 	class Skeleton;
@@ -34,6 +34,7 @@ namespace vb01{
 			inline Vector3 getPoseScale(){return poseScale;}
 		private:
 			void updateBoneInfo();
+			void animate(float, KeyframeChannel);
 
 			float length;
 			Bone *ikTarget = nullptr;

@@ -7,6 +7,7 @@ namespace vb01{
 	Bone::Bone(string name, float length, Vector3 pos, Quaternion rot, Vector3 scale) : Node(pos, rot, scale, name){
 		this->name = name;
 		this->length = length;
+		Animatable::type = Animatable::BONE;
 	}
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp){
@@ -76,5 +77,45 @@ namespace vb01{
 	void Bone::setPoseScale(Vector3 s){
 		this->poseScale = s;
 		//setScale(restScale+poseScale);
+	}
+
+	void Bone::animate(float value, KeyframeChannel keyframeChannel){
+		Vector3 newPos = getPosePos(), newScale = getPoseScale();
+		Quaternion newRot = getPoseRot();
+		switch(keyframeChannel.type){
+			case KeyframeChannel::POS_X:
+				newPos.x = value;
+				break;
+			case KeyframeChannel::POS_Y:
+				newPos.y = value;
+				break;
+			case KeyframeChannel::POS_Z:
+				newPos.z = value;
+				break;
+			case KeyframeChannel::ROT_W:
+				newRot.w = value;
+				break;
+			case KeyframeChannel::ROT_X:
+				newRot.x = value;
+				break;
+			case KeyframeChannel::ROT_Y:
+				newRot.y = value;
+				break;
+			case KeyframeChannel::ROT_Z:
+				newRot.z = value;
+				break;
+			case KeyframeChannel::SCALE_X:
+				newScale.x = value;
+				break;
+			case KeyframeChannel::SCALE_Y:
+				newScale.y = value;
+				break;
+			case KeyframeChannel::SCALE_Z:
+				newScale.z = value;
+				break;
+		}
+		setPosePos(newPos);
+		setPoseRot(newRot);
+		setPoseScale(newScale);
 	}
 }

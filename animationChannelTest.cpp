@@ -22,14 +22,14 @@ namespace vb01{
 		KeyframeChannel kc;
 		kc.type = KeyframeChannel::Type::POS_X;
 		kc.keyframes = vector<Keyframe>({k1, k2});
-		kc.bone = bone;
+		kc.animatable = bone;
 		Animation *anim = new Animation("anim");
 		anim->addKeyframeChannel(kc);
 
 		channel = new AnimationChannel(controller);
 		controller->addAnimationChannel(channel);
 		controller->addAnimation(anim);
-		channel->addBone(bone);
+		channel->addAnimatable(bone);
 		channel->setAnimationName("anim");
 	}
 

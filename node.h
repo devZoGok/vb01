@@ -4,6 +4,7 @@
 #include "quaternion.h"
 #include "vector.h"
 #include "root.h"
+#include "animatable.h"
 
 #include <vector>
 #include <string>
@@ -16,7 +17,7 @@ namespace vb01{
 	class Text;
 	class AnimationController;
 
-	class Node{
+	class Node : public Animatable{
 		public:
 			struct Transform{
 				Vector3 position = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
@@ -65,14 +66,14 @@ namespace vb01{
 			inline bool isVisible(){return visible;}
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
-			inline AnimationController* getAnimationController(){return controller;}
 		private:
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
-			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
-			AnimationController *controller = nullptr;
-		protected:
 			void updateShaders();
+
+			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
+		protected:
+			virtual void animate(float, KeyframeChannel);
 			
 			bool visible = true;
 			Vector3 pos, scale, globalAxis[3];

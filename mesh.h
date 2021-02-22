@@ -24,7 +24,7 @@ namespace vb01{
 				Vector3 shapeKeyOffsets[100];
 			};
 
-			Mesh(Vertex*, unsigned int*, int, std::string *vg = nullptr, int = 0, std::string *sk = nullptr, int = 0, std::string = "");
+			Mesh(Vertex*, u32*, int, std::string *vg = nullptr, int = 0, std::string *sk = nullptr, int = 0, std::string = "");
 			~Mesh();
 			void construct();
 			virtual void update();
@@ -45,7 +45,7 @@ namespace vb01{
 			inline Skeleton* getSkeleton(){return skeleton;}
 			inline std::string* getVertexGroups(){return vertexGroups;}
 			inline int getNumVertexGroups(){return numVertexGroups;}
-			inline unsigned int* getIndices(){return indices;}
+			inline u32* getIndices(){return indices;}
 		private:
 			void initMesh();
 			void initFramebuffer();

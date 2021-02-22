@@ -1,9 +1,9 @@
 #ifndef SKELETON_H
 #define SKELETON_H
 
-#include<vector>
-#include<string>
-#include"bone.h"
+#include <vector>
+#include <string>
+#include "bone.h"
 
 namespace vb01{
 	class Animation;

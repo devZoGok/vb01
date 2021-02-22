@@ -38,11 +38,11 @@ namespace vb01{
 		return type;
 	}
 
-	KeyframeChannel* Animation::getKeyframeChannel(Node *bone, KeyframeChannelType type){
+	KeyframeChannel* Animation::getKeyframeChannel(Animatable *animatable, KeyframeChannelType type){
 		KeyframeChannel *k = nullptr;
 
 		for(KeyframeChannel &channel : keyframeChannels)
-			if(channel.type == type && channel.bone == bone){
+			if(channel.type == type && channel.animatable == animatable){
 				k = &channel;
 				break;
 			}
@@ -50,11 +50,11 @@ namespace vb01{
 		return k;
 	}
 
-	vector<KeyframeChannel> Animation::getKeyframeChannelsByNode(Node *bone){
+	vector<KeyframeChannel> Animation::getKeyframeChannelsByAnimatable(Animatable *animatable){
 		vector<KeyframeChannel> channels;
 
 		for(KeyframeChannel channel : keyframeChannels)
-			if(channel.bone == bone)
+			if(channel.animatable == animatable)
 				channels.push_back(channel);
 
 		return channels;

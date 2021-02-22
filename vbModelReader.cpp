@@ -150,8 +150,6 @@ namespace vb01{
 				yAxis.z = -yAxis.z;
 				swap(zAxis.y, zAxis.z);
 				zAxis.z = -zAxis.z;
-				/*
-				*/
 			}
 			else
 				pos = pos + Vector3(0, ((Bone*)parent)->getLength(), 0);
@@ -172,33 +170,27 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(AnimationController *controller, vector<string> &skeletonData, int numAnimations){
+	void VbModelReader::readAnimations(Animatable *animatable, vector<string> &animationData, int numAnimations){
 		int animStartLine = 0;
 
 		for(int i = 0; i < numAnimations; i++){
-			string animLine = skeletonData[animStartLine];
+			string animLine = animationData[animStartLine];
 			currentAnim = animLine.substr(animLine.find_first_of(':') + 2);
-			string groupsLine = skeletonData[animStartLine + 1];
+			string groupsLine = animationData[animStartLine + 1];
 
 			Animation *animation = new Animation(currentAnim);
+			AnimationController *controller = (animatable ? animatable->getAnimationController() : currentSkeleton->getAnimationController());
 			controller->addAnimation(animation);
 
 			int numKeyframeGroups = atoi(groupsLine.substr(groupsLine.find_first_of(':') + 2).c_str());
 			int keyframeGroupStartLine = animStartLine + 2;
 			for(int j = 0; j < numKeyframeGroups; j++){
 				string dataLine[2];
-				getLineData(skeletonData[keyframeGroupStartLine], dataLine, 2);
-
-				string nodeName = dataLine[0];
-				Node *transformNode = nullptr;
-				if(controller->getSkeleton())
-					transformNode = (Node*)controller->getSkeleton()->getBone(nodeName);
-				if(!transformNode)
-					transformNode = controller->getNode();
+				getLineData(animationData[keyframeGroupStartLine], dataLine, 2);
 
 				int numKeyframeChannels = atoi(dataLine[1].c_str());
 				string channelData[2 * numKeyframeChannels];
-				getLineData(skeletonData[keyframeGroupStartLine], channelData, 2 * numKeyframeChannels, 2);
+				getLineData(animationData[keyframeGroupStartLine], channelData, 2 * numKeyframeChannels, 2);
 
 				vector<KeyframeChannel> keyframeChannels;
 				int numTypeKeyframes[numKeyframeChannels];
@@ -209,7 +201,7 @@ namespace vb01{
 					keyframeChannel.type = Animation::getKeyframeChannelType(channelData[2 * k]);
 					numTypeKeyframes[k] = atoi(channelData[2 * k + 1].c_str());
 					numKeyframes += numTypeKeyframes[k];
-					keyframeChannel.bone = transformNode;
+					keyframeChannel.animatable = (animatable ? animatable : currentSkeleton->getBone(dataLine[0]));
 
 					keyframeChannels.push_back(keyframeChannel);
 				}
@@ -217,7 +209,7 @@ namespace vb01{
 				int keyframeStartLine = keyframeGroupStartLine + 1;
 				int currentChannel = 0, numCurrentTypeKeyframes = 0;
 				for(int k = 0; k < numKeyframes; k++){
-					string keyframeLine = skeletonData[keyframeStartLine + k];
+					string keyframeLine = animationData[keyframeStartLine + k];
 					string keyframeData[9];
 					getLineData(keyframeLine, keyframeData, 9);
 
@@ -258,14 +250,17 @@ namespace vb01{
 
 		AnimationController *controller = new AnimationController();
 		Skeleton *skeleton = new Skeleton(controller, name);
+		currentSkeleton = skeleton;
 
 		vector<string> skeletonSubData = vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
 		createBones(skeleton, skeletonSubData);
 		skeletonSubData.clear();
 
 		skeletonSubData = vector<string>(skeletonData.begin() + (boneStartLine + numBones + 1), skeletonData.end());
-		readAnimations(controller, skeletonSubData, numAnimations);
+		readAnimations(nullptr, skeletonSubData, numAnimations);
 		skeletonSubData.clear();
+
+		currentSkeleton = nullptr;
 
 		return skeleton;
 	}
@@ -441,7 +436,7 @@ namespace vb01{
 		int numAnimLineId = shapeKeyStartLine + numShapes * (1 + numVertices);
 		int numAnimations = atoi(meshData[numAnimLineId].substr(meshData[numAnimLineId].find_first_of(':') + 1).c_str());
 		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
-		readAnimations(controller, meshSubData, numAnimations);
+		readAnimations(node, meshSubData, numAnimations);
 		meshSubData.clear();
 
 		string skeletonLine = meshData[5];

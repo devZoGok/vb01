@@ -13,7 +13,6 @@ namespace vb01{
 	Skeleton::Skeleton(AnimationController *controller, string name){
 		this->name = name;
 		this->controller = controller;
-		this->controller->setSkeleton(this);
 	}
 
 	void Skeleton::update(){
