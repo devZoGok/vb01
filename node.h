@@ -72,6 +72,7 @@ namespace vb01{
 			void updateShaders();
 
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
+			AnimationController *controller = nullptr;
 		protected:
 			virtual void animate(float, KeyframeChannel);
 			

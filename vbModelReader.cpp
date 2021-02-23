@@ -170,7 +170,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(Animatable *animatable, vector<string> &animationData, int numAnimations){
+	void VbModelReader::readAnimations(Animatable *animatable, AnimationController *controller, vector<string> &animationData, int numAnimations){
 		int animStartLine = 0;
 
 		for(int i = 0; i < numAnimations; i++){
@@ -179,7 +179,6 @@ namespace vb01{
 			string groupsLine = animationData[animStartLine + 1];
 
 			Animation *animation = new Animation(currentAnim);
-			AnimationController *controller = (animatable ? animatable->getAnimationController() : currentSkeleton->getAnimationController());
 			controller->addAnimation(animation);
 
 			int numKeyframeGroups = atoi(groupsLine.substr(groupsLine.find_first_of(':') + 2).c_str());
@@ -257,7 +256,7 @@ namespace vb01{
 		skeletonSubData.clear();
 
 		skeletonSubData = vector<string>(skeletonData.begin() + (boneStartLine + numBones + 1), skeletonData.end());
-		readAnimations(nullptr, skeletonSubData, numAnimations);
+		readAnimations(nullptr, controller, skeletonSubData, numAnimations);
 		skeletonSubData.clear();
 
 		currentSkeleton = nullptr;
@@ -436,7 +435,7 @@ namespace vb01{
 		int numAnimLineId = shapeKeyStartLine + numShapes * (1 + numVertices);
 		int numAnimations = atoi(meshData[numAnimLineId].substr(meshData[numAnimLineId].find_first_of(':') + 1).c_str());
 		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
-		readAnimations(node, meshSubData, numAnimations);
+		readAnimations(node, controller, meshSubData, numAnimations);
 		meshSubData.clear();
 
 		string skeletonLine = meshData[5];

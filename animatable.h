@@ -10,13 +10,10 @@ namespace vb01{
 		public:
 			enum Type{NODE, BONE};
 
-			Animatable(AnimationController*);
-			void update();
+			Animatable();
 			virtual void animate(float, KeyframeChannel){}
-			inline AnimationController *getAnimationController(){return animationController;}
 			inline Type getType(){return type;}
 		private:
-			AnimationController *animationController = nullptr;
 		protected:
 			Type type;
 	};

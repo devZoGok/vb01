@@ -15,11 +15,12 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, AnimationController *controller) : Animatable(controller){
+	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, AnimationController *controller) : Animatable(){
 		this->pos = pos;
 		this->scale = scale;
 		this->orientation = orientation;
 		this->name = name;
+		this->controller = controller;
 		Animatable::type = Animatable::NODE;
 
 		globalAxis[0] = Vector3::VEC_I;
@@ -54,7 +55,8 @@ namespace vb01{
 				c->update();
 			for(ParticleEmitter *p : emitters)
 				p->update();
-			Animatable::update();
+			if(controller)
+				controller->update();
 		}
 	}
 
