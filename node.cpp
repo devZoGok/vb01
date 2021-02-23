@@ -21,7 +21,6 @@ namespace vb01{
 		this->orientation = orientation;
 		this->name = name;
 		this->controller = controller;
-		Animatable::type = Animatable::NODE;
 
 		globalAxis[0] = Vector3::VEC_I;
 		globalAxis[1] = Vector3::VEC_J;
@@ -58,6 +57,45 @@ namespace vb01{
 			if(controller)
 				controller->update();
 		}
+		for(Driver &driver : drivers)
+			driver.drive(getDriverValue(driver.getType()));
+	}
+
+	float Node::getDriverValue(Driver::VariableType type){
+		float driverValue;
+		switch(type){
+			case Driver::POS_X:
+				driverValue = pos.x;
+				break;
+			case Driver::POS_Y:
+				driverValue = pos.y;
+				break;
+			case Driver::POS_Z:
+				driverValue = pos.z;
+				break;
+			case Driver::ROT_W:
+				driverValue = orientation.w;
+				break;
+			case Driver::ROT_X:
+				driverValue = orientation.x;
+				break;
+			case Driver::ROT_Y:
+				driverValue = orientation.y;
+				break;
+			case Driver::ROT_Z:
+				driverValue = orientation.z;
+				break;
+			case Driver::SCALE_X:
+				driverValue = scale.x;
+				break;
+			case Driver::SCALE_Y:
+				driverValue = scale.y;
+				break;
+			case Driver::SCALE_Z:
+				driverValue = scale.z;
+				break;
+		}
+		return driverValue;
 	}
 
 	void Node::attachChild(Node *child){

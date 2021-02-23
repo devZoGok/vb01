@@ -1,12 +1,12 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include"vector.h"
-#include"util.h"
-#include<vector>
-#include<string>
-#include"material.h"
-
+#include "vector.h"
+#include "util.h"
+#include "material.h"
+#include "animatable.h"
+#include <vector>
+#include <string>
 
 namespace vb01{
 	class Node;
@@ -14,8 +14,13 @@ namespace vb01{
 	class Texture;
 	class Skeleton;
 
-	class Mesh{
+	class Mesh : public Animatable{
 		public:
+			struct ShapeKey{
+				float minValue, value, maxValue;
+
+				void animate(float, KeyframeChannel);
+			};
 			struct Vertex{
 				Vector3 pos, norm, tan, biTan;
 				Vector2 uv;	
@@ -24,7 +29,7 @@ namespace vb01{
 				Vector3 shapeKeyOffsets[100];
 			};
 
-			Mesh(Vertex*, u32*, int, std::string *vg = nullptr, int = 0, std::string *sk = nullptr, int = 0, std::string = "");
+			Mesh(Vertex*, u32*, int, std::string *vg = nullptr, int = 0, ShapeKey *sk = nullptr, int = 0, std::string = "");
 			~Mesh();
 			void construct();
 			virtual void update();
@@ -66,9 +71,9 @@ namespace vb01{
 
 			bool staticVerts = true, castShadow = false, reflect = false, wireframe = false;
 			Vertex *vertices;
-			std::string *vertexGroups = nullptr, *shapeKeys = nullptr;
+			std::string *vertexGroups = nullptr;
+		   	ShapeKey *shapeKeys = nullptr;
 			u32 *indices, VAO, VBO, EBO;
-			float *shapeKeyFactors = nullptr;
 			int numTris, numVertexGroups = 0, numShapeKeys = 0;
 	};
 }

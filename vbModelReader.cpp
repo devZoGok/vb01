@@ -344,7 +344,7 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readShapeKeys(Mesh::Vertex *vertices, vector<u32> &vertIds, vector<string> &meshData, string *shapeKeys, int numShapes, int numVertPos){
+	void VbModelReader::readShapeKeys(Mesh::Vertex *vertices, vector<u32> &vertIds, vector<string> &meshData, Mesh::ShapeKey *shapeKeys, int numShapes, int numVertPos){
 		/*
 		for(int i = 0; i < vertIds.size(); i++)
 			vertices[i].shapeKeyOffsets = new Vector3[numShapes];
@@ -352,9 +352,17 @@ namespace vb01{
 
 		int shapeKeyStartLine = 0;
 		for(int i = 0; i < numShapes; i++){
-			shapeKeys[i] = meshData[shapeKeyStartLine];
-			Vector3 *shapeKeyVertPos = new Vector3[numVertPos];
+			string line = meshData[shapeKeyStartLine];
+			int colonId = line.find_first_of(':');
+			Mesh::ShapeKey shapeKey;
+			string data[2];
+			getLineData(line.substr(colonId + 1), data, 2);
+			shapeKey.minValue = atof(data[0].c_str());
+			shapeKey.value = shapeKey.minValue;
+			shapeKey.maxValue = atof(data[1].c_str());
+			shapeKeys[i] = shapeKey;
 
+			Vector3 *shapeKeyVertPos = new Vector3[numVertPos];
 			for(int j = 0; j < numVertPos; j++){
 				string line = meshData[shapeKeyStartLine + 1 + j];
 				string dataLine[3];
@@ -407,7 +415,7 @@ namespace vb01{
 		Mesh::Vertex *vertices = new Mesh::Vertex[numFaces * numVertsPerFace];
 		u32 *indices = new u32[numFaces * numVertsPerFace];
 		string *groups = new string[numBones];
-		string *shapeKeys = new string[numShapes];
+		Mesh::ShapeKey *shapeKeys = new Mesh::ShapeKey[numShapes];
 
 		vector<string> meshSubData = vector<string>(meshData.begin() + vertexStartLine, meshData.begin() + vertexStartLine + numVertices);
 		readVertices(vertPos, vertNorm, vertWeights, meshSubData, numBones);

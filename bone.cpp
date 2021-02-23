@@ -7,7 +7,6 @@ namespace vb01{
 	Bone::Bone(string name, float length, Vector3 pos, Quaternion rot, Vector3 scale) : Node(pos, rot, scale, name){
 		this->name = name;
 		this->length = length;
-		Animatable::type = Animatable::BONE;
 	}
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp){
@@ -117,5 +116,42 @@ namespace vb01{
 		setPosePos(newPos);
 		setPoseRot(newRot);
 		setPoseScale(newScale);
+	}
+
+	float Bone::getDriverValue(Driver::VariableType type){
+		float driverValue;
+		switch(type){
+			case Driver::POS_X:
+				driverValue = posePos.x;
+				break;
+			case Driver::POS_Y:
+				driverValue = posePos.y;
+				break;
+			case Driver::POS_Z:
+				driverValue = posePos.z;
+				break;
+			case Driver::ROT_W:
+				driverValue = poseRot.w;
+				break;
+			case Driver::ROT_X:
+				driverValue = poseRot.x;
+				break;
+			case Driver::ROT_Y:
+				driverValue = poseRot.y;
+				break;
+			case Driver::ROT_Z:
+				driverValue = poseRot.z;
+				break;
+			case Driver::SCALE_X:
+				driverValue = poseScale.x;
+				break;
+			case Driver::SCALE_Y:
+				driverValue = poseScale.y;
+				break;
+			case Driver::SCALE_Z:
+				driverValue = poseScale.z;
+				break;
+		}
+		return driverValue;
 	}
 }

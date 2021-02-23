@@ -1,22 +1,37 @@
-#include"root.h"
-#include"node.h"
-#include"box.h"
-#include"texture.h"
-#include"skeleton.h"
-#include<glad.h>
-#include<glfw3.h>
-#include<glm.hpp>
-#include<ext.hpp>
-#include<iostream>
-#include<cstdlib>
+#include "root.h"
+#include "node.h"
+#include "box.h"
+#include "texture.h"
+#include "skeleton.h"
+#include "animation.h"
+#include <glad.h>
+#include <glfw3.h>
+#include <glm.hpp>
+#include <ext.hpp>
+#include <iostream>
+#include <cstdlib>
 
 using namespace std;
 using namespace glm;
 
 namespace vb01{
+	void Mesh::ShapeKey::animate(float value, KeyframeChannel keyframeChannel){
+		switch(keyframeChannel.type){
+			case KeyframeChannel::SHAPE_KEY_MIN:
+				this->minValue = value;
+				break;
+			case KeyframeChannel::SHAPE_KEY_VALUE:
+				this->value = value;
+				break;
+			case KeyframeChannel::SHAPE_KEY_MAX:
+				this->maxValue = value;
+				break;
+		}
+	}
+
 	Mesh::Mesh(){}
 
-	Mesh::Mesh(Vertex *vertices, unsigned int *indices, int numTris, string *vertexGroups, int numVertexGroups, string *shapeKeys, int numShapeKeys, string name){
+	Mesh::Mesh(Vertex *vertices, unsigned int *indices, int numTris, string *vertexGroups, int numVertexGroups, ShapeKey *shapeKeys, int numShapeKeys, string name) : Animatable(){
 		this->vertices = vertices;
 		this->indices = indices;
 		this->numTris = numTris;
@@ -25,10 +40,6 @@ namespace vb01{
 		this->shapeKeys = shapeKeys;
 		this->numShapeKeys = numShapeKeys;
 		this->name = name;
-
-		shapeKeyFactors = new float[numShapeKeys];
-		for(int i = 0; i < numShapeKeys; i++)
-			shapeKeyFactors[i] = 0;
 	}
 
 	Mesh::~Mesh(){
@@ -164,7 +175,12 @@ namespace vb01{
 	void Mesh::updateShapeKeys(Shader *shader){
 		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(numShapeKeys) + ";");
 		for(int i = 0; i < numShapeKeys; i++){
-			shader->setFloat(shapeKeyFactors[i], "shapeKeyFactors[" + to_string(i) + "]");
+			if(shapeKeys[i].value < shapeKeys[i].minValue)
+				shapeKeys[i].value = shapeKeys[i].minValue;
+			else if(shapeKeys[i].value > shapeKeys[i].maxValue)
+				shapeKeys[i].value = shapeKeys[i].maxValue;
+
+			shader->setFloat(shapeKeys[i].value, "shapeKeyFactors[" + to_string(i) + "]");
 		}
 	}
 

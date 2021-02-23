@@ -3,39 +3,13 @@
 
 #include <string>
 #include <vector>
+#include "keyframeChannel.h"
 
 namespace vb01{
 	class Animatable;
 
 	class Animation{
 		public:
-			struct KeyframeChannel{
-				enum Type{
-					POS_X,
-					POS_Y,
-					POS_Z,
-					ROT_W,
-					ROT_X,
-					ROT_Y,
-					ROT_Z,
-					SCALE_X,
-					SCALE_Y,
-					SCALE_Z,
-					VALUE
-				};
-				struct Keyframe{
-					enum Interpolation{CONSTANT, LINEAR, BEZIER};
-
-					float value;
-					int frame;
-					Interpolation interpolation;
-				};
-
-				Type type;
-				Animatable *animatable = nullptr;
-				std::vector<Keyframe> keyframes;
-			};
-
 			Animation(std::string);
 			~Animation();
 			void update();
@@ -49,11 +23,6 @@ namespace vb01{
 			std::string name;
 			std::vector<KeyframeChannel> keyframeChannels;
 	};
-
-	typedef Animation::KeyframeChannel KeyframeChannel; 
-	typedef Animation::KeyframeChannel::Type KeyframeChannelType; 
-	typedef Animation::KeyframeChannel::Keyframe Keyframe; 
-	typedef Animation::KeyframeChannel::Keyframe::Interpolation KeyframeInterpolation; 
 }
 
 #endif

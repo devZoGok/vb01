@@ -143,6 +143,12 @@ namespace vb01{
 			meshData.push_back(to_string(i) + " " + uvString + tanString + biTanString);
 		}
 		meshData.push_back("shapeKeys: 0");
+		meshData.push_back("Key 1: 0 1");
+		for(int i = 0; i < vertPos.size(); i++){
+			Vector3 pos = vertPos[i];
+			string posString = to_string(pos.x) + " " + to_string(pos.y) + " " + to_string(pos.z) + " ";
+			meshData.push_back(posString);
+		}
 		meshData.push_back("animations: 0");
 	}
 

@@ -14,7 +14,7 @@ namespace vb01{
 		inFile.close();
 	}
 
-	void getLineData(string &line, string data[], int numData, int offset){
+	void getLineData(string line, string data[], int numData, int offset){
 		int offsetComma = 0, c1 = 0;
 		for(int i = 0; i < line.length() && offsetComma < offset; i++)
 			if(line.c_str()[i] == ' '){

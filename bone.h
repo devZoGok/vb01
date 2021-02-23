@@ -35,6 +35,7 @@ namespace vb01{
 		private:
 			void updateBoneInfo();
 			void animate(float, KeyframeChannel);
+			virtual float getDriverValue(Driver::VariableType);
 
 			float length;
 			Bone *ikTarget = nullptr;

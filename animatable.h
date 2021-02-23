@@ -8,14 +8,10 @@ namespace vb01{
 
 	class Animatable{
 		public:
-			enum Type{NODE, BONE};
-
 			Animatable();
 			virtual void animate(float, KeyframeChannel){}
-			inline Type getType(){return type;}
 		private:
 		protected:
-			Type type;
 	};
 }
 

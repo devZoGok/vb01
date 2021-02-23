@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "root.h"
 #include "animatable.h"
+#include "driver.h"
 
 #include <vector>
 #include <string>
@@ -73,8 +74,10 @@ namespace vb01{
 
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
 			AnimationController *controller = nullptr;
+			std::vector<Driver> drivers;
 		protected:
 			virtual void animate(float, KeyframeChannel);
+			virtual float getDriverValue(Driver::VariableType);
 			
 			bool visible = true;
 			Vector3 pos, scale, globalAxis[3];
