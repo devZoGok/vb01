@@ -22,7 +22,7 @@ namespace vb01{
 			ratio = 0;
 
 		Keyframe::Interpolation interp = pastKeyframe.interpolation;
-		float value = KeyframeChannel::interpolate(pastKeyframe.value, nextKeyframe.value, interp, ratio);
+		float value = KeyframeChannel::interpolate(pastKeyframe, nextKeyframe, ratio);
 		keyframeChannel.animatable->animate(value, keyframeChannel);
 	}
 

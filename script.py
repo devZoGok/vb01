@@ -149,10 +149,12 @@ def getChannelType(channel):
 def readChannel(channel):
     channelType = getChannelType(channel)
 
-    for keyframe in channel.keyframe_points:
+    numKeyframes = len(channel.keyframe_points)
+    for i in range(numKeyframes):
+        keyframe = channel.keyframe_points[i]
         keyframeId = keyframe.co[0]
         interp = keyframe.interpolation
-        interpInt = - 1
+        interpInt = -1
 
         if interp == 'CONSTANT':
             interpInt = 0
@@ -163,9 +165,20 @@ def readChannel(channel):
 
         keyframeValue = keyframe.co[1]
         file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
-        if interp == 'BEZIER':
-            file.write(' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
-            file.write(str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y) + ' ')
+
+        leftHandleValue = (keyframe.handle_left[1])
+        leftHandleFrame = (keyframe.handle_left[0])
+        rightHandleValue = (keyframe.handle_right[1])
+        rightHandleFrame = (keyframe.handle_right[0])
+        if interp != 'BEZIER':
+            rightHandleValue = keyframeValue
+            rightHandleFrame = keyframeId
+        if i > 0 and channel.keyframe_points[i - 1].interpolation != 'BEZIER':
+            leftHandleValue = keyframeValue
+            leftHandleFrame = keyframeId
+
+        file.write(' ' + str(leftHandleValue) + ' ' + str(leftHandleFrame) + ' ')
+        file.write(str(rightHandleValue) + ' ' + str(rightHandleFrame) + ' ')
         file.write('\n')
 
 def readDriver(channel, driverName):

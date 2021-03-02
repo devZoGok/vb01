@@ -3,20 +3,32 @@
 using namespace std;
 
 namespace vb01{
-	float KeyframeChannel::interpolate(float pastValue, float nextValue, Keyframe::Interpolation mode, float ratio){
+	float KeyframeChannel::interpolate(Keyframe pastKeyframe, Keyframe nextKeyframe, float ratio){
 		float currentValue;
-		switch(mode){
+		switch(pastKeyframe.interpolation){
 			case Keyframe::CONSTANT:
-				currentValue = pastValue;
+				currentValue = pastKeyframe.value;
 				break;
 			case Keyframe::LINEAR:
-				currentValue = pastValue + (nextValue - pastValue) * ratio;
-				break;
 			case Keyframe::BEZIER:
-				currentValue = pastValue + (nextValue - pastValue) * ratio;
+				vector<float> points = vector<float>({pastKeyframe.value, pastKeyframe.rightHandleValue, nextKeyframe.leftHandleValue, nextKeyframe.value});
+				currentValue = interpolateBezier(points, ratio);
 				break;
 		}
 		return currentValue;
+	}
+
+	float KeyframeChannel::interpolateBezier(vector<float> points, float ratio){
+		int numPoints = points.size();
+		vector<float> newPoints;
+
+		for(int i = 0; i < numPoints - 1; i++)
+			newPoints.push_back(points[i] + (points[i + 1] - points[i]) * ratio);
+		
+		if(newPoints.size() >= 2)
+			return interpolateBezier(newPoints, ratio);
+		else
+			return newPoints[0];
 	}
 
 	KeyframeChannelType KeyframeChannel::getKeyframeChannelType(string typeString){

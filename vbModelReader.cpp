@@ -259,8 +259,12 @@ namespace vb01{
 
 			Keyframe keyframe;
 			keyframe.value = atof(keyframeData[0].c_str());
-			keyframe.frame = atoi(keyframeData[1].c_str());
+			keyframe.frame = atof(keyframeData[1].c_str());
 			keyframe.interpolation = (KeyframeInterpolation)atoi(keyframeData[2].c_str());
+			keyframe.leftHandleValue = atof(keyframeData[3].c_str());
+			keyframe.leftHandleFrame = atof(keyframeData[4].c_str());
+			keyframe.rightHandleValue = atof(keyframeData[5].c_str());
+			keyframe.rightHandleFrame = atof(keyframeData[6].c_str());
 			keyframeChannels[currentChannel].keyframes.push_back(keyframe);
 
 			numCurrentTypeKeyframes++;

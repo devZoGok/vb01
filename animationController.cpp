@@ -31,7 +31,7 @@ namespace vb01{
 
 				float ratio = (float)(max(0, currentFrame - pastFrame)) / (nextFrame - pastFrame);
 				Keyframe::Interpolation interp = pastKeyframe.interpolation;
-				float value = KeyframeChannel::interpolate(pastKeyframe.value, nextKeyframe.value, interp, ratio);
+				float value = KeyframeChannel::interpolate(pastKeyframe, nextKeyframe, ratio);
 				animatable->animate(value, keyframeChannel);
 			}
 		}

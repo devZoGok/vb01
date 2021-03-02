@@ -26,7 +26,7 @@ namespace vb01{
 		struct Keyframe{
 			enum Interpolation{CONSTANT, LINEAR, BEZIER};
 
-			float value, frame;
+			float value, leftHandleValue, rightHandleValue, frame, leftHandleFrame, rightHandleFrame;
 			Interpolation interpolation;
 		};
 
@@ -34,8 +34,9 @@ namespace vb01{
 		Animatable *animatable = nullptr;
 		std::vector<Keyframe> keyframes;
 
+		static float interpolateBezier(std::vector<float>, float);
 		static KeyframeChannel::Type getKeyframeChannelType(std::string);
-		static float interpolate(float, float, Keyframe::Interpolation, float); 
+		static float interpolate(Keyframe, Keyframe, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);
 		static void transform();
 	};
