@@ -67,6 +67,7 @@ namespace vb01{
 			inline bool isVisible(){return visible;}
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
+			inline void addDriver(Driver *d){drivers.push_back(d);}
 		private:
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
@@ -74,7 +75,7 @@ namespace vb01{
 
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
 			AnimationController *controller = nullptr;
-			std::vector<Driver> drivers;
+			std::vector<Driver*> drivers;
 		protected:
 			virtual void animate(float, KeyframeChannel);
 			virtual float getDriverValue(Driver::VariableType);

@@ -13,9 +13,9 @@ namespace vb01{
 			Animation(std::string);
 			~Animation();
 			void update();
-			static KeyframeChannel::Type getKeyframeChannelType(std::string);
 			KeyframeChannel* getKeyframeChannel(Animatable*, KeyframeChannel::Type);
 			std::vector<KeyframeChannel> getKeyframeChannelsByAnimatable(Animatable*);
+			inline void addKeyframeChannels(std::vector<KeyframeChannel> keyframeChannels){this->keyframeChannels.assign(keyframeChannels.begin(), keyframeChannels.end());}
 			inline void addKeyframeChannel(KeyframeChannel channel){keyframeChannels.push_back(channel);}
 			inline std::string getName(){return name;}
 			inline const std::vector<KeyframeChannel>& getKeyframeChannels(){return keyframeChannels;}

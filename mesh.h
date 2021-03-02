@@ -16,7 +16,8 @@ namespace vb01{
 
 	class Mesh : public Animatable{
 		public:
-			struct ShapeKey{
+			struct ShapeKey : public Animatable{
+				std::string name;
 				float minValue, value, maxValue;
 
 				void animate(float, KeyframeChannel);
@@ -51,6 +52,8 @@ namespace vb01{
 			inline std::string* getVertexGroups(){return vertexGroups;}
 			inline int getNumVertexGroups(){return numVertexGroups;}
 			inline u32* getIndices(){return indices;}
+			inline ShapeKey& getShapeKey(int i){return shapeKeys[i];}
+			inline int getNumShapeKeys(){return numShapeKeys;}
 		private:
 			void initMesh();
 			void initFramebuffer();

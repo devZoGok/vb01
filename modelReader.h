@@ -1,8 +1,8 @@
 #ifndef MODEL_READER
 #define MODEL_READER
 
-#include<string>
-#include"model.h"
+#include <string>
+#include "model.h"
 
 namespace vb01{
 	class ModelReader{

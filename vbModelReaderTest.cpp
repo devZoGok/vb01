@@ -52,39 +52,40 @@ namespace vb01{
 		skeletonData.push_back("animation: Action");
 		skeletonData.push_back("groups: 2 ");
 		skeletonData.push_back("bipod.L 7 pos_x 2 pos_y 2 pos_z 2 rot_w 2 rot_x 2 rot_y 2 rot_z 2 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
 		skeletonData.push_back("bipod.R 6 pos_x 2 pos_y 2 pos_z 2 rot_w 2 rot_x 2 rot_y 2 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("10 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("10 10 2 1 1 1 1 ");
 		skeletonData.push_back("animation: open");
 		skeletonData.push_back("groups: 1 ");
 		skeletonData.push_back("opening 1 rot_w 2 rot_x 1");
-		skeletonData.push_back("1 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 10 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
-		skeletonData.push_back("0 1 2 AUTO_CLAMPED 1 1 AUTO_CLAMPED 1 1 ");
+		skeletonData.push_back("1 1 2 1 1 1 1 ");
+		skeletonData.push_back("0 10 2 1 1 1 1 ");
+		skeletonData.push_back("0 1 2 1 1 1 1 ");
+		skeletonData.push_back("drivers: 0");
 	}
 
 	void VbModelReaderTest::setupMesh(){
@@ -107,7 +108,7 @@ namespace vb01{
 		int numVerts = vertPos.size();
 		int numFaces = numVerts / 3;
 		int numVertexGroups = vertexGroups.size();
-		int numShapeKeys = 0;
+		int numShapeKeys = 1;
 
 		meshData.push_back("MESH: " + meshName);
 		meshData.push_back("pos: 0.0 0.0 0.0");
@@ -143,13 +144,14 @@ namespace vb01{
 			meshData.push_back(to_string(i) + " " + uvString + tanString + biTanString);
 		}
 		meshData.push_back("shapeKeys: 0");
-		meshData.push_back("Key 1: 0 1");
+		meshData.push_back("Key 1: 0 1 ");
 		for(int i = 0; i < vertPos.size(); i++){
 			Vector3 pos = vertPos[i];
 			string posString = to_string(pos.x) + " " + to_string(pos.y) + " " + to_string(pos.z) + " ";
 			meshData.push_back(posString);
 		}
 		meshData.push_back("animations: 0");
+		meshData.push_back("drivers: 0");
 	}
 
 	void VbModelReaderTest::testReadSkeletons(){

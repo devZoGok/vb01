@@ -1,20 +1,20 @@
-#include"model.h"
-#include"mesh.h"
-#include"material.h"
-#include"vector.h"
-#include"util.h"
-#include"bone.h"
-#include"root.h"
-#include"skeleton.h"
-#include"animation.h"
-#include"vbModelReader.h"
-#include"assimpModelReader.h"
+#include "model.h"
+#include "mesh.h"
+#include "material.h"
+#include "vector.h"
+#include "util.h"
+#include "bone.h"
+#include "root.h"
+#include "skeleton.h"
+#include "animation.h"
+#include "vbModelReader.h"
+#include "assimpModelReader.h"
 
-#include<vector>
-#include<Importer.hpp>
-#include<scene.h>
-#include<postprocess.h>
-#include<fstream>
+#include <vector>
+#include <Importer.hpp>
+#include <scene.h>
+#include <postprocess.h>
+#include <fstream>
 
 using namespace std;
 using namespace Assimp;

@@ -44,6 +44,7 @@ namespace vb01{
 		}
 
 		connectNodes();
+		setupDrivers();
 	}
 
 	VbModelReader::~VbModelReader(){
@@ -102,6 +103,63 @@ namespace vb01{
 		for(Node *node : nodes)
 			if(!node->getParent())
 				model->attachChild(node);
+	}
+
+	void VbModelReader::setupDrivers(){
+		int i = 0;
+		for(string *data : driverSetups){
+			Skeleton *drivingSkeleton = nullptr, *drivenSkeleton = nullptr;
+			Mesh *drivenMesh = nullptr;
+
+			for(Skeleton *sk : skeletons){
+				if(data[0] == sk->getName())
+					drivingSkeleton = sk;
+				if(data[2] == sk->getName())
+					drivenSkeleton = sk;
+			}
+			for(Mesh *m : meshes)
+				if(data[2] == m->getName())
+					drivenMesh = m;
+
+			Animatable *animatable = nullptr;
+			if(drivenSkeleton){
+				for(Bone *bone : drivenSkeleton->getBones())
+					if(bone->getName() == data[3])
+						animatable = bone;
+			}
+			else if(drivenMesh){
+				int numShapeKeys = drivenMesh->getNumShapeKeys();
+				for(int i = 0; i < numShapeKeys; i++){
+					Mesh::ShapeKey &shapeKey = drivenMesh->getShapeKey(i);
+					if(shapeKey.name == data[3])
+						animatable = &shapeKey;
+				}
+			}
+			else{
+				for(Node *node : nodes)
+					if(node->getName() == data[2])
+						animatable = node;
+			}
+
+			if(drivingSkeleton){
+				for(Bone *bone : drivingSkeleton->getBones())
+					if(bone->getName() == data[1])
+						bone->addDriver(drivers[i]);
+			}
+			else{
+				for(Node *node : nodes)
+					if(node->getName() == data[0])
+						node->addDriver(drivers[i]);
+			}
+
+			KeyframeChannel &keyframeChannel = drivers[i]->getKeyframeChannel();
+			keyframeChannel.animatable = animatable;
+
+			i++;
+		}
+
+		for(string *data : driverSetups)
+			delete[] data;
 	}
 
 	void VbModelReader::createBones(Skeleton *skeleton, vector<string> &skeletonData){
@@ -170,8 +228,54 @@ namespace vb01{
 		}
 	}
 
-	void VbModelReader::readAnimations(Animatable *animatable, AnimationController *controller, vector<string> &animationData, int numAnimations){
-		int animStartLine = 0;
+	vector<KeyframeChannel> VbModelReader::readKeyframeChannels(Animatable *animatable, vector<string> &animationData, int &keyframeGroupStartLine){
+		string dataLine[2];
+		getLineData(animationData[keyframeGroupStartLine], dataLine, 2);
+
+		int numKeyframeChannels = atoi(dataLine[1].c_str());
+		string channelData[2 * numKeyframeChannels];
+		getLineData(animationData[keyframeGroupStartLine], channelData, 2 * numKeyframeChannels, 2);
+
+		vector<KeyframeChannel> keyframeChannels;
+		int numTypeKeyframes[numKeyframeChannels];
+		int numKeyframes = 0;
+		for(int k = 0; k < numKeyframeChannels; k++){
+			KeyframeChannel keyframeChannel;
+
+			keyframeChannel.type = KeyframeChannel::getKeyframeChannelType(channelData[2 * k]);
+			numTypeKeyframes[k] = atoi(channelData[2 * k + 1].c_str());
+			numKeyframes += numTypeKeyframes[k];
+			keyframeChannel.animatable = (animatable || !currentSkeleton ? animatable : currentSkeleton->getBone(dataLine[0]));
+
+			keyframeChannels.push_back(keyframeChannel);
+		}
+
+		int keyframeStartLine = keyframeGroupStartLine + 1;
+		int currentChannel = 0, numCurrentTypeKeyframes = 0;
+		for(int k = 0; k < numKeyframes; k++){
+			string keyframeLine = animationData[keyframeStartLine + k];
+			string keyframeData[7];
+			getLineData(keyframeLine, keyframeData, 7);
+
+			Keyframe keyframe;
+			keyframe.value = atof(keyframeData[0].c_str());
+			keyframe.frame = atoi(keyframeData[1].c_str());
+			keyframe.interpolation = (KeyframeInterpolation)atoi(keyframeData[2].c_str());
+			keyframeChannels[currentChannel].keyframes.push_back(keyframe);
+
+			numCurrentTypeKeyframes++;
+			if(numCurrentTypeKeyframes == numTypeKeyframes[currentChannel]){
+				currentChannel++;
+				numCurrentTypeKeyframes = 0;
+			}
+		}
+
+		return keyframeChannels;
+	}
+
+	void VbModelReader::readAnimations(Animatable *animatable, AnimationController *controller, vector<string> &animationData){
+		int numAnimations = atoi(animationData[0].substr(animationData[0].find_first_of(':') + 1).c_str());
+		int animStartLine = 1;
 
 		for(int i = 0; i < numAnimations; i++){
 			string animLine = animationData[animStartLine];
@@ -184,54 +288,47 @@ namespace vb01{
 			int numKeyframeGroups = atoi(groupsLine.substr(groupsLine.find_first_of(':') + 2).c_str());
 			int keyframeGroupStartLine = animStartLine + 2;
 			for(int j = 0; j < numKeyframeGroups; j++){
-				string dataLine[2];
-				getLineData(animationData[keyframeGroupStartLine], dataLine, 2);
-
-				int numKeyframeChannels = atoi(dataLine[1].c_str());
-				string channelData[2 * numKeyframeChannels];
-				getLineData(animationData[keyframeGroupStartLine], channelData, 2 * numKeyframeChannels, 2);
-
-				vector<KeyframeChannel> keyframeChannels;
-				int numTypeKeyframes[numKeyframeChannels];
+				vector<KeyframeChannel> keyframeChannels = readKeyframeChannels(animatable, animationData, keyframeGroupStartLine);
 				int numKeyframes = 0;
-				for(int k = 0; k < numKeyframeChannels; k++){
-					KeyframeChannel keyframeChannel;
-
-					keyframeChannel.type = Animation::getKeyframeChannelType(channelData[2 * k]);
-					numTypeKeyframes[k] = atoi(channelData[2 * k + 1].c_str());
-					numKeyframes += numTypeKeyframes[k];
-					keyframeChannel.animatable = (animatable ? animatable : currentSkeleton->getBone(dataLine[0]));
-
-					keyframeChannels.push_back(keyframeChannel);
+				for(KeyframeChannel channel : keyframeChannels){
+					animation->addKeyframeChannel(channel);
+					numKeyframes += channel.keyframes.size();
 				}
-
-				int keyframeStartLine = keyframeGroupStartLine + 1;
-				int currentChannel = 0, numCurrentTypeKeyframes = 0;
-				for(int k = 0; k < numKeyframes; k++){
-					string keyframeLine = animationData[keyframeStartLine + k];
-					string keyframeData[9];
-					getLineData(keyframeLine, keyframeData, 9);
-
-					Keyframe keyframe;
-					keyframe.value = atof(keyframeData[0].c_str());
-					keyframe.frame = atoi(keyframeData[1].c_str());
-					keyframe.interpolation = (KeyframeInterpolation)atoi(keyframeData[2].c_str());
-					keyframeChannels[currentChannel].keyframes.push_back(keyframe);
-
-					numCurrentTypeKeyframes++;
-					if(numCurrentTypeKeyframes == numTypeKeyframes[currentChannel]){
-						currentChannel++;
-						numCurrentTypeKeyframes = 0;
-					}
-				}
-
-				for(KeyframeChannel ch : keyframeChannels)
-					animation->addKeyframeChannel(ch);
 
 				keyframeGroupStartLine += numKeyframes + 1;
 			}
 
 			animStartLine = keyframeGroupStartLine;
+		}
+	}
+
+	void VbModelReader::readDrivers(vector<string> &meshData, string objectName){
+		int numDrivers = atoi(meshData[0].substr(meshData[0].find_first_of(':') + 1).c_str());
+		int driverStartLine = 1; 
+		const int numData = 3;
+
+		for(int i = 0; i < numDrivers; i++){
+			string data[numData];
+			getLineData(meshData[driverStartLine], data, numData);
+			bool driverIsBone = (data[numData - 1] != "");
+			Driver::VariableType type = Driver::getDriverVariableType(driverIsBone ? data[numData - 1] : data[numData - 2]);
+
+			int keyframeGroupStartLine = driverStartLine + 1;
+			vector<KeyframeChannel> keyframeChannels = readKeyframeChannels(nullptr, meshData, keyframeGroupStartLine);
+
+			string drivingNode = data[0];
+		   	string drivingBone = (driverIsBone ? data[1] : "");
+		   	string drivenAnimatable = objectName;
+			string channelData[1];
+			getLineData(meshData[keyframeGroupStartLine], channelData, 1);
+		   	string drivenSubAnimatable = channelData[0];
+
+			string *driverSetup = new string[4]{drivingNode, drivingBone, drivenAnimatable, drivenSubAnimatable};
+			driverSetups.push_back(driverSetup);
+
+			drivers.push_back(new Driver(keyframeChannels[0], type));
+
+			driverStartLine += 2 + keyframeChannels[0].keyframes.size();
 		}
 	}
 
@@ -243,9 +340,13 @@ namespace vb01{
 
 		int boneStartLine = 6;
 		int numBones = atoi(data[1].c_str());
-
-		line = skeletonData[boneStartLine + numBones].substr(getCharId(skeletonData[boneStartLine + numBones], ':') + 2);
-		int numAnimations = atoi(line.c_str());
+		int animationStartLine = boneStartLine + numBones;
+		int driverStartLine = animationStartLine;
+		for(int i = animationStartLine; i < skeletonData.size(); i++)
+			if(skeletonData[i].find_first_of(':') != -1 && skeletonData[i].substr(0, skeletonData[i].length() - 1) == "drivers: "){
+				driverStartLine = i;
+				break;
+			}
 
 		AnimationController *controller = new AnimationController();
 		Skeleton *skeleton = new Skeleton(controller, name);
@@ -255,8 +356,12 @@ namespace vb01{
 		createBones(skeleton, skeletonSubData);
 		skeletonSubData.clear();
 
-		skeletonSubData = vector<string>(skeletonData.begin() + (boneStartLine + numBones + 1), skeletonData.end());
-		readAnimations(nullptr, controller, skeletonSubData, numAnimations);
+		skeletonSubData = vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + driverStartLine);
+		readAnimations(nullptr, controller, skeletonSubData);
+		skeletonSubData.clear();
+
+		skeletonSubData = vector<string>(skeletonData.begin() + driverStartLine, skeletonData.end());
+		readDrivers(skeletonSubData, name);
 		skeletonSubData.clear();
 
 		currentSkeleton = nullptr;
@@ -355,8 +460,9 @@ namespace vb01{
 			string line = meshData[shapeKeyStartLine];
 			int colonId = line.find_first_of(':');
 			Mesh::ShapeKey shapeKey;
+			shapeKey.name = line.substr(0, colonId);
 			string data[2];
-			getLineData(line.substr(colonId + 1), data, 2);
+			getLineData(line.substr(colonId + 2), data, 2);
 			shapeKey.minValue = atof(data[0].c_str());
 			shapeKey.value = shapeKey.minValue;
 			shapeKey.maxValue = atof(data[1].c_str());
@@ -373,9 +479,10 @@ namespace vb01{
 				Vector3 offset = shapeKeyVertPos[vertIds[j]] - vertices[j].pos;
 				vertices[j].shapeKeyOffsets[i] = (offset);
 			}
-
 			delete[] shapeKeyVertPos;
-			shapeKeyStartLine += numVertPos + 1; 
+
+
+			shapeKeyStartLine = shapeKeyStartLine + numVertPos + 1; 
 		}
 	}
 
@@ -408,6 +515,13 @@ namespace vb01{
 		int vertexStartLine = vertexGroupStartLine + numBones + 1;
 	   	int faceStartLine = vertexStartLine + numVertices + 1;
 	   	int shapeKeyStartLine = faceStartLine + numFaces * numVertsPerFace + 1;
+		int animationStartLine = shapeKeyStartLine + numShapes * (1 + numVertices);
+		int driverStartLine = animationStartLine;
+		for(int i = animationStartLine; i < meshData.size(); i++)
+			if(meshData[i].find_first_of(':') != -1 && meshData[i].substr(0, meshData[i].length() - 1) == "drivers: "){
+				driverStartLine = i;
+				break;
+			}
 
 		vector<Vector3> vertPos, vertNorm;
 		vector<float> vertWeights;
@@ -440,10 +554,12 @@ namespace vb01{
 		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name, controller);
 		nodes.push_back(node);
 
-		int numAnimLineId = shapeKeyStartLine + numShapes * (1 + numVertices);
-		int numAnimations = atoi(meshData[numAnimLineId].substr(meshData[numAnimLineId].find_first_of(':') + 1).c_str());
-		meshSubData = vector<string>(meshData.begin() + (numAnimLineId + 1), meshData.end());
-		readAnimations(node, controller, meshSubData, numAnimations);
+		meshSubData = vector<string>(meshData.begin() + animationStartLine, meshData.begin() + driverStartLine);
+		readAnimations(node, controller, meshSubData);
+		meshSubData.clear();
+
+		meshSubData = vector<string>(meshData.begin() + driverStartLine, meshData.end());
+		readDrivers(meshSubData, name);
 		meshSubData.clear();
 
 		string skeletonLine = meshData[5];
@@ -456,6 +572,7 @@ namespace vb01{
 				skeleton = sk;
 
 		Mesh *mesh = new Mesh(vertices, indices, numFaces, groups, numBones, shapeKeys, numShapes, name);
+		meshes.push_back(mesh);
 		mesh->setSkeleton(skeleton);
 		node->attachMesh(mesh);
 

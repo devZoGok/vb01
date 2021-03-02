@@ -57,8 +57,8 @@ namespace vb01{
 			if(controller)
 				controller->update();
 		}
-		for(Driver &driver : drivers)
-			driver.drive(getDriverValue(driver.getType()));
+		for(Driver *driver : drivers)
+			driver->drive(getDriverValue(driver->getType()));
 	}
 
 	float Node::getDriverValue(Driver::VariableType type){

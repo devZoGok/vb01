@@ -16,6 +16,7 @@ def exportData(ob):
     if(ob.animation_data is not None and len(ob.animation_data.nla_tracks) > 0):
         numAnims = len(ob.animation_data.nla_tracks[0].strips)
 
+    channels = []
     if(ob.type == 'ARMATURE'):
         file.write('bones: ' + str(len(ob.data.bones)) + ' ' + str(numAnims) + ' \n')
 
@@ -43,8 +44,6 @@ def exportData(ob):
                     chainLength = ikConstraint.chain_count
 
             file.write(bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' \n')
-
-
     
     elif(ob.type == 'MESH'):
         skeletonName = '-'
@@ -96,20 +95,33 @@ def exportData(ob):
                 file.write(str(vert) + ' ' + str(uv.x) + ' ' + str(uv.y) + ' ' + str(tan.x) + ' ' + str(tan.y) + ' ' + str(tan.z) + ' ' + str(bitan.x) + ' ' + str(bitan.y) + ' ' + str(bitan.z) + ' \n')
         mesh.free_tangents()
 
-
         file.write('shapeKeys:\n')
         if numShapeKeys > 0:
             print('Exporting shape keys...\n')
             for shape_key in mesh.shape_keys.key_blocks:
                 if shape_key.name != 'Basis':
-                    file.write(shape_key.name + '\n')
+                    file.write(shape_key.name + ': ' + str(shape_key.slider_min) + ' ' + str(shape_key.slider_max) + ' \n')
                     for vert in shape_key.data:
                         pos = vert.co
                         file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' \n')
+        channels.extend(mesh.shape_keys.animation_data.drivers)
+
 
     file.write('animations: ' + str(numAnims) + '\n')
     if numAnims > 0:
         readAnimations(ob, numAnims)
+
+    if ob.animation_data is not None:
+        channels.extend(ob.animation_data.drivers)
+    readDrivers(channels)
+
+def readDrivers(channels):
+    file.write('drivers: ' + str(len(channels)) + '\n')
+    for channel in channels:
+        firstQuoteId = channel.data_path.find('"') + 1
+        secondQuoteId = channel.data_path.rfind('"')
+        name = (ob.name if firstQuoteId == -1 and secondQuoteId == -1  else channel.data_path[firstQuoteId : secondQuoteId])
+        readDriver(channel, name)
 
 def getChannelType(channel):
     channelType = ''
@@ -125,12 +137,53 @@ def getChannelType(channel):
         channelType = 'rot_' + coords[arrInd]
     elif coordType == 'scale':
         channelType = 'scale_' + coords[arrInd + 1]
+    elif coordType == 'slider_min':
+        channelType = 'shape_key_min'
+    elif coordType == 'value':
+        channelType = 'shape_key_value'
+    elif coordType == 'slider_max':
+        channelType = 'shape_key_max'
+
     return channelType
+
+def readChannel(channel):
+    channelType = getChannelType(channel)
+
+    for keyframe in channel.keyframe_points:
+        keyframeId = keyframe.co[0]
+        interp = keyframe.interpolation
+        interpInt = - 1
+
+        if interp == 'CONSTANT':
+            interpInt = 0
+        elif interp == 'LINEAR':
+            interpInt = 1
+        elif interp == 'BEZIER':
+            interpInt = 2
+
+        keyframeValue = keyframe.co[1]
+        file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
+        if interp == 'BEZIER':
+            file.write(' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
+            file.write(str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y) + ' ')
+        file.write('\n')
+
+def readDriver(channel, driverName):
+    #for channel in channels:
+        driver = channel.driver
+        target = driver.variables[0].targets[0];
+    
+        file.write(target.id.name + ' ' + target.bone_target + ' ' + str(target.transform_type) + ' \n')
+        print('Exporting driver ...\n')
+    
+        numKeyframes = len(channel.keyframe_points)
+        channelType = getChannelType(channel)
+        file.write(driverName + ' 1 ' + channelType + ' ' + str(numKeyframes) + ' \n')
+    
+        readChannel(channel)
 
 def readAnimations(ob, numAnims):
     for nlaStrip in ob.animation_data.nla_tracks[0].strips:
-        start = nlaStrip.frame_start
-        end = nlaStrip.frame_end
         animName = nlaStrip.name
         action = bpy.data.actions[animName]
         numAnimBones = len(action.groups)
@@ -152,31 +205,7 @@ def readAnimations(ob, numAnims):
             file.write('\n')
 
             for channel in group.channels:
-                channelType = getChannelType(channel)
-
-                dotId = channel.data_path.rfind('.') + 1
-                arrInd = channel.array_index
-                coordType = channel.data_path[dotId :]
-
-                for keyframe in channel.keyframe_points:
-                    keyframeId = keyframe.co[0]
-                    interp = keyframe.interpolation
-                    bpy.context.scene.frame_set(int(start) + int(keyframeId))
-                    interpInt = - 1
-
-                    if interp == 'CONSTANT':
-                        interpInt = 0
-                    elif interp == 'LINEAR':
-                        interpInt = 1
-                    elif interp == 'BEZIER':
-                        interpInt = 2
-
-                    keyframeValue = keyframe.co[1]
-                    file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
-                    if interp == 'BEZIER':
-                        file.write(' ' + str(keyframe.handle_left_type) + ' ' + str(keyframe.handle_left.x) + ' ' + str(keyframe.handle_left.y) + ' ')
-                        file.write(str(keyframe.handle_right_type) + ' ' + str(keyframe.handle_right.x) + ' ' + str(keyframe.handle_right.y))
-                    file.write('\n')
+                readChannel(channel)
 
 fl = bpy.data.filepath
 dotId = 0

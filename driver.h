@@ -2,6 +2,7 @@
 #define DRIVER
 
 #include "keyframeChannel.h"
+#include <string>
 
 namespace vb01{
 	class Animatable;
@@ -21,11 +22,12 @@ namespace vb01{
 			   	SCALE_Z
 		   	};
 
-			Driver();
-			inline VariableType getType(){return type;}
+			Driver(KeyframeChannel, VariableType);
 			void drive(float);
+			static VariableType getDriverVariableType(std::string);  
+			inline VariableType getType(){return type;}
+			inline KeyframeChannel& getKeyframeChannel(){return keyframeChannel;}
 		private:
-			Animatable *target; 
 			VariableType type;
 			KeyframeChannel keyframeChannel;
 	};

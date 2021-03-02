@@ -2,6 +2,7 @@
 #define KEYFRAME_CHANNEL_H
 
 #include <vector>
+#include <string>
 
 namespace vb01{
 	class Animatable;
@@ -33,6 +34,7 @@ namespace vb01{
 		Animatable *animatable = nullptr;
 		std::vector<Keyframe> keyframes;
 
+		static KeyframeChannel::Type getKeyframeChannelType(std::string);
 		static float interpolate(float, float, Keyframe::Interpolation, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);
 		static void transform();

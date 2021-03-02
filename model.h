@@ -1,9 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include<vector>
-#include<string>
-#include"node.h"
+#include <vector>
+#include <string>
+#include "node.h"
 
 class aiScene;
 class aiNode;
