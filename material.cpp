@@ -55,20 +55,22 @@ namespace vb01{
 	void Material::update(){
 		shader->use();
 		shader->setBool(texturingEnabled, "texturingEnabled");
-		const int DIFFUSE_SLOT = Texture::DIFFUSE * 2;
-		const int NORMAL_SLOT = Texture::NORMAL * 2;
-		const int SPECULAR_SLOT = Texture::SPECULAR * 2;
-		const int PARALLAX_SLOT = Texture::PARALLAX * 2;
-		const int ENVIRONMENT_SLOT = Texture::ENVIRONMENT * 2;
+		const int TEXTURE_SLOTS[]{
+			Texture::DIFFUSE * 2,
+			Texture::NORMAL * 2,
+			Texture::SPECULAR * 2,
+			Texture::PARALLAX * 2,
+			Texture::ENVIRONMENT * 2
+		};
 
 		if(type == MATERIAL_2D){
 			shader->setBool(lightingEnabled, "lightingEnabled");
 			shader->setBool(normalMapEnabled, "normalMapEnabled");
-			shader->setInt(DIFFUSE_SLOT, "textures["+to_string(DIFFUSE_SLOT)+"].pastTexture");
-			shader->setInt(NORMAL_SLOT, "textures["+to_string(NORMAL_SLOT)+"].pastTexture");
-			shader->setInt(SPECULAR_SLOT, "textures["+to_string(SPECULAR_SLOT)+"].pastTexture");
-			shader->setInt(PARALLAX_SLOT, "textures["+to_string(PARALLAX_SLOT)+"].pastTexture");
-			shader->setInt(ENVIRONMENT_SLOT, "environmentMap");
+			for(int i = 0; i < 4; i++){
+				shader->setInt(TEXTURE_SLOTS[i], "textures[" + to_string(TEXTURE_SLOTS[i]) + "].pastTexture");
+				shader->setInt(TEXTURE_SLOTS[i] + 1, "textures[" + to_string(TEXTURE_SLOTS[i]) + "].nextTexture");
+			}
+			shader->setInt(TEXTURE_SLOTS[4], "environmentMap");
 		}
 		else if(type == MATERIAL_GUI){
 			shader->setBool(diffuseColorEnabled, "diffuseColorEnabled");
@@ -77,18 +79,18 @@ namespace vb01{
 		}
 
 		if(texturingEnabled){
-			int textureSlot = DIFFUSE_SLOT; 
-			for(Texture *t : diffuseMapTextures){
-				t->update(textureSlot);
-				if(t->getNumFrames() > 0)
-					shader->setBool(true, "textures[" + to_string(textureSlot) + "].animated");
+			vector<Texture*> textures;
+			textures.insert(textures.end(), diffuseMapTextures.begin(), diffuseMapTextures.end());
+			textures.insert(textures.end(), normalMapTextures.begin(), normalMapTextures.end());
+			textures.insert(textures.end(), specularMapTextures.begin(), specularMapTextures.end());
+			textures.insert(textures.end(), parallaxMapTextures.begin(), parallaxMapTextures.end());
+
+			for(Texture *t : textures){
+				int id = t->getTextureTypeId() * 2;
+				shader->setBool(t->getNumFrames() > 0, "textures[" + to_string(id) + "].animated");
+				shader->setFloat(t->getMixRatio(), "textures[" + to_string(id) + "].mixRatio");
+				t->update(id);
 			}
-			for(Texture *t : normalMapTextures)
-				t->update(NORMAL_SLOT);
-			for(Texture *t : specularMapTextures)
-				t->update(SPECULAR_SLOT);
-			for(Texture *t : parallaxMapTextures)
-				t->update(PARALLAX_SLOT);
 		}
 		else 
 			shader->setVec4(diffuseColor, "diffuseColor");

@@ -14,22 +14,25 @@ namespace vb01{
 
 			~Texture();
 			Texture(int, int, bool = true);
-			Texture(std::string[], int, int = 0, bool = false);
+			Texture(std::string[], int, TextureTypeId = DIFFUSE, bool = false);
 			Texture(std::string[6], bool = false);
 			Texture(int, bool = true);
 			Texture(FT_Face&, char);
-			void select(int = 0);
+			void select(int = 0, int = 0);
 			void update(int = 0);
 			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 			inline int getNumFrames(){return numFrames;}
+			inline float getMixRatio(){return mixRatio;}
+			inline TextureTypeId getTextureTypeId(){return typeId;}
 		private:
 			TextureType type = TextureType::TEXTURE_2D;
+			TextureTypeId typeId = DIFFUSE;
 			u32 *texture = nullptr;
 			s32 updateRate = 0, numFrames = 0,frame = 0;
 			s64 lastUpdateTime = 0;
 			int width, height, numChannels;
-			float weight;
+			float mixRatio;
 			u8 *data;
 			std::string path = "", paths[6];
 
