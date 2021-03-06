@@ -149,10 +149,10 @@ namespace vb01{
 	}
 
 	void Texture::update(int id){
-		updateFrame();
+		//updateFrame();
 		select(id);
 		if(numFrames > 0)
-			select(id + 1);
+			select(id + 1, 1);
 	}
 
 	void Texture::updateFrame(){
@@ -166,6 +166,6 @@ namespace vb01{
 
 	void Texture::select(int id, int fr){
 		glActiveTexture(GL_TEXTURE0 + id);
-		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, texture[frame]);
+		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, texture[fr]);
 	}
 }

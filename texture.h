@@ -24,12 +24,14 @@ namespace vb01{
 			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 			inline int getNumFrames(){return numFrames;}
+			inline float getMixRatio(){return mixRatio;}
+			inline TextureTypeId getTextureTypeId(){return typeId;}
 		private:
 			TextureType type = TextureType::TEXTURE_2D;
 			TextureTypeId typeId = DIFFUSE;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
-			int width, height, numChannels, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0;
+			int width, height, numChannels;
 			float mixRatio;
 			u8 *data;
 			std::string path = "", paths[6];
