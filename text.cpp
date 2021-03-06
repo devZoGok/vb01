@@ -1,12 +1,13 @@
-#include"root.h"
-#include"text.h"
-#include"shader.h"
-#include"texture.h"
-#include"node.h"
-#include<glad.h>
-#include<glfw3.h>
-#include<iostream>
-#include<ft2build.h>
+#include "root.h"
+#include "text.h"
+#include "shader.h"
+#include "texture.h"
+#include "node.h"
+
+#include <glad.h>
+#include <glfw3.h>
+#include <iostream>
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 using namespace std;

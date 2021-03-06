@@ -181,9 +181,9 @@ namespace vb01{
 			shader->setVec3(color, "light[" + to_string(thisId) + "].color");
 			shader->setFloat(nearPlane, "light[" + to_string(thisId) + "].near");
 			shader->setFloat(farPlane, "light[" + to_string(thisId) + "].far");
-			shader->setInt(5, "light[" + to_string(thisId) + "].depthMapCube");
-			shader->setInt(6, "light[" + to_string(thisId) + "].depthMap");
-			depthMap->select(type == POINT ? 5 : 6);
+			shader->setInt(12, "light[" + to_string(thisId) + "].depthMapCube");
+			shader->setInt(13, "light[" + to_string(thisId) + "].depthMap");
+			depthMap->select(type == POINT ? 12 : 13);
 
 			switch(type){
 				case POINT:

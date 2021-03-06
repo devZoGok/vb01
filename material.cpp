@@ -55,15 +55,20 @@ namespace vb01{
 	void Material::update(){
 		shader->use();
 		shader->setBool(texturingEnabled, "texturingEnabled");
+		const int DIFFUSE_SLOT = Texture::DIFFUSE * 2;
+		const int NORMAL_SLOT = Texture::NORMAL * 2;
+		const int SPECULAR_SLOT = Texture::SPECULAR * 2;
+		const int PARALLAX_SLOT = Texture::PARALLAX * 2;
+		const int ENVIRONMENT_SLOT = Texture::ENVIRONMENT * 2;
 
 		if(type == MATERIAL_2D){
 			shader->setBool(lightingEnabled, "lightingEnabled");
 			shader->setBool(normalMapEnabled, "normalMapEnabled");
-			shader->setInt(0, "diffuseMap");
-			shader->setInt(1, "normalMap");
-			shader->setInt(2, "specularMap");
-			shader->setInt(3, "parallaxMap");
-			shader->setInt(4, "environmentMap");
+			shader->setInt(DIFFUSE_SLOT, "textures["+to_string(DIFFUSE_SLOT)+"].pastTexture");
+			shader->setInt(NORMAL_SLOT, "textures["+to_string(NORMAL_SLOT)+"].pastTexture");
+			shader->setInt(SPECULAR_SLOT, "textures["+to_string(SPECULAR_SLOT)+"].pastTexture");
+			shader->setInt(PARALLAX_SLOT, "textures["+to_string(PARALLAX_SLOT)+"].pastTexture");
+			shader->setInt(ENVIRONMENT_SLOT, "environmentMap");
 		}
 		else if(type == MATERIAL_GUI){
 			shader->setBool(diffuseColorEnabled, "diffuseColorEnabled");
@@ -72,14 +77,18 @@ namespace vb01{
 		}
 
 		if(texturingEnabled){
-			for(Texture *t : diffuseMapTextures)
-				t->update(0);
+			int textureSlot = DIFFUSE_SLOT; 
+			for(Texture *t : diffuseMapTextures){
+				t->update(textureSlot);
+				if(t->getNumFrames() > 0)
+					shader->setBool(true, "textures[" + to_string(textureSlot) + "].animated");
+			}
 			for(Texture *t : normalMapTextures)
-				t->update(1);
+				t->update(NORMAL_SLOT);
 			for(Texture *t : specularMapTextures)
-				t->update(2);
+				t->update(SPECULAR_SLOT);
 			for(Texture *t : parallaxMapTextures)
-				t->update(3);
+				t->update(PARALLAX_SLOT);
 		}
 		else 
 			shader->setVec4(diffuseColor, "diffuseColor");

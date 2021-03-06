@@ -9,7 +9,7 @@ layout (location = 1) out vec4 BrightColor;
 
 uniform sampler2D tex;
 uniform float lifePercentage[500];
-uniform vec4 startColor,endColor;
+uniform vec4 startColor, endColor;
 
 void main(){
 	float alpha = texture(tex, texCoords).r;

@@ -1,9 +1,9 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include<string>
-#include<ft2build.h>
-#include"util.h"
+#include <string>
+#include <ft2build.h>
+#include "util.h"
 #include FT_FREETYPE_H
 
 namespace vb01{
@@ -22,6 +22,7 @@ namespace vb01{
 			void update(int = 0);
 			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
+			inline int getNumFrames(){return numFrames;}
 		private:
 			TextureType type = TextureType::TEXTURE_2D;
 			u32 *texture = nullptr;
@@ -34,6 +35,7 @@ namespace vb01{
 
 			void createCubemap(bool, bool);
 			void updateFrame();
+			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};
 }
 
