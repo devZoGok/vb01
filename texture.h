@@ -4,10 +4,11 @@
 #include <string>
 #include <ft2build.h>
 #include "util.h"
+#include "animatable.h"
 #include FT_FREETYPE_H
 
 namespace vb01{
-	class Texture{
+	class Texture : public Animatable{
 		public:
 			enum TextureType{TEXTURE_2D, TEXTURE_CUBEMAP};
 			enum TextureTypeId{DIFFUSE, NORMAL, SPECULAR, PARALLAX, ENVIRONMENT};
@@ -20,6 +21,7 @@ namespace vb01{
 			Texture(FT_Face&, char);
 			void select(int = 0, int = 0);
 			void update(int = 0);
+			void animate(float, KeyframeChannel);
 			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 			inline int getNumFrames(){return numFrames;}

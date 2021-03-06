@@ -1,13 +1,15 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include"shader.h"
-#include"texture.h"
-#include"vector.h"
-#include<vector>
+#include "shader.h"
+#include "texture.h"
+#include "vector.h"
+#include "animatable.h"
+
+#include <vector>
 
 namespace vb01{
-	class Material{
+	class Material : public Animatable{
 		public:
 			enum Type{MATERIAL_2D, MATERIAL_PARTICLE, MATERIAL_SKYBOX, MATERIAL_GUI, MATERIAL_POST, MATERIAL_TEXT};
 
@@ -62,6 +64,7 @@ namespace vb01{
 			Shader *shader = nullptr;
 
 			void initShader();
+			void animate(float, KeyframeChannel);
 	};
 }
 

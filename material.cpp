@@ -52,6 +52,35 @@ namespace vb01{
 			shader = new Shader(basePath + shaderName + "vert", basePath + shaderName + "frag");
 	}
 
+	void Material::animate(float value, KeyframeChannel keyframeChannel){
+		switch(keyframeChannel.type){
+			case KeyframeChannel::DIFFUSE_COLOR_W:
+				diffuseColor.w = value;
+				break;
+			case KeyframeChannel::DIFFUSE_COLOR_X:
+				diffuseColor.x = value;
+				break;
+			case KeyframeChannel::DIFFUSE_COLOR_Y:
+				diffuseColor.y = value;
+				break;
+			case KeyframeChannel::DIFFUSE_COLOR_Z:
+				diffuseColor.z = value;
+				break;
+			case KeyframeChannel::SPECULAR_COLOR_W:
+				specularColor.w = value;
+				break;
+			case KeyframeChannel::SPECULAR_COLOR_X:
+				specularColor.x = value;
+				break;
+			case KeyframeChannel::SPECULAR_COLOR_Y:
+				specularColor.y = value;
+				break;
+			case KeyframeChannel::SPECULAR_COLOR_Z:
+				specularColor.z = value;
+				break;
+		}
+	}
+
 	void Material::update(){
 		shader->use();
 		shader->setBool(texturingEnabled, "texturingEnabled");

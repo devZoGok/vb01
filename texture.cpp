@@ -148,6 +148,14 @@ namespace vb01{
 		}
 	}
 
+	void Texture::animate(float value, KeyframeChannel keyframeChannel){
+		switch(keyframeChannel.type){
+			case KeyframeChannel::TEXTURE_MIX_RATIO:
+				mixRatio = value;
+				break;
+		}
+	}
+
 	void Texture::update(int id){
 		//updateFrame();
 		select(id);
