@@ -75,12 +75,7 @@ float getShadow(int id){
 }
 
 void main(){
-	vec4 finalColor = diffuseColor;
-	if(texturingEnabled){
-		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
-		finalColor = textures[0].animated ? mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio) : textureColor;
-	}
-
+	vec4 finalColor = texturingEnabled?texture(textures[0].pastTexture, texCoords) : diffuseColor;
 	vec3 normal = norm;
 	if(lightingEnabled){
 		if(normalMapEnabled){

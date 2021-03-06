@@ -9,14 +9,8 @@ const int numParticles = 1;
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 BrightColor;
 
-struct Texture{
-	float mixRatio;
-	sampler2D pastTexture, nextTexture;
-	bool animated;
-};
-
-uniform Texture tex;
-uniform float lifePercentage[numParticles];
+uniform sampler2D tex;
+uniform float lifePercentage[500];
 uniform vec4 startColor, endColor;
 
 void main(){

@@ -4,7 +4,6 @@
 #include <string>
 #include <ft2build.h>
 #include "util.h"
-#include "animatable.h"
 #include FT_FREETYPE_H
 
 namespace vb01{
@@ -25,8 +24,6 @@ namespace vb01{
 			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string getPath(){return path;}
 			inline int getNumFrames(){return numFrames;}
-			inline float getMixRatio(){return mixRatio;}
-			inline TextureTypeId getTextureTypeId(){return typeId;}
 		private:
 			TextureType type = TextureType::TEXTURE_2D;
 			TextureTypeId typeId = DIFFUSE;
@@ -38,6 +35,7 @@ namespace vb01{
 			std::string path = "", paths[6];
 
 			void createCubemap(bool, bool);
+			void updateFrame();
 			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};
 }

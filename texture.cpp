@@ -148,28 +148,24 @@ namespace vb01{
 		}
 	}
 
-	void Texture::animate(float value, KeyframeChannel keyframeChannel){
-		switch(keyframeChannel.type){
-			case KeyframeChannel::TEXTURE_MIX_RATIO:
-				mixRatio = value;
-				break;
-			case KeyframeChannel::TEXTURE_FRAME_A:
-				frameA = (int)value;
-				break;
-			case KeyframeChannel::TEXTURE_FRAME_B:
-				frameB = (int)value;
-				break;
-		}
+	void Texture::update(int id){
+		updateFrame();
+		select(id);
+		if(numFrames > 0)
+			select(id + 1);
 	}
 
-	void Texture::update(int id){
-		select(id, frameA);
-		if(numFrames > 0)
-			select(id + 1, frameB);
+	void Texture::updateFrame(){
+		if(numFrames > 0){
+			if(getTime() - lastUpdateTime > updateRate){
+				frame = getNextFrame(frame);
+				lastUpdateTime = getTime();
+			}
+		}
 	}
 
 	void Texture::select(int id, int fr){
 		glActiveTexture(GL_TEXTURE0 + id);
-		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, texture[fr]);
+		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, texture[frame]);
 	}
 }
