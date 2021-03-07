@@ -81,6 +81,12 @@ float getWeight(Bone bone){
 void main(){
 	vec4 vertPos = vec4(aPos, 1);
 	bool anyWeights = false;
+
+	mat3 normalMat = mat3(transpose(inverse(model)));
+	norm = (normalMat * aNorm);
+	tan = (normalMat * aTan);
+	biTan = (normalMat * aBiTan);
+
 	for(int i = 0; i < numMaxInfluences; i++)
 		if(aWeight[i] > 0)
 			anyWeights = true;
@@ -104,21 +110,34 @@ void main(){
 			poseTransform[i] = poseTransform[bones[i].parent] * localTransform;
 		}
 
-		vec3 v0 = vec3(0);
+		vec3 v0 = vec3(0), n0 = vec3(0), t0 = vec3(0), b0 = vec3(0);
 		for(int i = 0; i < numBones; i++){
 			float weight = getWeight(bones[i]);
-			vec4 boneLocalVert = inverse(transform[i]) * vertPos;
+			mat4 inverseTransform = inverse(transform[i]);
+			vec4 boneLocalVert = inverseTransform * vertPos;
+			vec4 boneLocalNorm = inverseTransform * vec4(aNorm, 0);
+			vec4 boneLocalTan = inverseTransform * vec4(aTan, 0);
+			vec4 boneLocalBiTan = inverseTransform * vec4(aBiTan, 0);
+
 			v0 += (weight * poseTransform[i] * boneLocalVert).xyz; 
+			mat4 normalPoseTrans = transpose(inverse(poseTransform[i]));
+			n0 += (weight * normalPoseTrans * boneLocalNorm).xyz; 
+			t0 += (weight * normalPoseTrans * boneLocalTan).xyz; 
+			b0 += (weight * normalPoseTrans * boneLocalBiTan).xyz; 
 
 		}
 		vertPos.xyz = v0;
+		norm = n0;
+		tan = t0;
+		biTan = b0;
 	}
+
+	norm = normalize(normalMat * norm);
+	tan = normalize(normalMat * tan);
+	biTan = normalize(normalMat * biTan);
 
 
 	gl_Position = proj * view * model * vertPos;
 	fragPos = vec3(model * vertPos);
-	norm = mat3(transpose(inverse(model))) * aNorm;
-	tan = mat3(transpose(inverse(model))) * aTan;
-	biTan = mat3(transpose(inverse(model))) * aBiTan;
 	texCoords = aTexCoords;
 }

@@ -1,9 +1,11 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include"vector.h"
-#include<vector>
-#include<glm.hpp>
+#include "vector.h"
+#include "animatable.h"
+
+#include <vector>
+#include <glm.hpp>
 
 namespace vb01{
 	class Node;
@@ -12,7 +14,7 @@ namespace vb01{
 	class Material;
 
 
-	class Light{
+	class Light : public Animatable{
 		public:
 			enum Type{POINT, DIRECTIONAL, SPOT, AMBIENT};
 
@@ -40,6 +42,7 @@ namespace vb01{
 			inline float getShadowFarPlane(){return farPlane;}
 			inline Node* getNode(){return node;}
 		private:
+			void animate(float, KeyframeChannel);
 			void initDepthMap();
 			void renderShadow(std::vector<Node*>, glm::mat4&, glm::mat4&);
 			void updateShader(std::vector<Material*>, int, glm::mat4&, glm::mat4&);

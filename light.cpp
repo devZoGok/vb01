@@ -1,14 +1,15 @@
-#include"model.h"
-#include"light.h"
-#include"node.h"
-#include"root.h"
-#include"shader.h"
-#include"material.h"
-#include"mesh.h"
-#include<glad.h>
-#include<glfw3.h>
-#include<ext.hpp>
-#include<iostream>
+#include "model.h"
+#include "light.h"
+#include "node.h"
+#include "root.h"
+#include "shader.h"
+#include "material.h"
+#include "mesh.h"
+
+#include <glad.h>
+#include <glfw3.h>
+#include <ext.hpp>
+#include <iostream>
 
 using namespace glm;
 using namespace std;
@@ -27,6 +28,17 @@ namespace vb01{
 		delete depthMap;
 
 		delete depthMapShader;
+	}
+
+	void Light::animate(float value, KeyframeChannel keyframeChannel){
+		switch(keyframeChannel.type){
+			case KeyframeChannel::SPOTLIGHT_INNER_ANGLE:
+				innerAngle = value;
+				break;
+			case KeyframeChannel::SPOTLIGHT_OUTER_ANGLE:
+				outerAngle = value;
+				break;
+		}
 	}
 
 	void Light::initDepthMap(){

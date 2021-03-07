@@ -21,7 +21,9 @@ namespace vb01{
 			SCALE_Z,
 			SHAPE_KEY_MIN,
 			SHAPE_KEY_VALUE,
-			SHAPE_KEY_MAX
+			SHAPE_KEY_MAX,
+			SPOTLIGHT_INNER_ANGLE,
+			SPOTLIGHT_OUTER_ANGLE
 		};
 		struct Keyframe{
 			enum Interpolation{CONSTANT, LINEAR, BEZIER};
