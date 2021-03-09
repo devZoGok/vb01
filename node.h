@@ -68,6 +68,7 @@ namespace vb01{
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
 			inline void addDriver(Driver *d){drivers.push_back(d);}
+			inline AnimationController* getAnimationController(){return controller;}
 		private:
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);

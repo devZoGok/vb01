@@ -25,7 +25,7 @@ namespace vb01{
 			void connectNodes();
 			void setupDrivers();
 			void createBones(Skeleton*, std::vector<std::string>&);
-			std::vector<KeyframeChannel> readKeyframeChannels(Animatable*, std::vector<std::string>&, int&);
+			KeyframeChannel readKeyframeChannel(Animatable*, std::vector<std::string>&, int&);
 			void readAnimations(Animatable*, AnimationController*, std::vector<std::string>&);
 			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);

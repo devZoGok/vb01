@@ -104,7 +104,7 @@ def exportData(ob):
                     for vert in shape_key.data:
                         pos = vert.co
                         file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' \n')
-        channels.extend(mesh.shape_keys.animation_data.drivers)
+            channels.extend(mesh.shape_keys.animation_data.drivers)
 
 
     file.write('animations: ' + str(numAnims) + '\n')
@@ -146,10 +146,12 @@ def getChannelType(channel):
 
     return channelType
 
-def readChannel(channel):
+def readChannel(animatableName, channel):
     channelType = getChannelType(channel)
-
     numKeyframes = len(channel.keyframe_points)
+
+    file.write(animatableName + ' ' + channelType + ' ' + str(numKeyframes) + ' \n')
+
     for i in range(numKeyframes):
         keyframe = channel.keyframe_points[i]
         keyframeId = keyframe.co[0]
@@ -191,34 +193,22 @@ def readDriver(channel, driverName):
     
         numKeyframes = len(channel.keyframe_points)
         channelType = getChannelType(channel)
-        file.write(driverName + ' 1 ' + channelType + ' ' + str(numKeyframes) + ' \n')
+        #file.write(driverName + ' 1 ' + channelType + ' ' + str(numKeyframes) + ' \n')
     
-        readChannel(channel)
+        readChannel(driverName, channel)
 
 def readAnimations(ob, numAnims):
     for nlaStrip in ob.animation_data.nla_tracks[0].strips:
         animName = nlaStrip.name
         action = bpy.data.actions[animName]
         numAnimBones = len(action.groups)
-        file.write('animation: ' + animName)
-        file.write('\ngroups: ' + str(numAnimBones))
+        file.write('animation: ' + animName + ' ' + str(len(action.fcurves)) + ' \n')
     
         print('Exporting animation ' + animName + '...\n')
 
-        file.write('\n')
-
-        for group in action.groups:
-            file.write((ob.name if group.name == 'Object Transforms' else group.name) + ' ' + str(len(group.channels)) + ' ')
-
-            for channel in group.channels:
-                numKeyframes = len(channel.keyframe_points)
-                channelType = getChannelType(channel)
-                file.write(channelType + ' ' + str(numKeyframes) + ' ')
-
-            file.write('\n')
-
-            for channel in group.channels:
-                readChannel(channel)
+        for channel in action.fcurves:
+            group = channel.group
+            readChannel((ob.name if group is None or group.name == 'Object Transforms' else group.name), channel)
 
 fl = bpy.data.filepath
 dotId = 0
