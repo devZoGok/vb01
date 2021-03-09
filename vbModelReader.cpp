@@ -1,16 +1,17 @@
-#include"vbModelReader.h"
-#include"util.h"
-#include"vector.h"
-#include"mesh.h"
-#include"skeleton.h"
-#include"bone.h"
-#include"model.h"
-#include"animation.h"
-#include"animationController.h"
+#include "vbModelReader.h"
+#include "util.h"
+#include "vector.h"
+#include "light.h"
+#include "mesh.h"
+#include "skeleton.h"
+#include "bone.h"
+#include "model.h"
+#include "animation.h"
+#include "animationController.h"
 
-#include<vector>
-#include<algorithm>
-#include<fstream>
+#include <vector>
+#include <algorithm>
+#include <fstream>
 
 using namespace std;
 
@@ -323,12 +324,7 @@ namespace vb01{
 		int boneStartLine = 6;
 		int numBones = atoi(data[1].c_str());
 		int animationStartLine = boneStartLine + numBones;
-		int driverStartLine = animationStartLine;
-		for(int i = animationStartLine; i < skeletonData.size(); i++)
-			if(skeletonData[i].find_first_of(':') != -1 && skeletonData[i].substr(0, skeletonData[i].length() - 1) == "drivers: "){
-				driverStartLine = i;
-				break;
-			}
+		int driverStartLine = findDriverStartLine(skeletonData, animationStartLine);
 
 		AnimationController *controller = new AnimationController();
 		Skeleton *skeleton = new Skeleton(controller, name);
@@ -498,12 +494,7 @@ namespace vb01{
 	   	int faceStartLine = vertexStartLine + numVertices + 1;
 	   	int shapeKeyStartLine = faceStartLine + numFaces * numVertsPerFace + 1;
 		int animationStartLine = shapeKeyStartLine + numShapes * (1 + numVertices);
-		int driverStartLine = animationStartLine;
-		for(int i = animationStartLine; i < meshData.size(); i++)
-			if(meshData[i].find_first_of(':') != -1 && meshData[i].substr(0, meshData[i].length() - 1) == "drivers: "){
-				driverStartLine = i;
-				break;
-			}
+		int driverStartLine = findDriverStartLine(meshData, animationStartLine);
 
 		vector<Vector3> vertPos, vertNorm;
 		vector<float> vertWeights;
@@ -568,6 +559,58 @@ namespace vb01{
 	}
 
 	void VbModelReader::readLights(vector<string> &lightData){
+		string name = lightData[0].substr(lightData[0].find_first_of(':') + 2);
+		string data[4];
+		getLineData(lightData[1].substr(lightData[1].find_first_of(':') + 2), data, 3);
+		Vector3 pos = Vector3(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[2].c_str()));
+		getLineData(lightData[2].substr(lightData[2].find_first_of(':') + 2), data, 4);
+		Quaternion rot = Quaternion(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[2].c_str()), atof(data[3].c_str()));
+		getLineData(lightData[3].substr(lightData[3].find_first_of(':') + 2), data, 3);
+		Vector3 scale = Vector3(atof(data[0].c_str()), atof(data[1].c_str()) + 2, atof(data[2].c_str()));
+		string parent = lightData[4].substr(lightData[4].find_first_of(':') + 2);
 
+		string typeStr = lightData[5].substr(lightData[5].find_first_of(':') + 2);
+		Light::Type type;
+		if(typeStr == "POINT")
+			type = Light::POINT;
+		else if(typeStr == "SUN")
+			type = Light::DIRECTIONAL;
+		else if(typeStr == "SPOT")
+			type = Light::SPOT;
+		else if(typeStr == "AREA")
+			type = Light::AMBIENT;
+		getLineData(lightData[6].substr(lightData[6].find_first_of(':') + 2), data, 3);
+		Vector3 color = Vector3(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[2].c_str()));
+		float outerAngle = atof(lightData[7].substr(lightData[7].find_first_of(':') + 2).c_str());
+		float innerAngle = atof(lightData[8].substr(lightData[8].find_first_of(':') + 2).c_str());
+
+		Light *light = new Light(type);
+		light->setColor(color);
+		light->setOuterAngle(outerAngle);
+		light->setInnerAngle(innerAngle);
+
+		AnimationController *controller = new AnimationController();
+		Node *node = new Node(pos, rot, scale, name, controller);
+		nodes.push_back(node);
+
+		int animationStartLine = 9;
+		int driverStartLine = findDriverStartLine(lightData, animationStartLine);
+		vector<string> lightSubData = vector<string>(lightData.begin() + animationStartLine, lightData.begin() + driverStartLine);
+		readAnimations(node, controller, lightSubData);
+		lightSubData.clear();
+
+		lightSubData = vector<string>(lightData.begin() + driverStartLine, lightData.end());
+		readDrivers(lightSubData, name);
+		lightSubData.clear();
+	}
+
+	int VbModelReader::findDriverStartLine(vector<string> &data, int animationStartLine){
+		int driverStartLine = animationStartLine;
+		for(int i = animationStartLine; i < data.size(); i++)
+			if(data[i].find_first_of(':') != -1 && data[i].substr(0, data[i].length() - 1) == "drivers: "){
+				driverStartLine = i;
+				break;
+			}
+		return driverStartLine;
 	}
 }

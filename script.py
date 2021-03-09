@@ -7,9 +7,9 @@ def exportData(ob):
             par = par.parent
 
     file.write('{\n' + ob.type + ": " + ob.name + '\n')
-    file.write('pos: ' + str(ob.location.x) + ' ' + str(ob.location.y) + ' ' + str(ob.location.z) + '\n')
-    file.write('rot: ' + str(ob.rotation_quaternion.w) + ' ' + str(ob.rotation_quaternion.x) + ' ' + str(ob.rotation_quaternion.y) + ' ' + str(-ob.rotation_quaternion.z) + '\n')
-    file.write('scale: ' + str(ob.scale.x) + ' ' + str(ob.scale.y) + ' ' + str(ob.scale.z) + '\n')
+    file.write('pos: ' + str(ob.location.x) + ' ' + str(ob.location.y) + ' ' + str(ob.location.z) + ' \n')
+    file.write('rot: ' + str(ob.rotation_quaternion.w) + ' ' + str(ob.rotation_quaternion.x) + ' ' + str(ob.rotation_quaternion.y) + ' ' + str(-ob.rotation_quaternion.z) + ' \n')
+    file.write('scale: ' + str(ob.scale.x) + ' ' + str(ob.scale.y) + ' ' + str(ob.scale.z) + ' \n')
     file.write('parent: ' + ('-' if par is None else par.name) + '\n')
 
     numAnims = 0
@@ -105,11 +105,26 @@ def exportData(ob):
                         pos = vert.co
                         file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' \n')
             channels.extend(mesh.shape_keys.animation_data.drivers)
+    elif ob.type == 'LIGHT':
+        color = ob.data.color
+        outerAngle = 0
+        innerAngle = 0
+        type = ob.data.type
+        if type == 'SPOT':
+            outerAngle = ob.data.spot_size
+            innerAngle = outerAngle * ob.data.spot_blend
+        file.write('type: ' + type + '\n')
+        file.write('color: ' + str(color[0]) + ' ' + str(color[1]) + ' ' + str(color[2]) + ' \n')
+        file.write('outerAngle: ' + str(outerAngle) + ' \n')
+        file.write('innerAngle: ' + str(innerAngle) + ' \n')
 
 
     file.write('animations: ' + str(numAnims) + '\n')
-    if numAnims > 0:
+    if ob.type != 'LIGHT' and numAnims > 0:
         readAnimations(ob, numAnims)
+    elif ob.type == 'LIGHT':
+        readAnimations(ob, len(ob.animation_data.nla_tracks[0].strips))
+        readAnimations(ob.data, len(ob.data.animation_data.nla_tracks[0].strips))
 
     if ob.animation_data is not None:
         channels.extend(ob.animation_data.drivers)
@@ -233,7 +248,7 @@ for s in selectedObjects:
     if inObjects == False:
         objects.append(sPar)
 
-file=open(fl, 'w')
+file = open(fl, 'w')
 for ob in selectedObjects:
     exportData(ob)
     file.write('}\n')

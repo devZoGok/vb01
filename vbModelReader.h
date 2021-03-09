@@ -24,6 +24,7 @@ namespace vb01{
 			void getObjectBounds(std::map<int, int>&, std::map<int, int>&, std::map<int, int>&);
 			void connectNodes();
 			void setupDrivers();
+			int findDriverStartLine(std::vector<std::string>&, int);
 			void createBones(Skeleton*, std::vector<std::string>&);
 			KeyframeChannel readKeyframeChannel(Animatable*, std::vector<std::string>&, int&);
 			void readAnimations(Animatable*, AnimationController*, std::vector<std::string>&);
