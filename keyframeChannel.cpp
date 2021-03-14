@@ -53,6 +53,12 @@ namespace vb01{
 			type = KeyframeChannelType::SCALE_Y;
 		else if(typeString == "scale_z")
 			type = KeyframeChannelType::SCALE_Z;
+		else if(typeString == "diffuse_color_x")
+			type = KeyframeChannelType::DIFFUSE_COLOR_X;
+		else if(typeString == "diffuse_color_y")
+			type = KeyframeChannelType::DIFFUSE_COLOR_Y;
+		else if(typeString == "diffuse_color_z")
+			type = KeyframeChannelType::DIFFUSE_COLOR_Z;
 		else if(typeString == "shape_key_min")
 			type = KeyframeChannelType::SHAPE_KEY_MIN;
 		else if(typeString == "shape_key_value")

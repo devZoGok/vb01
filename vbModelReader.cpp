@@ -238,7 +238,12 @@ namespace vb01{
 		int keyframeStartLine = keyframeChannelStartLine + 1;
 
 		KeyframeChannel keyframeChannel;
-		keyframeChannel.animatable = (animatable || !currentSkeleton ? animatable : currentSkeleton->getBone(animatableName));
+		if(currentSkeleton)
+			keyframeChannel.animatable = currentSkeleton->getBone(animatableName);
+		else if(currentLight)
+			keyframeChannel.animatable = ((Node*)animatable)->getLight(0);
+		else
+			keyframeChannel.animatable = animatable;
 		keyframeChannel.type = KeyframeChannel::getKeyframeChannelType(typeStr);
 
 		for(int k = 0; k < numKeyframes; k++){
@@ -568,6 +573,7 @@ namespace vb01{
 		getLineData(lightData[3].substr(lightData[3].find_first_of(':') + 2), data, 3);
 		Vector3 scale = Vector3(atof(data[0].c_str()), atof(data[1].c_str()) + 2, atof(data[2].c_str()));
 		string parent = lightData[4].substr(lightData[4].find_first_of(':') + 2);
+		relationships.emplace(name, parent);
 
 		string typeStr = lightData[5].substr(lightData[5].find_first_of(':') + 2);
 		Light::Type type;
@@ -588,9 +594,11 @@ namespace vb01{
 		light->setColor(color);
 		light->setOuterAngle(outerAngle);
 		light->setInnerAngle(innerAngle);
+		currentLight = light;
 
 		AnimationController *controller = new AnimationController();
 		Node *node = new Node(pos, rot, scale, name, controller);
+		node->addLight(light);
 		nodes.push_back(node);
 
 		int animationStartLine = 9;
@@ -602,6 +610,8 @@ namespace vb01{
 		lightSubData = vector<string>(lightData.begin() + driverStartLine, lightData.end());
 		readDrivers(lightSubData, name);
 		lightSubData.clear();
+
+		currentLight = nullptr;
 	}
 
 	int VbModelReader::findDriverStartLine(vector<string> &data, int animationStartLine){

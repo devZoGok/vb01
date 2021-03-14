@@ -120,11 +120,13 @@ def exportData(ob):
 
 
     file.write('animations: ' + str(numAnims) + '\n')
-    if ob.type != 'LIGHT' and numAnims > 0:
-        readAnimations(ob, numAnims)
-    elif ob.type == 'LIGHT':
-        readAnimations(ob, len(ob.animation_data.nla_tracks[0].strips))
-        readAnimations(ob.data, len(ob.data.animation_data.nla_tracks[0].strips))
+    if numAnims > 0:
+        if ob.type == 'LIGHT':
+            readAnimations(ob, len(ob.animation_data.nla_tracks[0].strips))
+            if(ob.data.animation_data is not None and len(ob.data.animation_data.nla_tracks) > 0):
+                readAnimations(ob.data, len(ob.data.animation_data.nla_tracks[0].strips))
+        else:
+            readAnimations(ob, numAnims)
 
     if ob.animation_data is not None:
         channels.extend(ob.animation_data.drivers)
@@ -152,6 +154,8 @@ def getChannelType(channel):
         channelType = 'rot_' + coords[arrInd]
     elif coordType == 'scale':
         channelType = 'scale_' + coords[arrInd + 1]
+    elif coordType == 'color':
+        channelType = 'diffuse_color_' + coords[arrInd + 1]
     elif coordType == 'slider_min':
         channelType = 'shape_key_min'
     elif coordType == 'value':

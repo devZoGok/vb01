@@ -42,6 +42,7 @@ namespace vb01{
 			std::map<std::string, std::string> relationships;
 			std::vector<std::string*> driverSetups;
 			Skeleton *currentSkeleton = nullptr;
+			Light *currentLight = nullptr;
 			std::vector<Skeleton*> skeletons;
 			std::vector<Mesh*> meshes;
 			std::vector<Node*> nodes;

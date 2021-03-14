@@ -32,6 +32,15 @@ namespace vb01{
 
 	void Light::animate(float value, KeyframeChannel keyframeChannel){
 		switch(keyframeChannel.type){
+			case KeyframeChannel::DIFFUSE_COLOR_X:
+				color.x = value;
+				break;
+			case KeyframeChannel::DIFFUSE_COLOR_Y:
+				color.y = value;
+				break;
+			case KeyframeChannel::DIFFUSE_COLOR_Z:
+				color.z = value;
+				break;
 			case KeyframeChannel::SPOTLIGHT_INNER_ANGLE:
 				innerAngle = value;
 				break;
