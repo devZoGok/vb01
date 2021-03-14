@@ -104,6 +104,7 @@ namespace vb01{
 
 	void Light::renderShadow(std::vector<Node*> descendants, mat4 &proj, mat4 &view){
 		Root *root = Root::getSingleton();
+		Vector3 position = node->getPosition(), direction = node->getGlobalAxis(2);
 
 		glViewport(0, 0, depthMapSize, depthMapSize);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
@@ -172,6 +173,7 @@ namespace vb01{
 	}
 
 	void Light::updateShader(vector<Material*> materials, int thisId, mat4 &proj, mat4 &view){
+		Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO), direction = node->getGlobalAxis(2);
 		for(Material *m : materials){
 			Shader *shader = m->getShader();
 			shader->use();
