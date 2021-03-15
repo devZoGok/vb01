@@ -153,23 +153,19 @@ namespace vb01{
 			case KeyframeChannel::TEXTURE_MIX_RATIO:
 				mixRatio = value;
 				break;
+			case KeyframeChannel::TEXTURE_FRAME_A:
+				frameA = (int)value;
+				break;
+			case KeyframeChannel::TEXTURE_FRAME_B:
+				frameB = (int)value;
+				break;
 		}
 	}
 
 	void Texture::update(int id){
-		//updateFrame();
-		select(id);
+		select(id, frameA);
 		if(numFrames > 0)
-			select(id + 1, 1);
-	}
-
-	void Texture::updateFrame(){
-		if(numFrames > 0){
-			if(getTime() - lastUpdateTime > updateRate){
-				frame = getNextFrame(frame);
-				lastUpdateTime = getTime();
-			}
-		}
+			select(id + 1, frameB);
 	}
 
 	void Texture::select(int id, int fr){
