@@ -32,13 +32,12 @@ namespace vb01{
 			TextureTypeId typeId = DIFFUSE;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
-			int width, height, numChannels;
+			int width, height, numChannels, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0;
 			float mixRatio;
 			u8 *data;
 			std::string path = "", paths[6];
 
 			void createCubemap(bool, bool);
-			void updateFrame();
 			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};
 }

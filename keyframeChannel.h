@@ -30,6 +30,8 @@ namespace vb01{
 			SPECULAR_COLOR_X,
 			SPECULAR_COLOR_Y,
 			SPECULAR_COLOR_Z,
+			TEXTURE_FRAME_A,
+			TEXTURE_FRAME_B,
 			TEXTURE_MIX_RATIO
 		};
 		struct Keyframe{
