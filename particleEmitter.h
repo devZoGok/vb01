@@ -3,6 +3,8 @@
 
 #include "vector.h"
 #include "util.h"
+#include "animatable.h"
+
 #include <glm.hpp>
 
 namespace vb01{
@@ -10,7 +12,7 @@ namespace vb01{
 	class Node;
 	class Material;
 
-	class ParticleEmitter{
+	class ParticleEmitter : public Animatable{
 		public:
 			ParticleEmitter(){}
 			ParticleEmitter(int);
@@ -46,6 +48,7 @@ namespace vb01{
 			void setupParticles(Vertex[]);
 			void setupDisplay(Vertex[], u32[]);
 			void render();
+			void animate(float, KeyframeChannel);
 
 			u32 VAO, VBO, EBO, MBO;
 			glm::mat4 *matrices;

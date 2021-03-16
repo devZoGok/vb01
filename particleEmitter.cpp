@@ -199,4 +199,9 @@ namespace vb01{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, numParticles);	
 	}
+
+	void ParticleEmitter::animate(float value, KeyframeChannel keyframeChannel){
+		switch(keyframeChannel.type){
+		}
+	}
 }
