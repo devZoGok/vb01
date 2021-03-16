@@ -13,7 +13,7 @@
 using namespace std;
 
 namespace vb01{
-	Text::Text(string fontPath, string entry){
+	Text::Text(string fontPath, wstring entry){
 		initFont(fontPath);
 		setText(entry);
 	}
@@ -69,7 +69,11 @@ namespace vb01{
 
 		float advanceOffset = 0;
 		for(int i = 0; i < entry.length(); i++){
-			Glyph glyph = getGlyph(entry[i]);
+			Glyph *glyphPtr = getGlyph(entry[i]);
+			if(!glyphPtr)
+				continue;
+
+			Glyph glyph = *glyphPtr;
 			prepareGlyphs(glyph, advanceOffset);
 			advanceOffset += glyph.size.x + glyph.bearing.x;
 		}
@@ -101,7 +105,7 @@ namespace vb01{
 		glDrawArrays(GL_TRIANGLES, 0, 6);	
 	}
 
-	void Text::setText(string text){
+	void Text::setText(wstring text){
 		this->entry = text;
 
 		glGenVertexArrays(1, &VAO);
@@ -115,15 +119,11 @@ namespace vb01{
 		glBindVertexArray(0);
 	}
 
-	Text::Glyph Text::getGlyph(char ch){
-		Glyph glyph;
-		for(Glyph g : characters)
+	Text::Glyph* Text::getGlyph(u16 ch){
+		Glyph *glyph = nullptr;
+		for(Glyph &g : characters)
 			if(g.ch == ch)
-				glyph = g;
+				glyph = &g;
 		return glyph;
-	}
-
-	float Text::getCharWidth(char c){
-		return getGlyph(c).size.x * scale;
 	}
 }

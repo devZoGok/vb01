@@ -20,25 +20,25 @@ namespace vb01{
 				Vector2 size, bearing;
 			};
 
-			Text(std::string, std::string);
+			Text(std::string, std::wstring);
 			~Text();
 			void update();
-			void setText(std::string);
+			void setText(std::wstring);
 			float getCharWidth(char);
 			inline Node* getNode(){return node;}
 			inline void setNode(Node *node){this->node = node;}
 			inline void setScale(float s){this->scale = s;}
 			inline void setColor(Vector4 c){this->color = c;}
 			inline int getLength(){return entry.length();}
-			inline std::string getText(){return entry;}
+			inline std::wstring getText(){return entry;}
 		private:
 			void initFont(std::string);
 			void prepareGlyphs(Glyph, float);
 			void renderGlyphs(Glyph, float[], u32);
-			Glyph getGlyph(char);
+			Glyph* getGlyph(u16);
 
 			Node *node = nullptr;
-			std::string entry;
+			std::wstring entry;
 			std::vector<Glyph> characters;
 			Shader *shader = nullptr;
 			unsigned int VAO, VBO;
