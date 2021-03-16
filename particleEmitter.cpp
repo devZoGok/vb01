@@ -1,14 +1,15 @@
-#include"particleEmitter.h"
-#include"shader.h"
-#include<algorithm>
-#include<glad.h>
-#include<glfw3.h>
-#include<cstdlib>
-#include<ext.hpp>
-#include"material.h"
-#include"node.h"
-#include"root.h"
-#include"camera.h"
+#include <algorithm>
+#include <glad.h>
+#include <glfw3.h>
+#include <cstdlib>
+#include <ext.hpp>
+
+#include "particleEmitter.h"
+#include "shader.h"
+#include "material.h"
+#include "node.h"
+#include "root.h"
+#include "camera.h"
 
 using namespace glm;
 using namespace std;
@@ -51,7 +52,6 @@ namespace vb01{
 
 		for(int i = 0; i < numParticles; i++){
 			Particle *p = new Particle;
-			p->dir = direction;
 			particles[i] = p;
 			matrices[i] = mat4(1.f);
 		}
@@ -139,64 +139,59 @@ namespace vb01{
 		mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + camDir.x, camPos.y + camDir.y, camPos.z + camDir.z), vec3(up.x, up.y, up.z));
 		mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
 
+		material->update();	
+
+		Shader *shader = material->getShader();
+		const string line = "const int numParticles = " + to_string(numParticles) + ";";
+		shader->editShader(Shader::VERTEX_SHADER, 10, line);
+		shader->editShader(Shader::FRAGMENT_SHADER, 6, line);
+
 		updateParticles(camDir, camPos);
 
-		material->update();	
-		Shader *shader=material->getShader();
 		shader->setMat4(view, "view");
 		shader->setMat4(proj, "proj");
 		shader->setVec4(startColor, "startColor");
 		shader->setVec4(endColor, "endColor");
 		shader->setVec2(startSize, "startSize");
 		shader->setVec2(endSize, "endSize");
-		for(int i = 0; i < numParticles; i++)
-			shader->setVec3(particles[i]->trans, "trans[" + to_string(i) + "]");
 
 		heapSort();
 		render();
 	}
 
 	void ParticleEmitter::updateParticles(Vector3 camDir, Vector3 camPos){
-		Shader *shader=material->getShader();
+		Shader *shader = material->getShader();
 		Vector3 nodePos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 		Vector3 nodeDir = node->getGlobalAxis(2);
 		Vector3 nodeUp = node->getGlobalAxis(1);
 		Vector3 nodeLeft = node->getGlobalAxis(0);
 
 		for(int i = 0; i < numParticles; i++){
-			Vector3 dir = particles[i]->dir;
+			Vector3 dir = nodeDir;
 			if(getTime() - particles[i]->time >= particles[i]->timeToLive){
-				particles[i]->time = getTime();
 				float factor = (float)(rand() % 100) / 100;
-				float s1 = float(rand() % (int)spread) / 180 * PI, s2 = float(rand() % 360) / 180 * PI;
-				Vector3 ra1 = (Vector3(0, 1, 0).cross(dir)).norm(), ra2 = dir.norm();
+				particles[i]->time = getTime();
+				particles[i]->timeToLive = s64(1000 * ((highLife - lowLife) * factor + lowLife));
+
+				float spr1 = float(rand() % (int)spread) / 180 * PI, spr2 = float(rand() % 360) / 180 * PI;
+				Vector3 ra1 = (nodeUp.cross(dir)).norm(), ra2 = dir.norm();
 				if(ra1 == Vector3::VEC_ZERO)
 				   	ra1 = Vector3::VEC_I;
-				dir = Quaternion(s1, ra1) * dir;
-				dir = Quaternion(s2, ra2) * dir;
-
-				particles[i]->timeToLive = s64(1000 * ((highLife - lowLife) * factor + lowLife));
+				dir = Quaternion(spr1, ra1) * dir;
+				dir = Quaternion(spr2, ra2) * dir;
 
 				particles[i]->trans = nodePos;
 			}
 
-			particles[i]->dir = dir.norm() * direction.getLengthSq() + gravity;
-			float lifePercentage = (float)(getTime() - particles[i]->time) / particles[i]->timeToLive;
-			particles[i]->color = startColor + (endColor - startColor) * lifePercentage;
-			particles[i]->size = startSize + (endSize - startSize) * lifePercentage;
+			dir = dir.norm() * speed + gravity;
 			particles[i]->trans = particles[i]->trans + dir;
+			particles[i]->d = cos(camDir.getAngleBetween((particles[i]->trans - camPos).norm())) * camPos.getDistanceFrom(particles[i]->trans);
 
-			Vector3 trans = particles[i]->trans;
-			particles[i]->d = cos(camDir.getAngleBetween((trans - camPos).norm())) * camPos.getDistanceFrom(trans);
+			float lifePercentage = (float)(getTime() - particles[i]->time) / particles[i]->timeToLive;
 
 			shader->setFloat(lifePercentage, "lifePercentage[" + to_string(i) + "]");
+			shader->setVec3(particles[i]->trans, "trans[" + to_string(i) + "]");
 		}
-	}
-
-	void ParticleEmitter::setDirection(Vector3 dir){
-		this->direction = dir;
-		for(int i = 0; i < numParticles; i++)
-			particles[i]->dir = dir;
 	}
 
 	void ParticleEmitter::render(){
