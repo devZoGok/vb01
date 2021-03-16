@@ -40,7 +40,7 @@ namespace vb01{
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		for(u32 i = 0; i < 256; i++){
+		for(u16 i = 0; i < u16(0 - 1); i++){
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER)){
 				cout << "Could not load glyph\n";
 				continue;
@@ -67,14 +67,17 @@ namespace vb01{
 		shader->setVec2(Vector2(width, height), "screen");
 		shader->setVec3(node->getPosition(), "pos");
 
+		float advanceOffset = 0;
 		for(int i = 0; i < entry.length(); i++){
-			prepareGlyphs(entry[i]);
+			Glyph glyph = getGlyph(entry[i]);
+			prepareGlyphs(glyph, advanceOffset);
+			advanceOffset += glyph.size.x + glyph.bearing.x;
 		}
 	}
 
-	void Text::prepareGlyphs(char c){
+	void Text::prepareGlyphs(Glyph glyph, float advanceOffset){
 		Vector3 origin = node->getPosition();
-		Glyph glyph = getGlyph(c);
+		origin.x += advanceOffset * scale;
 
 		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
 		float data[] = {
@@ -86,7 +89,6 @@ namespace vb01{
 			origin.x + bearing.x, origin.y - bearing.y + size.y, 0, 1,
 			origin.x + bearing.x, origin.y - bearing.y, 0, 0
 		};
-		//origin.x += (glyph.advance >> 6) * scale;
 
 		renderGlyphs(glyph, data, sizeof(data));
 	}

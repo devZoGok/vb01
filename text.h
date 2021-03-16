@@ -1,10 +1,10 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include<string>
-#include<vector>
-#include"vector.h"
-#include"util.h"
+#include <string>
+#include <vector>
+#include "vector.h"
+#include "util.h"
 
 namespace vb01{
 	class Node;
@@ -14,7 +14,7 @@ namespace vb01{
 	class Text{
 		public:
 			struct Glyph{
-				u32 ch;
+				u16 ch;
 				Texture *texture = nullptr;
 				u32 advance;
 				Vector2 size, bearing;
@@ -33,7 +33,7 @@ namespace vb01{
 			inline std::string getText(){return entry;}
 		private:
 			void initFont(std::string);
-			void prepareGlyphs(char);
+			void prepareGlyphs(Glyph, float);
 			void renderGlyphs(Glyph, float[], u32);
 			Glyph getGlyph(char);
 
