@@ -67,7 +67,7 @@ namespace vb01{
 		shader->setVec2(Vector2(width, height), "screen");
 		shader->setVec3(node->getPosition(), "pos");
 
-		float advanceOffset = 0;
+		Vector2 advanceOffset = Vector2::VEC_ZERO;
 		for(int i = 0; i < entry.length(); i++){
 			Glyph *glyphPtr = getGlyph(entry[i]);
 			if(!glyphPtr)
@@ -75,13 +75,18 @@ namespace vb01{
 
 			Glyph glyph = *glyphPtr;
 			prepareGlyphs(glyph, advanceOffset);
-			advanceOffset += glyph.size.x + glyph.bearing.x;
+			Vector2 size = glyph.size, bearing = glyph.bearing;
+			if(horizontal)
+				advanceOffset.x += (size.x + bearing.x);
+			else
+				advanceOffset.y += size.y;
 		}
 	}
 
-	void Text::prepareGlyphs(Glyph glyph, float advanceOffset){
-		Vector3 origin = node->getPosition();
-		origin.x += advanceOffset * scale;
+	void Text::prepareGlyphs(Glyph glyph, Vector2 advanceOffset){
+		Vector3 nodePos = node->getPosition();
+		Vector2 origin = Vector2(nodePos.x, nodePos.y);
+		origin = origin + (advanceOffset * scale);
 
 		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
 		float data[] = {

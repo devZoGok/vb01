@@ -24,16 +24,17 @@ namespace vb01{
 			~Text();
 			void update();
 			void setText(std::wstring);
-			float getCharWidth(char);
 			inline Node* getNode(){return node;}
 			inline void setNode(Node *node){this->node = node;}
 			inline void setScale(float s){this->scale = s;}
 			inline void setColor(Vector4 c){this->color = c;}
 			inline int getLength(){return entry.length();}
 			inline std::wstring getText(){return entry;}
+			inline bool isHorizontal(){return horizontal;}
+			inline void setHorizontal(bool h){this->horizontal = h;}
 		private:
 			void initFont(std::string);
-			void prepareGlyphs(Glyph, float);
+			void prepareGlyphs(Glyph, Vector2);
 			void renderGlyphs(Glyph, float[], u32);
 			Glyph* getGlyph(u16);
 
@@ -43,6 +44,7 @@ namespace vb01{
 			Shader *shader = nullptr;
 			unsigned int VAO, VBO;
 			float scale = 1;
+			bool horizontal = true;
 			Vector4 color = Vector4::VEC_IJKL;
 	};
 }
