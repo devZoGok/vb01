@@ -10,6 +10,7 @@ namespace vb01{
 	class Node;
 	class Texture;
 	class Shader;
+	class Material;
 
 	class Text{
 		public:
@@ -27,11 +28,12 @@ namespace vb01{
 			inline Node* getNode(){return node;}
 			inline void setNode(Node *node){this->node = node;}
 			inline void setScale(float s){this->scale = s;}
-			inline void setColor(Vector4 c){this->color = c;}
 			inline int getLength(){return entry.length();}
 			inline std::wstring getText(){return entry;}
 			inline bool isHorizontal(){return horizontal;}
 			inline void setHorizontal(bool h){this->horizontal = h;}
+			inline Material* getMaterial(){return material;}
+			inline void setMaterial(Material *mat){this->material = mat;}
 		private:
 			void initFont(std::string);
 			void prepareGlyphs(Glyph, Vector2);
@@ -39,13 +41,12 @@ namespace vb01{
 			Glyph* getGlyph(u16);
 
 			Node *node = nullptr;
+			Material *material = nullptr;
 			std::wstring entry;
 			std::vector<Glyph> characters;
-			Shader *shader = nullptr;
 			unsigned int VAO, VBO;
 			float scale = 1;
 			bool horizontal = true;
-			Vector4 color = Vector4::VEC_IJKL;
 	};
 }
 

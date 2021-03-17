@@ -4,9 +4,10 @@ in vec2 texCoords;
 
 out vec4 FragColor;
 
-uniform sampler2D tex;
-uniform vec4 color;
+uniform sampler2D textTex, diffuseMap;
+uniform vec4 diffuseColor;
 
 void main(){
-	FragColor = vec4(color.xyz, texture(tex, texCoords).r);
+	float alpha = texture(textTex, texCoords).r;
+	FragColor = vec4(diffuseColor.xyz, diffuseColor.w * alpha);
 }

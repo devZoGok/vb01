@@ -1,4 +1,4 @@
-#include"quad.h"
+#include "quad.h"
 
 namespace vb01{
 	Quad::Quad(Vector3 size, bool spatial) : Mesh(){
@@ -18,7 +18,7 @@ namespace vb01{
 	void Quad::setSize(Vector3 size){
 		this->size = size;
 
-		Vertex v1,v2,v3,v4,v5,v6;
+		Vertex v1, v2, v3, v4, v5, v6;
 		if(spatial){
 			v1.pos = Vector3(size.x / 2, size.y / 2, 0);
 			v2.pos = Vector3(-size.x / 2, size.y / 2, 0);

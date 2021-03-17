@@ -1,8 +1,8 @@
 #ifndef QUAD_H
 #define QUAD_H
 
-#include"vector.h"
-#include"mesh.h"
+#include "vector.h"
+#include "mesh.h"
 
 namespace vb01{
 	class Quad : public Mesh{

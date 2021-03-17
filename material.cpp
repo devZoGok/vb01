@@ -106,6 +106,10 @@ namespace vb01{
 			if(diffuseColorEnabled)
 				shader->setVec4(diffuseColor, "diffuseColor");
 		}
+		else if(type == MATERIAL_TEXT){
+			shader->setInt(0, "textTex");
+			//shader->setInt(1, "diffuseMap");
+		}
 
 		if(texturingEnabled){
 			vector<Texture*> textures;

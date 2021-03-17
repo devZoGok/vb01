@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "node.h"
+#include "material.h"
 
 #include <glad.h>
 #include <glfw3.h>
@@ -19,16 +20,11 @@ namespace vb01{
 	}
 
 	Text::~Text(){
-		delete shader;
-
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 	}
 
 	void Text::initFont(string fontPath){
-		string basePath = "../../vb01/text.";
-		shader = new Shader(basePath + "vert", basePath + "frag");
-
 		FT_Library ft;
 		FT_Face face;
 		if(FT_Init_FreeType(&ft))
@@ -62,8 +58,8 @@ namespace vb01{
 		Root *root = Root::getSingleton();
 		int width = root->getWidth(), height = root->getHeight();
 
-		shader->use();
-		shader->setVec4(color, "color");
+		material->update();
+		Shader *shader = material->getShader();
 		shader->setVec2(Vector2(width, height), "screen");
 		shader->setVec3(node->getPosition(), "pos");
 
