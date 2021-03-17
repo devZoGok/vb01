@@ -202,6 +202,54 @@ namespace vb01{
 
 	void ParticleEmitter::animate(float value, KeyframeChannel keyframeChannel){
 		switch(keyframeChannel.type){
+			case KeyframeChannel::PARTICLE_EMITTER_SPEED:
+				speed = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_SPREAD:
+				spread = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_COLOR_W:
+				startColor.w = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_COLOR_X:
+				startColor.x = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_COLOR_Y:
+				startColor.y = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_COLOR_Z:
+				startColor.z = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_COLOR_W:
+				endColor.w = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_COLOR_X:
+				endColor.x = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_COLOR_Y:
+				endColor.y = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_COLOR_Z:
+				endColor.z = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_SIZE_X:
+				startSize.x = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_START_SIZE_Y:
+				startSize.y = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_SIZE_X:
+				endSize.x = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_END_SIZE_Y:
+				endSize.y = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_LOW_LIFE:
+				lowLife = value;
+				break;
+			case KeyframeChannel::PARTICLE_EMITTER_HIGH_LIFE:
+				highLife = value;
+				break;
 		}
 	}
 }

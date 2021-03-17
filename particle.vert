@@ -8,7 +8,7 @@ out vec2 texCoords;
 
 flat out int id;
 
-const int numParticles = 500;
+const int numParticles = 1;
 
 uniform mat4 proj, view;
 uniform float lifePercentage[numParticles];
@@ -20,8 +20,8 @@ void main(){
 	vec3 camUp = vec3(view[0][1], view[1][1], view[2][1]);	
 
 	id = gl_InstanceID;
-	vec2 s = startSize + (endSize - startSize) * lifePercentage[id];
-	vec3 v = camLeft * s.x * aPos.x+camUp * s.y * aPos.y;
+	vec2 s = mix(startSize, endSize, lifePercentage[id]);
+	vec3 v = camLeft * s.x * aPos.x + camUp * s.y * aPos.y;
 	mat4 model = aInstancedModel;
 	model[3][0] = trans[id].x;
 	model[3][1] = trans[id].y;
