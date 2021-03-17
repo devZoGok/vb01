@@ -102,7 +102,7 @@ namespace vb01{
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
-		glyph.texture->select();
+		glyph.texture->select(2);
 		glDrawArrays(GL_TRIANGLES, 0, 6);	
 	}
 

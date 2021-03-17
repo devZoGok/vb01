@@ -4,16 +4,22 @@ in vec2 texCoords;
 
 out vec4 FragColor;
 
+struct Texture{
+	float mixRatio;
+	sampler2D pastTexture, nextTexture;
+	bool animated;
+};
+
 uniform bool texturingEnabled;
 uniform bool diffuseColorEnabled;
 uniform bool guiPlane;
 uniform vec4 diffuseColor;
-uniform sampler2D tex;
+uniform Texture diffuseMap;
 
 void main(){
-	vec4 c = (texturingEnabled ? texture(tex, texCoords) : diffuseColor);
+	vec4 c = (texturingEnabled ? texture(diffuseMap.pastTexture, texCoords) : diffuseColor);
 	if(diffuseColorEnabled){
-		float alpha = texture(tex, texCoords).w;
+		float alpha = texture(diffuseMap.pastTexture, texCoords).w;
 		c = vec4(diffuseColor.xyz, alpha);
 	}
 

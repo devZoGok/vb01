@@ -78,7 +78,7 @@ void main(){
 	vec4 finalColor = diffuseColor;
 	if(texturingEnabled){
 		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
-		finalColor = textures[0].animated ? mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio) : textureColor;
+		finalColor = (textures[0].animated ? mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio) : textureColor);
 	}
 
 	vec3 normal = norm;

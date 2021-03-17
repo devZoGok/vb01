@@ -10,6 +10,8 @@ namespace vb01{
 				currentValue = pastKeyframe.value;
 				break;
 			case Keyframe::LINEAR:
+				currentValue = interpolateBezier(vector<float>({pastKeyframe.value, nextKeyframe.value}), ratio);
+				break;
 			case Keyframe::BEZIER:
 				vector<float> points = vector<float>({pastKeyframe.value, pastKeyframe.rightHandleValue, nextKeyframe.leftHandleValue, nextKeyframe.value});
 				currentValue = interpolateBezier(points, ratio);
