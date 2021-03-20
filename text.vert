@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location=0) in vec4 aVert;
+layout (location = 0) in vec4 aVert;
 
 out vec2 texCoords;
 

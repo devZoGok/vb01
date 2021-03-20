@@ -8,8 +8,8 @@ in vec4 fragPos;
 
 void main(){
 	if(point){
-		float dist=length(lightPos-fragPos.xyz);
-		dist/=farPlane;
-		gl_FragDepth=dist;
+		float dist = length(lightPos - fragPos.xyz);
+		dist /= farPlane;
+		gl_FragDepth = dist;
 	}
 }
