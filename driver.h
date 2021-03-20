@@ -2,6 +2,7 @@
 #define DRIVER
 
 #include "keyframeChannel.h"
+
 #include <string>
 
 namespace vb01{

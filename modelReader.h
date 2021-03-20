@@ -2,6 +2,7 @@
 #define MODEL_READER
 
 #include <string>
+
 #include "model.h"
 
 namespace vb01{

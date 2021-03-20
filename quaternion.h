@@ -1,8 +1,9 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
 
-#include<cmath>
-#include"vector.h"
+#include <cmath>
+
+#include "vector.h"
 
 namespace vb01{
 	class Quaternion{

@@ -1,7 +1,7 @@
 #ifndef ASSIMP_MODEL_READER_H
 #define ASSIMP_MODEL_READER_H
 
-#include"modelReader.h"
+#include "modelReader.h"
 
 class aiNode;
 class aiMesh;

@@ -1,8 +1,9 @@
-#include"assimpModelReader.h"
-#include"mesh.h"
-#include<Importer.hpp>
-#include<scene.h>
-#include<postprocess.h>
+#include "assimpModelReader.h"
+#include "mesh.h"
+
+#include <Importer.hpp>
+#include <scene.h>
+#include <postprocess.h>
 
 using namespace std;
 using namespace Assimp;

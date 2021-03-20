@@ -1,4 +1,4 @@
-#include"vector.h"
+#include "vector.h"
 
 namespace vb01{
 	const Vector2 Vector2::VEC_IJ(1,1); 

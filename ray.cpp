@@ -1,7 +1,8 @@
-#include<algorithm>
-#include"ray.h"
-#include"mesh.h"
-#include"node.h"
+#include <algorithm>
+
+#include "ray.h"
+#include "mesh.h"
+#include "node.h"
 
 using namespace std;
 

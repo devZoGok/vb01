@@ -1,5 +1,6 @@
-#include"util.h"
-#include<fstream>
+#include "util.h"
+
+#include <fstream>
 
 using namespace std;
 

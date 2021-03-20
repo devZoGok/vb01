@@ -1,9 +1,12 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include"stb_image.h"
-#include<glad.h>
-#include<glfw3.h>
-#include"texture.h"
-#include<iostream>
+
+#include "stb_image.h"
+
+#include "texture.h"
+
+#include <glad.h>
+#include <glfw3.h>
+#include <iostream>
 
 using namespace std;
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+
 #include "keyframeChannel.h"
 
 namespace vb01{

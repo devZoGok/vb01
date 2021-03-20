@@ -1,4 +1,4 @@
-#include"quaternion.h"
+#include "quaternion.h"
 
 namespace vb01{
 	const Quaternion Quaternion::QUAT_W(1, 0, 0, 0);

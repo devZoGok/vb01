@@ -1,4 +1,5 @@
 #include "cameraTest.h"
+
 #include <cppunit/TestCase.h>
 #include <cppunit/TestSuite.h>
 #include <cppunit/TestResult.h>

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <ft2build.h>
+
 #include "util.h"
 #include "animatable.h"
 #include FT_FREETYPE_H

@@ -1,8 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include<cmath>
-#include<iostream>
+#include <cmath>
+#include <iostream>
 
 namespace vb01{
 	struct Vector4{

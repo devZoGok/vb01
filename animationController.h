@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+
 #include "animation.h"
 
 namespace vb01{

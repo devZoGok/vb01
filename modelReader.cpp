@@ -1,7 +1,8 @@
-#include"modelReader.h"
-#include"model.h"
-#include<vector>
-#include<fstream>
+#include "modelReader.h"
+#include "model.h"
+
+#include <vector>
+#include <fstream>
 
 using namespace std;
 

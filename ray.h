@@ -1,6 +1,7 @@
-#include"vector.h"
-#include"util.h"
-#include<vector>
+#include "vector.h"
+#include "util.h"
+
+#include <vector>
 
 namespace vb01{
 	class Node;

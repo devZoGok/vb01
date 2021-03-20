@@ -1,4 +1,4 @@
-#include"camera.h"
+#include "camera.h"
 
 namespace vb01{
 	Camera::Camera(){
@@ -12,8 +12,8 @@ namespace vb01{
 	}
 
 	void Camera::lookAt(Vector3 direction, Vector3 up){
-		this->direction=direction;
-		this->up=up;
-		left=direction.cross(up);
+		this->direction = direction;
+		this->up = up;
+		left = direction.cross(up);
 	}
 }

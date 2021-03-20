@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+
 #include "bone.h"
 
 namespace vb01{

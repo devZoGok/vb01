@@ -1,13 +1,14 @@
-#include"stb_image.h"
-#include"root.h"
-#include"node.h"
-#include"shader.h"
-#include"box.h"
-#include"quad.h"
-#include<glad.h>
-#include<glfw3.h>
-#include<cstdlib>
-#include<iostream>
+#include "stb_image.h"
+#include "root.h"
+#include "node.h"
+#include "shader.h"
+#include "box.h"
+#include "quad.h"
+
+#include <glad.h>
+#include <glfw3.h>
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 

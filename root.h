@@ -1,9 +1,10 @@
 #ifndef ROOT_H
 #define ROOT_H
 
-#include"camera.h"
-#include<string>
-#include<vector>
+#include "camera.h"
+
+#include <string>
+#include <vector>
 
 class GLFWwindow;
 

@@ -2,6 +2,7 @@
 #define BONE_H
 
 #include "node.h"
+
 #include <string>
 
 namespace vb01{

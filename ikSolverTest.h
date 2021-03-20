@@ -3,6 +3,7 @@
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
+
 #include "bone.h"
 
 namespace vb01{

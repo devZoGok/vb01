@@ -1,5 +1,5 @@
-#include"bone.h"
-#include"skeleton.h"
+#include "bone.h"
+#include "skeleton.h"
 
 using namespace std;
 

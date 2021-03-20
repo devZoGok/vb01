@@ -1,4 +1,4 @@
-#include"box.h"
+#include "box.h"
 
 namespace vb01{
 	Box::Box(Vector3 size){

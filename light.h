@@ -13,7 +13,6 @@ namespace vb01{
 	class Shader;
 	class Material;
 
-
 	class Light : public Animatable{
 		public:
 			enum Type{POINT, DIRECTIONAL, SPOT, AMBIENT};

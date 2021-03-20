@@ -1,11 +1,12 @@
-#include<glad.h>
-#include<glfw3.h>
-#include<iostream>
-#include<sstream>
-#include<fstream>
-#include"shader.h"
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
+#include <glad.h>
+#include <glfw3.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+
+#include "shader.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 using namespace glm;

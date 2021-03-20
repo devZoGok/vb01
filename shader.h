@@ -1,10 +1,11 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include<string>
-#include<glm/mat4x4.hpp>
-#include"vector.h"
-#include"util.h"
+#include <string>
+#include <glm/mat4x4.hpp>
+
+#include "vector.h"
+#include "util.h"
 
 namespace vb01{
 	class Shader{
