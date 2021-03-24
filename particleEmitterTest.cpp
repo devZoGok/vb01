@@ -12,7 +12,7 @@ namespace vb01{
 		particleEmitter->particles = new ParticleEmitter::Particle*[numParticles];
 		for(int i = 0; i < numParticles; i++){
 			ParticleEmitter::Particle *particle = new ParticleEmitter::Particle;
-			particle->d = rand() % 1000;
+			particle->distToCamPlane = rand() % 1000;
 			particleEmitter->particles[i] = particle;
 		}
 	}
@@ -25,7 +25,7 @@ namespace vb01{
 		for(int i = 1; i < numParticles; i++){
 			ParticleEmitter::Particle *prevPart = particleEmitter->particles[i - 1];
 			ParticleEmitter::Particle *currPart = particleEmitter->particles[i];
-			CPPUNIT_ASSERT(prevPart->d >= currPart->d);
+			CPPUNIT_ASSERT(prevPart->distToCamPlane >= currPart->distToCamPlane);
 		}
 	}
 }

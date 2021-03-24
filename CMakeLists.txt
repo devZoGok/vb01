@@ -11,6 +11,7 @@ include_directories(/usr/include/cppunit)
 link_directories(/usr/lib/)
 
 set(CMAKE_BUILD_TYPE Debug)
+
 set(gui text.cpp)
 set(utils util.cpp)
 set(math quaternion.cpp vector.cpp matrix.cpp ray.cpp)

@@ -2,6 +2,7 @@
 #define ROOT_H
 
 #include "camera.h"
+#include "util.h"
 
 #include <string>
 #include <vector>
@@ -47,7 +48,7 @@ namespace vb01{
 			Box *skybox = nullptr;
 			Quad *guiPlane = nullptr;
 			int width, height, blurLevel = 10; 
-			unsigned int FBO, RBO, pingpongBuffers[2];
+			u32 FBO, RBO, pingpongBuffers[2];
 			GLFWwindow *window;
 			Node *rootNode, *guiNode;
 			Camera *camera;

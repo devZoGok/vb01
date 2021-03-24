@@ -6,7 +6,7 @@ using namespace std;
 
 namespace vb01{
 	Material::Material(Type type){
-		this->type=type;
+		this->type = type;
 
 		initShader();
 	}

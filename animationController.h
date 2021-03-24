@@ -15,8 +15,8 @@ namespace vb01{
 
 	class AnimationController{
 		public:
-			AnimationController();
-			~AnimationController();
+			AnimationController(){}
+			~AnimationController(){}
 			void update();
 			Animation* getAnimation(std::string);
 			inline std::vector<Animation*> getAnimations(){return animations;}

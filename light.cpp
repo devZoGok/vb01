@@ -76,14 +76,12 @@ namespace vb01{
 		Root *root = Root::getSingleton();
 		Node *rootNode = root->getRootNode();
 
-		Camera *cam=root->getCamera();
-		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight();
-
 		vector<Node*> descendants;
 		rootNode->getDescendants(descendants);
 		descendants.push_back(rootNode);
 		vector<Light*> lights;
 		vector<Material*> materials;
+
 		for(Node *d : descendants){
 			for(Light *l : d->getLights())
 				lights.push_back(l);
@@ -147,17 +145,13 @@ namespace vb01{
 					depthMapShader->setFloat(farPlane, "farPlane");
 					depthMapShader->setVec3(position, "lightPos");
 					if(type == POINT){
+						vec3 dirs[] = {vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
 						for(int i = 0; i < 6; i++){
 							vec3 upVec;
 							if(1 < i && i < 4)
 								upVec = vec3(0, 0, -1);
 							else
 								upVec = vec3(0, -1, 0);
-
-							vec3 dirs[] = {
-								vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)
-							};
-
 							depthMapShader->setMat4(proj * lookAt(lightPos, lightPos + dirs[i], upVec), "shadowMat[" + to_string(i) + "]");
 						}
 					}

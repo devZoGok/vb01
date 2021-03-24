@@ -17,6 +17,11 @@ namespace vb01{
 	}
 
 	void Skeleton::update(){
+		updateIk();
+		controller->update();
+	}
+
+	void Skeleton::updateIk(){
 		for(Bone *b : bones){
 			if(b->getIkTarget()){
 				const int chainLength = b->getIkChainLength();
@@ -29,11 +34,9 @@ namespace vb01{
 				delete[] boneChain;
 			}
 		}
-		for(Bone *b : bones){
+		for(Bone *b : bones)
 			if(b->getIkTarget())
 				solveIk(b);
-		}
-		controller->update();
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){

@@ -20,11 +20,6 @@ namespace vb01{
 
 	class Node : public Animatable{
 		public:
-			struct Transform{
-				Vector3 position = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
-				Quaternion orientation = Quaternion::QUAT_W;	
-			};
-
 			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "", AnimationController *c = nullptr);
 			virtual ~Node();
 			void attachMesh(Mesh*);

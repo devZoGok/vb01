@@ -122,9 +122,7 @@ namespace vb01{
 	void Mesh::update(){
 		Root *root = Root::getSingleton();
 		Camera *cam = root->getCamera();
-		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight();
-		float nearPlane = cam->getNearPlane(), farPlane = cam->getFarPlane();
-		Vector3 dir = cam->getDirection(), up = cam->getUp(), camPos = Vector3::VEC_ZERO, pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
+		Vector3 camPos = Vector3::VEC_ZERO, pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
 		Quaternion orient = Quaternion::QUAT_W;
 
 		if(node){
@@ -140,19 +138,20 @@ namespace vb01{
 		model = translate(model, vec3(pos.x, pos.y, pos.z));
 		model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
 		model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
+
+		Vector3 dir = cam->getDirection(), up = cam->getUp();
 		mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + dir.x, camPos.y + dir.y, camPos.z + dir.z), vec3(up.x, up.y, up.z));
+
+		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight(), nearPlane = cam->getNearPlane(), farPlane = cam->getFarPlane();
 		mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
 
 		material->update();
 		Shader *shader = material->getShader();
 
-		if(reflect){
+		if(reflect)
 			updateReflection(shader, pos, width, height);
-		}
-
 		if(skeleton)
 			updateSkeleton(shader);
-
 		if(numShapeKeys > 0)
 			updateShapeKeys(shader);
 

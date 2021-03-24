@@ -39,7 +39,7 @@ namespace vb01{
 				int VAO;
 				s64 time = 0, timeToLive = 0;
 				Vector3 trans;
-				float d;
+				float distToCamPlane;
 			};
 
 			void makeHeap(int);

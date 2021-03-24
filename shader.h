@@ -32,7 +32,7 @@ namespace vb01{
 			void loadShaders();
 			void pushShader(u32&, std::string&, int, ErrorType);
 			void checkCompileErrors(u32, ErrorType);
-			unsigned int id;
+			u32 id;
 			bool geometry = false;
 			std::string vString, fString, gString;
 

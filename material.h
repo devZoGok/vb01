@@ -16,31 +16,11 @@ namespace vb01{
 			Material(Type = MATERIAL_2D);
 			~Material();
 			void update();
-			inline void addDiffuseMap(std::string diffuseMap, bool flip = false){
-				std::string p[]{diffuseMap};
-				diffuseMapTextures.push_back(new Texture(p, 1, Texture::DIFFUSE, flip));
-			}
-			inline void addDiffuseMap(std::string diffuseMap[], int numFrames){diffuseMapTextures.push_back(new Texture(diffuseMap, numFrames));}
-			inline void addDiffuseMap(std::string diffuseMap[6]){diffuseMapTextures.push_back(new Texture(diffuseMap));}
 			inline void addDiffuseMap(Texture *texture){diffuseMapTextures.push_back(texture);}
-			inline void setDiffuseMap(Texture *texture, int i){diffuseMapTextures[i]=texture;}
-			inline void addNormalMap(std::string normalMap){
-				std::string p[]{normalMap};
-				normalMapTextures.push_back(new Texture(p, 1));
-			}
-			inline void addNormalMap(std::string normalMap[], int numFrames){normalMapTextures.push_back(new Texture(normalMap, numFrames));}
-			inline void setNormalMap(Texture *texture, int i){normalMapTextures[i] = texture;}
-			inline void addSpecularMap(std::string specularMap){
-				std::string p[]{specularMap};
-				specularMapTextures.push_back(new Texture(p, 1));
-			}
-			inline void addSpecularMap(std::string specularMap[], int numFrames){specularMapTextures.push_back(new Texture(specularMap, numFrames));}
-			inline void setSpecularMap(Texture *texture, int i){specularMapTextures[i] = texture;}
-			inline void addParallaxMap(std::string parallaxMap){
-				std::string p[]{parallaxMap};
-				parallaxMapTextures.push_back(new Texture(p, 1));
-			}
-			inline void addParallaxMap(std::string parallaxMap[], int numFrames){parallaxMapTextures.push_back(new Texture(parallaxMap, numFrames));}
+			inline void addDiffuseMap(std::string diffuseMap[6]){diffuseMapTextures.push_back(new Texture(diffuseMap));}
+			inline void addNormalMap(Texture *texture){normalMapTextures.push_back(texture);}
+			inline void addSpecularMap(Texture *texture){specularMapTextures.push_back(texture);}
+			inline void addParallaxMap(Texture *texture){parallaxMapTextures.push_back(texture);}
 			inline void setDiffuseColor(Vector4 diffuse){this->diffuseColor = diffuse;}
 			inline void setSpecularColor(Vector4 specular){this->specularColor = specular;}
 			inline void setLightingEnabled(bool lighting){this->lightingEnabled = lighting;}

@@ -22,6 +22,7 @@ namespace vb01{
 
 				void animate(float, KeyframeChannel);
 			};
+
 			struct Vertex{
 				Vector3 pos, norm, tan, biTan;
 				Vector2 uv;	

@@ -7,12 +7,6 @@ namespace vb01{
 		this->name = name;
 	}
 
-	Animation::~Animation(){
-	}
-
-	void Animation::update(){
-	}
-
 	KeyframeChannel* Animation::getKeyframeChannel(Animatable *animatable, KeyframeChannelType type){
 		KeyframeChannel *k = nullptr;
 

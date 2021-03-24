@@ -12,8 +12,7 @@ namespace vb01{
 	class Animation{
 		public:
 			Animation(std::string);
-			~Animation();
-			void update();
+			~Animation(){}
 			KeyframeChannel* getKeyframeChannel(Animatable*, KeyframeChannel::Type);
 			std::vector<KeyframeChannel> getKeyframeChannelsByAnimatable(Animatable*);
 			inline void addKeyframeChannels(std::vector<KeyframeChannel> keyframeChannels){this->keyframeChannels.assign(keyframeChannels.begin(), keyframeChannels.end());}

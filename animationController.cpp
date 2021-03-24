@@ -5,12 +5,6 @@
 using namespace std;
 
 namespace vb01{
-	AnimationController::AnimationController(){
-	}
-
-	AnimationController::~AnimationController(){
-	}
-
 	void AnimationController::update(){
 		for(AnimationChannel *channel : channels){
 			channel->update();

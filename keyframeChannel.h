@@ -67,7 +67,6 @@ namespace vb01{
 		static KeyframeChannel::Type getKeyframeChannelType(std::string);
 		static float interpolate(Keyframe, Keyframe, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);
-		static void transform();
 	};
 
 	typedef KeyframeChannel::Type KeyframeChannelType; 

@@ -8,10 +8,7 @@ namespace vb01{
 
 	class IkSolver{
 		public:
-			IkSolver();
-			~IkSolver(){}
 			static void calculateFabrik(int, Bone**, Vector3[], Vector3);
-		private:
 	};
 }
 

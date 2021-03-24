@@ -105,17 +105,22 @@ namespace vb01{
 		while(!heap){
 			bool end = true;
 			for(int i = 0; 2 * i + 1 + offset < numParticles; i++){
-				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->d < particles[2 * i + 1 + offset]->d || particles[i + offset]->d < particles[2 * i + 2 + offset]->d)){
-					bool leftChild = particles[2 * i + 1 + offset]->d > particles[2 * i + 2 + offset]->d;
+				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane ||
+						   	particles[i + offset]->distToCamPlane < particles[2 * i + 2 + offset]->distToCamPlane))
+				{
+					bool leftChild = particles[2 * i + 1 + offset]->distToCamPlane > particles[2 * i + 2 + offset]->distToCamPlane;
 					swap(particles[i + offset], leftChild ? particles[2 * i + 1 + offset] : particles[2 * i + 2 + offset]);
 				}
-				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->d < particles[2 * i + 1 + offset]->d)
+				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane)
 					swap(particles[i + offset], particles[2 * i + 1 + offset]);
 			}
 			for(int i = 0; 2 * i + 1 < numParticles; i++){
-				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->d < particles[2 * i + 1 + offset]->d || particles[i + offset]->d < particles[2 * i + 2 + offset]->d))
+				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane ||
+						   	particles[i + offset]->distToCamPlane < particles[2 * i + 2 + offset]->distToCamPlane))
+				{
 					end = false;
-				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->d < particles[2 * i + 1 + offset]->d)
+				}
+				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane)
 					end = false;
 			}
 			if(end)
@@ -185,7 +190,7 @@ namespace vb01{
 
 			dir = dir.norm() * speed + gravity;
 			particles[i]->trans = particles[i]->trans + dir;
-			particles[i]->d = cos(camDir.getAngleBetween((particles[i]->trans - camPos).norm())) * camPos.getDistanceFrom(particles[i]->trans);
+			particles[i]->distToCamPlane = cos(camDir.getAngleBetween((particles[i]->trans - camPos).norm())) * camPos.getDistanceFrom(particles[i]->trans);
 
 			float lifePercentage = (float)(getTime() - particles[i]->time) / particles[i]->timeToLive;
 
