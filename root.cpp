@@ -5,7 +5,7 @@
 #include "box.h"
 #include "quad.h"
 
-#include <glad.h>
+#include "glad.h"
 #include <glfw3.h>
 #include <cstdlib>
 #include <iostream>

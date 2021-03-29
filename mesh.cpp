@@ -5,7 +5,7 @@
 #include "skeleton.h"
 #include "animation.h"
 
-#include <glad.h>
+#include "glad.h"
 #include <glfw3.h>
 #include <glm.hpp>
 #include <ext.hpp>

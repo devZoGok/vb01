@@ -5,7 +5,7 @@
 #include "node.h"
 #include "material.h"
 
-#include <glad.h>
+#include "glad.h"
 #include <glfw3.h>
 #include <iostream>
 #include <ft2build.h>

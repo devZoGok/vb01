@@ -6,7 +6,7 @@
 #include "material.h"
 #include "mesh.h"
 
-#include <glad.h>
+#include "glad.h"
 #include <glfw3.h>
 #include <ext.hpp>
 #include <iostream>

@@ -4,8 +4,9 @@
 
 #include "texture.h"
 
-#include <glad.h>
+#include "glad.h"
 #include <glfw3.h>
+#include <ft2build.h>
 #include <iostream>
 
 using namespace std;
