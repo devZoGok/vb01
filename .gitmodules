@@ -13,3 +13,6 @@
 [submodule "external/assimp"]
 	path = external/assimp
 	url = https://github.com/assimp/assimp
+[submodule "external/CppUnit"]
+	path = external/CppUnit
+	url = https://github.com/Ultimaker/CppUnit
