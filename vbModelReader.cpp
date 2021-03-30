@@ -171,7 +171,7 @@ namespace vb01{
 			string preColon = line.substr(0, colonId);
 			string postColon = line.substr(colonId + 2);
 
-			int numData = 13;
+			const int numData = 13;
 			string data[numData];
 			getLineData(postColon, data, numData);
 
@@ -361,16 +361,17 @@ namespace vb01{
 			){
 		for(string line : meshData){
 			int numData = 6 + numBones;
-			string data[numData];
+			string *data = new string[numData];
 			getLineData(line, data, numData);
 			Vector3 vPos = Vector3(atof(data[0].c_str()), atof(data[2].c_str()), -atof(data[1].c_str()));
 			Vector3 vNorm = Vector3(atof(data[3].c_str()), atof(data[5].c_str()), -atof(data[4].c_str()));
 			vertPos.push_back(vPos);
 			vertNorm.push_back(vNorm);
 
-			float weightCoefs[numBones];
+			float *weightCoefs = new float[numBones];
 			for(int i = 0; i < numBones; i++)
 				weightCoefs[i] = atof(data[6 + i].c_str());
+			delete[] data;
 
 			int numPosWeights = 0;
 			float sumWeightCoefs = 0;
@@ -382,6 +383,7 @@ namespace vb01{
 			float root = 1. / sumWeightCoefs;
 			for(int i = 0; i < numBones; i++)
 				vertWeights.push_back(root * weightCoefs[i]);
+			delete[] weightCoefs;
 		}
 	}
 
@@ -396,7 +398,7 @@ namespace vb01{
 			u32 *indices
 			){
 		for(int i = 0; i < meshData.size(); i++){
-			int numData = 9;
+			const int numData = 9;
 			string data[numData];
 			getLineData(meshData[i], data, numData);
 			int index = atoi(data[0].c_str());

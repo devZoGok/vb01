@@ -45,7 +45,7 @@ namespace vb01{
 		Bone *subBase = (Bone*)ikTarget->getParent();
 
 		Bone **boneChain = getIkBoneChain(ikBone);
-		Vector3 boneIkPos[chainLength];
+		Vector3 *boneIkPos = new Vector3[chainLength];
 		for(int i = chainLength - 1; i >= 0; i--)
 			boneIkPos[i] = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 
@@ -53,6 +53,7 @@ namespace vb01{
 		IkSolver::calculateFabrik(chainLength, boneChain, boneIkPos, targetPos);
 		transformIkChain(chainLength, boneChain, boneIkPos, ikTarget);
 
+		delete[] boneIkPos;
 		delete[] boneChain;
 	}
 

@@ -104,7 +104,8 @@ namespace vb01{
 	}
 	
 	void Shader::checkCompileErrors(u32 shader, ErrorType type){
-		int success, infoLogLen = 1024;
+		int success;
+	   	const int infoLogLen = 1024;
 		char infoLog[infoLogLen];
 		switch(type){
 			case PROGRAM_ERROR:
