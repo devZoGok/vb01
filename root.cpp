@@ -25,6 +25,12 @@ namespace vb01{
 		glViewport(0, 0, width, height);
 	}
 
+	void error_callback(int error, const char* msg) {
+		std::string s;
+		s = " [" + std::to_string(error) + "] " + msg + '\n';
+		std::cerr << s << std::endl;
+	}
+
 	Root::Root(){
 		rootNode = new Node(Vector3::VEC_ZERO);
 		guiNode = new Node(Vector3::VEC_ZERO);
@@ -46,13 +52,12 @@ namespace vb01{
 	}
 
 	void Root::initWindow(string name){
-		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwSetErrorCallback(error_callback);
+		if (GL_TRUE != glfwInit())
+			std::cerr << "Error initialising glfw" << std::endl;
 		window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
 		if(window == NULL){
-			cout << "Failed to load window.\n";
+			cout << "Failed to load window...\n";
 			exit(-1);
 		}
 		glfwMakeContextCurrent(window);
