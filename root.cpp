@@ -38,9 +38,10 @@ namespace vb01{
 		camera = new Camera();
 	}
 
-	void Root::start(int width, int height, string name){
+	void Root::start(int width, int height, string libPath, string name){
 		this->width = width;
 		this->height = height;
+		this->libPath = libPath;
 
 		initWindow(name);
 
@@ -93,7 +94,7 @@ namespace vb01{
 			cout << "Not complete\n";
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		string basePath = "../../vb01/blur.";
+		string basePath = libPath + "blur.";
 		blurShader = new Shader(basePath + "vert", basePath + "frag");
 		glGenFramebuffers(2, pingpongBuffers);
 		for(int i = 0; i < 2; i++){

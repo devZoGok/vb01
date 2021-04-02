@@ -23,7 +23,7 @@ include_directories(${STB_HEADERS})
 include_directories(external/glm)
 include_directories(external/glm/glm)
 
-add_library(${PROJECT_NAME} STATIC ${LIB_SRC})
+add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
 
 set(GLFW_DIR external/glfw)
 set(FREETYPE_DIR external/freetype)
@@ -59,7 +59,7 @@ add_subdirectory(${FREETYPE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_DIR}/include)
 target_link_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_LIB_DIR})
 
-set(DEPS glfw assimp freetype ${CMAKE_DL_LIBS})
+set(DEPS glfw3 assimp freetype ${CMAKE_DL_LIBS})
 
 target_link_libraries(${PROJECT_NAME} ${DEPS})
 

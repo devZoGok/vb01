@@ -22,7 +22,7 @@ namespace vb01{
 	}
 
 	void Material::initShader(){
-		string basePath = "../../vb01/", shaderName;
+		string basePath = Root::getSingleton()->getLibPath(), shaderName;
 		switch(type){
 			case MATERIAL_2D:
 				shaderName = "texture.";

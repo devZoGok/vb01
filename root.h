@@ -22,7 +22,7 @@ namespace vb01{
 	class Root{
 		public:
 			void update();
-			void start(int, int, std::string);
+			void start(int, int, std::string, std::string);
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
 			inline Node* getGuiNode(){return guiNode;}
@@ -41,6 +41,7 @@ namespace vb01{
 			static Root* getSingleton();
 			inline void shiftNumLights(bool increase){numLights += (increase ? 1 : -1);}
 			inline int getNumLights(){return numLights;}
+			inline std::string getLibPath(){return libPath;}
 		private:
 			int numLights = 0;
 			bool bloom = false, hdr = false;
@@ -55,6 +56,7 @@ namespace vb01{
 			Shader *blurShader;
 			Texture *pingPongTextures[2];
 			std::vector<Mesh*> meshes;
+			std::string libPath;
 
 			void framebuffer_size_callback(GLFWwindow*, int, int);
 			Root();
