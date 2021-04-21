@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.2)
 project(vb01)
 
 set(CMAKE_BUILD_TYPE Debug)
-set(STB_HEADERS external/stb/)
-set(INCLUDE_DIR include/)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS ON)
@@ -18,14 +16,14 @@ set(RENDER particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.
 set(MODEL modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.h keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(LIB_SRC glad.c ${RENDER} ${MATH} ${MODEL} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ANIM})
-
-include_directories(${STB_HEADERS})
+set(LIB_SRC ${RENDER} ${MATH} ${MODEL} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ANIM})
 
 include_directories(external/glm)
 include_directories(external/glm/glm)
+include_directories(external/glad)
+include_directories(external/stb)
 
-add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
+add_library(${PROJECT_NAME} SHARED external/glad/glad.c ${LIB_SRC})
 
 set(GLFW_DIR external/glfw)
 set(FREETYPE_DIR external/freetype)
