@@ -26,7 +26,7 @@ namespace vb01{
 		Animation *anim = new Animation("anim");
 		anim->addKeyframeChannel(kc);
 
-		channel = new AnimationChannel(controller);
+		channel = new AnimationChannel();
 		controller->addAnimationChannel(channel);
 		controller->addAnimation(anim);
 		channel->addAnimatable(bone);

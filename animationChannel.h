@@ -13,7 +13,7 @@ namespace vb01{
 
 	class AnimationChannel{
 		public:
-			AnimationChannel(AnimationController*);
+			AnimationChannel();
 			~AnimationChannel();
 			void update();
 			void setAnimationName(std::string name);
@@ -31,6 +31,7 @@ namespace vb01{
 			inline void setForward(bool forward){this->forward = forward;}
 			inline bool isForward(){return forward;}
 			inline std::string getAnimationName(){return animationName;}
+			inline void setAnimationController(AnimationController *controller){this->controller = controller;}
 		private:
 			inline bool canUpdate(){return getTime() - lastUpdateTime > updateRate;}
 			int getMaxKeyframeNum(std::string);

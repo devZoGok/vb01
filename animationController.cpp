@@ -40,4 +40,9 @@ namespace vb01{
 			}
 		return anim;
 	}
+
+	void AnimationController::addAnimationChannel(AnimationChannel *channel){
+		channels.push_back(channel);
+		channel->setAnimationController(this);
+	}
 }

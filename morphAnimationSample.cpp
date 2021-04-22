@@ -46,11 +46,11 @@ int main(){
 	Skeleton *skeleton = mesh->getSkeleton();
 
 	AnimationController *controller = skeleton->getAnimationController();
-	AnimationChannel *channel = new AnimationChannel(controller);
+	AnimationChannel *channel = new AnimationChannel();
+	controller->addAnimationChannel(channel);
 	channel->addAnimatable(skeleton->getBone("bone"));
 	channel->setAnimationName("morph");
 	channel->setLoop(true);
-	controller->addAnimationChannel(channel);
 
 	Box *box = new Box(Vector3(1, 1, 1) * .25);
 	Material *boxMat = new Material();

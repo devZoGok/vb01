@@ -95,11 +95,11 @@ int main(){
 
 		AnimationController *controller = textNode->getAnimationController();
 		controller->addAnimation(anim);
-		AnimationChannel *channel = new AnimationChannel(controller);
+		AnimationChannel *channel = new AnimationChannel();
+		controller->addAnimationChannel(channel);
 		channel->addAnimatable(texture);
 		channel->setAnimationName("tex");
 		channel->setLoop(true);
-		controller->addAnimationChannel(channel);
 	}
 
 	while(true){

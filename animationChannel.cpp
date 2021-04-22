@@ -4,8 +4,7 @@
 using namespace std;
 
 namespace vb01{
-	AnimationChannel::AnimationChannel(AnimationController *controller){
-		this->controller = controller;
+	AnimationChannel::AnimationChannel(){
 	}
 
 	AnimationChannel::~AnimationChannel(){

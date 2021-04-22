@@ -80,11 +80,19 @@ namespace vb01{
 		return keyframeChannel.keyframes[pastKeyframeId + (last ? 0 : 1)];
 	}
 
-	Keyframe KeyframeChannel::createKeyframe(KeyframeInterpolation interpolation, float frame, float value){
+	Keyframe KeyframeChannel::createKeyframe(KeyframeInterpolation interpolation, float value, float frame) {
 		Keyframe keyframe;
 		keyframe.interpolation = interpolation;
 		keyframe.frame = frame;
 		keyframe.value = value;
 		return keyframe;
+	}
+
+	KeyframeChannel KeyframeChannel::createKeyframeChannel(KeyframeChannelType type, Animatable *animatable, vector<Keyframe> keyframes){
+		KeyframeChannel keyframeChannel;
+		keyframeChannel.type = type;
+		keyframeChannel.animatable = animatable;
+		keyframeChannel.keyframes = keyframes;
+		return keyframeChannel;
 	}
 }

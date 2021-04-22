@@ -45,12 +45,12 @@ int main(){
 	Skeleton *skeleton = mesh->getSkeleton();
 
 	AnimationController *controller = skeleton->getAnimationController();
-	AnimationChannel *channel = new AnimationChannel(controller);
+	AnimationChannel *channel = new AnimationChannel();
+	controller->addAnimationChannel(channel);
 	channel->addAnimatable(skeleton->getBone("handIK.R"));
 	channel->addAnimatable(skeleton->getBone("elbowIK.R"));
 	channel->setAnimationName("righArmAnim");
 	channel->setLoop(true);
-	controller->addAnimationChannel(channel);
 
 	skeleton->getBone("handIK.L")->setPosePos(Vector3(1.5, -1.5, 0));
 
