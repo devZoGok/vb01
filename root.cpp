@@ -123,10 +123,10 @@ namespace vb01{
 
 		if(skybox){
 			glDepthMask(GL_FALSE);
-			//glCullFace(GL_FRONT);
+			glCullFace(GL_FRONT);
 			skybox->update();
 			glDepthMask(GL_TRUE);
-			//glCullFace(GL_BACK);
+			glCullFace(GL_BACK);
 		}
 
 		rootNode->update();

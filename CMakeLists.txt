@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS ON)
 set(BUILD_SAMPLES ON)
+set(LIB_NAME vb01)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 cmake_policy(SET CMP0015 NEW)
@@ -24,7 +25,7 @@ include_directories(external/glm/glm)
 include_directories(external/glad)
 include_directories(external/stb)
 
-add_library(vb01 SHARED external/glad/glad.c ${LIB_SRC})
+add_library(${LIB_NAME} SHARED external/glad/glad.c ${LIB_SRC})
 
 set(GLFW_DIR external/glfw)
 set(FREETYPE_DIR external/freetype)
@@ -39,22 +40,22 @@ endif()
 
 add_subdirectory(${GLFW_DIR})
 set(GLFW_LIB_DIR build/${GLFW_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_DIR}/include/GLFW)
-target_link_directories(${PROJECT_NAME} PUBLIC ${GLFW_LIB_DIR})
+target_include_directories(${LIB_NAME} PUBLIC ${GLFW_DIR}/include/GLFW)
+target_link_directories(${LIB_NAME} PUBLIC ${GLFW_LIB_DIR})
 
 add_subdirectory(${ASSIMP_DIR})
 set(ASSIMP_LIB_DIR build/${ASSIMP_DIR}/lib)
-target_include_directories(${PROJECT_NAME} PUBLIC ${ASSIMP_DIR}/include/assimp)
-target_link_directories(${PROJECT_NAME} PUBLIC ${ASSIMP_LIB_DIR})
+target_include_directories(${LIB_NAME} PUBLIC ${ASSIMP_DIR}/include/assimp)
+target_link_directories(${LIB_NAME} PUBLIC ${ASSIMP_LIB_DIR})
 
 set(FREETYPE_LIB_DIR build/${FREETYPE_DIR})
 add_subdirectory(${FREETYPE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_DIR}/include)
-target_link_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_LIB_DIR})
+target_include_directories(${LIB_NAME} PUBLIC ${FREETYPE_DIR}/include)
+target_link_directories(${LIB_NAME} PUBLIC ${FREETYPE_LIB_DIR})
 
 set(DEPS glfw assimp freetype ${CMAKE_DL_LIBS})
 
-target_link_libraries(${PROJECT_NAME} ${DEPS})
+target_link_libraries(${LIB_NAME} ${DEPS})
 
 if(BUILD_TESTS)
 	if(UNIX)
@@ -72,10 +73,19 @@ if(BUILD_TESTS)
 	set(TEST_SRC main.cpp ${LIB_SRC} ${RENDER_TEST} ${ARMATURE_TEST} ${MODEL_TEST} ${ANIMATION_TEST})
 	
 	add_executable(vb01Tests ${TEST_SRC})
-	target_link_libraries(vb01Tests ${PROJECT_NAME} ${DEPS} cppunit)
+	target_link_libraries(vb01Tests ${LIB_NAME} ${DEPS} cppunit)
 endif()
 
 if(BUILD_SAMPLES)
 	add_executable(textSample textSample.cpp)
-	target_link_libraries(textSample ${PROJECT_NAME})
+	target_link_libraries(textSample ${LIB_NAME})
+
+	add_executable(skeletalAnimationSample skeletalAnimationSample.cpp)
+	target_link_libraries(skeletalAnimationSample ${LIB_NAME})
+
+	add_executable(morphAnimationSample morphAnimationSample.cpp)
+	target_link_libraries(morphAnimationSample ${LIB_NAME})
+
+	add_executable(lightSample lightSample.cpp)
+	target_link_libraries(lightSample ${LIB_NAME})
 endif()

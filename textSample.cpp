@@ -13,8 +13,8 @@ using namespace vb01;
 int main(){
 	Root *root = Root::getSingleton();
 	Node *guiNode = root->getGuiNode();
-	const string PATH = "../", FONT_PATH = PATH + "samples/textSample/fonts/", TEX_PATH = PATH + "samples/textSample/textures/";
-	root->start(800, 600, PATH, "TextSample");
+	const string PATH = "../", FONT_PATH = PATH + "samples/textSample/fonts/", TEX_PATH = PATH + "samples/textures/";
+	root->start(800, 600, PATH, "Text sample");
 
 	int numTexts = 4;
 	wstring texts[] = {
@@ -61,11 +61,7 @@ int main(){
 		KeyframeChannel kcA;
 		kcA.animatable = texture;
 		kcA.type = KeyframeChannel::TEXTURE_FRAME_A;
-		Keyframe k0;
-		k0.interpolation = Keyframe::CONSTANT;
-		k0.value = 0;
-		k0.frame = 1;
-		kcA.keyframes = vector<Keyframe>({k0});
+		kcA.keyframes = vector<Keyframe>({KeyframeChannel::createKeyframe(Keyframe::CONSTANT, 0, 1)});
 		
 		KeyframeChannel kcB;
 		kcB.animatable = texture;

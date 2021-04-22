@@ -23,7 +23,7 @@ namespace vb01{
 	float KeyframeChannel::interpolateBezier(vector<float> points, float ratio){
 		int numPoints = points.size();
 		vector<float> newPoints;
-for(int i = 0; i < numPoints - 1; i++)
+		for(int i = 0; i < numPoints - 1; i++)
 			newPoints.push_back(points[i] + (points[i + 1] - points[i]) * ratio);
 		
 		if(newPoints.size() >= 2)
@@ -78,5 +78,13 @@ for(int i = 0; i < numPoints - 1; i++)
 			}
 		}
 		return keyframeChannel.keyframes[pastKeyframeId + (last ? 0 : 1)];
+	}
+
+	Keyframe KeyframeChannel::createKeyframe(KeyframeInterpolation interpolation, float frame, float value){
+		Keyframe keyframe;
+		keyframe.interpolation = interpolation;
+		keyframe.frame = frame;
+		keyframe.value = value;
+		return keyframe;
 	}
 }
