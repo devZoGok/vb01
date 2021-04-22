@@ -32,6 +32,8 @@ namespace vb01{
 			inline std::wstring getText(){return entry;}
 			inline bool isHorizontal(){return horizontal;}
 			inline void setHorizontal(bool h){this->horizontal = h;}
+			inline bool isLeftToRight(){return leftToRight;}
+			inline void setLeftToRight(bool ltr){this->leftToRight = ltr;}
 			inline Material* getMaterial(){return material;}
 			inline void setMaterial(Material *mat){this->material = mat;}
 		private:
@@ -46,7 +48,7 @@ namespace vb01{
 			std::vector<Glyph> characters;
 			unsigned int VAO, VBO;
 			float scale = 1;
-			bool horizontal = true;
+			bool horizontal = true, leftToRight = true;
 	};
 }
 

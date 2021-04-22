@@ -8,6 +8,7 @@
 #include "glad.h"
 #include <glfw3.h>
 #include <iostream>
+#include <algorithm>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -64,7 +65,7 @@ namespace vb01{
 		shader->setVec3(node->getPosition(), "pos");
 
 		Vector2 advanceOffset = Vector2::VEC_ZERO;
-		for(int i = 0; i < entry.length(); i++){
+		for(int i = (leftToRight ? 0 : entry.length() - 1); (leftToRight ? (i < entry.length()) : (i >= 0)); (leftToRight ? i++ : i--)){
 			Glyph *glyphPtr = getGlyph(entry[i]);
 			if(!glyphPtr)
 				continue;
@@ -81,8 +82,7 @@ namespace vb01{
 
 	void Text::prepareGlyphs(Glyph glyph, Vector2 advanceOffset){
 		Vector3 nodePos = node->getPosition();
-		Vector2 origin = Vector2(nodePos.x, nodePos.y);
-		origin = origin + (advanceOffset * scale);
+		Vector2 origin = Vector2(nodePos.x, nodePos.y) + (advanceOffset * scale);
 
 		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
 		float data[] = {

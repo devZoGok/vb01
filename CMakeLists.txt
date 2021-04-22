@@ -5,6 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS ON)
+set(BUILD_SAMPLES ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 cmake_policy(SET CMP0015 NEW)
@@ -23,7 +24,7 @@ include_directories(external/glm/glm)
 include_directories(external/glad)
 include_directories(external/stb)
 
-add_library(${PROJECT_NAME} SHARED external/glad/glad.c ${LIB_SRC})
+add_library(vb01 SHARED external/glad/glad.c ${LIB_SRC})
 
 set(GLFW_DIR external/glfw)
 set(FREETYPE_DIR external/freetype)
@@ -72,4 +73,9 @@ if(BUILD_TESTS)
 	
 	add_executable(vb01Tests ${TEST_SRC})
 	target_link_libraries(vb01Tests ${PROJECT_NAME} ${DEPS} cppunit)
+endif()
+
+if(BUILD_SAMPLES)
+	add_executable(textSample textSample.cpp)
+	target_link_libraries(textSample ${PROJECT_NAME})
 endif()
