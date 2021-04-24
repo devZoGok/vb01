@@ -96,8 +96,8 @@ namespace vb01{
 			shader->setBool(lightingEnabled, "lightingEnabled");
 			shader->setBool(normalMapEnabled, "normalMapEnabled");
 			for(int i = 0; i < 4; i++){
-				shader->setInt(TEXTURE_SLOTS[i], "textures[" + to_string(TEXTURE_SLOTS[i]) + "].pastTexture");
-				shader->setInt(TEXTURE_SLOTS[i] + 1, "textures[" + to_string(TEXTURE_SLOTS[i]) + "].nextTexture");
+				shader->setInt(TEXTURE_SLOTS[i], "textures[" + to_string(i) + "].pastTexture");
+				shader->setInt(TEXTURE_SLOTS[i] + 1, "textures[" + to_string(i) + "].nextTexture");
 			}
 			shader->setInt(TEXTURE_SLOTS[4], "environmentMap");
 		}
@@ -121,7 +121,7 @@ namespace vb01{
 
 			for(Texture *t : textures){
 				int id = t->getTextureTypeId() * 2;
-				shader->setBool(t->getNumFrames() > 0, "textures[" + to_string(id) + "].animated");
+				shader->setBool(t->getNumFrames() > 1, "textures[" + to_string(id) + "].animated");
 				shader->setFloat(t->getMixRatio(), "textures[" + to_string(id) + "].mixRatio");
 				t->update(id);
 			}

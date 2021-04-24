@@ -78,6 +78,7 @@ void main(){
 	vec4 finalColor = diffuseColor;
 	if(texturingEnabled){
 		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
+		vec4 mixedTexColor = mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio);
 		finalColor = (textures[0].animated ? mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio) : textureColor);
 	}
 
@@ -85,12 +86,13 @@ void main(){
 	if(lightingEnabled){
 		if(normalMapEnabled){
 			vec3 n = vec3(texture(textures[1].pastTexture, texCoords));
+			if(textures[1].animated)
+				n = mix(n, texture(textures[1].nextTexture, texCoords).rgb, textures[1].mixRatio);
 			normal = mat3(tan, biTan, norm) * n;
 		}
 
 		vec3 diffuseColor = vec3(0), specularColor = vec3(0);
 		float coef = 1;
-
 
 		for(int i = 0; i < numLights; i++){
 			vec3 lightDir = vec3(0), reflectVec, viewDir = normalize(camPos - fragPos);

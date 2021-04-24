@@ -3,6 +3,7 @@
 #include "material.h"
 #include "node.h"
 #include "light.h"
+#include "model.h"
 #include "animation.h"
 #include "animationController.h"
 #include "animationChannel.h"
@@ -27,29 +28,31 @@ int main(){
 	Node *rootNode = root->getRootNode();
 
 	Camera *cam = root->getCamera();
-	cam->setPosition(Vector3(0, 1, 1) * 30);
+	cam->setPosition(Vector3(0, 1, 1) * 20);
 	cam->lookAt(Vector3(0, -1, -1).norm(), Vector3(0, 1, -1).norm());
 
-	Box *box = new Box(Vector3(20, 1, 20));
-	Node *boxNode = new Node();
+	Model *box = new Model(MODEL_PATH + "platform.vb");
 
 	Material *mat = new Material();
 	mat->setTexturingEnabled(true);
 	mat->setLightingEnabled(true);
-	string images[] = {TEX_PATH + "bricks.jpg"};
-	Texture *texture = new Texture(images, 1);
-	mat->addDiffuseMap(texture);
+	mat->setNormalMapEnabled(true);
+	string im0[] = {TEX_PATH + "bricks.jpg"};
+	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
+	Texture *diffuseTex = new Texture(im0, 1);
+	mat->addDiffuseMap(diffuseTex);
+	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
+	mat->addNormalMap(normalTex);
 	box->setMaterial(mat);
 
-	boxNode->attachMesh(box);
-	rootNode->attachChild(boxNode);
+	rootNode->attachChild(box);
 
 	Light *light = new Light(Light::SPOT);
 	light->setColor(Vector3(1, 1, 1));
 	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(1.57, Vector3(1, 0, 0)));
+	lightNode->setOrientation(Quaternion(1.2, Vector3(1, 0, 0)));
 	lightNode->setPosition(Vector3(0, 5, 0));
 
 	KeyframeChannel kcA;
