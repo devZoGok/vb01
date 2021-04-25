@@ -27,7 +27,10 @@ namespace vb01{
 			inline void setTexturingEnabled(bool texturing){this->texturingEnabled = texturing;}
 			inline void setDiffuseColorEnabled(bool diffuseColor){this->diffuseColorEnabled = diffuseColor;}
 			inline void setNormalMapEnabled(bool enabled){this->normalMapEnabled = enabled;}
+			inline void setSpecularMapEnabled(bool enabled){this->specularMapEnabled = enabled;}
 			inline void setParallaxMapEnabled(bool enabled){this->parallaxMapEnabled = enabled;}
+			inline void setShinyness(int shinyness){this->shinyness = shinyness;}
+			inline void setSpecularStrength(float specStr){this->specularStrength = specStr;}
 			inline bool isLightingEnabled(){return lightingEnabled;}
 			inline bool isTexturingEnabled(){return texturingEnabled;}
 			inline bool isDiffuseColorEnabled(){return diffuseColorEnabled;}
@@ -38,9 +41,11 @@ namespace vb01{
 			inline Type getType(){return type;}
 		private:
 			Type type;
-			bool lightingEnabled = false, texturingEnabled = true, diffuseColorEnabled = false, normalMapEnabled = false, parallaxMapEnabled = false;
+			int shinyness = 32;
+			float specularStrength = .5;
+			bool lightingEnabled = false, texturingEnabled = true, diffuseColorEnabled = false, normalMapEnabled = false, specularMapEnabled = false, parallaxMapEnabled = false;
 			std::vector<Texture*> diffuseMapTextures, normalMapTextures, specularMapTextures, parallaxMapTextures;
-			Vector4 diffuseColor = Vector4::VEC_IJKL, specularColor = Vector4::VEC_IJKL;
+			Vector4 diffuseColor = Vector4::VEC_IJKL, specularColor = Vector4::VEC_ZERO;
 			Shader *shader = nullptr;
 
 			void initShader();

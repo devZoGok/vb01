@@ -95,6 +95,10 @@ namespace vb01{
 		if(type == MATERIAL_2D){
 			shader->setBool(lightingEnabled, "lightingEnabled");
 			shader->setBool(normalMapEnabled, "normalMapEnabled");
+			shader->setBool(specularMapEnabled, "specularMapEnabled");
+			shader->setInt(shinyness, "shinyness");
+			shader->setFloat(specularStrength, "specularStrength");
+			shader->setVec4(specularColor, "specularColor");
 			for(int i = 0; i < 4; i++){
 				shader->setInt(TEXTURE_SLOTS[i], "textures[" + to_string(i) + "].pastTexture");
 				shader->setInt(TEXTURE_SLOTS[i] + 1, "textures[" + to_string(i) + "].nextTexture");
@@ -120,10 +124,10 @@ namespace vb01{
 			textures.insert(textures.end(), parallaxMapTextures.begin(), parallaxMapTextures.end());
 
 			for(Texture *t : textures){
-				int id = t->getTextureTypeId() * 2;
+				int id = t->getTextureTypeId();
 				shader->setBool(t->getNumFrames() > 1, "textures[" + to_string(id) + "].animated");
 				shader->setFloat(t->getMixRatio(), "textures[" + to_string(id) + "].mixRatio");
-				t->update(id);
+				t->update(2 * id);
 			}
 		}
 		else 

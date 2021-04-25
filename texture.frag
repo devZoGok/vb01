@@ -32,44 +32,40 @@ struct Texture{
 uniform Texture textures[4];
 uniform samplerCube environmentMap;
 uniform Light light[numLights];
-uniform bool lightingEnabled;
-uniform bool texturingEnabled;
-uniform bool normalMapEnabled;
-uniform bool castShadow;
-uniform bool environmentMapEnabled;
-uniform vec4 diffuseColor;
-uniform float specularStrength;
+uniform bool lightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
+uniform vec4 diffuseColor, specularColor;
+uniform float shinyness, specularStrength;
 uniform vec3 camPos;
 
-float linDepth(float depth,int i){
-	float z=depth*2-1,near=light[i].near,far=light[i].far;
-	return (2*near*far)/(far+near-z*(far-near));
+float linDepth(float depth, int i){
+	float z = depth * 2 - 1, near = light[i].near, far = light[i].far;
+	return (2 * near * far) / (far + near - z * (far - near));
 }
 
 float getShadow(int id){
-	int type=light[id].type;
+	int type = light[id].type;
 
-	float shadow=0,closestDepth=0,currentDepth=0,bias=.005,val=.7;
-	if(type==0){
-		vec3 projDir=fragPos-light[id].pos;
-		closestDepth=texture(light[id].depthMapCube,projDir).r*light[id].far;
-		currentDepth=length(projDir);
-		shadow=(currentDepth-bias>closestDepth)?val:0;
+	float shadow = 0, closestDepth = 0, currentDepth = 0, bias = .005, val = .7;
+	if(type == 0){
+		vec3 projDir = fragPos - light[id].pos;
+		closestDepth = texture(light[id].depthMapCube, projDir).r * light[id].far;
+		currentDepth = length(projDir);
+		shadow = (currentDepth - bias > closestDepth) ? val : 0;
 	}
 /*
 */
 	else{
-		vec3 projCoords=(light[id].lightMat*vec4(fragPos,1)).xyz/(light[id].lightMat*vec4(fragPos,1)).w;
-		projCoords=projCoords*.5+.5;
-		closestDepth=texture(light[id].depthMap,projCoords.xy).r;
-		currentDepth=projCoords.z;
-		if(type==2){
-			closestDepth=linDepth(closestDepth,id);
-			currentDepth=linDepth(currentDepth,id);
+		vec3 projCoords = (light[id].lightMat * vec4(fragPos, 1)).xyz / (light[id].lightMat * vec4(fragPos, 1)).w;
+		projCoords = projCoords * .5 + .5;
+		closestDepth = texture(light[id].depthMap, projCoords.xy).r;
+		currentDepth = projCoords.z;
+		if(type == 2){
+			closestDepth = linDepth(closestDepth, id);
+			currentDepth = linDepth(currentDepth, id);
 		}
-		shadow=(currentDepth-bias>closestDepth)?val:0;
-		if(projCoords.z>1)
-			shadow=0;
+		shadow = (currentDepth - bias > closestDepth) ? val : 0;
+		if(projCoords.z > 1)
+			shadow = 0;
 	}
 	return shadow;
 }
@@ -91,15 +87,13 @@ void main(){
 			normal = mat3(tan, biTan, norm) * n;
 		}
 
-		vec3 diffuseColor = vec3(0), specularColor = vec3(0);
-		float coef = 1;
+		vec3 diffuseCol = vec3(0), specularCol = vec3(0);
 
 		for(int i = 0; i < numLights; i++){
-			vec3 lightDir = vec3(0), reflectVec, viewDir = normalize(camPos - fragPos);
+			vec3 lightDir = vec3(0), viewDir = normalize(camPos - fragPos);
 			float attenuation = 1.0;
-			float factor;
-			float a = light[i].a, b = light[i].b, c = light[i].c, dist = length(fragPos - light[i].pos);
-			coef = 1;
+			float a = light[i].a, b = light[i].b, c = light[i].c, dist = length(fragPos - light[i].pos), factor, coef = 1;
+
 			if(light[i].type == 0){
 				lightDir = normalize(light[i].pos - fragPos);
 				attenuation = 1.0 / (a * dist * dist + b * dist + c);
@@ -116,31 +110,35 @@ void main(){
 					coef = (angle - outerAngle) / (innerAngle - outerAngle);
 				}
 				if(angle > light[i].outerAngle){
-					coef = 0;	
+					continue;
 				}
 			}
-			float specularSample = texture(textures[2].pastTexture, texCoords).r;
-			reflectVec = reflect(lightDir, normal);
-			float spec = pow(max(dot(viewDir, reflectVec), 0), 32);	
-			specularColor += vec3(1) * spec * specularSample;
 
 			factor = max(dot(lightDir, normal), 0.);
-			diffuseColor += light[i].color * (factor * attenuation * coef);
-		}	
+			diffuseCol += light[i].color * (factor * attenuation * coef);
+
+			if(specularMapEnabled){
+				float specularSample = texture(textures[2].pastTexture, texCoords).r;
+				vec3 halfwayVec = normalize(lightDir + viewDir);
+				float spec = pow(max(dot(normal, halfwayVec), 0), shinyness);	
+				specularCol += specularStrength * spec * specularSample * light[i].color;
+			}
+		}
 
 /*
 		for(int i = 0; i < numLights; i++){
 			float shadow = getShadow(i);
-			diffuseColor *= (1 - shadow);
+			diffuseCol *= (1 - shadow);
 		}
 */
 		if(environmentMapEnabled){
 			vec3 projDir = normalize(fragPos - camPos);
 			projDir = reflect(projDir, norm);
 			vec3 sample = texture(environmentMap, projDir).rgb;
-			diffuseColor.rgb += sample;
+			diffuseCol.rgb += sample;
 		}
-		finalColor *= vec4(diffuseColor + specularColor, 1);
+
+		finalColor *= vec4(diffuseCol + specularCol, 1);
 	}
 
 	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));

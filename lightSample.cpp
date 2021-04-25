@@ -37,12 +37,22 @@ int main(){
 	mat->setTexturingEnabled(true);
 	mat->setLightingEnabled(true);
 	mat->setNormalMapEnabled(true);
+	mat->setSpecularMapEnabled(true);
+
 	string im0[] = {TEX_PATH + "bricks.jpg"};
-	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *diffuseTex = new Texture(im0, 1);
 	mat->addDiffuseMap(diffuseTex);
+
+	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
 	mat->addNormalMap(normalTex);
+	
+	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
+	Texture *specularTex = new Texture(im2, 1, Texture::SPECULAR);
+	mat->addSpecularMap(specularTex);
+
+	mat->setSpecularStrength(1);
+	mat->setShinyness(2);
 	box->setMaterial(mat);
 
 	rootNode->attachChild(box);
@@ -52,8 +62,8 @@ int main(){
 	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(1.2, Vector3(1, 0, 0)));
-	lightNode->setPosition(Vector3(0, 5, 0));
+	lightNode->setOrientation(Quaternion(.7, Vector3(1, 0, 0)));
+	lightNode->setPosition(Vector3(0, 5, -5));
 
 	KeyframeChannel kcA;
 	kcA.animatable = light;
