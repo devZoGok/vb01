@@ -88,4 +88,7 @@ if(BUILD_SAMPLES)
 
 	add_executable(lightSample lightSample.cpp)
 	target_link_libraries(lightSample ${LIB_NAME})
+
+	add_executable(shadowSample shadowSample.cpp)
+	target_link_libraries(shadowSample ${LIB_NAME})
 endif()

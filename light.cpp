@@ -102,7 +102,9 @@ namespace vb01{
 
 	void Light::renderShadow(std::vector<Node*> descendants, mat4 &proj, mat4 &view){
 		Root *root = Root::getSingleton();
-		Vector3 position = node->getPosition(), direction = node->getGlobalAxis(2);
+		Vector3 position = node->getPosition(),
+			   	upDir = node->getGlobalAxis(1),
+			   	direction = node->getGlobalAxis(2);
 
 		glViewport(0, 0, depthMapSize, depthMapSize);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
@@ -122,22 +124,18 @@ namespace vb01{
 					mat4 model = translate(mat4(1.f), vec3(pos.x, pos.y, pos.z));
 					model = rotate(model, rot.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
 
-					vec3 lightPos, dir = vec3(direction.x, direction.y, direction.z);
+					vec3 lightPos = vec3(position.x, position.y, position.z),
+						 dir = vec3(direction.x, direction.y, direction.z),
+						 up = vec3(upDir.x, upDir.y, upDir.z);
+					view = lookAt(lightPos, lightPos + dir, up);
+
 					if(type == DIRECTIONAL){
-						lightPos = vec3(pos.x, pos.y, pos.z) - .5f * farPlane * dir;
 						float orthoCorner = 10.f;
 						proj = ortho(-orthoCorner, orthoCorner, -orthoCorner, orthoCorner, nearPlane, farPlane);
 					}
-					else{
-						lightPos = vec3(position.x, position.y, position.z);
+					else
 						proj = perspective(radians(90.f), 1.f, nearPlane, farPlane);
-					}
 					
-					Vector3 upDir = direction.cross(Vector3(0, 1, 0));
-					if(upDir == Vector3::VEC_ZERO)
-						upDir = Vector3::VEC_I;
-					vec3 up = vec3(upDir.x, upDir.y, upDir.z);
-					view = lookAt(lightPos, lightPos + dir, up);
 
 					depthMapShader->use();
 					depthMapShader->setBool(type == POINT, "point");

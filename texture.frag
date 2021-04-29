@@ -126,11 +126,11 @@ void main(){
 		}
 
 /*
+*/
 		for(int i = 0; i < numLights; i++){
 			float shadow = getShadow(i);
 			diffuseCol *= (1 - shadow);
 		}
-*/
 		if(environmentMapEnabled){
 			vec3 projDir = normalize(fragPos - camPos);
 			projDir = reflect(projDir, norm);
