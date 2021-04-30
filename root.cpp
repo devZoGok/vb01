@@ -149,9 +149,6 @@ namespace vb01{
 	}
 
 	void Root::updateBloomFramebuffer(){
-		Material *material = guiPlane->getMaterial();
-		Shader *shader = material->getShader();
-
 		bool horizontal = false;
 		blurShader->use();
 		blurShader->setVec2(Vector2(width, height), "screen");
@@ -159,13 +156,16 @@ namespace vb01{
 			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[horizontal]);
 			blurShader->setBool(horizontal, "horizontal");
 			if(i == 0)
-				glBindTexture(GL_TEXTURE_2D, *(material->getDiffuseMap(1)->getTexture()));
+				glBindTexture(GL_TEXTURE_2D, *(guiPlane->getMaterial()->getDiffuseMap(1)->getTexture()));
 			else
 				pingPongTextures[!horizontal]->select();
 			guiPlane->render();
 			horizontal = !horizontal;
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		Material *material = guiPlane->getMaterial();
+		Shader *shader = material->getShader();
 
 		shader->use();
 		shader->setVec2(Vector2(width, height), "screen");

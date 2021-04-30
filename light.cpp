@@ -51,7 +51,7 @@ namespace vb01{
 	}
 
 	void Light::initDepthMap(){
-		string basePath = "../../vb01/depthMap.";
+		string basePath = Root::getSingleton()->getLibPath() + "depthMap.";
 
 		glGenFramebuffers(1, &depthmapFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
@@ -69,7 +69,7 @@ namespace vb01{
 		glReadBuffer(GL_NONE);
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Not complete\n";
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, *(Root::getSingleton()->getFBO()));
 	}
 
 	void Light::update(){
@@ -106,9 +106,24 @@ namespace vb01{
 			   	upDir = node->getGlobalAxis(1),
 			   	direction = node->getGlobalAxis(2);
 
+		vec3 lightPos = vec3(position.x, position.y, position.z),
+			 dir = vec3(direction.x, direction.y, direction.z),
+			 up = vec3(upDir.x, upDir.y, upDir.z);
+		view = lookAt(lightPos, lightPos + dir, up);
+
+		if(type == DIRECTIONAL){
+			float orthoCorner = 10.f;
+			proj = ortho(-orthoCorner, orthoCorner, -orthoCorner, orthoCorner, nearPlane, farPlane);
+		}
+		else
+			proj = perspective(radians(90.f), 1.f, nearPlane, farPlane);
+
+		depthMapShader->use();
+		depthMapShader->setBool(type == POINT, "point");
+
 		glViewport(0, 0, depthMapSize, depthMapSize);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		for(Node *n : descendants){
 			vector<Mesh*> meshes = n->getMeshes();
@@ -124,24 +139,8 @@ namespace vb01{
 					mat4 model = translate(mat4(1.f), vec3(pos.x, pos.y, pos.z));
 					model = rotate(model, rot.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
 
-					vec3 lightPos = vec3(position.x, position.y, position.z),
-						 dir = vec3(direction.x, direction.y, direction.z),
-						 up = vec3(upDir.x, upDir.y, upDir.z);
-					view = lookAt(lightPos, lightPos + dir, up);
-
-					if(type == DIRECTIONAL){
-						float orthoCorner = 10.f;
-						proj = ortho(-orthoCorner, orthoCorner, -orthoCorner, orthoCorner, nearPlane, farPlane);
-					}
-					else
-						proj = perspective(radians(90.f), 1.f, nearPlane, farPlane);
-					
-
-					depthMapShader->use();
-					depthMapShader->setBool(type == POINT, "point");
 					depthMapShader->setMat4(model, "model");
-					depthMapShader->setFloat(farPlane, "farPlane");
-					depthMapShader->setVec3(position, "lightPos");
+
 					if(type == POINT){
 						vec3 dirs[] = {vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
 						for(int i = 0; i < 6; i++){
@@ -152,6 +151,9 @@ namespace vb01{
 								upVec = vec3(0, -1, 0);
 							depthMapShader->setMat4(proj * lookAt(lightPos, lightPos + dirs[i], upVec), "shadowMat[" + to_string(i) + "]");
 						}
+
+						depthMapShader->setFloat(farPlane, "farPlane");
+						depthMapShader->setVec3(position, "lightPos");
 					}
 					else
 						depthMapShader->setMat4(proj * view, "lightMat");
@@ -160,6 +162,7 @@ namespace vb01{
 				}
 			}
 		}
+
 		glBindFramebuffer(GL_FRAMEBUFFER, *(root->getFBO()));
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 	}
@@ -173,9 +176,8 @@ namespace vb01{
 			shader->setVec3(color, "light[" + to_string(thisId) + "].color");
 			shader->setFloat(nearPlane, "light[" + to_string(thisId) + "].near");
 			shader->setFloat(farPlane, "light[" + to_string(thisId) + "].far");
-			shader->setInt(12, "light[" + to_string(thisId) + "].depthMapCube");
-			shader->setInt(13, "light[" + to_string(thisId) + "].depthMap");
-			depthMap->select(type == POINT ? 12 : 13);
+			shader->setInt(12, "light[" + to_string(thisId) + "].depthMap" + (type == POINT ? "Cube" : ""));
+			depthMap->select(12);
 
 			switch(type){
 				case POINT:
