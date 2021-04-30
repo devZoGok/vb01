@@ -61,9 +61,11 @@ namespace vb01{
 			void framebuffer_size_callback(GLFWwindow*, int, int);
 			Root();
 			void initWindow(std::string);
-			void initBloomFramebuffer(Texture*, Texture*);
+			void initMainFramebuffer(Texture*, Texture*);
+			void initBloomFramebuffer();
 			void initGuiPlane(Texture*, Texture*);
 			void updateBloomFramebuffer();
+			void updateGuiPlane();
 	};
 }
 

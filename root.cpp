@@ -48,7 +48,8 @@ namespace vb01{
 		Texture *fragTexture = new Texture(width, height, false);
 		Texture *brightTexture = new Texture(width, height, false);
 
-		initBloomFramebuffer(fragTexture, brightTexture);
+		initMainFramebuffer(fragTexture, brightTexture);
+		initBloomFramebuffer();
 		initGuiPlane(fragTexture, brightTexture);
 	}
 
@@ -76,24 +77,26 @@ namespace vb01{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	void Root::initBloomFramebuffer(Texture *fragTexture, Texture *brightTexture){
+	void Root::initMainFramebuffer(Texture *fragTexture, Texture *brightTexture){
 		glGenFramebuffers(1, &FBO);
-		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-		for(int i = 0; i < 2; i++)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
 		u32 colorAttachments[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+		for(int i = 0; i < 2; i++)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachments[i], GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
 		glDrawBuffers(2, colorAttachments);
 
 		glGenRenderbuffers(1, &RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,RBO);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Not complete\n";
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
+	void Root::initBloomFramebuffer(){
 		string basePath = libPath + "blur.";
 		blurShader = new Shader(basePath + "vert", basePath + "frag");
 		glGenFramebuffers(2, pingpongBuffers);
@@ -115,7 +118,7 @@ namespace vb01{
 	}
 
 	void Root::update(){
-		glBindFramebuffer(GL_FRAMEBUFFER,FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
@@ -138,8 +141,7 @@ namespace vb01{
 		glDisable(GL_DEPTH_TEST);
 
 		updateBloomFramebuffer();
-
-		guiPlane->render();
+		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
 		guiNode->update();
@@ -156,14 +158,16 @@ namespace vb01{
 			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[horizontal]);
 			blurShader->setBool(horizontal, "horizontal");
 			if(i == 0)
-				glBindTexture(GL_TEXTURE_2D, *(guiPlane->getMaterial()->getDiffuseMap(1)->getTexture()));
+				guiPlane->getMaterial()->getDiffuseMap(1)->select();
 			else
 				pingPongTextures[!horizontal]->select();
 			guiPlane->render();
 			horizontal = !horizontal;
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
+	void Root::updateGuiPlane(){
 		Material *material = guiPlane->getMaterial();
 		Shader *shader = material->getShader();
 
@@ -173,12 +177,12 @@ namespace vb01{
 		shader->setBool(hdr, "hdr");
 		shader->setFloat(exposure, "exposure");
 		shader->setFloat(gamma, "gamma");
-
-		material->getDiffuseMap(0)->select();
-		pingPongTextures[!horizontal]->select(1);
-
 		shader->setInt(0, "frag");
 		shader->setInt(1, "bright");
+
+		material->getDiffuseMap(0)->select(0);
+		material->getDiffuseMap(1)->select(1);
+		guiPlane->render();
 	}
 
 	void Root::createSkybox(string textures[6]){
