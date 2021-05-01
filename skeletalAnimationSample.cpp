@@ -11,6 +11,7 @@ using namespace vb01;
 
 int main(){
 	const string PATH = "../", TEX_PATH = PATH + "samples/textures/", MODEL_PATH = PATH + "samples/models/";
+
 	string skyboxTextures[] = {
 		TEX_PATH + "top.jpg",
 		TEX_PATH + "bottom.jpg",
@@ -20,11 +21,18 @@ int main(){
 		TEX_PATH + "back.jpg"
 	};
 
+	/*
+	 * Gets Root object to start the sample, 
+	 * also passes the base path for asset retrieval. 
+	*/
 	Root *root = Root::getSingleton();
 	root->start(800, 600, PATH, "Skeletal animation sample");
 	root->createSkybox(skyboxTextures);
 	Node *rootNode = root->getRootNode();
 
+	/*
+	 * Places the camera in front of the model.
+	*/
 	Camera *cam = root->getCamera();
 	cam->setPosition(Vector3(0, 0, 1) * 20);
 	cam->lookAt(Vector3(0, 0, -1).norm(), Vector3(0, 1, 0).norm());
@@ -44,6 +52,10 @@ int main(){
 	Mesh *mesh = node->getMesh(0);
 	Skeleton *skeleton = mesh->getSkeleton();
 
+	/*
+	 * The AnimationController plays the animations set in the AnimationChannel objects.
+	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
+	*/
 	AnimationController *controller = skeleton->getAnimationController();
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);

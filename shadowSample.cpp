@@ -22,70 +22,61 @@ int main(){
 		TEX_PATH + "back.jpg"
 	};
 
+	/*
+	 * Gets Root object to start the sample, 
+	 * also passes the base path for asset retrieval. 
+	*/
 	Root *root = Root::getSingleton();
 	root->start(800, 600, PATH, "Shadow sample");
 	root->createSkybox(skyboxTextures);
 	Node *rootNode = root->getRootNode();
 
+	/*
+	 * Places the camera above the platform at an angle.
+	*/
 	Camera *cam = root->getCamera();
 	cam->setPosition(Vector3(0, 1, 1) * 20);
 	cam->lookAt(Vector3(0, -1, -1).norm(), Vector3(0, 1, -1).norm());
 
 	Box *box = new Box(Vector3(40, .2, 40));
 	Node *boxNode = new Node();
-	Material *mat = new Material();
-	mat->setTexturingEnabled(true);
-	mat->setLightingEnabled(true);
+	Material *boxMat = new Material();
+	boxMat->setTexturingEnabled(true);
+	boxMat->setLightingEnabled(true);
 	string im0[] = {TEX_PATH + "bricks.jpg"};
-	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addDiffuseMap(diffuseTex);
-	box->setMaterial(mat);
+	Texture *boxTex = new Texture(im0, 1);
+	boxMat->addDiffuseMap(boxTex);
+	box->setMaterial(boxMat);
 	boxNode->attachMesh(box);
 	rootNode->attachChild(boxNode);
 
-	{
-	Box *box = new Box(Vector3(4, .2, 4));
-	Node *boxNode = new Node();
-	Material *mat = new Material();
-	mat->setTexturingEnabled(true);
-	mat->setLightingEnabled(true);
-	string im0[] = {TEX_PATH + "defaultTexture.jpg"};
-	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addDiffuseMap(diffuseTex);
-	box->setMaterial(mat);
-	boxNode->attachMesh(box);
-	rootNode->attachChild(boxNode);
-	box->setCastShadow(true);
-	boxNode->setPosition(Vector3(0, 2, 0));
-	}
-	/*
-	{
-	Model *box = new Model(MODEL_PATH + "jet00.obj");
-	Material *mat = new Material();
-	mat->setTexturingEnabled(true);
-	mat->setLightingEnabled(true);
-	mat->setNormalMapEnabled(false);
-	mat->setSpecularMapEnabled(false);
-	string im0[] = {TEX_PATH + "defaultTexture.jpg"};
-	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addDiffuseMap(diffuseTex);
-	box->setMaterial(mat);
-	rootNode->attachChild(box);
-	box->setCastShadow(true);
-	box->setPosition(Vector3(0, 3, 0));
-	}
-	*/
+	Model *jet = new Model(MODEL_PATH + "jet00.obj");
+	Material *jetMat = new Material();
+	jetMat->setTexturingEnabled(true);
+	jetMat->setLightingEnabled(true);
+	string im1[] = {TEX_PATH + "defaultTexture.jpg"};
+	Texture *jetTex = new Texture(im1, 1);
+	jetMat->addDiffuseMap(jetTex);
+	jet->setMaterial(jetMat);
+	rootNode->attachChild(jet);
+	jet->setCastShadow(true);
+	jet->setPosition(Vector3(0, 2, 0));
 
-	Light *light = new Light(Light::DIRECTIONAL);
+	Light *light = new Light(Light::POINT);
 	light->setColor(Vector3(1, 1, 1));
-	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
+	light->setAttenuationValues(.001, .001, 1);
+	Node *lightNode = new Node();
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(1.57, Vector3(1, 0, 0)));
 	lightNode->setPosition(Vector3(0, 5, 0));
 
-	while(true)
+	float angle = 0;
+	while(true){
 		root->update();
+
+		jet->setOrientation(Quaternion(angle, Vector3(1, 1, 1).norm()));
+		angle += .1;
+	}
 
 	return 0;
 }

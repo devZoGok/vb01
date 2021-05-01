@@ -11,10 +11,15 @@ using namespace std;
 using namespace vb01;
 
 int main(){
-	Root *root = Root::getSingleton();
-	Node *guiNode = root->getGuiNode();
 	const string PATH = "../", FONT_PATH = PATH + "samples/textSample/fonts/", TEX_PATH = PATH + "samples/textures/";
+
+	/*
+	 * Gets Root object to start the sample, 
+	 * also passes the base path for asset retrieval. 
+	*/
+	Root *root = Root::getSingleton();
 	root->start(800, 600, PATH, "Text sample");
+	Node *guiNode = root->getGuiNode();
 
 	int numTexts = 4;
 	wstring texts[] = {
@@ -42,8 +47,13 @@ int main(){
 		false
 	};
 	
+	/*
+	 * Creates a material for text objects and
+	 * attaches a diffuse texture with 2 images
+	*/
 	Material *textMat = new Material(Material::MATERIAL_TEXT);
 	textMat->setTexturingEnabled(true);
+
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(frames, 2);
 	textMat->addDiffuseMap(texture);
@@ -54,10 +64,17 @@ int main(){
 		text->setScale(.5);
 		text->setHorizontal(horizontal[i]);
 		text->setMaterial(textMat);
+
 		Node *textNode = new Node(Vector3(0, 50 * (i + 1), 0), Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 		textNode->addText(text);
 		guiNode->attachChild(textNode);
 
+		/*
+		 * KeyframeChannel structs determine what object and how it will be animated.
+		 * They also use keyframes which in turn are determined by their interpolation types,
+		 * values that are returned for animatable parameters, e.g. x coordinate for position 
+		 * and frame number.
+		*/
 		KeyframeChannel kcA;
 		kcA.animatable = texture;
 		kcA.type = KeyframeChannel::TEXTURE_FRAME_A;
@@ -66,33 +83,26 @@ int main(){
 		KeyframeChannel kcB;
 		kcB.animatable = texture;
 		kcB.type = KeyframeChannel::TEXTURE_FRAME_B;
-		Keyframe k1;
-		k1.interpolation = Keyframe::CONSTANT;
-		k1.value = 1;
-		k1.frame = 1;
-		kcB.keyframes = vector<Keyframe>({k1});
+		kcB.keyframes = vector<Keyframe>({KeyframeChannel::createKeyframe(Keyframe::CONSTANT, 1, 1)});
 		
 		KeyframeChannel kcC;
 		kcC.animatable = texture;
 		kcC.type = KeyframeChannel::TEXTURE_MIX_RATIO;
-		Keyframe k;
-		k.interpolation = Keyframe::LINEAR;
-		k.value = 0;
-		k.frame = 1;
-		Keyframe kk;
-		kk.interpolation = Keyframe::LINEAR;
-		kk.value = 1;
-		kk.frame = 15;
-		Keyframe kkk;
-		kkk.interpolation = Keyframe::LINEAR;
-		kkk.value = 0;
-		kkk.frame = 29;
-		kcC.keyframes = vector<Keyframe>({k, kk, kkk});
+		kcC.keyframes = vector<Keyframe>({
+			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 1),
+			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 1, 15),
+			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 29)
+		});
+
 		Animation *anim = new Animation("tex");
 		anim->addKeyframeChannel(kcA);
 		anim->addKeyframeChannel(kcB);
 		anim->addKeyframeChannel(kcC);
 
+		/*
+		 * The AnimationController plays the animations set in the AnimationChannel objects.
+		 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
+		*/
 		AnimationController *controller = textNode->getAnimationController();
 		controller->addAnimation(anim);
 		AnimationChannel *channel = new AnimationChannel();

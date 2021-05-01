@@ -21,11 +21,18 @@ int main(){
 		TEX_PATH + "back.jpg"
 	};
 
+	/*
+	 * Gets Root object to start the sample, 
+	 * also passes the base path for asset retrieval. 
+	*/
 	Root *root = Root::getSingleton();
 	root->start(800, 600, PATH, "Morph animation sample");
 	root->createSkybox(skyboxTextures);
 	Node *rootNode = root->getRootNode();
 
+	/*
+	 * Places the camera to the side of the model.
+	*/
 	Camera *cam = root->getCamera();
 	cam->setPosition(Vector3(-1, 0.25, .2) * 20);
 	cam->lookAt(Vector3(1, 0, 0).norm(), Vector3(0, 1, 0).norm());
@@ -45,6 +52,10 @@ int main(){
 	Mesh *mesh = node->getMesh(0);
 	Skeleton *skeleton = mesh->getSkeleton();
 
+	/*
+	 * The AnimationController plays the animations set in the AnimationChannel objects.
+	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
+	*/
 	AnimationController *controller = skeleton->getAnimationController();
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);
@@ -52,6 +63,9 @@ int main(){
 	channel->setAnimationName("morph");
 	channel->setLoop(true);
 
+	/*
+	 * Creates a box attached to the bone controlling the shape keys.
+	*/
 	Box *box = new Box(Vector3(1, 1, 1) * .25);
 	Material *boxMat = new Material();
 	boxMat->setTexturingEnabled(false);
