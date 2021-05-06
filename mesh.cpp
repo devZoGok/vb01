@@ -128,6 +128,7 @@ namespace vb01{
 		if(node){
 			pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 			orient = node->localToGlobalOrientation(Quaternion::QUAT_W);
+			scale = node->getScale();
 			camPos = cam->getPosition();
 		}
 

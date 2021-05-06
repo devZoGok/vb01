@@ -10,7 +10,7 @@ namespace vb01{
 
 	class Bone : public Node{
 		public:
-			Bone(std::string, float, Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_ZERO);
+			Bone(std::string, float, Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK);
 			void setPosePos(Vector3 p);
 			void setPoseRot(Quaternion r);
 			void setPoseScale(Vector3 s);

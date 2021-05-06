@@ -80,11 +80,23 @@ namespace vb01{
 		return keyframeChannel.keyframes[pastKeyframeId + (last ? 0 : 1)];
 	}
 
-	Keyframe KeyframeChannel::createKeyframe(KeyframeInterpolation interpolation, float value, float frame) {
+	Keyframe KeyframeChannel::createKeyframe(
+			KeyframeInterpolation interpolation,
+		   	float value,
+		   	float frame,
+		   	float leftHandleValue,
+		   	float leftHandleFrame,
+		   	float rightHandleValue,
+		   	float rightHandleFrame) 
+	{
 		Keyframe keyframe;
 		keyframe.interpolation = interpolation;
 		keyframe.frame = frame;
 		keyframe.value = value;
+		keyframe.leftHandleValue = leftHandleValue;
+		keyframe.leftHandleFrame = leftHandleFrame;
+		keyframe.rightHandleValue = rightHandleValue;
+		keyframe.rightHandleFrame = rightHandleFrame;
 		return keyframe;
 	}
 

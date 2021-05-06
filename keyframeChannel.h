@@ -67,7 +67,7 @@ namespace vb01{
 		static KeyframeChannel::Type getKeyframeChannelType(std::string);
 		static float interpolate(Keyframe, Keyframe, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);
-		static Keyframe createKeyframe(Keyframe::Interpolation, float, float);
+		static Keyframe createKeyframe(Keyframe::Interpolation, float, float, float = 0, float = 0, float = 0, float = 0);
 		static KeyframeChannel createKeyframeChannel(KeyframeChannel::Type, Animatable*, std::vector<Keyframe>);
 	};
 

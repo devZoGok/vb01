@@ -86,6 +86,9 @@ if(BUILD_SAMPLES)
 	add_executable(morphAnimationSample morphAnimationSample.cpp)
 	target_link_libraries(morphAnimationSample ${LIB_NAME})
 
+	add_executable(driverSample driverSample.cpp)
+	target_link_libraries(driverSample ${LIB_NAME})
+
 	add_executable(lightSample lightSample.cpp)
 	target_link_libraries(lightSample ${LIB_NAME})
 
