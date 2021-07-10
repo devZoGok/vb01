@@ -36,11 +36,11 @@ namespace vb01{
 			inline void setLeftToRight(bool ltr){this->leftToRight = ltr;}
 			inline Material* getMaterial(){return material;}
 			inline void setMaterial(Material *mat){this->material = mat;}
+			Glyph* getGlyph(u16);
 		private:
 			void initFont(std::string);
 			void prepareGlyphs(Glyph, Vector2);
 			void renderGlyphs(Glyph, float[], u32);
-			Glyph* getGlyph(u16);
 
 			Node *node = nullptr;
 			Material *material = nullptr;

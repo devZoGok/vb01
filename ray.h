@@ -15,7 +15,6 @@ namespace vb01{
 				Mesh *mesh = nullptr;
 			};
 			static void retrieveCollisions(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float = .0);
-		private:
 			static void castRay(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float);
 			static void sortResults(std::vector<CollisionResult>&);
 	};
