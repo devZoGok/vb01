@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "vector.h"
+
 namespace vb01{
 	typedef char s8;
 	typedef short s16;
@@ -22,7 +24,9 @@ namespace vb01{
 	void readFile(std::string, std::vector<std::string>&, int = 0, int = -1);
 	void getLineData(std::string, std::string[], int, int = 0);
 	int getCharId(std::string, char, bool = false);
-
+	std::wstring stringToWstring(std::string str);
+	std::string wstringToString(std::wstring wstr);
+	Vector2 getCursorPos();
 	inline s64 getTime(){return s64(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));}
 }
 

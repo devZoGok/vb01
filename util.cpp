@@ -5,6 +5,19 @@
 using namespace std;
 
 namespace vb01{
+		double *x = nullptr, *y = nullptr;
+
+		Vector2 getCursorPos()
+		{
+			if(!x)
+				x = new double;
+
+			if(!y)
+				y = new double;
+				
+			return Vector2(*x, *y);
+		}
+
 	void readFile(string path, vector<string> &lines, int firstLine, int lastLine){
 		string l;
 		std::ifstream inFile(path);
@@ -54,5 +67,24 @@ namespace vb01{
 			}
 		}
 		return charId;
+	}
+
+	wstring stringToWstring(string str){
+		wstring wstr = L"";
+
+		for(char ch : str)
+			wstr += ch;
+
+		return wstr;
+	}
+
+	string wstringToString(wstring wstr){
+		string str = "";
+
+		for(wchar_t ch : wstr)
+			if(ch < 256)
+				str += ch;
+
+		return str;
 	}
 }
