@@ -15,8 +15,8 @@
 using namespace std;
 
 namespace vb01{
-	Text::Text(string fontPath, wstring entry){
-		initFont(fontPath);
+	Text::Text(string fontPath, wstring entry, u16 firstChar, u16 lastChar){
+		initFont(fontPath, firstChar, lastChar);
 		setText(entry);
 	}
 
@@ -25,7 +25,7 @@ namespace vb01{
 		glDeleteBuffers(1, &VBO);
 	}
 
-	void Text::initFont(string fontPath){
+	void Text::initFont(string fontPath, u16 firstChar, u16 lastChar){
 		FT_Library ft;
 		FT_Face face;
 		if(FT_Init_FreeType(&ft))
@@ -37,7 +37,7 @@ namespace vb01{
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		for(u16 i = 0; i < u16(0 - 1); i++){
+		for(u16 i = firstChar; i < lastChar; i++){
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER)){
 				cout << "Could not load glyph\n";
 				continue;

@@ -21,7 +21,7 @@ namespace vb01{
 				Vector2 size, bearing;
 			};
 
-			Text(std::string, std::wstring);
+			Text(std::string, std::wstring, u16 = 0, u16 = 256);
 			~Text();
 			void update();
 			void setText(std::wstring);
@@ -38,7 +38,7 @@ namespace vb01{
 			inline void setMaterial(Material *mat){this->material = mat;}
 			Glyph* getGlyph(u16);
 		private:
-			void initFont(std::string);
+			void initFont(std::string, u16, u16);
 			void prepareGlyphs(Glyph, Vector2);
 			void renderGlyphs(Glyph, float[], u32);
 
