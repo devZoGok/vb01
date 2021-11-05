@@ -530,8 +530,15 @@ namespace vb01{
 		readShapeKeys(vertices, vertIds, meshSubData, shapeKeys, numShapes, numVertices);
 		meshSubData.clear();
 
+		getLineData(meshData[1].substr(meshData[1].find_first_of(':') + 2), data, 3);
+		Vector3 pos = Vector3(atof(data[0].c_str()), atof(data[2].c_str()), -atof(data[1].c_str()));
+		getLineData(meshData[2].substr(meshData[2].find_first_of(':') + 2), data, 4);
+		Quaternion rot = Quaternion(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[3].c_str()), -atof(data[2].c_str()));
+		getLineData(meshData[3].substr(meshData[3].find_first_of(':') + 2), data, 3);
+		Vector3 scale = Vector3(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[2].c_str()));
+
 		AnimationController *controller = new AnimationController();
-		Node *node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name, controller);
+		Node *node = new Node(pos, rot, scale, name, controller);
 		nodes.push_back(node);
 
 		meshSubData = vector<string>(meshData.begin() + animationStartLine, meshData.begin() + driverStartLine);

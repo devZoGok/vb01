@@ -46,6 +46,7 @@ float getShadow(int id){
 	int type = light[id].type;
 
 	float shadow = 0, closestDepth = 0, currentDepth = 0, bias = .005, val = .7;
+/*
 	if(type == 0){
 		vec3 projDir = fragPos - light[id].pos;
 		closestDepth = texture(light[id].depthMapCube, projDir).r * light[id].far;
@@ -65,6 +66,7 @@ float getShadow(int id){
 		if(projCoords.z > 1)
 			shadow = 0;
 	}
+*/
 	return shadow;
 }
 
