@@ -1,5 +1,7 @@
 #include "util.h"
+#include "root.h"
 
+#include <glfw3.h>
 #include <fstream>
 
 using namespace std;
@@ -15,6 +17,7 @@ namespace vb01{
 			if(!y)
 				y = new double;
 				
+			glfwGetCursorPos(Root::getSingleton()->getWindow(), x, y);
 			return Vector2(*x, *y);
 		}
 
