@@ -14,8 +14,9 @@ namespace vb01{
 			enum ShaderType{VERTEX_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER};
 
 			Shader(){}
-			Shader(std::string, std::string, std::string = "");
+			Shader(std::string, bool = false);
 			~Shader();
+			std::string getName();
 			void setNumLights(int);
 			void use();
 			void setMat4(glm::mat4, std::string);
@@ -26,6 +27,7 @@ namespace vb01{
 			void setBool(bool, std::string);
 			void setInt(int, std::string);
 			void editShader(ShaderType, int, std::string);
+			inline bool isGeometry(){return geometry;}
 		private:
 			void initShaders(std::string, std::string, std::string);
 			void replaceLine(ShaderType, int, std::string);
@@ -34,7 +36,7 @@ namespace vb01{
 			void checkCompileErrors(u32, ErrorType);
 			u32 id;
 			bool geometry = false;
-			std::string vString, fString, gString;
+			std::string path, vString, fString, gString;
 
 			friend class ShaderTest;
 	};

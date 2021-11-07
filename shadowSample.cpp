@@ -7,6 +7,8 @@
 #include "animation.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 using namespace std;
 using namespace vb01;
@@ -40,23 +42,23 @@ int main(){
 
 	Box *box = new Box(Vector3(40, .2, 40));
 	Node *boxNode = new Node();
-	Material *boxMat = new Material();
-	boxMat->setTexturingEnabled(true);
-	boxMat->setLightingEnabled(true);
+	Material *boxMat = new Material(PATH + "texture");
+	boxMat->addVariable("texturingEnabled", true);
+	boxMat->addVariable("lightingEnabled", true);
 	string im0[] = {TEX_PATH + "bricks.jpg"};
 	Texture *boxTex = new Texture(im0, 1);
-	boxMat->addDiffuseMap(boxTex);
+	boxMat->addVariable("textures[0]", boxTex);
 	box->setMaterial(boxMat);
 	boxNode->attachMesh(box);
 	rootNode->attachChild(boxNode);
 
 	Model *jet = new Model(MODEL_PATH + "jet00.obj");
-	Material *jetMat = new Material();
-	jetMat->setTexturingEnabled(true);
-	jetMat->setLightingEnabled(true);
+	Material *jetMat = new Material(PATH + "texture");
+	jetMat->addVariable("texturingEnabled", true);
+	jetMat->addVariable("lightingEnabled", true);
 	string im1[] = {TEX_PATH + "defaultTexture.jpg"};
 	Texture *jetTex = new Texture(im1, 1);
-	jetMat->addDiffuseMap(jetTex);
+	jetMat->addVariable("textures[0]", jetTex);
 	jet->setMaterial(jetMat);
 	rootNode->attachChild(jet);
 	jet->setCastShadow(true);

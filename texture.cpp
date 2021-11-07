@@ -1,12 +1,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "texture.h"
 
 #include "glad.h"
 #include <glfw3.h>
-#include <ft2build.h>
 #include <iostream>
 
 using namespace std;

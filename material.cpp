@@ -3,134 +3,80 @@
 #include "root.h"
 
 using namespace std;
+using namespace glm;
 
 namespace vb01{
-	Material::Material(Type type){
-		this->type = type;
-
-		initShader();
+	Material::Material(string shaderName, bool geometryShader){
+		shader = new Shader(shaderName);
 	}
 
 	Material::~Material(){
 		delete shader;
-		for(Texture *t : diffuseMapTextures)
-			delete t;
-		for(Texture *t : normalMapTextures)
-			delete t;
-		for(Texture *t : specularMapTextures)
-			delete t;
 	}
 
-	void Material::initShader(){
-		string basePath = Root::getSingleton()->getLibPath(), shaderName;
-		switch(type){
-			case MATERIAL_2D:
-				shaderName = "texture.";
-				break;
-			case MATERIAL_PARTICLE:
-				shaderName = "particle.";
-				break;
-			case MATERIAL_SKYBOX:
-				shaderName = "skybox.";
-				break;
-			case MATERIAL_GUI:
-				shaderName = "gui.";
-				break;
-			case MATERIAL_POST:
-				shaderName = "postProcess.";
-				break;
-			case MATERIAL_TEXT:
-				shaderName = "text.";
-				break;
-		}
-		/*
-		if(type==MATERIAL_2D)
-			//shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag");
-			shader=new Shader(basePath+shaderName+"vert",basePath+shaderName+"frag",basePath+shaderName+"geo");
-		else
-		*/
-			shader = new Shader(basePath + shaderName + "vert", basePath + shaderName + "frag");
-	}
+	Material::Uniform* Material::getUniform(string name){
+			Uniform *uni = nullptr;
 
-	void Material::animate(float value, KeyframeChannel keyframeChannel){
-		switch(keyframeChannel.type){
-			case KeyframeChannel::DIFFUSE_COLOR_W:
-				diffuseColor.w = value;
-				break;
-			case KeyframeChannel::DIFFUSE_COLOR_X:
-				diffuseColor.x = value;
-				break;
-			case KeyframeChannel::DIFFUSE_COLOR_Y:
-				diffuseColor.y = value;
-				break;
-			case KeyframeChannel::DIFFUSE_COLOR_Z:
-				diffuseColor.z = value;
-				break;
-			case KeyframeChannel::SPECULAR_COLOR_W:
-				specularColor.w = value;
-				break;
-			case KeyframeChannel::SPECULAR_COLOR_X:
-				specularColor.x = value;
-				break;
-			case KeyframeChannel::SPECULAR_COLOR_Y:
-				specularColor.y = value;
-				break;
-			case KeyframeChannel::SPECULAR_COLOR_Z:
-				specularColor.z = value;
-				break;
-		}
+			for(Uniform *u : uniforms)
+					if(u->name == name){
+							uni = u;
+							break;
+					}
+
+			return uni;
 	}
 
 	void Material::update(){
 		shader->use();
-		shader->setBool(texturingEnabled, "texturingEnabled");
-		const int TEXTURE_SLOTS[]{
-			Texture::DIFFUSE * 2,
-			Texture::NORMAL * 2,
-			Texture::SPECULAR * 2,
-			Texture::PARALLAX * 2,
-			Texture::ENVIRONMENT * 2
-		};
 
-		if(type == MATERIAL_2D){
-			shader->setBool(lightingEnabled, "lightingEnabled");
-			shader->setBool(normalMapEnabled, "normalMapEnabled");
-			shader->setBool(specularMapEnabled, "specularMapEnabled");
-			shader->setInt(shinyness, "shinyness");
-			shader->setFloat(specularStrength, "specularStrength");
-			shader->setVec4(specularColor, "specularColor");
-			for(int i = 0; i < 4; i++){
-				shader->setInt(TEXTURE_SLOTS[i], "textures[" + to_string(i) + "].pastTexture");
-				shader->setInt(TEXTURE_SLOTS[i] + 1, "textures[" + to_string(i) + "].nextTexture");
-			}
-			shader->setInt(TEXTURE_SLOTS[4], "environmentMap");
-		}
-		else if(type == MATERIAL_GUI){
-			shader->setBool(diffuseColorEnabled, "diffuseColorEnabled");
-			if(diffuseColorEnabled)
-				shader->setVec4(diffuseColor, "diffuseColor");
-		}
-		else if(type == MATERIAL_TEXT){
-			shader->setInt(0, "textures[0].pastTexture");
-			shader->setInt(1, "textures[0].nextTexture");
-			shader->setInt(2, "textures[1].pastTexture");
-		}
+		int i = 0;
 
-		if(texturingEnabled){
-			vector<Texture*> textures;
-			textures.insert(textures.end(), diffuseMapTextures.begin(), diffuseMapTextures.end());
-			textures.insert(textures.end(), normalMapTextures.begin(), normalMapTextures.end());
-			textures.insert(textures.end(), specularMapTextures.begin(), specularMapTextures.end());
-			textures.insert(textures.end(), parallaxMapTextures.begin(), parallaxMapTextures.end());
+		for(Uniform *uni : uniforms){
+				switch(uni->type){
+						case Uniform::INT:{
+								IntUniform *u = (IntUniform*)uni;
+								shader->setInt(u->value, u->name);
+								break;
+						}
+						case Uniform::BOOL:{
+								BoolUniform *u = (BoolUniform*)uni;
+								shader->setBool(u->value, u->name);
+								break;
+						}
+						case Uniform::FLOAT:{
+								FloatUniform *u = (FloatUniform*)uni;
+								shader->setFloat(u->value, u->name);
+								break;
+						}
+						case Uniform::VECTOR_2:{
+								Vector2Uniform *u = (Vector2Uniform*)uni;
+								shader->setVec2(u->value, u->name);
+								break;
+						}
+						case Uniform::VECTOR_3:{
+								Vector3Uniform *u = (Vector3Uniform*)uni;
+								shader->setVec3(u->value, u->name);
+								break;
+						}
+						case Uniform::VECTOR_4:{
+								Vector4Uniform *u = (Vector4Uniform*)uni;
+								shader->setVec4(u->value, u->name);
+								break;
+						}
+						case Uniform::TEXTURE:{
+								TextureUniform *u = (TextureUniform*)uni;
+								shader->setInt(2 * i, u->name + (u->animatable ? ".pastTexture" : ""));
 
-			for(Texture *t : textures){
-				int id = t->getTextureTypeId();
-				shader->setBool(t->getNumFrames() > 1, "textures[" + to_string(id) + "].animated");
-				shader->setFloat(t->getMixRatio(), "textures[" + to_string(id) + "].mixRatio");
-				t->update(2 * id);
-			}
+								if(u->value->getNumFrames() > 1){
+									shader->setInt(2 * i + 1, u->name + ".nextTexture");
+									shader->setFloat(u->value->getMixRatio(), u->name + ".mixRatio");
+								}
+
+								break;
+						}
+				}
+
+				++i;
 		}
-		else 
-			shader->setVec4(diffuseColor, "diffuseColor");
 	}
 }

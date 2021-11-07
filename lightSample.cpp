@@ -7,6 +7,8 @@
 #include "animation.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 using namespace std;
 using namespace vb01;
@@ -43,27 +45,27 @@ int main(){
 	/*
 	 * Creates a material with diffuse, normal, and specular maps attached.
 	*/
-	Material *mat = new Material();
-	mat->setTexturingEnabled(true);
-	mat->setLightingEnabled(true);
-	mat->setNormalMapEnabled(true);
-	mat->setSpecularMapEnabled(true);
+	Material *mat = new Material(PATH + "texture");
+	mat->addVariable("texturingEnabled", true);
+	mat->addVariable("lightingEnabled", true);
+	mat->addVariable("normalMapEnabled", true);
+	mat->addVariable("specularMapEnabled", true);
 
 	string im0[] = {TEX_PATH + "bricks.jpg"};
 	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addDiffuseMap(diffuseTex);
+	mat->addVariable("textures[0]", diffuseTex);
 
 	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
-	mat->addNormalMap(normalTex);
+	mat->addVariable("textures[1]", normalTex);
 	
 	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
 	Texture *specularTex = new Texture(im2, 1, Texture::SPECULAR);
-	mat->addSpecularMap(specularTex);
+	mat->addVariable("textures[2]", specularTex);
 
 	//Setting specular parameteres
-	mat->setSpecularStrength(1);
-	mat->setShinyness(32);
+	mat->addVariable("specularStrength", 1);
+	mat->addVariable("shinyness", 32);
 	box->setMaterial(mat);
 
 	rootNode->attachChild(box);

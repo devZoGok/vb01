@@ -55,20 +55,24 @@ namespace vb01{
 
 		glGenFramebuffers(1, &depthmapFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
+
 		if(type == POINT){
 			depthMap = new Texture(depthMapSize);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, *(depthMap->getTexture()), 0);
-			depthMapShader = new Shader(basePath + "vert", basePath + "frag", basePath + "geo");
+			depthMapShader = new Shader(basePath, true);
 		}
 		else{
 			depthMap = new Texture(depthMapSize, depthMapSize, true);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *(depthMap->getTexture()), 0);
-			depthMapShader = new Shader(basePath + "vert", basePath + "frag");
+			depthMapShader = new Shader(basePath);
 		}
+
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
+
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Not complete\n";
+
 		glBindFramebuffer(GL_FRAMEBUFFER, *(Root::getSingleton()->getFBO()));
 	}
 
@@ -129,7 +133,7 @@ namespace vb01{
 			vector<Mesh*> meshes = n->getMeshes();
 			for(Mesh *mesh : meshes){
 				Material *mat = mesh->getMaterial();
-				if(mesh->isCastShadow() && n->isVisible() && mat && mat->isLightingEnabled()){
+				if(mesh->isCastShadow() && n->isVisible() && mat && ((Material::BoolUniform*)mat->getUniform("lightingEnabled"))->value){
 					Vector3 pos = n->localToGlobalPosition(Vector3::VEC_ZERO);
 					Quaternion rot = n->localToGlobalOrientation(Quaternion::QUAT_W);
 					Vector3 rotAxis = rot.norm().getAxis();

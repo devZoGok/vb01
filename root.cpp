@@ -82,8 +82,10 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
 		u32 colorAttachments[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+
 		for(int i = 0; i < 2; i++)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachments[i], GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
+
 		glDrawBuffers(2, colorAttachments);
 
 		glGenRenderbuffers(1, &RBO);
@@ -93,17 +95,19 @@ namespace vb01{
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Not complete\n";
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void Root::initBloomFramebuffer(){
-		string basePath = libPath + "blur.";
-		blurShader = new Shader(basePath + "vert", basePath + "frag");
+		blurShader = new Shader(libPath + "blur");
 		glGenFramebuffers(2, pingpongBuffers);
+
 		for(int i = 0; i < 2; i++){
 			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[i]);
 			pingPongTextures[i] = new Texture(width, height, false);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *(pingPongTextures[i]->getTexture()), 0);
+
 			if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				cout << "Not complete\n";
 		}
@@ -111,9 +115,9 @@ namespace vb01{
 
 	void Root::initGuiPlane(Texture *fragTexture, Texture *brightTexture){
 		guiPlane = new Quad(Vector3(width, height, -1), false);
-		Material *mat = new Material(Material::MATERIAL_POST);
-		mat->addDiffuseMap(fragTexture);
-		mat->addDiffuseMap(brightTexture);
+		Material *mat = new Material(libPath + "postProcess");
+		mat->addVariable("frag", fragTexture, false);
+		mat->addVariable("bright", brightTexture, false);
 		guiPlane->setMaterial(mat);
 	}
 
@@ -154,16 +158,20 @@ namespace vb01{
 		bool horizontal = false;
 		blurShader->use();
 		blurShader->setVec2(Vector2(width, height), "screen");
+
 		for(int i = 0; i < blurLevel; i++){
 			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[horizontal]);
 			blurShader->setBool(horizontal, "horizontal");
+
 			if(i == 0)
-				guiPlane->getMaterial()->getDiffuseMap(1)->select();
+				((Material::TextureUniform*)guiPlane->getMaterial()->getUniform("bright"))->value->select();
 			else
 				pingPongTextures[!horizontal]->select();
+
 			guiPlane->render();
 			horizontal = !horizontal;
 		}
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -180,15 +188,16 @@ namespace vb01{
 		shader->setInt(0, "frag");
 		shader->setInt(1, "bright");
 
-		material->getDiffuseMap(0)->select(0);
-		material->getDiffuseMap(1)->select(1);
+		((Material::TextureUniform*)material->getUniform("frag"))->value->select(0);
+		((Material::TextureUniform*)material->getUniform("bright"))->value->select(1);
 		guiPlane->render();
 	}
 
-	void Root::createSkybox(string textures[6]){
+	void Root::createSkybox(string paths[6]){
 		skybox = new Box(Vector3(1, 1, 1) * 10);
-		Material *skyboxMat = new Material(Material::MATERIAL_SKYBOX);
-		skyboxMat->addDiffuseMap(textures);
+		Material *skyboxMat = new Material(libPath + "skybox");
+		Texture *texture = new Texture(paths);
+		skyboxMat->addVariable("skybox", texture, true);
 		skybox->setMaterial(skyboxMat);
 	}
 

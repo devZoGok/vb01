@@ -68,7 +68,7 @@ namespace vb01{
 
 		u32 RBO;
 		string basePath = "../../vb01/depthMap.";
-		environmentShader = new Shader(basePath + "vert", basePath + "frag", basePath + "geo");
+		environmentShader = new Shader(basePath);
 		environmentMap = new Texture(width, false);
 
 		glGenFramebuffers(1, &environmentBuffer);
@@ -133,8 +133,10 @@ namespace vb01{
 		}
 
 		Vector3 rotAxis = orient.getAxis();
+
 		if(rotAxis == Vector3::VEC_ZERO)
 			rotAxis = Vector3::VEC_I;
+
 		mat4 model = mat4(1.);
 		model = translate(model, vec3(pos.x, pos.y, pos.z));
 		model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
@@ -151,8 +153,10 @@ namespace vb01{
 
 		if(reflect)
 			updateReflection(shader, pos, width, height);
+
 		if(skeleton)
 			updateSkeleton(shader);
+
 		if(numShapeKeys > 0)
 			updateShapeKeys(shader);
 
@@ -164,8 +168,9 @@ namespace vb01{
 		shader->setVec3(camPos, "camPos");
 		shader->setMat4(model, "model");
 
-		if(material->getType() == Material::MATERIAL_GUI){
+		if(shader->getName() == "gui"){
 			shader->setVec2(Vector2((float)width, (float)height), "screen");
+
 			if(node)
 				shader->setVec3(pos, "pos");
 		}
@@ -280,7 +285,7 @@ namespace vb01{
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 
 		shader->setBool(reflect, "environmentMapEnabled");
-		root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
+		//root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
 		environmentMap->select(4);
 	}
 

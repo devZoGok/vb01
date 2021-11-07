@@ -12,16 +12,22 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Shader::Shader(string vertShaderPath, string fragShaderPath, string geoShaderPath){
-		initShaders(vertShaderPath, fragShaderPath, geoShaderPath);
+	Shader::Shader(string shaderPath, bool geometry){
+			this->geometry = geometry;
+			this->path = shaderPath;
+
+		initShaders(shaderPath + ".vert", shaderPath + ".frag", shaderPath + ".geo");
 		loadShaders();
 	}
 
 	Shader::~Shader(){}
 
-	void Shader::initShaders(string vertShaderPath, string fragShaderPath, string geoShaderPath){
-		geometry = (geoShaderPath != "");
+	string Shader::getName(){
+			int dirId = path.find_last_of('/');
+			return (dirId != -1 ? path.substr(dirId) : path);
+	}
 
+	void Shader::initShaders(string vertShaderPath, string fragShaderPath, string geoShaderPath){
 		ifstream vertShaderFile, geoShaderFile, fragShaderFile;
 		vertShaderFile.open(vertShaderPath);
 		geoShaderFile.open(geoShaderPath);

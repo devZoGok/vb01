@@ -5,6 +5,8 @@
 #include "skeleton.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 using namespace std;
 using namespace vb01;
@@ -38,12 +40,12 @@ int main(){
 	cam->lookAt(Vector3(0, 0, -1).norm(), Vector3(0, 1, 0).norm());
 
 	Model *model = new Model(MODEL_PATH + "kek.vb");
-	Material *mat = new Material();
-	mat->setLightingEnabled(false);
-	mat->setTexturingEnabled(true);
+	Material *mat = new Material(PATH + "texture");
+	mat->addVariable("lightingEnabled", false);
+	mat->addVariable("texturingEnabled", true);
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(images, 1);
-	mat->addDiffuseMap(texture);
+	mat->addVariable("textures[0]", texture);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
 
