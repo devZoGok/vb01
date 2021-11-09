@@ -51,10 +51,9 @@ namespace vb01{
 	}
 
 	void Light::initDepthMap(){
-		string basePath = Root::getSingleton()->getLibPath() + "depthMap.";
-
 		glGenFramebuffers(1, &depthmapFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
+		string basePath = Root::getSingleton()->getLibPath() + "depthMap";
 
 		if(type == POINT){
 			depthMap = new Texture(depthMapSize);
@@ -131,8 +130,10 @@ namespace vb01{
 
 		for(Node *n : descendants){
 			vector<Mesh*> meshes = n->getMeshes();
+
 			for(Mesh *mesh : meshes){
 				Material *mat = mesh->getMaterial();
+
 				if(mesh->isCastShadow() && n->isVisible() && mat && ((Material::BoolUniform*)mat->getUniform("lightingEnabled"))->value){
 					Vector3 pos = n->localToGlobalPosition(Vector3::VEC_ZERO);
 					Quaternion rot = n->localToGlobalOrientation(Quaternion::QUAT_W);
@@ -140,6 +141,7 @@ namespace vb01{
 
 					if(rotAxis == Vector3::VEC_ZERO)
 						rotAxis = Vector3::VEC_I;
+
 					mat4 model = translate(mat4(1.f), vec3(pos.x, pos.y, pos.z));
 					model = rotate(model, rot.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
 
@@ -147,12 +149,15 @@ namespace vb01{
 
 					if(type == POINT){
 						vec3 dirs[] = {vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
+
 						for(int i = 0; i < 6; i++){
 							vec3 upVec;
+
 							if(1 < i && i < 4)
 								upVec = vec3(0, 0, -1);
 							else
 								upVec = vec3(0, -1, 0);
+
 							depthMapShader->setMat4(proj * lookAt(lightPos, lightPos + dirs[i], upVec), "shadowMat[" + to_string(i) + "]");
 						}
 

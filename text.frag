@@ -16,8 +16,10 @@ uniform vec4 diffuseColor;
 
 void main(){
 	vec4 diffCol;
+
 	if(texturingEnabled){
 		diffCol = texture(textures[0].pastTexture, texCoords);
+
 		if(textures[0].animated)
 			diffCol = mix(diffCol, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio);
 	}

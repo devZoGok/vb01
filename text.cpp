@@ -28,8 +28,10 @@ namespace vb01{
 	void Text::initFont(string fontPath, u16 firstChar, u16 lastChar){
 		FT_Library ft;
 		FT_Face face;
+
 		if(FT_Init_FreeType(&ft))
 			cout << "Couldn't init Freetype\n";	
+
 		if(FT_New_Face(ft, fontPath.c_str(), 0, &face))
 			cout << "Could not load font\n";
 
@@ -42,6 +44,7 @@ namespace vb01{
 				cout << "Could not load glyph\n";
 				continue;
 			}
+
 			Glyph c;
 			c.ch = i;
 			c.texture = new Texture(face, i);		
@@ -65,14 +68,17 @@ namespace vb01{
 		shader->setVec3(node->getPosition(), "pos");
 
 		Vector2 advanceOffset = Vector2::VEC_ZERO;
+
 		for(int i = (leftToRight ? 0 : entry.length() - 1); (leftToRight ? (i < entry.length()) : (i >= 0)); (leftToRight ? i++ : i--)){
 			Glyph *glyphPtr = getGlyph(entry[i]);
+
 			if(!glyphPtr)
 				continue;
 
 			Glyph glyph = *glyphPtr;
 			prepareGlyphs(glyph, advanceOffset);
 			Vector2 size = glyph.size, bearing = glyph.bearing;
+
 			if(horizontal)
 				advanceOffset.x += (size.x + bearing.x);
 			else
@@ -85,6 +91,7 @@ namespace vb01{
 		Vector2 origin = Vector2(nodePos.x, nodePos.y) + (advanceOffset * scale);
 
 		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
+
 		float data[] = {
 			origin.x + bearing.x, origin.y - bearing.y, 0, 0,
 			origin.x + bearing.x + size.x, origin.y - bearing.y, 1, 0,
@@ -102,7 +109,11 @@ namespace vb01{
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
-		glyph.texture->select(2);
+
+		int id = 2;
+		material->getShader()->setInt(id, "textures[1].pastTexture");
+		glyph.texture->select(id);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);	
 	}
 
@@ -122,9 +133,11 @@ namespace vb01{
 
 	Text::Glyph* Text::getGlyph(u16 ch){
 		Glyph *glyph = nullptr;
+
 		for(Glyph &g : characters)
 			if(g.ch == ch)
 				glyph = &g;
+
 		return glyph;
 	}
 }

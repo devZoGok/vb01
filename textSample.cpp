@@ -56,10 +56,10 @@ int main(){
 
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(frames, 2);
-	textMat->addVariable("textures[0]", texture);
+	textMat->addVariable("textures[0]", texture, true);
 
 	for(int i = 0; i < numTexts; i++){
-		Text *text = new Text(FONT_PATH + fonts[i], texts[i]);
+		Text *text = new Text(FONT_PATH + fonts[i], texts[i], 0, 60000);
 		text->setLeftToRight(leftToRight[i]);
 		text->setScale(.5);
 		text->setHorizontal(horizontal[i]);

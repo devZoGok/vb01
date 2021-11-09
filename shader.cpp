@@ -24,7 +24,7 @@ namespace vb01{
 
 	string Shader::getName(){
 			int dirId = path.find_last_of('/');
-			return (dirId != -1 ? path.substr(dirId) : path);
+			return (dirId != -1 ? path.substr(dirId + 1) : path);
 	}
 
 	void Shader::initShaders(string vertShaderPath, string fragShaderPath, string geoShaderPath){

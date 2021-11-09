@@ -44,7 +44,6 @@ namespace vb01{
 
 					std::string name;
 					Type type;
-					Material *material = nullptr;
 
 					protected:
 					virtual void animateComponent1(float val){}

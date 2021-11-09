@@ -75,8 +75,8 @@ int main(){
 	 * and frame number.
 	*/
 	KeyframeChannel kcL;
-	kcL.animatable = leftMat;
-	kcL.type = KeyframeChannel::DIFFUSE_COLOR_X;
+	kcL.animatable = leftMat->getUniform("diffuseColor");
+	kcL.type = KeyframeChannel::UNIFORM_1;
 	kcL.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 1, 0),
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 1)

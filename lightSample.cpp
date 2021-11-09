@@ -7,8 +7,6 @@
 #include "animation.h"
 #include "animationController.h"
 #include "animationChannel.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 using namespace std;
 using namespace vb01;
@@ -49,19 +47,19 @@ int main(){
 	mat->addVariable("texturingEnabled", true);
 	mat->addVariable("lightingEnabled", true);
 	mat->addVariable("normalMapEnabled", true);
-	mat->addVariable("specularMapEnabled", true);
+	mat->addVariable("specularMapEnabled", false);
 
 	string im0[] = {TEX_PATH + "bricks.jpg"};
 	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addVariable("textures[0]", diffuseTex);
+	mat->addVariable("textures[0]", diffuseTex, false);
 
 	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
-	mat->addVariable("textures[1]", normalTex);
+	mat->addVariable("textures[1]", normalTex, false);
 	
 	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
 	Texture *specularTex = new Texture(im2, 1, Texture::SPECULAR);
-	mat->addVariable("textures[2]", specularTex);
+	mat->addVariable("textures[2]", specularTex, false);
 
 	//Setting specular parameteres
 	mat->addVariable("specularStrength", 1);
@@ -79,7 +77,7 @@ int main(){
 	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(.7, Vector3(1, 0, 0)));
+	lightNode->setOrientation(Quaternion(.0, Vector3(1, 0, 0)));
 	lightNode->setPosition(Vector3(0, 5, -5));
 
 	/*

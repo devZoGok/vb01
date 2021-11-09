@@ -45,7 +45,7 @@ int main(){
 	mat->addVariable("texturingEnabled", true);
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(images, 1);
-	mat->addVariable("textures[0]", texture);
+	mat->addVariable("textures[0]", texture, true);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
 

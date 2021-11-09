@@ -162,7 +162,7 @@ namespace vb01{
 
 		shader->setBool(castShadow, "castShadow");
 		shader->setBool(skeleton, "animated");
-		shader->setBool(false, "environment");
+		shader->setBool(false, "environmentMapEnabled");
 		shader->setMat4(view, "view");
 		shader->setMat4(proj, "proj");
 		shader->setVec3(camPos, "camPos");
