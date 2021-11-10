@@ -46,7 +46,6 @@ float getShadow(int id){
 	int type = light[id].type;
 
 	float shadow = 0, closestDepth = 0, currentDepth = 0, bias = .005, val = .7;
-/*
 	if(type == 0){
 		vec3 projDir = fragPos - light[id].pos;
 		closestDepth = texture(light[id].depthMapCube, projDir).r * light[id].far;
@@ -66,7 +65,6 @@ float getShadow(int id){
 		if(projCoords.z > 1)
 			shadow = 0;
 	}
-*/
 	return shadow;
 }
 
@@ -123,19 +121,6 @@ void main(){
 				float spec = pow(max(dot(normal, halfwayVec), 0), shinyness);	
 				specularCol += specularStrength * spec * specularSample * light[i].color;
 			}
-		}
-
-/*
-*/
-		for(int i = 0; i < numLights; i++){
-			float shadow = getShadow(i);
-			diffuseCol *= (1 - shadow);
-		}
-		if(environmentMapEnabled){
-			vec3 projDir = normalize(fragPos - camPos);
-			projDir = reflect(projDir, norm);
-			vec3 sample = texture(environmentMap, projDir).rgb;
-			diffuseCol.rgb += sample;
 		}
 
 		finalColor *= vec4(diffuseCol + specularCol, 1);
