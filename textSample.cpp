@@ -52,11 +52,11 @@ int main(){
 	 * attaches a diffuse texture with 2 images
 	*/
 	Material *textMat = new Material(PATH + "text");
-	textMat->addVariable("texturingEnabled", true);
+	textMat->addBoolUniform("texturingEnabled", true);
 
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(frames, 2);
-	textMat->addVariable("textures[0]", texture, true);
+	textMat->addTexUniform("textures[0]", texture, true);
 
 	for(int i = 0; i < numTexts; i++){
 		Text *text = new Text(FONT_PATH + fonts[i], texts[i], 0, 60000);

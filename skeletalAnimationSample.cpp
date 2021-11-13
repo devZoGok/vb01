@@ -41,11 +41,11 @@ int main(){
 
 	Model *model = new Model(MODEL_PATH + "kek.vb");
 	Material *mat = new Material(PATH + "texture");
-	mat->addVariable("lightingEnabled", false);
-	mat->addVariable("texturingEnabled", true);
+	mat->addBoolUniform("lightingEnabled", false);
+	mat->addBoolUniform("texturingEnabled", true);
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
 	Texture *texture = new Texture(images, 1);
-	mat->addVariable("textures[0]", texture, true);
+	mat->addTexUniform("textures[0]", texture, true);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
 

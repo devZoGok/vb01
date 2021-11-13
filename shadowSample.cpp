@@ -43,22 +43,22 @@ int main(){
 	Box *box = new Box(Vector3(40, .2, 40));
 	Node *boxNode = new Node();
 	Material *boxMat = new Material(PATH + "texture");
-	boxMat->addVariable("texturingEnabled", true);
-	boxMat->addVariable("lightingEnabled", true);
+	boxMat->addBoolUniform("texturingEnabled", true);
+	boxMat->addBoolUniform("lightingEnabled", true);
 	string im0[] = {TEX_PATH + "bricks.jpg"};
 	Texture *boxTex = new Texture(im0, 1);
-	boxMat->addVariable("textures[0]", boxTex);
+	boxMat->addTexUniform("textures[0]", boxTex, true);
 	box->setMaterial(boxMat);
 	boxNode->attachMesh(box);
 	rootNode->attachChild(boxNode);
 
 	Model *jet = new Model(MODEL_PATH + "jet00.obj");
 	Material *jetMat = new Material(PATH + "texture");
-	jetMat->addVariable("texturingEnabled", true);
-	jetMat->addVariable("lightingEnabled", true);
+	jetMat->addBoolUniform("texturingEnabled", true);
+	jetMat->addBoolUniform("lightingEnabled", true);
 	string im1[] = {TEX_PATH + "defaultTexture.jpg"};
 	Texture *jetTex = new Texture(im1, 1);
-	jetMat->addVariable("textures[0]", jetTex);
+	jetMat->addTexUniform("textures[0]", jetTex, true);
 	jet->setMaterial(jetMat);
 	rootNode->attachChild(jet);
 	jet->setCastShadow(true);

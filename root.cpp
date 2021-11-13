@@ -116,8 +116,8 @@ namespace vb01{
 	void Root::initGuiPlane(Texture *fragTexture, Texture *brightTexture){
 		guiPlane = new Quad(Vector3(width, height, -1), false);
 		Material *mat = new Material(libPath + "postProcess");
-		mat->addVariable("frag", fragTexture, false);
-		mat->addVariable("bright", brightTexture, false);
+		mat->addTexUniform("frag", fragTexture, false);
+		mat->addTexUniform("bright", brightTexture, false);
 		guiPlane->setMaterial(mat);
 	}
 
@@ -197,7 +197,7 @@ namespace vb01{
 		skybox = new Box(Vector3(1, 1, 1) * 10);
 		Material *skyboxMat = new Material(libPath + "skybox");
 		Texture *texture = new Texture(paths);
-		skyboxMat->addVariable("skybox", texture, true);
+		skyboxMat->addTexUniform("skybox", texture, true);
 		skybox->setMaterial(skyboxMat);
 	}
 

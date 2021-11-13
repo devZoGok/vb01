@@ -44,26 +44,26 @@ int main(){
 	 * Creates a material with diffuse, normal, and specular maps attached.
 	*/
 	Material *mat = new Material(PATH + "texture");
-	mat->addVariable("texturingEnabled", true);
-	mat->addVariable("lightingEnabled", true);
-	mat->addVariable("normalMapEnabled", true);
-	mat->addVariable("specularMapEnabled", false);
+	mat->addBoolUniform("texturingEnabled", true);
+	mat->addBoolUniform("lightingEnabled", true);
+	mat->addBoolUniform("normalMapEnabled", true);
+	mat->addBoolUniform("specularMapEnabled", true);
 
 	string im0[] = {TEX_PATH + "bricks.jpg"};
 	Texture *diffuseTex = new Texture(im0, 1);
-	mat->addVariable("textures[0]", diffuseTex, false);
+	mat->addTexUniform("textures[0]", diffuseTex, true);
 
 	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
-	mat->addVariable("textures[1]", normalTex, false);
+	mat->addTexUniform("textures[1]", normalTex, true);
 	
 	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
 	Texture *specularTex = new Texture(im2, 1, Texture::SPECULAR);
-	mat->addVariable("textures[2]", specularTex, false);
+	mat->addTexUniform("textures[2]", specularTex, true);
 
 	//Setting specular parameteres
-	mat->addVariable("specularStrength", 1);
-	mat->addVariable("shinyness", 32);
+	mat->addFloatUniform("specularStrength", 1);
+	mat->addFloatUniform("shinyness", 2);
 	box->setMaterial(mat);
 
 	rootNode->attachChild(box);
@@ -77,8 +77,8 @@ int main(){
 	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(.0, Vector3(1, 0, 0)));
-	lightNode->setPosition(Vector3(0, 5, -5));
+	lightNode->setOrientation(Quaternion(.7, Vector3(1, 0, 0)));
+	lightNode->setPosition(Vector3(0, 5, -10));
 
 	/*
 	 * KeyframeChannel structs determine what object and how it will be animated.

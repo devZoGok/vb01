@@ -42,8 +42,8 @@ int main(){
 	Box *driverBox = new Box(Vector3(1, 1, 1) * .25);
 	Node *driver = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
 	Material *driverMat = new Material(PATH + "texture");
-	driverMat->addVariable("texturingEnabled", false);
-	driverMat->addVariable("diffuseColor", Vector4(0, 1, 0, 1));
+	driverMat->addBoolUniform("texturingEnabled", false);
+	driverMat->addVec4Uniform("diffuseColor", Vector4(0, 1, 0, 1));
 	driverBox->setMaterial(driverMat);
 	driver->attachMesh(driverBox);
 	rootNode->attachChild(driver);
@@ -51,8 +51,8 @@ int main(){
 	Box *leftBox = new Box(Vector3(1, 1, 1) * .25);
 	Node *leftNode = new Node();
 	Material *leftMat = new Material(PATH + "texture");
-	leftMat->addVariable("texturingEnabled", false);
-	leftMat->addVariable("diffuseColor", Vector4(1, 0, 0, 1));
+	leftMat->addBoolUniform("texturingEnabled", false);
+	leftMat->addVec4Uniform("diffuseColor", Vector4(1, 0, 0, 1));
 	leftBox->setMaterial(leftMat);
 	leftNode->attachMesh(leftBox);
 	rootNode->attachChild(leftNode);
@@ -61,8 +61,8 @@ int main(){
 	Box *rightBox = new Box(Vector3(1, 1, 1) * .25);
 	Node *rightNode = new Node();
 	Material *rightMat = new Material(PATH + "texture");
-	rightMat->addVariable("texturingEnabled", false);
-	rightMat->addVariable("diffuseColor", Vector4(0, 0, 1, 1));
+	rightMat->addBoolUniform("texturingEnabled", false);
+	rightMat->addVec4Uniform("diffuseColor", Vector4(0, 0, 1, 1));
 	rightBox->setMaterial(rightMat);
 	rightNode->attachMesh(rightBox);
 	rootNode->attachChild(rightNode);

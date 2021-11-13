@@ -153,13 +153,13 @@ namespace vb01{
 			void update();
 			Uniform* getUniform(std::string);
 			inline Uniform* getUniform(int i){return uniforms[i];}
-			inline void addVariable(std::string name, int value){uniforms.push_back(new IntUniform(name, value));}
-			inline void addVariable(std::string name, bool value){uniforms.push_back(new BoolUniform(name, value));}
-			inline void addVariable(std::string name, float value){uniforms.push_back(new BoolUniform(name, value));}
-			inline void addVariable(std::string name, Vector2 value){uniforms.push_back(new Vector2Uniform(name, value));}
-			inline void addVariable(std::string name, Vector3 value){uniforms.push_back(new Vector3Uniform(name, value));}
-			inline void addVariable(std::string name, Vector4 value){uniforms.push_back(new Vector4Uniform(name, value));}
-			inline void addVariable(std::string name, Texture *value, bool animatable){uniforms.push_back(new TextureUniform(name, value, animatable));}
+			inline void addIntUniform(std::string name, int value){uniforms.push_back(new IntUniform(name, value));}
+			inline void addBoolUniform(std::string name, bool value){uniforms.push_back(new BoolUniform(name, value));}
+			inline void addFloatUniform(std::string name, float value){uniforms.push_back(new FloatUniform(name, value));}
+			inline void addVec2Uniform(std::string name, Vector2 value){uniforms.push_back(new Vector2Uniform(name, value));}
+			inline void addVec3Uniform(std::string name, Vector3 value){uniforms.push_back(new Vector3Uniform(name, value));}
+			inline void addVec4Uniform(std::string name, Vector4 value){uniforms.push_back(new Vector4Uniform(name, value));}
+			inline void addTexUniform(std::string name, Texture *value, bool animatable){uniforms.push_back(new TextureUniform(name, value, animatable));}
 			inline Shader* getShader(){return shader;}
 		private:
 			std::vector<Uniform*> uniforms;

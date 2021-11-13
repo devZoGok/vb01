@@ -66,11 +66,15 @@ namespace vb01{
 						case Uniform::TEXTURE:{
 								TextureUniform *u = (TextureUniform*)uni;
 								shader->setInt(2 * i, u->name + (u->animatable ? ".pastTexture" : ""));
-								shader->setBool(u->animatable, u->name + ".animated");
 
-								if(u->value->getNumFrames() > 1){
-									shader->setInt(2 * i + 1, u->name + ".nextTexture");
-									shader->setFloat(u->value->getMixRatio(), u->name + ".mixRatio");
+								if(u->animatable) {
+									if(u->value->getNumFrames() > 1){
+										shader->setInt(2 * i + 1, u->name + ".nextTexture");
+										shader->setFloat(u->value->getMixRatio(), u->name + ".mixRatio");
+										shader->setBool(true, u->name + ".animated");
+									}
+									else
+										shader->setBool(false, u->name + ".animated");
 								}
 
 								u->value->update(2 * i);

@@ -68,8 +68,8 @@ float getShadow(int id){
 	return shadow;
 }
 
-void main(){
-	vec4 finalColor = diffuseColor;
+void main(){ vec4 finalColor = diffuseColor;
+
 	if(texturingEnabled){
 		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
 		vec4 mixedTexColor = mix(textureColor, texture(textures[0].nextTexture, texCoords), textures[0].mixRatio);
@@ -77,11 +77,14 @@ void main(){
 	}
 
 	vec3 normal = norm;
+
 	if(lightingEnabled){
 		if(normalMapEnabled){
 			vec3 n = vec3(texture(textures[1].pastTexture, texCoords));
+
 			if(textures[1].animated)
 				n = mix(n, texture(textures[1].nextTexture, texCoords).rgb, textures[1].mixRatio);
+
 			normal = mat3(tan, biTan, norm) * n;
 		}
 
@@ -127,7 +130,9 @@ void main(){
 	}
 
 	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+
 	if(brightness > 1)
 		BrightColor = vec4(finalColor.rgb, 1);
+
 	FragColor = finalColor;
 }
