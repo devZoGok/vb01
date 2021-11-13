@@ -409,9 +409,9 @@ namespace vb01{
 
 			Mesh::Vertex vert;
 			vert.pos = vertPos[index];
-			vert.norm = vertNorm[index];
 			vert.tan = tan;
 			vert.biTan = biTan;
+			vert.norm = tan.cross(biTan);
 			vert.uv = uv;
 
 			for(int j = 0, boneIndex = 0; j < numBones; j++){
@@ -435,12 +435,8 @@ namespace vb01{
 	}
 
 	void VbModelReader::readShapeKeys(Mesh::Vertex *vertices, vector<u32> &vertIds, vector<string> &meshData, Mesh::ShapeKey *shapeKeys, int numShapes, int numVertPos){
-		/*
-		for(int i = 0; i < vertIds.size(); i++)
-			vertices[i].shapeKeyOffsets = new Vector3[numShapes];
-			*/
-
 		int shapeKeyStartLine = 0;
+
 		for(int i = 0; i < numShapes; i++){
 			string line = meshData[shapeKeyStartLine];
 			int colonId = line.find_first_of(':');
@@ -454,16 +450,19 @@ namespace vb01{
 			shapeKeys[i] = shapeKey;
 
 			Vector3 *shapeKeyVertPos = new Vector3[numVertPos];
+
 			for(int j = 0; j < numVertPos; j++){
 				string line = meshData[shapeKeyStartLine + 1 + j];
 				string dataLine[3];
 				getLineData(line, dataLine, 3);
 				shapeKeyVertPos[j] = Vector3(atof(dataLine[0].c_str()), atof(dataLine[2].c_str()), -atof(dataLine[1].c_str()));
 			}
+
 			for(int j = 0; j < vertIds.size(); j++){
 				Vector3 offset = shapeKeyVertPos[vertIds[j]] - vertices[j].pos;
 				vertices[j].shapeKeyOffsets[i] = (offset);
 			}
+
 			delete[] shapeKeyVertPos;
 
 
