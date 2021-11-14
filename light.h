@@ -47,7 +47,7 @@ namespace vb01{
 			Shader *depthMapShader;
 			Texture *depthMap = nullptr;
 			Node *node = nullptr;
-			Vector3 color, attenuationValues = Vector3(1.8, .7, 1);
+			Vector3 color = Vector3::VEC_IJK, attenuationValues = Vector3(1.8, .7, 1);
 			float innerAngle = .707, outerAngle = .714, nearPlane = .1, farPlane = 100;
 			unsigned int depthmapFBO, depthMapSize = 1024;
 	};

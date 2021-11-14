@@ -94,4 +94,7 @@ if(BUILD_SAMPLES)
 
 	add_executable(shadowSample shadowSample.cpp)
 	target_link_libraries(shadowSample ${LIB_NAME})
+
+	add_executable(pbrSample pbrSample.cpp)
+	target_link_libraries(pbrSample ${LIB_NAME})
 endif()

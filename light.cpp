@@ -181,36 +181,36 @@ namespace vb01{
 		for(Material *m : materials){
 			Shader *shader = m->getShader();
 			shader->use();
-			shader->setInt((int)type, "light[" + to_string(thisId) + "].type");
-			shader->setVec3(color, "light[" + to_string(thisId) + "].color");
-			shader->setFloat(nearPlane, "light[" + to_string(thisId) + "].near");
-			shader->setFloat(farPlane, "light[" + to_string(thisId) + "].far");
+			shader->setInt((int)type, "lights[" + to_string(thisId) + "].type");
+			shader->setVec3(color, "lights[" + to_string(thisId) + "].color");
+			shader->setFloat(nearPlane, "lights[" + to_string(thisId) + "].near");
+			shader->setFloat(farPlane, "lights[" + to_string(thisId) + "].far");
 
 			int depthMapId = 10;
-			shader->setInt(depthMapId, "light[" + to_string(thisId) + "].depthMap");
-			shader->setInt(depthMapId + 1, "light[" + to_string(thisId) + "].depthMapCube");
+			shader->setInt(depthMapId, "lights[" + to_string(thisId) + "].depthMap");
+			shader->setInt(depthMapId + 1, "lights[" + to_string(thisId) + "].depthMapCube");
 			depthMap->select(depthMapId + (type == POINT ? 1 : 0));
 
 			switch(type){
 				case POINT:
-					shader->setVec3(position, "light[" + to_string(thisId) + "].pos");
-					shader->setFloat(attenuationValues.x, "light[" + to_string(thisId) + "].a");
-					shader->setFloat(attenuationValues.y, "light[" + to_string(thisId) + "].b");
-					shader->setFloat(attenuationValues.z, "light[" + to_string(thisId) + "].c");
+					shader->setVec3(position, "lights[" + to_string(thisId) + "].pos");
+					shader->setFloat(attenuationValues.x, "lights[" + to_string(thisId) + "].a");
+					shader->setFloat(attenuationValues.y, "lights[" + to_string(thisId) + "].b");
+					shader->setFloat(attenuationValues.z, "lights[" + to_string(thisId) + "].c");
 					break;
 				case DIRECTIONAL:
-					shader->setMat4(proj * view, "light[" + to_string(thisId) + "].lightMat");
-					shader->setVec3(direction, "light[" + to_string(thisId) + "].direction");
+					shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+					shader->setVec3(direction, "lights[" + to_string(thisId) + "].direction");
 					break;
 				case SPOT:
-					shader->setMat4(proj * view, "light[" + to_string(thisId) + "].lightMat");
-					shader->setVec3(position, "light[" + to_string(thisId) + "].pos");
-					shader->setVec3(direction,"light[" + to_string(thisId) + "].direction");
-					shader->setFloat(attenuationValues.x, "light["+to_string(thisId) + "].a");
-					shader->setFloat(attenuationValues.y, "light["+to_string(thisId) + "].b");
-					shader->setFloat(attenuationValues.z, "light["+to_string(thisId) + "].c");
-					shader->setFloat(innerAngle, "light[" + to_string(thisId) + "].innerAngle");
-					shader->setFloat(outerAngle, "light[" + to_string(thisId) + "].outerAngle");
+					shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+					shader->setVec3(position, "lights[" + to_string(thisId) + "].pos");
+					shader->setVec3(direction,"lights[" + to_string(thisId) + "].direction");
+					shader->setFloat(attenuationValues.x, "lights["+to_string(thisId) + "].a");
+					shader->setFloat(attenuationValues.y, "lights["+to_string(thisId) + "].b");
+					shader->setFloat(attenuationValues.z, "lights["+to_string(thisId) + "].c");
+					shader->setFloat(innerAngle, "lights[" + to_string(thisId) + "].innerAngle");
+					shader->setFloat(outerAngle, "lights[" + to_string(thisId) + "].outerAngle");
 					break;
 			}
 		}

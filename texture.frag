@@ -31,35 +31,34 @@ struct Texture{
 
 uniform Texture textures[4];
 uniform samplerCube environmentMap;
-uniform Light light[numLights];
+uniform Light lights[numLights];
 uniform bool lightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
 uniform vec4 diffuseColor, specularColor;
 uniform float shinyness, specularStrength;
 uniform vec3 camPos;
 
 float linDepth(float depth, int i){
-	float z = depth * 2 - 1, near = light[i].near, far = light[i].far;
+	float z = depth * 2 - 1, near = lights[i].near, far = lights[i].far;
 	return (2 * near * far) / (far + near - z * (far - near));
 }
 
 float getShadow(int id){
-	int type = light[id].type;
+	int type = lights[id].type;
 
 	float shadow = 0, closestDepth = 0, currentDepth = 0, bias = .005, val = .7;
 	if(type == 0){
-		vec3 projDir = fragPos - light[id].pos;
-		closestDepth = texture(light[id].depthMapCube, projDir).r * light[id].far;
+		vec3 projDir = fragPos - lights[id].pos;
+		closestDepth = texture(lights[id].depthMapCube, projDir).r * lights[id].far;
 		currentDepth = length(projDir);
 		shadow = (currentDepth - bias > closestDepth) ? val : 0;
 	}
 	else{
-		vec4 lightSpaceFragPos = light[id].lightMat * vec4(fragPos, 1);
+		vec4 lightSpaceFragPos = lights[id].lightMat * vec4(fragPos, 1);
 		vec3 projCoords = (lightSpaceFragPos.xyz / lightSpaceFragPos.w) * .5 + .5;
-		closestDepth = texture(light[id].depthMap, projCoords.xy).r;
+		closestDepth = texture(lights[id].depthMap, projCoords.xy).r;
 		currentDepth = projCoords.z;
 		if(type == 2){
-			closestDepth = linDepth(closestDepth, id);
-			currentDepth = linDepth(currentDepth, id);
+			closestDepth = linDepth(closestDepth, id); currentDepth = linDepth(currentDepth, id);
 		}
 		shadow = (currentDepth - bias > closestDepth) ? val : 0;
 		if(projCoords.z > 1)
@@ -68,7 +67,8 @@ float getShadow(int id){
 	return shadow;
 }
 
-void main(){ vec4 finalColor = diffuseColor;
+void main(){
+	vec4 finalColor = diffuseColor;
 
 	if(texturingEnabled){
 		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
@@ -93,36 +93,36 @@ void main(){ vec4 finalColor = diffuseColor;
 		for(int i = 0; i < numLights; i++){
 			vec3 lightDir = vec3(0), viewDir = normalize(camPos - fragPos);
 			float attenuation = 1.0;
-			float a = light[i].a, b = light[i].b, c = light[i].c, dist = length(fragPos - light[i].pos), factor, coef = 1;
+			float a = lights[i].a, b = lights[i].b, c = lights[i].c, dist = length(fragPos - lights[i].pos), factor, coef = 1;
 
-			if(light[i].type == 0){
-				lightDir = normalize(light[i].pos - fragPos);
+			if(lights[i].type == 0){
+				lightDir = normalize(lights[i].pos - fragPos);
 				attenuation = 1.0 / (a * dist * dist + b * dist + c);
 			}
-			else if(light[i].type == 1){
-				lightDir = -normalize(light[i].direction);
+			else if(lights[i].type == 1){
+				lightDir = -normalize(lights[i].direction);
 			}
-			else if(light[i].type == 2){
-				lightDir = normalize(light[i].pos - fragPos);
-				float innerAngle = light[i].innerAngle;
-				float angle = acos(dot(-lightDir, light[i].direction));
-				float outerAngle = light[i].outerAngle;
-				if(light[i].innerAngle <= angle && angle <= light[i].outerAngle){
+			else if(lights[i].type == 2){
+				lightDir = normalize(lights[i].pos - fragPos);
+				float innerAngle = lights[i].innerAngle;
+				float angle = acos(dot(-lightDir, lights[i].direction));
+				float outerAngle = lights[i].outerAngle;
+				if(lights[i].innerAngle <= angle && angle <= lights[i].outerAngle){
 					coef = (angle - outerAngle) / (innerAngle - outerAngle);
 				}
-				if(angle > light[i].outerAngle){
+				if(angle > lights[i].outerAngle){
 					continue;
 				}
 			}
 
 			factor = max(dot(lightDir, normal), 0.);
-			diffuseCol += light[i].color * (factor * attenuation * coef);
+			diffuseCol += lights[i].color * (factor * attenuation * coef);
 
 			if(specularMapEnabled){
 				float specularSample = texture(textures[2].pastTexture, texCoords).r;
 				vec3 halfwayVec = normalize(lightDir + viewDir);
 				float spec = pow(max(dot(normal, halfwayVec), 0), shinyness);	
-				specularCol += specularStrength * spec * specularSample * light[i].color;
+				specularCol += specularStrength * spec * specularSample * lights[i].color;
 			}
 		}
 
