@@ -28,21 +28,34 @@ int main() {
 	Root *root = Root::getSingleton();
 	root->start(800, 600, PATH, "Light sample");
 	root->createSkybox(skyboxTextures);
-	root->setHDREnabled(true);
 
 	Camera *cam = root->getCamera();
-	cam->setPosition(Vector3(1, 1, 1) * 5);
-	cam->lookAt(Vector3(-1, -1, -1).norm(), Vector3(-1, 1, -1).norm());
+	cam->setPosition(Vector3(1, 1, 0) * 5);
+	cam->lookAt(Vector3(-1, -1, 0).norm(), Vector3(-1, 1, 0).norm());
 
 	Node *rootNode = root->getRootNode();
 
 	Model *model = new Model(MODEL_PATH + "teapot.vb");
 	Material *mat = new Material(PATH + "pbr");
-	mat->addBoolUniform("albedoMapEnabled", false);
-	mat->addVec4Uniform("albedoColor", Vector4(1, 1, 1, 1));
-	mat->addFloatUniform("roughness", .1);
-	mat->addFloatUniform("metalness", .1);
-	mat->addVec3Uniform("baseReflectivity", Vector3(0.563,  0.579,  0.579));
+	mat->addBoolUniform("albedoMapEnabled", true);
+	mat->addBoolUniform("normalMapEnabled", true);
+	mat->addBoolUniform("roughnessMapEnabled", true);
+	mat->addBoolUniform("metallnessMapEnabled", true);
+	string fr0[]{TEX_PATH + "rustediron2_albedo.jpg"};
+	string fr1[]{TEX_PATH + "rustediron2_normal.jpg"};
+	string fr2[]{TEX_PATH + "rustediron2_roughness.jpg"};
+	string fr3[]{TEX_PATH + "rustediron2_metallic.jpg"};
+	string fr4[]{TEX_PATH + "rustediron2_ao.jpg"};
+	mat->addTexUniform("textures[0]", new Texture(fr0, 1), true);
+	mat->addTexUniform("textures[1]", new Texture(fr1, 1), true);
+	mat->addTexUniform("textures[2]", new Texture(fr2, 1), true);
+	mat->addTexUniform("textures[3]", new Texture(fr3, 1), true);
+	/*
+	mat->addVec4Uniform("albedoColor", Vector4(1, 0, 1, 1));
+	mat->addFloatUniform("roughnessVal", .09);
+	mat->addFloatUniform("metalnessVal", .1);
+	mat->addFloatUniform("ambientOcclusion", 0);
+	*/
 	/*
 	mat = new Material(PATH + "texture");
 	mat->addBoolUniform("texturingEnabled", true);
@@ -56,7 +69,7 @@ int main() {
 	{
 	Light *light = new Light(Light::POINT);
 	light->setAttenuationValues(.00001, .00001, 1);
-	light->setColor(Vector3(1, 0, 0));
+	light->setColor(Vector3(1, 1, 1));
 	light->setInnerAngle(.1);
 	light->setOuterAngle(.1);
 	Node *lightNode = new Node();

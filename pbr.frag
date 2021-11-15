@@ -30,13 +30,17 @@ struct Texture{
 };
 
 uniform Light lights[numLights];
-uniform Texture textures[1];
+uniform Texture textures[5];
 
 uniform bool albedoMapEnabled;
+uniform bool normalMapEnabled;
+uniform bool roughnessMapEnabled;
+uniform bool metallnessMapEnabled;
+uniform bool ambientOcclutionMapEnabled;
 uniform vec4 albedoColor;
-uniform float roughness;
-uniform float metalness;
-uniform vec3 baseReflectivity;
+uniform float roughnessVal;
+uniform float metalnessVal;
+uniform float ambientOcclusion;
 uniform vec3 camPos;
 
 float trowbridgeReitz(vec3 n, vec3 h, float a){
@@ -65,8 +69,33 @@ vec3 lambertDiffuse(vec4 color){
 void main() {
 	vec4 finalColor = vec4(0, 0, 0, 1);
 	vec3 normal = norm;
+
+	if(normalMapEnabled) {
+		mat3 normMat = mat3(tan, biTan, norm);
+		vec3 n = texture(textures[1].pastTexture, texCoords).rgb;
+		normal = normMat * n;
+	}
+
 	vec3 viewDir = normalize(camPos - fragPos);
-	vec4 albedo = (albedoMapEnabled ? texture(textures[0].pastTexture, texCoords) : albedoColor);
+
+	vec4 albedo = albedoColor;
+
+	if(albedoMapEnabled)
+		albedo = texture(textures[0].pastTexture, texCoords);
+
+	albedo.rgb = pow(albedo.rgb, vec3(1 / 2.2));
+
+	float roughness = roughnessVal;
+
+	if(roughnessMapEnabled)
+		roughness = texture(textures[2].pastTexture, texCoords).r;
+
+	float metalness = metalnessVal;
+
+	if(metallnessMapEnabled)
+		metalness = texture(textures[3].pastTexture, texCoords).r;
+
+	vec3 f0 = mix(vec3(.04), albedo.rgb, metalness);
 
 	for(int i = 0; i < numLights; ++i){
 		vec3 lightDir;
@@ -74,33 +103,43 @@ void main() {
 
 		if(lights[i].type == 0){
 			lightDir = normalize(lights[i].pos - fragPos);
-			attenuation = 1 / (a * dist * dist + b * dist + c);
+			attenuation = 1 / (dist * dist);
 		}
 		else if(lights[i].type == 1){
 			lightDir = -normalize(lights[i].direction);
 		}
 		else if(lights[i].type == 2){
 			lightDir = normalize(lights[i].pos - fragPos);
-			attenuation = 1 / (a * dist * dist + b * dist + c);
+			attenuation = 1 / (dist * dist);
 		}
 
 		vec3 halfVec = normalize(lightDir + normal);
 
 		float D = trowbridgeReitz(normal, halfVec, roughness * roughness);
-		float G = geoSmith(normal, halfVec, lightDir, 0.5 * roughness * roughness);
-		vec3 F = fresnelSchlick(viewDir, halfVec, baseReflectivity);
-		vec3 cookTor = D * G * F / max(4 * max(dot(viewDir, normal), 0) * max(dot(lightDir, normal), 0), .000001);
+		float k = pow(roughness + 1, 2) / 8.0;
+		float G = geoSmith(normal, viewDir, lightDir, k);
+		vec3 F = fresnelSchlick(viewDir, halfVec, f0);
+		float nDotV = max(dot(viewDir, normal), 0);
+		float nDotL = max(dot(lightDir, normal), 0);
+		vec3 cookTor = D * G * F / max(4 * nDotV * nDotL, .001);
 
 		vec3 fDiff = lambertDiffuse(albedo);
 		vec3 kDiff = (vec3(1) - F) * (1 - metalness);
 
-		finalColor.rgb += (kDiff * fDiff + cookTor) * lights[i].color * attenuation * max(dot(lightDir, normal), 0);
+		finalColor.rgb += (kDiff * fDiff + cookTor) * lights[i].color * attenuation * nDotL;
 	}
+
+	float ao = ambientOcclusion;
+
+	finalColor.rgb += vec3(.03) * albedo.rgb * ao;
 
 	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
 	if(brightness > 1)
 		BrightColor = vec4(finalColor.rgb, 1);
+
+	finalColor.rgb /= finalColor.rgb + vec3(1.0);
+	finalColor.rgb = pow(finalColor.rgb, vec3(1.0 / 2.2));
 
 	FragColor = finalColor;
 }
