@@ -49,7 +49,7 @@ float trowbridgeReitz(vec3 n, vec3 h, float a){
 
 float schlickGGX(vec3 vec1, vec3 vec2, float k){
 	float dotProd = max(dot(vec1, vec2), 0);
-	return dotProd / (dotProd * (1 - k) + k);
+	return dotProd / max(dotProd * (1 - k) + k, .000001);
 }
 
 float geoSmith(vec3 n, vec3 v, vec3 l, float k){
@@ -72,7 +72,7 @@ void main() {
 
 	if(normalMapEnabled) {
 		mat3 normMat = mat3(tan, biTan, norm);
-		vec3 n = texture(textures[1].pastTexture, texCoords).rgb;
+		vec3 n = normalize(texture(textures[1].pastTexture, texCoords).rgb * 2 - 1);
 		normal = normMat * n;
 	}
 
@@ -82,8 +82,6 @@ void main() {
 
 	if(albedoMapEnabled)
 		albedo = texture(textures[0].pastTexture, texCoords);
-
-	albedo.rgb = pow(albedo.rgb, vec3(1 / 2.2));
 
 	float roughness = roughnessVal;
 
@@ -116,12 +114,12 @@ void main() {
 		vec3 halfVec = normalize(lightDir + normal);
 
 		float D = trowbridgeReitz(normal, halfVec, roughness * roughness);
-		float k = pow(roughness + 1, 2) / 8.0;
+		float k = pow(roughness * roughness + 1, 2) / 8.0;
 		float G = geoSmith(normal, viewDir, lightDir, k);
 		vec3 F = fresnelSchlick(viewDir, halfVec, f0);
 		float nDotV = max(dot(viewDir, normal), 0);
 		float nDotL = max(dot(lightDir, normal), 0);
-		vec3 cookTor = D * G * F / max(4 * nDotV * nDotL, .001);
+		vec3 cookTor = D * G * F / max(4 * nDotV * nDotL, .000001);
 
 		vec3 fDiff = lambertDiffuse(albedo);
 		vec3 kDiff = (vec3(1) - F) * (1 - metalness);

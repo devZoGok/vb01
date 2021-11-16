@@ -80,10 +80,10 @@ void main(){
 
 	if(lightingEnabled){
 		if(normalMapEnabled){
-			vec3 n = vec3(texture(textures[1].pastTexture, texCoords));
+			vec3 n = normalize(vec3(texture(textures[1].pastTexture, texCoords)) * 2 - 1);
 
 			if(textures[1].animated)
-				n = mix(n, texture(textures[1].nextTexture, texCoords).rgb, textures[1].mixRatio);
+				n = mix(n, normalize(texture(textures[1].nextTexture, texCoords).rgb * 2 - 1), textures[1].mixRatio);
 
 			normal = mat3(tan, biTan, norm) * n;
 		}

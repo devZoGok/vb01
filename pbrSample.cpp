@@ -30,8 +30,8 @@ int main() {
 	root->createSkybox(skyboxTextures);
 
 	Camera *cam = root->getCamera();
-	cam->setPosition(Vector3(1, 1, 0) * 5);
-	cam->lookAt(Vector3(-1, -1, 0).norm(), Vector3(-1, 1, 0).norm());
+	cam->setPosition(Vector3(0, 1, 1) * 7);
+	cam->lookAt(Vector3(0, -1, -1).norm(), Vector3(0, 1, -1).norm());
 
 	Node *rootNode = root->getRootNode();
 
@@ -41,37 +41,22 @@ int main() {
 	mat->addBoolUniform("normalMapEnabled", true);
 	mat->addBoolUniform("roughnessMapEnabled", true);
 	mat->addBoolUniform("metallnessMapEnabled", true);
-	string fr0[]{TEX_PATH + "rustediron2_albedo.jpg"};
-	string fr1[]{TEX_PATH + "rustediron2_normal.jpg"};
-	string fr2[]{TEX_PATH + "rustediron2_roughness.jpg"};
-	string fr3[]{TEX_PATH + "rustediron2_metallic.jpg"};
-	string fr4[]{TEX_PATH + "rustediron2_ao.jpg"};
+	string fr0[]{TEX_PATH + "geyser-rock1_albedo.jpg"};
+	string fr1[]{TEX_PATH + "geyser-rock1_normal.jpg"};
+	string fr2[]{TEX_PATH + "geyser-rock1_roughness.jpg"};
+	string fr3[]{TEX_PATH + "geyser-rock1_metallic.jpg"};
+	string fr4[]{TEX_PATH + "geyser-rock1_ao.jpg"};
 	mat->addTexUniform("textures[0]", new Texture(fr0, 1), true);
 	mat->addTexUniform("textures[1]", new Texture(fr1, 1), true);
 	mat->addTexUniform("textures[2]", new Texture(fr2, 1), true);
 	mat->addTexUniform("textures[3]", new Texture(fr3, 1), true);
-	/*
-	mat->addVec4Uniform("albedoColor", Vector4(1, 0, 1, 1));
-	mat->addFloatUniform("roughnessVal", .09);
-	mat->addFloatUniform("metalnessVal", .1);
-	mat->addFloatUniform("ambientOcclusion", 0);
-	*/
-	/*
-	mat = new Material(PATH + "texture");
-	mat->addBoolUniform("texturingEnabled", true);
-	mat->addBoolUniform("lightingEnabled", true);
-	string fr[]{TEX_PATH + "bricks.jpg"};
-	mat->addTexUniform("textures[0]", new Texture(fr, 1), true);
-	*/
+	mat->addTexUniform("textures[4]", new Texture(fr4, 1), true);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
 
 	{
 	Light *light = new Light(Light::POINT);
-	light->setAttenuationValues(.00001, .00001, 1);
-	light->setColor(Vector3(1, 1, 1));
-	light->setInnerAngle(.1);
-	light->setOuterAngle(.1);
+	light->setColor(Vector3(10, 0, 0));
 	Node *lightNode = new Node();
 	Box *b = new Box(Vector3(1, 1, 1) * .1);
 	Material *m = new Material(PATH + "texture");
@@ -82,15 +67,12 @@ int main() {
 	lightNode->attachMesh(b);
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setPosition(Vector3(2, 3, 0));
+	lightNode->setPosition(Vector3(2, 3, 2));
 	lightNode->setOrientation(Quaternion(1.57, Vector3::VEC_I));
 	}
 	{
 	Light *light = new Light(Light::POINT);
-	light->setAttenuationValues(.00001, .00001, 1);
-	light->setColor(Vector3(0, 0, 1));
-	light->setInnerAngle(.1);
-	light->setOuterAngle(.1);
+	light->setColor(Vector3(0, 0, 10));
 	Node *lightNode = new Node();
 	Box *b = new Box(Vector3(1, 1, 1) * .1);
 	Material *m = new Material(PATH + "texture");
