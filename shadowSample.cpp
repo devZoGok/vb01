@@ -46,7 +46,7 @@ int main(){
 	boxMat->addBoolUniform("texturingEnabled", true);
 	boxMat->addBoolUniform("lightingEnabled", true);
 	string im0[] = {TEX_PATH + "bricks.jpg"};
-	Texture *boxTex = new Texture(im0, 1);
+	Texture *boxTex = new Texture(im0, 1, false);
 	boxMat->addTexUniform("textures[0]", boxTex, true);
 	box->setMaterial(boxMat);
 	boxNode->attachMesh(box);
@@ -57,7 +57,7 @@ int main(){
 	jetMat->addBoolUniform("texturingEnabled", true);
 	jetMat->addBoolUniform("lightingEnabled", true);
 	string im1[] = {TEX_PATH + "defaultTexture.jpg"};
-	Texture *jetTex = new Texture(im1, 1);
+	Texture *jetTex = new Texture(im1, 1, false);
 	jetMat->addTexUniform("textures[0]", jetTex, true);
 	jet->setMaterial(jetMat);
 	rootNode->attachChild(jet);

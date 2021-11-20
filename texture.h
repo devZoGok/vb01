@@ -12,34 +12,30 @@
 namespace vb01{
 	class Texture : public Animatable{
 		public:
-			enum TextureType{TEXTURE_2D, TEXTURE_CUBEMAP};
-			enum TextureTypeId{DIFFUSE, NORMAL, SPECULAR, PARALLAX, ENVIRONMENT};
-
 			~Texture();
 			Texture(int, int, bool = true);
-			Texture(std::string[], int, TextureTypeId = DIFFUSE, bool = false);
-			Texture(std::string[6], bool = false);
+			Texture(std::string[], int, bool, int = 0, bool = false);
 			Texture(int, bool = true);
 			Texture(FT_Face&, char);
 			void select(int = 0, int = 0);
 			void update(int = 0);
 			void animate(float, KeyframeChannel);
-			inline unsigned int* getTexture(int i = 0){return &(texture[i]);}
-			inline std::string getPath(){return path;}
+			inline u32* getTexture(int i = 0){return &(texture[i]);}
+			inline std::string* getPath(){return paths;}
 			inline int getNumFrames(){return numFrames;}
+			inline int getMipmapLevel(){return mipmapLevel;}
 			inline float getMixRatio(){return mixRatio;}
-			inline TextureTypeId getTextureTypeId(){return typeId;}
 		private:
-			TextureType type = TextureType::TEXTURE_2D;
-			TextureTypeId typeId = DIFFUSE;
+			bool cubemap = false;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
-			int width, height, numChannels, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0;
+			int width, height, numChannels, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0, mipmapLevel = 1;
 			float mixRatio;
 			u8 *data;
-			std::string path = "", paths[6];
+			std::string *paths = nullptr;
 
 			void createCubemap(bool, bool);
+			void create2DTexture(bool);
 			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};
 }

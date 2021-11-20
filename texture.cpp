@@ -20,6 +20,7 @@ namespace vb01{
 
 		glGenTextures(1, &texture[0]);
 		glBindTexture(GL_TEXTURE_2D, texture[0]);
+
 		if(shadowMap){
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -39,49 +40,53 @@ namespace vb01{
 		}
 	}
 
-	Texture::Texture(string path[], int numPaths, TextureTypeId textureTypeId, bool flip){
+	Texture::Texture(string paths[], int numPaths, bool cubemap, int mipmapLevel, bool flip){
+			this->numFrames = numPaths;
+			this->cubemap = cubemap;
+			this->paths = new string[numPaths];
+
+			for(int i = 0; i < numPaths; i++)
+				this->paths[i] = paths[i];
+
+			if(cubemap){
+				texture = new u32;
+				createCubemap(false, flip);
+			}
+			else{
+				texture = new u32[numPaths];
+				create2DTexture(flip);
+			}
+	}
+
+	void Texture::create2DTexture(bool flip){
 		mixRatio = .1;
-		this->typeId = textureTypeId;
-		this->numFrames = numPaths;
 
-		texture = new u32[numPaths];
-
-		for(int i = 0; i < numPaths; i++){
+		for(int i = 0; i < numFrames; i++){
 			bool png = false;
-			int length = path[i].length();
+			int length = paths[i].length();
 
-			if(path[i].substr(length - 4, string::npos) == ".png")
+			if(paths[i].substr(length - 4, string::npos) == ".png")
 				png = true;
 
 			glGenTextures(1, &texture[i]);
 			glBindTexture(GL_TEXTURE_2D, texture[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			stbi_set_flip_vertically_on_load(flip);
 
-			data = stbi_load(path[i].c_str(), &width, &height, &numChannels, 0);
+			data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
-			//glGenerateMipmap(GL_TEXTURE_2D);
+			glGenerateMipmap(GL_TEXTURE_2D);
 			stbi_image_free(data);
 		}
 	}
 
-	Texture::Texture(string paths[6], bool flip){
-		this->type = TextureType::TEXTURE_CUBEMAP;
-		texture = new u32;
-
-		for(int i = 0; i < 6; i++)
-			this->paths[i] = paths[i];
-		createCubemap(false, flip);
-	}
-
 	Texture::Texture(int width, bool depth){
 		this->width = width;
-		this->type = TextureType::TEXTURE_CUBEMAP;
 		texture = new u32;
 
 		createCubemap(true, false);
@@ -97,23 +102,27 @@ namespace vb01{
 		for(int i = 0; i < 6; i++){
 			if(!depth){
 				data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
+
 				if(data){
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);	
 					stbi_image_free(data);
 				}
 				else{
-					cout<<"Failed to read cubemap texture "<<i<<endl;
+					cout << "Failed to read cubemap texture " << i << endl;
 					exit(-1);
 				}
+
+				glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 			}
 			else{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
 			}
 		}
+
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
@@ -141,10 +150,12 @@ namespace vb01{
 	}
 
 	Texture::~Texture(){
-		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, 0);
+		glBindTexture(cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, 0);
+
 		if(numFrames > 0){
 			for(int i = 0; i < numFrames; i++)
 				glDeleteTextures(1, &texture[i]);
+
 			delete[] texture;
 		}
 		else{
@@ -169,12 +180,13 @@ namespace vb01{
 
 	void Texture::update(int id){
 		select(id, frameA);
+
 		if(numFrames > 0)
 			select(id + 1, frameB);
 	}
 
 	void Texture::select(int id, int fr){
 		glActiveTexture(GL_TEXTURE0 + id);
-		glBindTexture(type == TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP, texture[fr]);
+		glBindTexture(cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texture[fr]);
 	}
 }

@@ -50,15 +50,15 @@ int main(){
 	mat->addBoolUniform("specularMapEnabled", true);
 
 	string im0[] = {TEX_PATH + "bricks.jpg"};
-	Texture *diffuseTex = new Texture(im0, 1);
+	Texture *diffuseTex = new Texture(im0, 1, false);
 	mat->addTexUniform("textures[0]", diffuseTex, true);
 
 	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
-	Texture *normalTex = new Texture(im1, 1, Texture::NORMAL);
+	Texture *normalTex = new Texture(im1, 1, false);
 	mat->addTexUniform("textures[1]", normalTex, true);
 	
 	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
-	Texture *specularTex = new Texture(im2, 1, Texture::SPECULAR);
+	Texture *specularTex = new Texture(im2, 1, false);
 	mat->addTexUniform("textures[2]", specularTex, true);
 
 	//Setting specular parameteres

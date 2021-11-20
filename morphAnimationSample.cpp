@@ -44,7 +44,7 @@ int main(){
 	mat->addBoolUniform("lightingEnabled", false);
 	mat->addBoolUniform("texturingEnabled", true);
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
-	Texture *texture = new Texture(images, 1);
+	Texture *texture = new Texture(images, 1, false);
 	mat->addTexUniform("textures[0]", texture, true);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);

@@ -55,7 +55,7 @@ int main(){
 	textMat->addBoolUniform("texturingEnabled", true);
 
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
-	Texture *texture = new Texture(frames, 2);
+	Texture *texture = new Texture(frames, 2, false);
 	textMat->addTexUniform("textures[0]", texture, true);
 
 	for(int i = 0; i < numTexts; i++){
