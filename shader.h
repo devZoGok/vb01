@@ -15,6 +15,8 @@ namespace vb01{
 
 			Shader(){}
 			Shader(std::string, bool = false);
+			Shader(std::string, std::string);
+			Shader(std::string, std::string, std::string);
 			~Shader();
 			std::string getName();
 			void setNumLights(int);

@@ -13,10 +13,26 @@ using namespace glm;
 
 namespace vb01{
 	Shader::Shader(string shaderPath, bool geometry){
-			this->geometry = geometry;
-			this->path = shaderPath;
+		this->geometry = geometry;
+		this->path = shaderPath;
 
 		initShaders(shaderPath + ".vert", shaderPath + ".frag", shaderPath + ".geo");
+		loadShaders();
+	}
+
+	Shader::Shader(string vertShader, string fragShader){
+		this->geometry = false;
+		this->path = vertShader;
+
+		initShaders(vertShader, fragShader, "");
+		loadShaders();
+	}
+
+	Shader::Shader(string vertShader, string fragShader, string geoShader){
+		this->geometry = true;
+		this->path = vertShader;
+
+		initShaders(vertShader, fragShader, geoShader);
 		loadShaders();
 	}
 
@@ -24,27 +40,41 @@ namespace vb01{
 
 	string Shader::getName(){
 			int dirId = path.find_last_of('/');
-			return (dirId != -1 ? path.substr(dirId + 1) : path);
+			string name = (dirId != -1 ? path.substr(dirId + 1) : path);
+
+			int dotId = path.find_last_of('.');
+
+			if(dotId != -1)
+				name = name.substr(0, dotId);
+
+			return name;
 	}
 
 	void Shader::initShaders(string vertShaderPath, string fragShaderPath, string geoShaderPath){
-		ifstream vertShaderFile, geoShaderFile, fragShaderFile;
+		ifstream vertShaderFile, fragShaderFile;
 		vertShaderFile.open(vertShaderPath);
-		geoShaderFile.open(geoShaderPath);
 		fragShaderFile.open(fragShaderPath);
 		
-		stringstream vertShaderStream, geoShaderStream, fragShaderStream;
+		stringstream vertShaderStream, fragShaderStream;
 		vertShaderStream << vertShaderFile.rdbuf();
-		geoShaderStream << geoShaderFile.rdbuf();
 		fragShaderStream << fragShaderFile.rdbuf();
 		
 		vertShaderFile.close();
-		geoShaderFile.close();
 		fragShaderFile.close();
 		
 		vString = vertShaderStream.str();
-		gString = geoShaderStream.str();
 		fString = fragShaderStream.str();
+
+		if(geometry){
+			ifstream geoShaderFile;
+			geoShaderFile.open(geoShaderPath);
+
+			stringstream geoShaderStream;
+			geoShaderStream << geoShaderFile.rdbuf();
+
+			geoShaderFile.close();
+			gString = geoShaderStream.str();
+		}
 	}
 
 	void Shader::editShader(ShaderType type, int line, string insertion){
@@ -54,6 +84,7 @@ namespace vb01{
 
 	void Shader::replaceLine(ShaderType type, int line, string insertion){
 		string *shaderString;
+
 		switch(type){
 			case VERTEX_SHADER:
 				shaderString = &vString;
@@ -71,12 +102,15 @@ namespace vb01{
 			if(shaderString[0][i] == '\n'){
 				if(numPassedLines == line - 1)
 					lineStart = i + 1;
+
 				if(numPassedLines == line){
 					lineEnd = i;
 					break;
 				}
+
 				numPassedLines++;
 			}
+
 		*shaderString = shaderString->substr(0, lineStart) + insertion + shaderString->substr(lineEnd);
 	}
 
@@ -92,39 +126,48 @@ namespace vb01{
 		u32 vert, geo, frag;
 		pushShader(vert, vString, GL_VERTEX_SHADER, VERTEX_ERROR);
 		pushShader(frag, fString, GL_FRAGMENT_SHADER, FRAGMENT_ERROR);
+
 		if(geometry)
 			pushShader(geo, gString, GL_GEOMETRY_SHADER, GEOMETRY_ERROR);
 
 		id = glCreateProgram();
 		glAttachShader(id, vert);
 		glAttachShader(id, frag);
+
 		if(geometry)
 			glAttachShader(id, geo);
+
 		glLinkProgram(id);
 		checkCompileErrors(id, PROGRAM_ERROR);
 
 		glDeleteShader(vert);
 		glDeleteShader(frag);
+
 		if(geometry) 
 			glDeleteShader(geo);
 	}
 	
 	void Shader::checkCompileErrors(u32 shader, ErrorType type){
 		int success;
-	   	const int infoLogLen = 1024;
+		const int infoLogLen = 1024;
 		char infoLog[infoLogLen];
+
 		switch(type){
 			case PROGRAM_ERROR:
 				glGetProgramiv(shader, GL_LINK_STATUS, &success);
+
 				if(!success){
 					glGetProgramInfoLog(shader, infoLogLen, NULL, infoLog);
 					cout << "ERROR::PROGRAM_LINK_ERROR: " << type << endl << infoLog << endl;
 				}
+
 				break;
 			default:
 				glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
 				if(!success){
 					const char *sh;
+
 					switch(type){
 						case VERTEX_ERROR:
 							sh = "VERTEX";
@@ -136,9 +179,11 @@ namespace vb01{
 							sh = "FRAGMENT";
 							break;
 					}
+
 					glGetShaderInfoLog(shader, infoLogLen, NULL, infoLog);
 					cout << "ERROS::SHADER_COMPILE_ERROR::" << sh << endl << infoLog << endl;
 				}
+
 				break;
 		}
 	}
