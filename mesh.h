@@ -40,11 +40,13 @@ namespace vb01{
 			inline void setNode(Node *node){this->node = node;}
 			inline void setCastShadow(bool castShadow){this->castShadow = castShadow;}
 			inline void setReflect(bool r){this->reflect = r;}
+			inline void setReflective(bool r){this->reflective = r;}
 			inline void setWireframe(bool w){this->wireframe = w;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
 			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
+			inline bool isReflective(){return reflective;}
 			inline bool isCastShadow(){return castShadow;}
 			inline int getNumVerts(){return 3 * numTris;}
 			inline Vertex* getVerts(){return vertices;}
@@ -57,14 +59,17 @@ namespace vb01{
 			inline int getNumShapeKeys(){return numShapeKeys;}
 		private:
 			void initMesh();
-			void initFramebuffer();
+			void initFramebuffer(u32&, u32&, Texture*, int);
 			void updateSkeleton(Shader*);
-			void updateReflection(Shader*, Vector3, int, int);
+			void updatePrefilterMap(Vector3);
+			void updateBrdfLut();
+			void updateReflection(Vector3);
 			void updateShapeKeys(Shader*);
 
-			Shader *environmentShader = nullptr;
-			u32 environmentBuffer;
-			Texture *environmentMap;
+			int reflectionSize = 512;
+			Shader *environmentShader = nullptr, *brdfIntegrationShader = nullptr;
+			u32 preFilterFramebuffer, preFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;
+			Texture *environmentMap = nullptr, *brdfIntegrationMap = nullptr;
 			Material *material = nullptr;
 			Node *node = nullptr;
 			std::vector<Mesh*> meshes;
@@ -73,10 +78,10 @@ namespace vb01{
 		protected:
 			Mesh();
 
-			bool staticVerts = true, castShadow = false, reflect = false, wireframe = false;
+			bool staticVerts = true, castShadow = false, reflect = false, reflective = false, wireframe = false;
 			Vertex *vertices;
 			std::string *vertexGroups = nullptr;
-		   	ShapeKey *shapeKeys = nullptr;
+			ShapeKey *shapeKeys = nullptr;
 			u32 *indices, VAO, VBO, EBO;
 			int numTris, numVertexGroups = 0, numShapeKeys = 0;
 	};

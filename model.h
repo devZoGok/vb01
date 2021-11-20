@@ -24,10 +24,11 @@ namespace vb01{
 			void setMaterial(Material*);
 			void setCastShadow(bool);
 			void setReflect(bool);
+			void setReflective(bool);
 			void setWireframe(bool);
 		private:
 			Material* material;
-			bool castShadow = false, reflect = false, wireframe = false;
+			bool castShadow = false, reflect = false, reflective = false, wireframe = false;
 	};
 }
 

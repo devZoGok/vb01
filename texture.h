@@ -25,6 +25,7 @@ namespace vb01{
 			inline int getNumFrames(){return numFrames;}
 			inline int getMipmapLevel(){return mipmapLevel;}
 			inline float getMixRatio(){return mixRatio;}
+			inline bool isCubemap(){return cubemap;}
 		private:
 			bool cubemap = false;
 			u32 *texture = nullptr;

@@ -24,6 +24,7 @@ namespace vb01{
 		int dotId = getCharId(path, '.', true);
 		string extension = path.substr(dotId + 1, string::npos);
 		ModelReader *modelReader = nullptr;
+
 		if(extension == "vb")
 			modelReader = new VbModelReader(this, path);
 		else
@@ -35,6 +36,7 @@ namespace vb01{
 
 		vector<Node*> descendants;
 		getDescendants(descendants);
+
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(nullptr);
@@ -53,6 +55,7 @@ namespace vb01{
 	void Model::setMaterial(Material *mat){
 		vector<Node*> descendants;
 		getDescendants(descendants);
+
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(mat);
@@ -61,27 +64,44 @@ namespace vb01{
 	void Model::setCastShadow(bool castShadow){
 		vector<Node*> descendants;
 		getDescendants(descendants);
+
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setCastShadow(castShadow);
+
 		this->castShadow = castShadow;
 	}
 
 	void Model::setReflect(bool reflect){
 		vector<Node*> descendants;
 		getDescendants(descendants);
+
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setReflect(reflect);
+
 		this->reflect = reflect;
+	}
+
+	void Model::setReflective(bool reflective){
+		vector<Node*> descendants;
+		getDescendants(descendants);
+
+		for(Node *node : descendants)
+			for(Mesh *mesh : node->getMeshes())
+				mesh->setReflect(reflect);
+
+		this->reflective = reflective;
 	}
 
 	void Model::setWireframe(bool wireframe){
 		vector<Node*> descendants;
 		getDescendants(descendants);
+
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setWireframe(wireframe);
+
 		this->wireframe = wireframe;
 	}
 }

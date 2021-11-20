@@ -90,7 +90,7 @@ namespace vb01{
 		this->mipmapLevel = mipmapLevel;
 		texture = new u32;
 
-		createCubemap(true, false);
+		createCubemap(depth, false);
 	}
 
 	void Texture::createCubemap(bool depth, bool flip){

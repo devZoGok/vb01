@@ -36,27 +36,30 @@ int main() {
 	Node *rootNode = root->getRootNode();
 
 	Model *model = new Model(MODEL_PATH + "teapot.vb");
+	model->setReflect(true);
 	Material *mat = new Material(PATH + "pbr");
 	mat->addBoolUniform("albedoMapEnabled", true);
 	mat->addBoolUniform("normalMapEnabled", true);
 	mat->addBoolUniform("roughnessMapEnabled", true);
 	mat->addBoolUniform("metallnessMapEnabled", true);
+	mat->addBoolUniform("ambientOcclusionMapEnabled", true);
+	mat->addBoolUniform("environmentMapEnabled", false);
 	string fr0[]{TEX_PATH + "geyser-rock1_albedo.jpg"};
 	string fr1[]{TEX_PATH + "geyser-rock1_normal.jpg"};
 	string fr2[]{TEX_PATH + "geyser-rock1_roughness.jpg"};
 	string fr3[]{TEX_PATH + "geyser-rock1_metallic.jpg"};
 	string fr4[]{TEX_PATH + "geyser-rock1_ao.jpg"};
-	mat->addTexUniform("textures[0]", new Texture(fr0, 1), true);
-	mat->addTexUniform("textures[1]", new Texture(fr1, 1), true);
-	mat->addTexUniform("textures[2]", new Texture(fr2, 1), true);
-	mat->addTexUniform("textures[3]", new Texture(fr3, 1), true);
-	mat->addTexUniform("textures[4]", new Texture(fr4, 1), true);
+	mat->addTexUniform("textures[0]", new Texture(fr0, 1, false), true);
+	mat->addTexUniform("textures[1]", new Texture(fr1, 1, false), true);
+	mat->addTexUniform("textures[2]", new Texture(fr2, 1, false), true);
+	mat->addTexUniform("textures[3]", new Texture(fr3, 1, false), true);
+	mat->addTexUniform("textures[4]", new Texture(fr4, 1, false), true);
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
 
 	{
 	Light *light = new Light(Light::POINT);
-	light->setColor(Vector3(10, 0, 0));
+	light->setColor(Vector3(10, 10, 10));
 	Node *lightNode = new Node();
 	Box *b = new Box(Vector3(1, 1, 1) * .1);
 	Material *m = new Material(PATH + "texture");
@@ -72,7 +75,7 @@ int main() {
 	}
 	{
 	Light *light = new Light(Light::POINT);
-	light->setColor(Vector3(0, 0, 10));
+	light->setColor(Vector3(0, 0, 0));
 	Node *lightNode = new Node();
 	Box *b = new Box(Vector3(1, 1, 1) * .1);
 	Material *m = new Material(PATH + "texture");

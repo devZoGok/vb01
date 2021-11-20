@@ -36,6 +36,7 @@ namespace vb01{
 			inline void setBloom(bool bloom){this->bloom = bloom;}
 			inline void setBlurLevel(bool level){this->blurLevel = level;}
 			inline Box* getSkybox(){return skybox;}
+			inline Quad* getBrdfLutPlane(){return brdfLutPlane;}
 			void createSkybox(std::string[6]);
 			void removeSkybox();
 			static Root* getSingleton();
@@ -47,7 +48,7 @@ namespace vb01{
 			bool bloom = false, hdr = false;
 			float exposure = 1, gamma = 1;
 			Box *skybox = nullptr;
-			Quad *guiPlane = nullptr;
+			Quad *guiPlane = nullptr, *brdfLutPlane = nullptr;
 			int width, height, blurLevel = 10; 
 			u32 FBO, RBO, pingpongBuffers[2];
 			GLFWwindow *window;

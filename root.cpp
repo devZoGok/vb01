@@ -45,6 +45,8 @@ namespace vb01{
 
 		initWindow(name);
 
+		brdfLutPlane = new Quad(Vector3::VEC_IJK);
+
 		Texture *fragTexture = new Texture(width, height, false);
 		Texture *brightTexture = new Texture(width, height, false);
 

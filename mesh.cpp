@@ -1,6 +1,7 @@
 #include "root.h"
 #include "node.h"
 #include "box.h"
+#include "quad.h"
 #include "texture.h"
 #include "skeleton.h"
 #include "animation.h"
@@ -59,29 +60,35 @@ namespace vb01{
 	}
 
 	void Mesh::construct(){
-		//initFramebuffer();
+		string libPath = Root::getSingleton()->getLibPath();
+		environmentShader = new Shader(libPath + "environmentPreFilter");
+		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
+
+		environmentMap = new Texture(reflectionSize, 5, false);
+		brdfIntegrationMap = new Texture(reflectionSize, reflectionSize, false);
+
+		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, environmentMap, reflectionSize);
+		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, brdfIntegrationMap, reflectionSize);
+
 		initMesh();
 	}
 
-	void Mesh::initFramebuffer(){
-		int width = Root::getSingleton()->getWidth();
+	void Mesh::initFramebuffer(u32 &framebuffer, u32 &renderbuffer, Texture *map, int width){
+		glGenFramebuffers(1, &framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-		u32 RBO;
-		string basePath = "../../vb01/depthMap.";
-		environmentShader = new Shader(basePath);
-		environmentMap = new Texture(width, false);
+		if(map->isCubemap())
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *map->getTexture(), 0);
+		else
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *map->getTexture(), 0);
 
-		glGenFramebuffers(1, &environmentBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, environmentBuffer);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *(environmentMap->getTexture()), 0);
-
-		glGenRenderbuffers(1, &RBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+		glGenRenderbuffers(1, &renderbuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, width);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			cout << "Not complete\n";
+			cout << "Environment framebuffer not complete\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -113,6 +120,7 @@ namespace vb01{
 		glEnableVertexAttribArray(5);
 		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, boneIndices)));
 		glEnableVertexAttribArray(6);
+
 		for(int i = 0; i < numShapeKeys; i++){
 			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
 			glEnableVertexAttribArray(7 + i);
@@ -151,14 +159,14 @@ namespace vb01{
 		material->update();
 		Shader *shader = material->getShader();
 
-		if(reflect)
-			updateReflection(shader, pos, width, height);
-
 		if(skeleton)
 			updateSkeleton(shader);
 
 		if(numShapeKeys > 0)
 			updateShapeKeys(shader);
+
+		if(reflect)
+			updateReflection(pos);
 
 		shader->setBool(castShadow, "castShadow");
 		shader->setBool(skeleton, "animated");
@@ -180,6 +188,7 @@ namespace vb01{
 
 	void Mesh::updateShapeKeys(Shader *shader){
 		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(numShapeKeys) + ";");
+
 		for(int i = 0; i < numShapeKeys; i++){
 			if(shapeKeys[i].value < shapeKeys[i].minValue)
 				shapeKeys[i].value = shapeKeys[i].minValue;
@@ -192,11 +201,10 @@ namespace vb01{
 
 	void Mesh::updateSkeleton(Shader *shader){
 		skeleton->update();
-
 		shader->editShader(Shader::VERTEX_SHADER, 2, "const int numBones=" + to_string(skeleton->getNumBones()) + ";");
 		shader->editShader(Shader::VERTEX_SHADER, 3, "const int numVertGroups=" + to_string(numVertexGroups) + ";");
-
 		Node *modelNode = skeleton->getRootBone()->getParent();
+
 		for(int i = 0; i < skeleton->getNumBones(); i++){
 			Bone *bone = skeleton->getBone(i), *parent = (Bone*)bone->getParent();
 			Vector3 boneAxis[]{
@@ -206,11 +214,13 @@ namespace vb01{
 			};
 
 			int vertGroupId = -1;
+
 			for(int j = 0; j < numVertexGroups; j++)
 				if(bone->getName() == vertexGroups[j])
 					vertGroupId = j;
 
-		   	int parentId = -1;
+			int parentId = -1;
+
 			for(int j = 0; j < skeleton->getNumBones(); j++)
 				if(skeleton->getBone(j) == parent){
 					parentId = j;
@@ -235,20 +245,20 @@ namespace vb01{
 		}
 	}
 
-	void Mesh::updateReflection(Shader *shader, Vector3 pos, int width, int height){
+	void Mesh::updatePrefilterMap(Vector3 pos){
 		Root *root = Root::getSingleton();
 
-		glViewport(0, 0, width, width);
-		glBindFramebuffer(GL_FRAMEBUFFER, environmentBuffer);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		environmentShader->use();
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
 		rootNode->getDescendants(descendants);
+
+		Mesh *skybox = root->getSkybox();
+		Texture *skyboxTex = ((Material::TextureUniform*)skybox->getMaterial()->getUniform("skybox"))->value;
+
+		/*
 		for(Node *node : descendants){
 			for(Mesh *mesh : node->getMeshes())
-				if(mesh != this){
+				if(mesh != this && mesh->isReflectible()){
 					Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO);
 					Quaternion rotation = node->localToGlobalOrientation(Quaternion::QUAT_W);
 					float far = 100;
@@ -260,43 +270,107 @@ namespace vb01{
 
 					if(rotAxis == Vector3::VEC_ZERO)
 						rotAxis = Vector3::VEC_I;
+
 					model = rotate(model, rotation.norm().getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
 
 					environmentShader->setMat4(model, "model");
 					environmentShader->setBool(true, "point");
 					environmentShader->setVec3(pos, "lightPos");
 					environmentShader->setFloat(far, "farPlane");
-					vec3 dirs[]{
-						vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)
-				   	};
-					for(int i = 0; i < 6; i++){
-						vec3 upVec;
-						if(1 < i && i < 4)
-							upVec = vec3(0, 0, -1);
-						else
-							upVec = vec3(0, -1, 0);
-						environmentShader->setMat4(proj * lookAt(p, p + dirs[i], upVec), "shadowMat[" + to_string(i) + "]");
 					}
+
 					mesh->render();
 				}
 		}
+		*/
 
-		glBindFramebuffer(GL_FRAMEBUFFER, *(root->getFBO()));
+		vec3 dirs[]{vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
+		float far = 100;
+		mat4 proj = perspective(radians(90.f), 1.f, .1f, far);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, preFilterRenderbuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		int numMipmaps = environmentMap->getMipmapLevel();
+		environmentShader->use();
+
+		for(int i = 0; i < numMipmaps; ++i){
+			u32 width = reflectionSize * pow(0.5, i);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, width);
+			glViewport(0, 0, width, width);
+
+			for(int j = 0; j < 6; j++){
+				vec3 upVec;
+
+				if(1 < j && j < 4)
+					upVec = vec3(0, 0, -1);
+				else
+					upVec = vec3(0, -1, 0);
+
+				environmentShader->setMat4(proj, "proj");
+				environmentShader->setMat4(lookAt(vec3(0), dirs[j], upVec), "view");
+				environmentShader->setMat4(mat4(1.f), "model");
+				environmentShader->setInt(0, "environmentMap");
+				environmentShader->setFloat((float)i / numMipmaps, "roughness");
+
+				skyboxTex->select();
+
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, *environmentMap->getTexture(), i);
+
+				if(skybox)
+					skybox->render();
+			}
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
 		glViewport(0, 0, root->getWidth(), root->getHeight());
+	}
 
-		shader->setBool(reflect, "environmentMapEnabled");
-		//root->getSkybox()->getMaterial()->getDiffuseMap(0)->select(4);
-		environmentMap->select(4);
+	void Mesh::updateBrdfLut(){
+		glBindFramebuffer(GL_FRAMEBUFFER, brdfFramebuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *brdfIntegrationMap->getTexture(), 0);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glViewport(0, 0, reflectionSize, reflectionSize);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, brdfRenderbuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, reflectionSize, reflectionSize);
+
+		brdfIntegrationShader->use();
+
+		Root *root = Root::getSingleton();
+		root->getBrdfLutPlane()->render();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
+		glViewport(0, 0, root->getWidth(), root->getHeight());
+	}
+
+	void Mesh::updateReflection(Vector3 pos){
+		updatePrefilterMap(pos);
+		updateBrdfLut();
+
+		Shader *shader = material->getShader();
+		shader->use();
+		int brdfId = 10, preFilterId = 11;
+
+		shader->setInt(brdfId, "brdfIntegrationMap");
+		shader->setInt(preFilterId, "preFilterMap");
+
+		environmentMap->select(brdfId);
+		brdfIntegrationMap->select(preFilterId);
 	}
 
 	void Mesh::render(){
 		glBindVertexArray(VAO);
+
 		if(!staticVerts){
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * numTris * sizeof(Vertex), vertices);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 3 * numTris * sizeof(u32), indices);
 		}
+
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 		glDrawElements(GL_TRIANGLES, 3 * numTris, GL_UNSIGNED_INT, 0);	
 	}
