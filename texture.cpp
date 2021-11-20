@@ -85,8 +85,9 @@ namespace vb01{
 		}
 	}
 
-	Texture::Texture(int width, bool depth){
+	Texture::Texture(int width, bool depth, int mipmapLevel){
 		this->width = width;
+		this->mipmapLevel = mipmapLevel;
 		texture = new u32;
 
 		createCubemap(true, false);
