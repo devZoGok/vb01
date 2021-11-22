@@ -57,9 +57,11 @@ namespace vb01{
 			inline u32* getIndices(){return indices;}
 			inline ShapeKey& getShapeKey(int i){return shapeKeys[i];}
 			inline int getNumShapeKeys(){return numShapeKeys;}
+			inline Texture* getEnvironmentMap(){return environmentMap;}
+			inline Texture* getBrdfIntegrationMap(){return brdfIntegrationMap;}
 		private:
 			void initMesh();
-			void initFramebuffer(u32&, u32&, Texture*, int);
+			void initFramebuffer(u32&, u32&, int);
 			void updateSkeleton(Shader*);
 			void updatePrefilterMap(Vector3);
 			void updateBrdfLut();
@@ -67,9 +69,9 @@ namespace vb01{
 			void updateShapeKeys(Shader*);
 
 			int reflectionSize = 512;
+			Texture *environmentMap = nullptr, *brdfIntegrationMap = nullptr;
 			Shader *environmentShader = nullptr, *brdfIntegrationShader = nullptr;
 			u32 preFilterFramebuffer, preFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;
-			Texture *environmentMap = nullptr, *brdfIntegrationMap = nullptr;
 			Material *material = nullptr;
 			Node *node = nullptr;
 			std::vector<Mesh*> meshes;

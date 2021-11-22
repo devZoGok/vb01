@@ -50,7 +50,7 @@ namespace vb01{
 
 			if(cubemap){
 				texture = new u32;
-				createCubemap(false, flip);
+				createCubemap(false, flip, true);
 			}
 			else{
 				texture = new u32[numPaths];
@@ -88,12 +88,13 @@ namespace vb01{
 	Texture::Texture(int width, bool depth, int mipmapLevel){
 		this->width = width;
 		this->mipmapLevel = mipmapLevel;
+		this->cubemap = true;
 		texture = new u32;
 
-		createCubemap(depth, false);
+		createCubemap(depth, false, false);
 	}
 
-	void Texture::createCubemap(bool depth, bool flip){
+	void Texture::createCubemap(bool depth, bool flip, bool fromFile){
 		glGenTextures(1, &texture[0]);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture[0]);
 
@@ -102,18 +103,20 @@ namespace vb01{
 
 		for(int i = 0; i < 6; i++){
 			if(!depth){
-				data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
+				if(fromFile){
+					data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
 
-				if(data){
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);	
-					stbi_image_free(data);
+					if(data){
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, data);	
+						stbi_image_free(data);
+					}
+					else{
+						cout << "Failed to read cubemap texture " << i << endl;
+						exit(-1);
+					}
 				}
-				else{
-					cout << "Failed to read cubemap texture " << i << endl;
-					exit(-1);
-				}
-
-				glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+				else
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, width, 0, GL_RGB, GL_FLOAT, NULL);	
 			}
 			else{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
@@ -125,6 +128,7 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 
 	Texture::Texture(FT_Face &face, char ch){

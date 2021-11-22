@@ -64,31 +64,28 @@ namespace vb01{
 		environmentShader = new Shader(libPath + "environmentPreFilter");
 		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
 
-		environmentMap = new Texture(reflectionSize, 5, false);
+		environmentMap = new Texture(reflectionSize, false, 5);
 		brdfIntegrationMap = new Texture(reflectionSize, reflectionSize, false);
+		int width = reflectionSize;
 
-		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, environmentMap, reflectionSize);
-		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, brdfIntegrationMap, reflectionSize);
+		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, reflectionSize);
+		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, reflectionSize);
 
 		initMesh();
 	}
 
-	void Mesh::initFramebuffer(u32 &framebuffer, u32 &renderbuffer, Texture *map, int width){
+	void Mesh::initFramebuffer(u32 &framebuffer, u32 &renderbuffer, int width){
 		glGenFramebuffers(1, &framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-		if(map->isCubemap())
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *map->getTexture(), 0);
-		else
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *map->getTexture(), 0);
-
 		glGenRenderbuffers(1, &renderbuffer);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, width);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, width);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			cout << "Environment framebuffer not complete\n";
+			cout << "Mesh framebuffer not complete\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -170,7 +167,6 @@ namespace vb01{
 
 		shader->setBool(castShadow, "castShadow");
 		shader->setBool(skeleton, "animated");
-		shader->setBool(false, "environmentMapEnabled");
 		shader->setMat4(view, "view");
 		shader->setMat4(proj, "proj");
 		shader->setVec3(camPos, "camPos");
@@ -246,16 +242,11 @@ namespace vb01{
 	}
 
 	void Mesh::updatePrefilterMap(Vector3 pos){
-		Root *root = Root::getSingleton();
-
+		/*
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
 		rootNode->getDescendants(descendants);
 
-		Mesh *skybox = root->getSkybox();
-		Texture *skyboxTex = ((Material::TextureUniform*)skybox->getMaterial()->getUniform("skybox"))->value;
-
-		/*
 		for(Node *node : descendants){
 			for(Mesh *mesh : node->getMeshes())
 				if(mesh != this && mesh->isReflectible()){
@@ -283,40 +274,38 @@ namespace vb01{
 				}
 		}
 		*/
-
-		vec3 dirs[]{vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
-		float far = 100;
-		mat4 proj = perspective(radians(90.f), 1.f, .1f, far);
+		Root *root = Root::getSingleton();
+		Mesh *skybox = root->getSkybox();
+		Texture *skyboxTex = ((Material::TextureUniform*)skybox->getMaterial()->getUniform("skybox"))->value;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, preFilterRenderbuffer);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
+		skyboxTex->select();
+
+		environmentShader->use();
+		environmentShader->setInt(0, "environmentMap");
+		mat4 proj = perspective(radians(90.f), 1.f, .1f, 100.f);
+		environmentShader->setMat4(proj, "proj");
+		environmentShader->setMat4(mat4(1.f), "model");
 
 		int numMipmaps = environmentMap->getMipmapLevel();
-		environmentShader->use();
+		vec3 dirs[]{vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
 
 		for(int i = 0; i < numMipmaps; ++i){
 			u32 width = reflectionSize * pow(0.5, i);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, width);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, width);
 			glViewport(0, 0, width, width);
 
+			environmentShader->setFloat((float)i / numMipmaps, "roughness");
+
 			for(int j = 0; j < 6; j++){
-				vec3 upVec;
-
-				if(1 < j && j < 4)
-					upVec = vec3(0, 0, -1);
-				else
-					upVec = vec3(0, -1, 0);
-
-				environmentShader->setMat4(proj, "proj");
-				environmentShader->setMat4(lookAt(vec3(0), dirs[j], upVec), "view");
-				environmentShader->setMat4(mat4(1.f), "model");
-				environmentShader->setInt(0, "environmentMap");
-				environmentShader->setFloat((float)i / numMipmaps, "roughness");
-
-				skyboxTex->select();
+				vec3 v = vec3(pos.x, pos.y, pos.z);
+				vec3 upVec = (fabs(dirs[j].y) == 1 ? vec3(0, 0, -1) : vec3(0, 1, 0));
+				environmentShader->setMat4(lookAt(v, v + dirs[j], upVec), "view");
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, *environmentMap->getTexture(), i);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				if(skybox)
 					skybox->render();
@@ -329,13 +318,13 @@ namespace vb01{
 
 	void Mesh::updateBrdfLut(){
 		glBindFramebuffer(GL_FRAMEBUFFER, brdfFramebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *brdfIntegrationMap->getTexture(), 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glViewport(0, 0, reflectionSize, reflectionSize);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, brdfRenderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, reflectionSize, reflectionSize);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, reflectionSize, reflectionSize);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *brdfIntegrationMap->getTexture(), 0);
 
 		brdfIntegrationShader->use();
 
@@ -352,13 +341,14 @@ namespace vb01{
 
 		Shader *shader = material->getShader();
 		shader->use();
+
 		int brdfId = 10, preFilterId = 11;
 
-		shader->setInt(brdfId, "brdfIntegrationMap");
 		shader->setInt(preFilterId, "preFilterMap");
+		shader->setInt(brdfId, "brdfIntegrationMap");
 
-		environmentMap->select(brdfId);
-		brdfIntegrationMap->select(preFilterId);
+		environmentMap->select(preFilterId);
+		brdfIntegrationMap->select(brdfId);
 	}
 
 	void Mesh::render(){

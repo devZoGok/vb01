@@ -26,6 +26,12 @@ namespace vb01{
 			return uni;
 	}
 
+	void Material::setTexUniform(string name, Texture *texture, bool animatable){
+			TextureUniform *uni = (TextureUniform*)getUniform(name);
+			uni->value = texture;
+			uni->animatable = animatable;
+	}
+
 	void Material::update(){
 		shader->use();
 

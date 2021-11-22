@@ -35,7 +35,7 @@ namespace vb01{
 			u8 *data;
 			std::string *paths = nullptr;
 
-			void createCubemap(bool, bool);
+			void createCubemap(bool, bool, bool);
 			void create2DTexture(bool);
 			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};

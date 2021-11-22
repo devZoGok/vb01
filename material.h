@@ -151,6 +151,7 @@ namespace vb01{
 			Material(std::string, bool = false);
 			~Material();
 			void update();
+			void setTexUniform(std::string, Texture*, bool);
 			Uniform* getUniform(std::string);
 			inline Uniform* getUniform(int i){return uniforms[i];}
 			inline void addIntUniform(std::string name, int value){uniforms.push_back(new IntUniform(name, value));}
