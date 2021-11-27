@@ -62,14 +62,16 @@ namespace vb01{
 	void Mesh::construct(){
 		string libPath = Root::getSingleton()->getLibPath();
 		environmentShader = new Shader(libPath + "environmentPreFilter");
+		irradianceShader = new Shader(libPath + "irradiance");
 		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
 
 		prefilterMap = new Texture(reflectionSize, false);
+		irradianceMap = new Texture(reflectionSize, false);
 		postfilterMap = new Texture(reflectionSize, false, 5);
 		brdfIntegrationMap = new Texture(reflectionSize, reflectionSize, false);
-		int width = reflectionSize;
 
 		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, reflectionSize);
+		initFramebuffer(irrandianceFramebuffer, irradianceRenderbuffer, reflectionSize);
 		initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, reflectionSize);
 		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, reflectionSize);
 
@@ -289,8 +291,7 @@ namespace vb01{
 		shader->setMat4(proj, "proj");
 
 		for(int i = 0; i < 6; i++){
-			vec3 upVec = (fabs(dirs[i].y) == 1 ? vec3(0, 0, -1) : vec3(0, 1, 0));
-			shader->setMat4(lookAt(vec3(0.0), dirs[i], upVec), "view");
+			shader->setMat4(lookAt(vec3(0.0), dirs[i], getUpVec(dirs[i])), "view");
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *prefilterMap->getTexture(), 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -304,8 +305,39 @@ namespace vb01{
 			}
 		}
 
+		glBindRenderbuffer(GL_RENDERBUFFER, *root->getRBO());
 		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
 		glViewport(0, 0, root->getWidth(), root->getHeight());
+	}
+
+	void Mesh::updateIrradianceMap(Vector3 pos, mat4 &proj, vec3 dirs[6]){
+		glBindFramebuffer(GL_FRAMEBUFFER, irrandianceFramebuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, irradianceRenderbuffer);
+
+		glViewport(0, 0, reflectionSize, reflectionSize);
+		irradianceShader->use();
+		irradianceShader->setMat4(proj, "proj");
+		irradianceShader->setInt(0, "environmentMap");
+		prefilterMap->select();
+
+		Root *root = Root::getSingleton();
+
+		for(int i = 0; i < 6; i++){
+			irradianceShader->setMat4(lookAt(vec3(0.0), dirs[i], getUpVec(dirs[i])), "view");
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *irradianceMap->getTexture(), 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glDepthMask(GL_FALSE);
+			glCullFace(GL_FRONT);
+			root->getIblBox()->render();
+			glDepthMask(GL_TRUE);
+			glCullFace(GL_BACK);
+		}
+
+		glViewport(0, 0, root->getWidth(), root->getHeight());
+		glBindRenderbuffer(GL_RENDERBUFFER, *root->getRBO());
+		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
 	}
 
 	void Mesh::updatePostfilterMap(mat4 &proj, vec3 dirs[6]){
@@ -329,20 +361,20 @@ namespace vb01{
 			environmentShader->setFloat((float)i / numMipmaps, "roughness");
 
 			for(int j = 0; j < 6; j++){
-				vec3 upVec = (fabs(dirs[j].y) == 1 ? vec3(0, 0, -1) : vec3(0, 1, 0));
-				environmentShader->setMat4(lookAt(vec3(0.0), dirs[j], upVec), "view");
+				environmentShader->setMat4(lookAt(vec3(0.0), dirs[j], getUpVec(dirs[j])), "view");
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, *postfilterMap->getTexture(), i);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				glDepthMask(GL_FALSE);
 				glCullFace(GL_FRONT);
-				root->getPostfilterBox()->render();
+				root->getIblBox()->render();
 				glDepthMask(GL_TRUE);
 				glCullFace(GL_BACK);
 			}
 		}
 
+		glBindRenderbuffer(GL_RENDERBUFFER, *root->getRBO());
 		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 	}
@@ -362,6 +394,7 @@ namespace vb01{
 		Root *root = Root::getSingleton();
 		root->getBrdfLutPlane()->render();
 
+		glBindRenderbuffer(GL_RENDERBUFFER, *root->getRBO());
 		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 	}
@@ -371,18 +404,21 @@ namespace vb01{
 		mat4 proj = perspective(radians(90.f), 1.0f, 0.1f, 100.0f);
 
 		updatePrefilterMap(pos, proj, dirs);
+		updateIrradianceMap(pos, proj, dirs);
 		updatePostfilterMap(proj, dirs);
 		updateBrdfLut();
 
 		Shader *shader = material->getShader();
 		shader->use();
 
-		int brdfId = 10, preFilterId = 11;
+		int irradianceId = 10, brdfId = 11, postFilterId = 12;
 
-		shader->setInt(preFilterId, "preFilterMap");
+		shader->setInt(irradianceId, "irradianceMap");
+		shader->setInt(postFilterId, "postFilterMap");
 		shader->setInt(brdfId, "brdfIntegrationMap");
 
-		postfilterMap->select(preFilterId);
+		irradianceMap->select(irradianceId);
+		postfilterMap->select(postFilterId);
 		brdfIntegrationMap->select(brdfId);
 	}
 

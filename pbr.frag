@@ -8,8 +8,8 @@ in vec3 biTan;
 in vec3 norm;
 in vec2 texCoords;
 
-layout (location = 0) out vec4 FragColor;
-layout (location = 1) out vec4 BrightColor;
+out vec4 FragColor;
+//layout (location = 1) out vec4 BrightColor;
 
 //0-POINT,1-DIRECTIONAL,2-SPOT
 
@@ -23,20 +23,23 @@ struct Light{
 	mat4 lightMat;
 };
 
-struct Texture{
+struct FlatTexture{
 	float mixRatio;
 	sampler2D pastTexture, nextTexture;
 	bool animated;
 };
 
 uniform Light lights[numLights];
-uniform Texture textures[5];
+uniform FlatTexture textures[5];
+uniform samplerCube irradianceMap, postFilterMap;
+uniform sampler2D brdfIntegrationMap;
 
 uniform bool albedoMapEnabled;
 uniform bool normalMapEnabled;
 uniform bool roughnessMapEnabled;
 uniform bool metallnessMapEnabled;
 uniform bool ambientOcclutionMapEnabled;
+uniform bool environmentMapEnabled;
 uniform vec4 albedoColor;
 uniform float roughnessVal;
 uniform float metalnessVal;
@@ -62,12 +65,15 @@ vec3 fresnelSchlick(vec3 v, vec3 h, vec3 f0){
 	return f0 + (vec3(1) - f0) * pow(1 - max(dot(v, h), 0), 5);
 }
 
+vec3 fresnelSchlickRoughness(vec3 n, vec3 v, vec3 f0, float roughness) {
+	return f0 + (max(vec3(1.0 - roughness), f0) - f0) * pow(1.0 - max(dot(n, v), 0), 5.0);
+}   
+
 vec3 lambertDiffuse(vec4 color){
 	return (color / PI).xyz;
 }
 
 void main() {
-	vec4 finalColor = vec4(0, 0, 0, 1);
 	vec3 normal = norm;
 
 	if(normalMapEnabled) {
@@ -94,6 +100,7 @@ void main() {
 		metalness = texture(textures[3].pastTexture, texCoords).r;
 
 	vec3 f0 = mix(vec3(.04), albedo.rgb, metalness);
+	vec3 totalLightColor = vec3(0);
 
 	for(int i = 0; i < numLights; ++i){
 		vec3 lightDir;
@@ -124,17 +131,33 @@ void main() {
 		vec3 fDiff = lambertDiffuse(albedo);
 		vec3 kDiff = (vec3(1) - F) * (1 - metalness);
 
-		finalColor.rgb += (kDiff * fDiff + cookTor) * lights[i].color * attenuation * nDotL;
+		totalLightColor += (kDiff * fDiff + cookTor) * lights[i].color * attenuation * nDotL;
+	}
+
+	vec3 specular = vec3(.03);
+
+	if(environmentMapEnabled){
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+		vec3 reflVec = reflect(-viewDir, normal);
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(postFilterMap, reflVec, roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(brdfIntegrationMap, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
+		vec3 F = fresnelSchlickRoughness(normal, viewDir, f0, roughness);
+    specular = prefilteredColor * (F * brdf.x + brdf.y);
 	}
 
 	float ao = ambientOcclusion;
 
-	finalColor.rgb += vec3(.03) * albedo.rgb * ao;
+	vec3 totalAmbientColor = (albedo.rgb + specular) * ao;
+
+	vec4 finalColor = vec4(totalLightColor + totalAmbientColor, 1);
 
 	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
+/*
 	if(brightness > 1)
 		BrightColor = vec4(finalColor.rgb, 1);
+*/
 
 	finalColor.rgb /= finalColor.rgb + vec3(1.0);
 	finalColor.rgb = pow(finalColor.rgb, vec3(1.0 / 2.2));

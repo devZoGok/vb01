@@ -58,6 +58,7 @@ namespace vb01{
 			inline ShapeKey& getShapeKey(int i){return shapeKeys[i];}
 			inline int getNumShapeKeys(){return numShapeKeys;}
 			inline Texture* getPrefilterMap(){return prefilterMap;}
+			inline Texture* getIrradianceMap(){return irradianceMap;}
 			inline Texture* getPostfilterMap(){return postfilterMap;}
 			inline Texture* getBrdfIntegrationMap(){return brdfIntegrationMap;}
 		private:
@@ -65,15 +66,17 @@ namespace vb01{
 			void initFramebuffer(u32&, u32&, int);
 			void updateSkeleton(Shader*);
 			void updatePrefilterMap(Vector3, glm::mat4&, glm::vec3[6]);
+			void updateIrradianceMap(Vector3, glm::mat4&, glm::vec3[6]);
 			void updatePostfilterMap(glm::mat4&, glm::vec3[6]);
 			void updateBrdfLut();
 			void updateReflection(Vector3);
 			void updateShapeKeys(Shader*);
+			inline glm::vec3 getUpVec(glm::vec3 dir){return (fabs(dir.y) == 1 ? glm::vec3(0, 0, -1) : glm::vec3(0, 1, 0));}
 
 			int reflectionSize = 512;
-			Texture *prefilterMap = nullptr, *postfilterMap = nullptr, *brdfIntegrationMap = nullptr;
-			Shader *environmentShader = nullptr, *brdfIntegrationShader = nullptr;
-			u32 preFilterFramebuffer, preFilterRenderbuffer, postFilterFramebuffer, postFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;
+			Texture *prefilterMap = nullptr, *irradianceMap = nullptr, *postfilterMap = nullptr, *brdfIntegrationMap = nullptr;
+			Shader *environmentShader = nullptr, *irradianceShader = nullptr, *brdfIntegrationShader = nullptr;
+			u32 preFilterFramebuffer, preFilterRenderbuffer, irrandianceFramebuffer, irradianceRenderbuffer, postFilterFramebuffer, postFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;
 			Material *material = nullptr;
 			Node *node = nullptr;
 			std::vector<Mesh*> meshes;
