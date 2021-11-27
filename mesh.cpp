@@ -64,11 +64,13 @@ namespace vb01{
 		environmentShader = new Shader(libPath + "environmentPreFilter");
 		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
 
-		environmentMap = new Texture(reflectionSize, false, 5);
+		prefilterMap = new Texture(reflectionSize, false);
+		postfilterMap = new Texture(reflectionSize, false, 5);
 		brdfIntegrationMap = new Texture(reflectionSize, reflectionSize, false);
 		int width = reflectionSize;
 
 		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, reflectionSize);
+		initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, reflectionSize);
 		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, reflectionSize);
 
 		initMesh();
@@ -87,7 +89,7 @@ namespace vb01{
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Mesh framebuffer not complete\n";
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, *Root::getSingleton()->getFBO());
 	}
 
 	void Mesh::initMesh(){
@@ -241,7 +243,7 @@ namespace vb01{
 		}
 	}
 
-	void Mesh::updatePrefilterMap(Vector3 pos){
+	void Mesh::updatePrefilterMap(Vector3 pos, mat4 &proj, vec3 dirs[6]){
 		/*
 		Node *rootNode = root->getRootNode();
 		vector<Node*> descendants;
@@ -274,23 +276,50 @@ namespace vb01{
 				}
 		}
 		*/
+		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
+
+		glViewport(0, 0, reflectionSize, reflectionSize);
+
 		Root *root = Root::getSingleton();
 		Mesh *skybox = root->getSkybox();
-		Texture *skyboxTex = ((Material::TextureUniform*)skybox->getMaterial()->getUniform("skybox"))->value;
+		Material *mat = skybox->getMaterial();
+		mat->update();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, preFilterRenderbuffer);
+		Shader *shader = mat->getShader();
+		shader->setMat4(proj, "proj");
+
+		for(int i = 0; i < 6; i++){
+			vec3 upVec = (fabs(dirs[i].y) == 1 ? vec3(0, 0, -1) : vec3(0, 1, 0));
+			shader->setMat4(lookAt(vec3(0.0), dirs[i], upVec), "view");
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *prefilterMap->getTexture(), 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			if(skybox) {
+				glDepthMask(GL_FALSE);
+				glCullFace(GL_FRONT);
+				skybox->render();
+				glDepthMask(GL_TRUE);
+				glCullFace(GL_BACK);
+			}
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
+		glViewport(0, 0, root->getWidth(), root->getHeight());
+	}
+
+	void Mesh::updatePostfilterMap(mat4 &proj, vec3 dirs[6]){
+		glBindFramebuffer(GL_FRAMEBUFFER, postFilterFramebuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, postFilterRenderbuffer);
 		
-		skyboxTex->select();
-
 		environmentShader->use();
-		environmentShader->setInt(0, "environmentMap");
-		mat4 proj = perspective(radians(90.f), 1.f, .1f, 100.f);
 		environmentShader->setMat4(proj, "proj");
-		environmentShader->setMat4(mat4(1.f), "model");
+		environmentShader->setInt(0, "environmentMap");
 
-		int numMipmaps = environmentMap->getMipmapLevel();
-		vec3 dirs[]{vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1)};
+		prefilterMap->select(0);
+
+		Root *root = Root::getSingleton();
+		int numMipmaps = postfilterMap->getMipmapLevel();
 
 		for(int i = 0; i < numMipmaps; ++i){
 			u32 width = reflectionSize * pow(0.5, i);
@@ -300,15 +329,17 @@ namespace vb01{
 			environmentShader->setFloat((float)i / numMipmaps, "roughness");
 
 			for(int j = 0; j < 6; j++){
-				vec3 v = vec3(pos.x, pos.y, pos.z);
 				vec3 upVec = (fabs(dirs[j].y) == 1 ? vec3(0, 0, -1) : vec3(0, 1, 0));
-				environmentShader->setMat4(lookAt(v, v + dirs[j], upVec), "view");
+				environmentShader->setMat4(lookAt(vec3(0.0), dirs[j], upVec), "view");
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, *environmentMap->getTexture(), i);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, *postfilterMap->getTexture(), i);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				if(skybox)
-					skybox->render();
+				glDepthMask(GL_FALSE);
+				glCullFace(GL_FRONT);
+				root->getPostfilterBox()->render();
+				glDepthMask(GL_TRUE);
+				glCullFace(GL_BACK);
 			}
 		}
 
@@ -336,7 +367,11 @@ namespace vb01{
 	}
 
 	void Mesh::updateReflection(Vector3 pos){
-		updatePrefilterMap(pos);
+		vec3 dirs[]{ vec3(1, 0, 0), vec3(-1, 0, 0), vec3(0, 1, 0), vec3(0, -1, 0), vec3(0, 0, 1), vec3(0, 0, -1) };
+		mat4 proj = perspective(radians(90.f), 1.0f, 0.1f, 100.0f);
+
+		updatePrefilterMap(pos, proj, dirs);
+		updatePostfilterMap(proj, dirs);
 		updateBrdfLut();
 
 		Shader *shader = material->getShader();
@@ -347,7 +382,7 @@ namespace vb01{
 		shader->setInt(preFilterId, "preFilterMap");
 		shader->setInt(brdfId, "brdfIntegrationMap");
 
-		environmentMap->select(preFilterId);
+		postfilterMap->select(preFilterId);
 		brdfIntegrationMap->select(brdfId);
 	}
 

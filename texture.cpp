@@ -41,7 +41,6 @@ namespace vb01{
 	}
 
 	Texture::Texture(string paths[], int numPaths, bool cubemap, int mipmapLevel, bool flip){
-			this->numFrames = numPaths;
 			this->cubemap = cubemap;
 			this->paths = new string[numPaths];
 
@@ -53,6 +52,7 @@ namespace vb01{
 				createCubemap(false, flip, true);
 			}
 			else{
+				this->numFrames = numPaths;
 				texture = new u32[numPaths];
 				create2DTexture(flip);
 			}
@@ -116,7 +116,7 @@ namespace vb01{
 					}
 				}
 				else
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, width, 0, GL_RGB, GL_FLOAT, NULL);	
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, width, 0, GL_RGB, GL_UNSIGNED_INT, NULL);	
 			}
 			else{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
@@ -126,7 +126,7 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}

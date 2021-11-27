@@ -28,7 +28,8 @@ namespace vb01{
 			inline Node* getGuiNode(){return guiNode;}
 			inline int getWidth(){return width;}
 			inline int getHeight(){return height;}
-			inline unsigned int* getFBO(){return &FBO;}
+			inline u32* getFBO(){return &FBO;}
+			inline u32* getRBO(){return &RBO;}
 			inline GLFWwindow* getWindow(){return window;}
 			inline void setHDREnabled(bool hdr){this->hdr = hdr;}
 			inline void setExposure(float exposure){this->exposure = exposure;}
@@ -36,6 +37,7 @@ namespace vb01{
 			inline void setBloom(bool bloom){this->bloom = bloom;}
 			inline void setBlurLevel(bool level){this->blurLevel = level;}
 			inline Box* getSkybox(){return skybox;}
+			inline Box* getPostfilterBox(){return postfilterBox;}
 			inline Quad* getBrdfLutPlane(){return brdfLutPlane;}
 			void createSkybox(std::string[6]);
 			void removeSkybox();
@@ -47,7 +49,7 @@ namespace vb01{
 			int numLights = 0;
 			bool bloom = false, hdr = false;
 			float exposure = 1, gamma = 1;
-			Box *skybox = nullptr;
+			Box *skybox = nullptr, *postfilterBox = nullptr;
 			Quad *guiPlane = nullptr, *brdfLutPlane = nullptr;
 			int width, height, blurLevel = 10; 
 			u32 FBO, RBO, pingpongBuffers[2];

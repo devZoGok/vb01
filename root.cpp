@@ -8,6 +8,7 @@
 #include "glad.h"
 #include <glfw3.h>
 #include <cstdlib>
+
 #include <iostream>
 
 using namespace std;
@@ -46,6 +47,7 @@ namespace vb01{
 		initWindow(name);
 
 		brdfLutPlane = new Quad(Vector3::VEC_IJK);
+		postfilterBox = new Box(Vector3::VEC_IJK);
 
 		Texture *fragTexture = new Texture(width, height, false);
 		Texture *brightTexture = new Texture(width, height, false);
@@ -57,19 +59,25 @@ namespace vb01{
 
 	void Root::initWindow(string name){
 		glfwSetErrorCallback(error_callback);
+
 		if (GL_TRUE != glfwInit())
 			std::cerr << "Error initialising glfw" << std::endl;
+
 		window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+
 		if(window == NULL){
 			cout << "Failed to load window...\n";
 			exit(-1);
 		}
+
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window, foo);
+
 		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
 			cout << "Failed to load GLAD.\n";
 			exit(-1);
 		}
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_CULL_FACE);
@@ -92,8 +100,8 @@ namespace vb01{
 
 		glGenRenderbuffers(1, &RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			cout << "Not complete\n";
@@ -199,7 +207,7 @@ namespace vb01{
 		skybox = new Box(Vector3(1, 1, 1) * 10);
 		Material *skyboxMat = new Material(libPath + "skybox");
 		Texture *texture = new Texture(paths, 6, true);
-		skyboxMat->addTexUniform("skybox", texture, true);
+		skyboxMat->addTexUniform("tex", texture, true);
 		skybox->setMaterial(skyboxMat);
 	}
 

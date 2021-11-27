@@ -17,6 +17,7 @@ namespace vb01{
 			inline Vector3 getUp(){return up;}
 			inline void setNearPlane(float near){this->nearPlane = near;}
 			inline void setFarPlane(float far){this->farPlane = far;}
+			inline void setFov(float fov){this->fov = fov;}
 			inline float getFov(){return fov;}
 			inline float getNearPlane(){return nearPlane;}
 			inline float getFarPlane(){return farPlane;}
