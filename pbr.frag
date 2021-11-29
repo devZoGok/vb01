@@ -37,7 +37,7 @@ uniform sampler2D brdfIntegrationMap;
 uniform bool albedoMapEnabled;
 uniform bool normalMapEnabled;
 uniform bool roughnessMapEnabled;
-uniform bool metallnessMapEnabled;
+uniform bool metalnessMapEnabled;
 uniform bool ambientOcclutionMapEnabled;
 uniform bool environmentMapEnabled;
 uniform vec4 albedoColor;
@@ -96,7 +96,7 @@ void main() {
 
 	float metalness = metalnessVal;
 
-	if(metallnessMapEnabled)
+	if(metalnessMapEnabled)
 		metalness = texture(textures[3].pastTexture, texCoords).r;
 
 	vec3 f0 = mix(vec3(.04), albedo.rgb, metalness);
@@ -121,7 +121,7 @@ void main() {
 		vec3 halfVec = normalize(lightDir + normal);
 
 		float D = trowbridgeReitz(normal, halfVec, roughness * roughness);
-		float k = pow(roughness * roughness + 1, 2) / 8.0;
+		float k = pow(roughness + 1, 2) / 8.0;
 		float G = geoSmith(normal, viewDir, lightDir, k);
 		vec3 F = fresnelSchlick(viewDir, halfVec, f0);
 		float nDotV = max(dot(viewDir, normal), 0);
@@ -134,21 +134,25 @@ void main() {
 		totalLightColor += (kDiff * fDiff + cookTor) * lights[i].color * attenuation * nDotL;
 	}
 
-	vec3 specular = vec3(.03);
+	vec3 specular = vec3(.03), F = vec3(0);
 
 	if(environmentMapEnabled){
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-		vec3 reflVec = reflect(-viewDir, normal);
+		vec3 reflVec = reflect(-viewDir, normalize(fragPos + normal));
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(postFilterMap, reflVec, roughness * MAX_REFLECTION_LOD).rgb;    
     vec2 brdf  = texture(brdfIntegrationMap, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
-		vec3 F = fresnelSchlickRoughness(normal, viewDir, f0, roughness);
+		F = fresnelSchlickRoughness(normal, viewDir, f0, roughness);
+    specular = prefilteredColor;
     specular = prefilteredColor * (F * brdf.x + brdf.y);
 	}
 
 	float ao = ambientOcclusion;
 
-	vec3 totalAmbientColor = (albedo.rgb + specular) * ao;
+	vec3 irradiance = texture(irradianceMap, normal).rgb;
+	vec3 diffuse = irradiance * albedo.rgb;
+	vec3 kD = (vec3(1) - F) * (1 - metalness);
+	vec3 totalAmbientColor = (kD * diffuse + specular) * ao;
 
 	vec4 finalColor = vec4(totalLightColor + totalAmbientColor, 1);
 

@@ -28,10 +28,10 @@ uniform mat4 proj;
 uniform float[numShapeKeys] shapeKeyFactors; 
 
 void main(){
-	mat3 normalMat = mat3(transpose(inverse(model)));
-	norm = (normalMat * aNorm);
-	tan = (normalMat * aTan);
-	biTan = (normalMat * aBiTan);
+	mat3 normalMat = mat3(model);
+	norm = mat3(normalMat) * aNorm;
+	tan = mat3(normalMat) * aTan;
+	biTan = mat3(normalMat) * aBiTan;
 	fragPos = vec3(model * vec4(aPos, 1));
 	texCoords = aTexCoords;
 

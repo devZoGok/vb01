@@ -73,7 +73,7 @@ namespace vb01{
 			void updateShapeKeys(Shader*);
 			inline glm::vec3 getUpVec(glm::vec3 dir){return (fabs(dir.y) == 1 ? glm::vec3(0, 0, -1) : glm::vec3(0, 1, 0));}
 
-			int reflectionSize = 512;
+			int irradianceMapSize = 32, preFilterMapSize = 512, environmentMapSize = 128, brdfMapSize = 512; 
 			Texture *prefilterMap = nullptr, *irradianceMap = nullptr, *postfilterMap = nullptr, *brdfIntegrationMap = nullptr;
 			Shader *environmentShader = nullptr, *irradianceShader = nullptr, *brdfIntegrationShader = nullptr;
 			u32 preFilterFramebuffer, preFilterRenderbuffer, irrandianceFramebuffer, irradianceRenderbuffer, postFilterFramebuffer, postFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;

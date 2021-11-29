@@ -65,15 +65,15 @@ namespace vb01{
 		irradianceShader = new Shader(libPath + "irradiance");
 		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
 
-		prefilterMap = new Texture(reflectionSize, false);
-		irradianceMap = new Texture(reflectionSize, false);
-		postfilterMap = new Texture(reflectionSize, false, 5);
-		brdfIntegrationMap = new Texture(reflectionSize, reflectionSize, false);
+		prefilterMap = new Texture(preFilterMapSize, false);
+		irradianceMap = new Texture(irradianceMapSize, false);
+		postfilterMap = new Texture(environmentMapSize, false, 5);
+		brdfIntegrationMap = new Texture(brdfMapSize, brdfMapSize, false);
 
-		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, reflectionSize);
-		initFramebuffer(irrandianceFramebuffer, irradianceRenderbuffer, reflectionSize);
-		initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, reflectionSize);
-		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, reflectionSize);
+		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, preFilterMapSize);
+		initFramebuffer(irrandianceFramebuffer, irradianceRenderbuffer, irradianceMapSize);
+		initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, environmentMapSize);
+		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, brdfMapSize);
 
 		initMesh();
 	}
@@ -280,7 +280,8 @@ namespace vb01{
 		*/
 		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
 
-		glViewport(0, 0, reflectionSize, reflectionSize);
+		int width = prefilterMap->getWidth();
+		glViewport(0, 0, width, width);
 
 		Root *root = Root::getSingleton();
 		Mesh *skybox = root->getSkybox();
@@ -314,7 +315,8 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, irrandianceFramebuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, irradianceRenderbuffer);
 
-		glViewport(0, 0, reflectionSize, reflectionSize);
+		int width = irradianceMapSize;
+		glViewport(0, 0, width, width);
 		irradianceShader->use();
 		irradianceShader->setMat4(proj, "proj");
 		irradianceShader->setInt(0, "environmentMap");
@@ -348,13 +350,13 @@ namespace vb01{
 		environmentShader->setMat4(proj, "proj");
 		environmentShader->setInt(0, "environmentMap");
 
-		prefilterMap->select(0);
+		prefilterMap->select();
 
 		Root *root = Root::getSingleton();
 		int numMipmaps = postfilterMap->getMipmapLevel();
 
 		for(int i = 0; i < numMipmaps; ++i){
-			u32 width = reflectionSize * pow(0.5, i);
+			u32 width = environmentMapSize * pow(0.5, i);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, width);
 			glViewport(0, 0, width, width);
 
@@ -382,11 +384,11 @@ namespace vb01{
 	void Mesh::updateBrdfLut(){
 		glBindFramebuffer(GL_FRAMEBUFFER, brdfFramebuffer);
 
+		int width = brdfMapSize;
+		glViewport(0, 0, width, width);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glViewport(0, 0, reflectionSize, reflectionSize);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, brdfRenderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, reflectionSize, reflectionSize);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *brdfIntegrationMap->getTexture(), 0);
 
 		brdfIntegrationShader->use();
@@ -414,12 +416,12 @@ namespace vb01{
 		int irradianceId = 10, brdfId = 11, postFilterId = 12;
 
 		shader->setInt(irradianceId, "irradianceMap");
-		shader->setInt(postFilterId, "postFilterMap");
 		shader->setInt(brdfId, "brdfIntegrationMap");
+		shader->setInt(postFilterId, "postFilterMap");
 
 		irradianceMap->select(irradianceId);
-		postfilterMap->select(postFilterId);
 		brdfIntegrationMap->select(brdfId);
+		postfilterMap->select(postFilterId);
 	}
 
 	void Mesh::render(){
