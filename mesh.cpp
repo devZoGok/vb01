@@ -320,6 +320,7 @@ namespace vb01{
 		irradianceShader->use();
 		irradianceShader->setMat4(proj, "proj");
 		irradianceShader->setInt(0, "environmentMap");
+		irradianceShader->setFloat(irradianceSampleDelta, "sampleDelta");
 		prefilterMap->select();
 
 		Root *root = Root::getSingleton();
@@ -349,6 +350,8 @@ namespace vb01{
 		environmentShader->use();
 		environmentShader->setMat4(proj, "proj");
 		environmentShader->setInt(0, "environmentMap");
+		environmentShader->setFloat(preFilterMapSize, "resolution");
+		environmentShader->setUnsignedInt(numSamples, "numSamples");
 
 		prefilterMap->select();
 
@@ -392,6 +395,7 @@ namespace vb01{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *brdfIntegrationMap->getTexture(), 0);
 
 		brdfIntegrationShader->use();
+		brdfIntegrationShader->setUnsignedInt(numSamples, "numSamples");
 
 		Root *root = Root::getSingleton();
 		root->getBrdfLutPlane()->render();

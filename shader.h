@@ -28,6 +28,7 @@ namespace vb01{
 			void setFloat(float, std::string);
 			void setBool(bool, std::string);
 			void setInt(int, std::string);
+			void setUnsignedInt(u32, std::string);
 			void editShader(ShaderType, int, std::string);
 			inline bool isGeometry(){return geometry;}
 		private:

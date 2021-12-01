@@ -224,4 +224,9 @@ namespace vb01{
 		int uniformLoc = glGetUniformLocation(id, var.c_str());	
 		glUniform1i(uniformLoc, i);
 	}
+
+	void Shader::setUnsignedInt(u32 i, string var){
+		int uniformLoc = glGetUniformLocation(id, var.c_str());	
+		glUniform1ui(uniformLoc, i);
+	}
 }
