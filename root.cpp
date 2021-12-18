@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "box.h"
 #include "quad.h"
+#include "lineRenderer.h"
 
 #include "glad.h"
 #include <glfw3.h>
@@ -15,6 +16,7 @@ using namespace std;
 
 namespace vb01{
 	static Root *root = nullptr;
+	Shader *shader = nullptr;
 
 	Root* Root::getSingleton(){
 		if(!root)
@@ -55,6 +57,8 @@ namespace vb01{
 		initMainFramebuffer(fragTexture, brightTexture);
 		initBloomFramebuffer();
 		initGuiPlane(fragTexture, brightTexture);
+
+			shader = new Shader(Root::getSingleton()->getLibPath() + "line3D");
 	}
 
 	void Root::initWindow(string name){
@@ -147,6 +151,8 @@ namespace vb01{
 		}
 
 		rootNode->update();
+
+		LineRenderer::getSingleton()->drawLines();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
