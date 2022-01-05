@@ -35,15 +35,17 @@ namespace vb01{
 			mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
 
 			for(Line &l : lines){
-				shader->use();
-				shader->setVec3(l.color, "color");
-				shader->setMat4(proj, "proj");
-				shader->setMat4(view, "view");
+				if(l.visible){
+					shader->use();
+					shader->setVec3(l.color, "color");
+					shader->setMat4(proj, "proj");
+					shader->setMat4(view, "view");
 
-				glBegin(GL_LINES);
-				glVertex3f(l.start.x, l.start.y, l.start.z);
-				glVertex3f(l.end.x, l.end.y, l.end.z);
-				glEnd();
+					glBegin(GL_LINES);
+					glVertex3f(l.start.x, l.start.y, l.start.z);
+					glVertex3f(l.end.x, l.end.y, l.end.z);
+					glEnd();
+				}
 			}
 		}
 
@@ -81,9 +83,9 @@ namespace vb01{
 		}
 
 		void LineRenderer::removeLine(int id){
-				for(Line &l : lines)
-						if(l.id == id){
-								lines.erase(lines.begin() + id);
+				for(int i = 0; i < lines.size(); ++i)
+						if(lines[i].id == id){
+								lines.erase(lines.begin() + i);
 								break;
 						}
 		}

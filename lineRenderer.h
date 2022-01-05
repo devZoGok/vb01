@@ -11,15 +11,17 @@ namespace vb01{
 
 		class LineRenderer{
 				public:
-						struct Line{int id; Vector3 start; Vector3 end; Vector3 color;};
+						struct Line{int id; Vector3 start; Vector3 end; Vector3 color; bool visible = true;};
 						enum VectorFieldType{START, END, COLOR};
 
 						static LineRenderer* getSingleton();
 						void drawLines();
 						void addLine(Vector3 start, Vector3 end, Vector3 color);
 						void changeLineField(int, Vector3, VectorFieldType);
+						void toggleVisibility(int i, bool v){getLine(i).visible = v;}
 						void removeLine(int);
 						Line& getLine(int);
+						inline std::vector<Line>& getLines(){return lines;}
 				private:
 						LineRenderer();
 
