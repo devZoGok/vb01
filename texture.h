@@ -32,9 +32,8 @@ namespace vb01{
 			bool cubemap = false;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
-			int width, height, numChannels, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0, mipmapLevel = 1;
+			int width, height, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0, mipmapLevel = 1;
 			float mixRatio;
-			u8 *data;
 			std::string *paths = nullptr;
 
 			void createCubemap(bool, bool, bool);

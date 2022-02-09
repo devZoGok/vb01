@@ -5,6 +5,8 @@
 #include FT_FREETYPE_H
 
 #include "texture.h"
+#include "assetManager.h"
+#include "imageAsset.h"
 
 #include "glad.h"
 #include <glfw3.h>
@@ -75,13 +77,10 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			stbi_set_flip_vertically_on_load(flip);
+			u8 *image = ((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]))->image;
 
-			data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, image);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			stbi_image_free(data);
 		}
 	}
 
@@ -98,29 +97,17 @@ namespace vb01{
 		glGenTextures(1, &texture[0]);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture[0]);
 
-		if(flip)
-			stbi_set_flip_vertically_on_load(flip);
-
 		for(int i = 0; i < 6; i++){
 			if(!depth){
 				if(fromFile){
-					data = stbi_load(paths[i].c_str(), &width, &height, &numChannels, 0);
-
-					if(data){
-						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, data);	
-						stbi_image_free(data);
-					}
-					else{
-						cout << "Failed to read cubemap texture " << i << endl;
-						exit(-1);
-					}
+					u8 *image = ((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]))->image;
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, image);	
 				}
 				else
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_INT, NULL);	
 			}
-			else{
+			else
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
-			}
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
