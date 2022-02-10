@@ -22,8 +22,6 @@ namespace vb01{
 			void animate(float, KeyframeChannel);
 			inline u32* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string* getPath(){return paths;}
-			inline int getWidth(){return width;}
-			inline int getHeight(){return height;}
 			inline int getNumFrames(){return numFrames;}
 			inline int getMipmapLevel(){return mipmapLevel;}
 			inline float getMixRatio(){return mixRatio;}

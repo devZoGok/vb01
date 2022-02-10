@@ -280,8 +280,7 @@ namespace vb01{
 		*/
 		glBindFramebuffer(GL_FRAMEBUFFER, preFilterFramebuffer);
 
-		int width = prefilterMap->getWidth();
-		glViewport(0, 0, width, width);
+		glViewport(0, 0, preFilterMapSize, preFilterMapSize);
 
 		Root *root = Root::getSingleton();
 		Mesh *skybox = root->getSkybox();
