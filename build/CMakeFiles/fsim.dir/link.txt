@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/fsim.dir/main.cpp.o  -o fsim 
