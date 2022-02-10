@@ -77,9 +77,11 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			u8 *image = ((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]))->image;
+			ImageAsset *asset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
+			width = asset->width;
+			height = asset->height;
 
-			glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, image);
+			glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, asset->image);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 	}
@@ -100,8 +102,10 @@ namespace vb01{
 		for(int i = 0; i < 6; i++){
 			if(!depth){
 				if(fromFile){
-					u8 *image = ((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]))->image;
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, image);	
+					ImageAsset *asset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
+					width = asset->width;
+
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, asset->image);	
 				}
 				else
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_INT, NULL);	

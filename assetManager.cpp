@@ -24,7 +24,7 @@ namespace vb01{
 				vector<string> imageFormats = vector<string>{"png", "jpg", "jpeg"};
 
 				if(*find(imageFormats.begin(), imageFormats.end(), format) == format)
-						assets.push_back(ImageReader::getSingleton()->readImage(path, true));
+						assets.push_back(ImageReader::getSingleton()->readImage(path, false));
 		}
 
 		Asset* AssetManager::getAsset(string path){

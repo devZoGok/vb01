@@ -16,7 +16,8 @@ namespace vb01{
 
 		ImageAsset* ImageReader::readImage(string path, bool flip){
 			stbi_set_flip_vertically_on_load(flip);
-			u8 *data = stbi_load(path.c_str(), nullptr, nullptr, nullptr, 0);
-			return new ImageAsset(path, data);
+			int width, height, numChannels;
+			u8 *data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
+			return new ImageAsset(path, data, width, height);
 		}
 }
