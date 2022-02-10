@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/vb01.dir/main.cpp.o  -o vb01 
