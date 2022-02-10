@@ -1,5 +1,5 @@
 #include "assetManager.h"
-#include "imageReader.h"
+#include "abstractAssetReader.h"
 #include "util.h"
 
 #include <algorithm>
@@ -16,15 +16,11 @@ namespace vb01{
 				return assetManager;
 		}
 
-		void AssetManager::load(string path){
+		void AssetManager::load(AbstractAssetReader *assetReader, string path){
 				if(getAsset(path))
 						return;
 
-				string format = path.substr(path.find_last_of(".") + 1, string::npos);
-				vector<string> imageFormats = vector<string>{"png", "jpg", "jpeg"};
-
-				if(*find(imageFormats.begin(), imageFormats.end(), format) == format)
-						assets.push_back(ImageReader::getSingleton()->readImage(path, false));
+				assets.push_back(assetReader->readAsset(path));
 		}
 
 		Asset* AssetManager::getAsset(string path){

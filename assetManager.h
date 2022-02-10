@@ -6,10 +6,12 @@
 #include <vector>
 
 namespace vb01{
+		class AbstractAssetReader;
+
 		class AssetManager{
 				public:
 						static AssetManager* getSingleton();
-						void load(std::string);
+						void load(AbstractAssetReader*, std::string);
 						Asset* getAsset(std::string);
 				private:
 						AssetManager(){}
