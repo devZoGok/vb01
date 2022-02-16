@@ -5,7 +5,7 @@
 
 namespace vb01{
 		struct FontAsset : public Asset{
-				u32 **glyphImages;
+				FT_Face face;
 		};
 }
 

@@ -4,6 +4,9 @@
 #include "texture.h"
 #include "node.h"
 #include "material.h"
+#include "fontReader.h"
+#include "fontAsset.h"
+#include "assetManager.h"
 
 #include "glad.h"
 #include <glfw3.h>
@@ -26,18 +29,10 @@ namespace vb01{
 	}
 
 	void Text::initFont(string fontPath, u16 firstChar, u16 lastChar){
-		FT_Library ft;
-		FT_Face face;
-
-		if(FT_Init_FreeType(&ft))
-			cout << "Couldn't init Freetype\n";	
-
-		if(FT_New_Face(ft, fontPath.c_str(), 0, &face))
-			cout << "Could not load font\n";
-
-		FT_Set_Pixel_Sizes(face, 0, 100);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		FontReader *fontReader = FontReader::getSingleton();
+		FT_Library &ft = fontReader->getFT();
+		FontAsset *font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
+		FT_Face face = font->face;
 
 		for(u16 i = firstChar; i < lastChar; i++){
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER)){
@@ -53,9 +48,6 @@ namespace vb01{
 			c.advance = face->glyph->advance.x;
 			characters.push_back(c);
 		}
-
-		FT_Done_Face(face);
-		FT_Done_FreeType(ft);
 	}
 
 	void Text::update(){

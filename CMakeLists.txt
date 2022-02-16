@@ -18,7 +18,7 @@ set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cp
 set(MODEL modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.h keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_READERS abstractAssetReader.cpp imageReader.cpp)
+set(ASSET_READERS abstractAssetReader.cpp imageReader.cpp fontReader.cpp)
 set(ASSET_MANAGER assetManager.cpp textAsset.h imageAsset.h modelAsset.h fontAsset.h)
 set(LIB_SRC ${RENDER} ${MATH} ${MODEL} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 
