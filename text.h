@@ -38,7 +38,8 @@ namespace vb01{
 			inline void setMaterial(Material *mat){this->material = mat;}
 			Glyph* getGlyph(u16);
 		private:
-			void initFont(std::string, u16, u16);
+			void applyFont(std::string, u16, u16 = 256);
+			void clearFont();
 			void prepareGlyphs(Glyph, Vector2);
 			void renderGlyphs(Glyph, float[], u32);
 

@@ -4,7 +4,6 @@
 #include "texture.h"
 #include "node.h"
 #include "material.h"
-#include "fontReader.h"
 #include "fontAsset.h"
 #include "assetManager.h"
 
@@ -19,18 +18,20 @@ using namespace std;
 
 namespace vb01{
 	Text::Text(string fontPath, wstring entry, u16 firstChar, u16 lastChar){
-		initFont(fontPath, firstChar, lastChar);
+		applyFont(fontPath, firstChar, lastChar);
 		setText(entry);
 	}
 
 	Text::~Text(){
+		clearFont();
+
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 	}
 
-	void Text::initFont(string fontPath, u16 firstChar, u16 lastChar){
-		FontReader *fontReader = FontReader::getSingleton();
-		FT_Library &ft = fontReader->getFT();
+	void Text::applyFont(string fontPath, u16 firstChar, u16 lastChar){
+		clearFont();
+
 		FontAsset *font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
 		FT_Face face = font->face;
 
@@ -42,12 +43,19 @@ namespace vb01{
 
 			Glyph c;
 			c.ch = i;
-			c.texture = new Texture(face, i);		
+			c.texture = new Texture(face);		
 			c.size = Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
 			c.bearing = Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top);
 			c.advance = face->glyph->advance.x;
 			characters.push_back(c);
 		}
+	}
+
+	void Text::clearFont(){
+			while(!characters.empty()){
+					delete characters[characters.size() - 1].texture;
+					characters.pop_back();
+			}
 	}
 
 	void Text::update(){

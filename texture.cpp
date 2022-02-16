@@ -127,7 +127,7 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
-	Texture::Texture(FT_Face &face, char ch){
+	Texture::Texture(FT_Face face){
 		texture = new u32;
 
 		glGenTextures(1, &texture[0]);
