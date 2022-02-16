@@ -5,6 +5,7 @@
 #include "keyframeChannel.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include "assetManager.h"
 
 using namespace std;
 using namespace vb01;
@@ -19,6 +20,12 @@ int main(){
 		TEX_PATH + "front.jpg",
 		TEX_PATH + "back.jpg"
 	};
+	AssetManager::getSingleton()->load(skyboxTextures[0]);
+	AssetManager::getSingleton()->load(skyboxTextures[1]);
+	AssetManager::getSingleton()->load(skyboxTextures[2]);
+	AssetManager::getSingleton()->load(skyboxTextures[3]);
+	AssetManager::getSingleton()->load(skyboxTextures[4]);
+	AssetManager::getSingleton()->load(skyboxTextures[5]);
 
 	/*
 	 * Gets Root object to start the sample, 

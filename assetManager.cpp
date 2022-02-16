@@ -1,6 +1,8 @@
 #include "assetManager.h"
 #include "abstractAssetReader.h"
 #include "util.h"
+#include "imageReader.h"
+#include "fontReader.h"
 
 #include <algorithm>
 
@@ -16,9 +18,21 @@ namespace vb01{
 				return assetManager;
 		}
 
-		void AssetManager::load(AbstractAssetReader *assetReader, string path){
+		void AssetManager::load(string path){
 				if(getAsset(path))
 						return;
+
+				string format = path.substr(path.find_last_of(".") + 1, string::npos);
+				AbstractAssetReader *assetReader = nullptr;
+				vector<string> imageFormats = vector<string>{"png", "jpeg", "jpg"};
+
+				if(find(imageFormats.begin(), imageFormats.end(), format) != imageFormats.end())
+						assetReader = ImageReader::getSingleton();
+
+				vector<string> fontFormats = vector<string>{"ttf"};
+
+				if(find(fontFormats.begin(), fontFormats.end(), format) != fontFormats.end())
+						assetReader = FontReader::getSingleton();
 
 				assets.push_back(assetReader->readAsset(path));
 		}

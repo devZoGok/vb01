@@ -11,10 +11,11 @@ namespace vb01{
 		class AssetManager{
 				public:
 						static AssetManager* getSingleton();
-						void load(AbstractAssetReader*, std::string);
+						void load(std::string);
 						Asset* getAsset(std::string);
 				private:
 						AssetManager(){}
+
 						std::vector<Asset*> assets;
 		};
 }

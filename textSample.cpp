@@ -58,13 +58,13 @@ int main(){
 	textMat->addBoolUniform("texturingEnabled", true);
 
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
-	AssetManager::getSingleton()->load(ImageReader::getSingleton(), frames[0]);
-	AssetManager::getSingleton()->load(ImageReader::getSingleton(), frames[1]);
+	AssetManager::getSingleton()->load(frames[0]);
+	AssetManager::getSingleton()->load(frames[1]);
 	Texture *texture = new Texture(frames, 2, false);
 	textMat->addTexUniform("textures[0]", texture, true);
 
 	for(int i = 0; i < numTexts; i++){
-		AssetManager::getSingleton()->load(FontReader::getSingleton(), FONT_PATH + fonts[i]);
+		AssetManager::getSingleton()->load(FONT_PATH + fonts[i]);
 
 		Text *text = new Text(FONT_PATH + fonts[i], texts[i], 0, 60000);
 		text->setLeftToRight(leftToRight[i]);

@@ -5,6 +5,9 @@
 #include "skeleton.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include "assetManager.h"
+#include "imageReader.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -22,6 +25,12 @@ int main(){
 		TEX_PATH + "front.jpg",
 		TEX_PATH + "back.jpg"
 	};
+	AssetManager::getSingleton()->load(skyboxTextures[0]);
+	AssetManager::getSingleton()->load(skyboxTextures[1]);
+	AssetManager::getSingleton()->load(skyboxTextures[2]);
+	AssetManager::getSingleton()->load(skyboxTextures[3]);
+	AssetManager::getSingleton()->load(skyboxTextures[4]);
+	AssetManager::getSingleton()->load(skyboxTextures[5]);
 
 	/*
 	 * Gets Root object to start the sample, 
