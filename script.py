@@ -1,144 +1,51 @@
 import sys
+import xml.etree.ElementTree as ET
 
-def exportData(ob):
-    par = ob.parent
-    if(par is not None and par.type == 'ARMATURE'):
-        while(par is not None):
-            par = par.parent
+rootTag = ET.Element('model')
 
-    file.write('{\n' + ob.type + ": " + ob.name + '\n')
-    file.write('pos: ' + str(ob.location.x) + ' ' + str(ob.location.y) + ' ' + str(ob.location.z) + ' \n')
-    file.write('rot: ' + str(ob.rotation_quaternion.w) + ' ' + str(ob.rotation_quaternion.x) + ' ' + str(ob.rotation_quaternion.y) + ' ' + str(ob.rotation_quaternion.z) + ' \n')
-    file.write('scale: ' + str(ob.scale.x) + ' ' + str(ob.scale.y) + ' ' + str(ob.scale.z) + ' \n')
-    file.write('parent: ' + ('-' if par is None else par.name) + '\n')
+def exportBone(armature, parentBone, parentTag, exportChildren = True):
+    head = parentBone.head
+    tail = parentBone.tail
+    xAxis = parentBone.x_axis
+    yAxis = parentBone.y_axis
+    ikTarget = None
+    chainLength = -1
 
-    numAnims = 0
-    if(ob.animation_data is not None and len(ob.animation_data.nla_tracks) > 0):
-        numAnims = len(ob.animation_data.nla_tracks[0].strips)
-
-    channels = []
-    if(ob.type == 'ARMATURE'):
-        file.write('bones: ' + str(len(ob.data.bones)) + ' ' + str(numAnims) + ' \n')
-
-        for bone in ob.data.bones:
-            head = bone.head
-            tail = bone.tail
-            xAxis = bone.x_axis
-            yAxis = bone.y_axis
-            ikTarget = '-'
-            chainLength = -1
-
-            ikConstraint = None
-            for constr in ob.pose.bones[bone.name].constraints:
-                if constr.name == 'IK':
-                    ikConstraint = constr
-            if(ikConstraint is not None and ikConstraint.subtarget):
-                ikTarget = ikConstraint.subtarget
-                if ikConstraint.chain_count == 0: 
-                    chainLength = 1
-                    bonePar = bone.parent
-                    while(bonePar is not None):
-                        chainLength = chain_count + 1
-                        bonePar = bonePar.parent
-                else:
-                    chainLength = ikConstraint.chain_count
-
-            file.write(bone.name + ': ' + ('None' if bone.parent is None else bone.parent.name) + " " + str(bone.length) + " " + str(head.x) + " " + str(head.y) + " " + str(head.z) + " " + str(xAxis.x) + " " + str(xAxis.y) + " " + str(xAxis.z) + " " + str(yAxis.x) + " " + str(yAxis.y) + " " + str(yAxis.z) + " " + ikTarget + ' ' + str(chainLength) + ' \n')
+    boneTag = ET.SubElement(parentTag, 'bone')
+    boneTag.set('name', parentBone.name)
+    boneTag.set('hx', str(head.x))
+    boneTag.set('hy', str(head.y))
+    boneTag.set('hz', str(head.z))
+    boneTag.set('tx', str(tail.x))
+    boneTag.set('ty', str(tail.y))
+    boneTag.set('tz', str(tail.z))
     
-    elif(ob.type == 'MESH'):
-        skeletonName = '-'
-        skeleton = None
-        if(len(ob.modifiers) > 0 and ob.modifiers['Armature'] and ob.modifiers['Armature'].object):
-            skeleton = ob.modifiers['Armature'].object
-            skeletonName = skeleton.name
-        file.write('skeleton: ' + skeletonName + '\n')
-        mesh = ob.data
-
-        numFaces = len(mesh.polygons)
-        numVerts = len(mesh.vertices)
-        numGroups = len(ob.vertex_groups)
-        numShapeKeys = 0
-        if mesh.shape_keys:
-            numShapeKeys = len(mesh.shape_keys.key_blocks) - 1
-
-        file.write('numElements: ' + str(numVerts) + ' ' + str(numFaces) + ' ' + str(numGroups) + ' ' + str(numShapeKeys) + ' \n')
-
-        file.write('groups:\n')
-        if numGroups > 0:
-            for group in ob.vertex_groups:
-                file.write(group.name + '\n')
-
-        file.write('vertices:\n')
-        print('Exporting vertices...\n')
-        for vert in mesh.vertices:
-            pos = vert.co
-            norm = vert.normal
-            weights = []
-            for i in range(0, numGroups):
-                weights.append(0.0)
-            for g in vert.groups:
-                weights[g.group] = g.weight
-            file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' ' + str(norm.x) + ' ' + str(norm.y) + ' ' + str(norm.z) + ' ')
-            for w in weights:
-                file.write(str(w) + ' ')
-            file.write('\n')
-
-        file.write('faces:\n')
-        print('Exporting faces...\n')
-        mesh.calc_tangents()
-        for face in mesh.polygons:
-            for vert, loopInd in zip(face.vertices, face.loop_indices):
-                uv = mesh.uv_layers[0].data[loopInd].uv
-                loop = mesh.loops[loopInd]
-                tan = loop.tangent
-                bitan = loop.bitangent
-                file.write(str(vert) + ' ' + str(uv.x) + ' ' + str(uv.y) + ' ' + str(tan.x) + ' ' + str(tan.y) + ' ' + str(tan.z) + ' ' + str(bitan.x) + ' ' + str(bitan.y) + ' ' + str(bitan.z) + ' \n')
-        mesh.free_tangents()
-
-        file.write('shapeKeys:\n')
-        if numShapeKeys > 0:
-            print('Exporting shape keys...\n')
-            for shape_key in mesh.shape_keys.key_blocks:
-                if shape_key.name != 'Basis':
-                    file.write(shape_key.name + ': ' + str(shape_key.slider_min) + ' ' + str(shape_key.slider_max) + ' \n')
-                    for vert in shape_key.data:
-                        pos = vert.co
-                        file.write(str(pos.x) + ' ' + str(pos.y) + ' ' + str(pos.z) + ' \n')
-            channels.extend(mesh.shape_keys.animation_data.drivers)
-    elif ob.type == 'LIGHT':
-        color = ob.data.color
-        outerAngle = 0
-        innerAngle = 0
-        type = ob.data.type
-        if type == 'SPOT':
-            outerAngle = ob.data.spot_size
-            innerAngle = outerAngle * ob.data.spot_blend
-        file.write('type: ' + type + '\n')
-        file.write('color: ' + str(color[0]) + ' ' + str(color[1]) + ' ' + str(color[2]) + ' \n')
-        file.write('outerAngle: ' + str(outerAngle) + ' \n')
-        file.write('innerAngle: ' + str(innerAngle) + ' \n')
-
-
-    file.write('animations: ' + str(numAnims) + '\n')
-    if numAnims > 0:
-        if ob.type == 'LIGHT':
-            readAnimations(ob, len(ob.animation_data.nla_tracks[0].strips))
-            if(ob.data.animation_data is not None and len(ob.data.animation_data.nla_tracks) > 0):
-                readAnimations(ob.data, len(ob.data.animation_data.nla_tracks[0].strips))
+    ikConstraint = None
+    
+    for constr in armature.pose.bones[parentBone.name].constraints:
+        if constr.name == 'IK':
+            ikConstraint = constr
+    
+    if(ikConstraint and ikConstraint.subtarget):
+        ikTarget = ikConstraint.subtarget
+    
+        if ikConstraint.chain_count == 0: 
+            chainLength = 1
+            bonePar = bone.parent
+    
+            while(bonePar):
+                chainLength = chain_count + 1
+                bonePar = bonePar.parent
         else:
-            readAnimations(ob, numAnims)
+            chainLength = ikConstraint.chain_count
 
-    if ob.animation_data is not None:
-        channels.extend(ob.animation_data.drivers)
-    readDrivers(channels)
+        boneTag.set('iktarget', ikTarget)
+        boneTag.set('chainlength', str(chainLength))
 
-def readDrivers(channels):
-    file.write('drivers: ' + str(len(channels)) + '\n')
-    for channel in channels:
-        firstQuoteId = channel.data_path.find('"') + 1
-        secondQuoteId = channel.data_path.rfind('"')
-        name = (ob.name if firstQuoteId == -1 and secondQuoteId == -1  else channel.data_path[firstQuoteId : secondQuoteId])
-        readDriver(channel, name)
+    if(exportChildren):
+        for bone in parentBone.children:
+            exportBone(armature, bone, boneTag, exportChildren)
+
 
 def getChannelType(channel):
     channelType = ''
@@ -165,95 +72,213 @@ def getChannelType(channel):
 
     return channelType
 
-def readChannel(animatableName, channel):
+def readChannel(animatableName, channel, tag):
     channelType = getChannelType(channel)
-    numKeyframes = len(channel.keyframe_points)
+    channelTag = ET.SubElement(tag, 'channel')
+    channelTag.set('type', channelType)
+    channelTag.set('name', animatableName)
 
-    file.write(animatableName + ' ' + channelType + ' ' + str(numKeyframes) + ' \n')
+    numKeyframes = len(channel.keyframe_points)
 
     for i in range(numKeyframes):
         keyframe = channel.keyframe_points[i]
         keyframeId = keyframe.co[0]
         interp = keyframe.interpolation
-        interpInt = -1
-
-        if interp == 'CONSTANT':
-            interpInt = 0
-        elif interp == 'LINEAR':
-            interpInt = 1
-        elif interp == 'BEZIER':
-            interpInt = 2
-
         keyframeValue = keyframe.co[1]
-        file.write(str(keyframeValue) + ' ' + str(keyframeId) + ' ' + str(interpInt))
 
         leftHandleValue = (keyframe.handle_left[1])
         leftHandleFrame = (keyframe.handle_left[0])
         rightHandleValue = (keyframe.handle_right[1])
         rightHandleFrame = (keyframe.handle_right[0])
+
         if interp != 'BEZIER':
             rightHandleValue = keyframeValue
             rightHandleFrame = keyframeId
+
         if i > 0 and channel.keyframe_points[i - 1].interpolation != 'BEZIER':
             leftHandleValue = keyframeValue
             leftHandleFrame = keyframeId
 
-        file.write(' ' + str(leftHandleValue) + ' ' + str(leftHandleFrame) + ' ')
-        file.write(str(rightHandleValue) + ' ' + str(rightHandleFrame) + ' ')
-        file.write('\n')
+        keyframeTag = ET.SubElement(channelTag, 'keyframe')
+        keyframeTag.set('frame', str(keyframeId))
+        keyframeTag.set('value', str(keyframeValue))
+        keyframeTag.set('interpolation', interp)
+        keyframeTag.set('lefthandleframe', str(leftHandleFrame))
+        keyframeTag.set('lefthandlevalue', str(leftHandleValue))
+        keyframeTag.set('righthandleframe', str(rightHandleFrame))
+        keyframeTag.set('righthandlevalue', str(rightHandleValue))
 
-def readDriver(channel, driverName):
-    #for channel in channels:
-        driver = channel.driver
-        target = driver.variables[0].targets[0];
-    
-        file.write(target.id.name + ' ' + target.bone_target + ' ' + str(target.transform_type) + ' \n')
-        print('Exporting driver ...\n')
-    
-        numKeyframes = len(channel.keyframe_points)
-        channelType = getChannelType(channel)
-        #file.write(driverName + ' 1 ' + channelType + ' ' + str(numKeyframes) + ' \n')
-    
-        readChannel(driverName, channel)
-
-def readAnimations(ob, numAnims):
+def readAnimations(ob, tag):
     for nlaStrip in ob.animation_data.nla_tracks[0].strips:
         animName = nlaStrip.name
         action = bpy.data.actions[animName]
-        numAnimBones = len(action.groups)
-        file.write('animation: ' + animName + ' ' + str(len(action.fcurves)) + ' \n')
     
-        print('Exporting animation ' + animName + '...\n')
-
+        animTag = ET.SubElement(tag, 'animation')
+        animTag.set('name', animName)
+    
         for channel in action.fcurves:
-            group = channel.group
-            readChannel((ob.name if group is None or group.name == 'Object Transforms' else group.name), channel)
+            readChannel((ob.name if channel.group is None or channel.group.name == 'Object Transforms' else channel.group.name), channel, animTag)
 
-fl = bpy.data.filepath
-dotId = 0
-for i in range(len(fl)):
-    if(fl[i] == '.'):
-        dotId = i
-        break
-fl = fl[0 : dotId] + '.vb'
+
+def readDriver(node, channel, tag):
+    driver = channel.driver
+    target = driver.variables[0].targets[0];
+    
+    driverTag = ET.SubElement(tag, 'driver')
+    driverTag.set('obj', target.id.name)
+
+    if(target.bone_target):
+        driverTag.set('bone', target.bone_target)
+    
+    numKeyframes = len(channel.keyframe_points)
+    channelType = getChannelType(channel)
+    
+    firstQuoteId = channel.data_path.find('"') + 1
+    secondQuoteId = channel.data_path.rfind('"')
+    name = (node.name if firstQuoteId == -1 and secondQuoteId == -1  else channel.data_path[firstQuoteId : secondQuoteId])
+    readChannel(name, channel, driverTag)
+
+def export(node, parentTag):
+    nodeTag = ET.SubElement(parentTag, 'node')
+    nodeTag.set('name', node.name)
+
+    if node.type == 'MESH':
+        mesh = node.data
+        numFaces = len(mesh.polygons)
+        numVerts = len(mesh.vertices)
+        numGroups = len(node.vertex_groups)
+        numShapeKeys = 0
+        
+        if mesh.shape_keys:
+            numShapeKeys = len(mesh.shape_keys.key_blocks) - 1
+        
+        meshTag = ET.SubElement(nodeTag, 'mesh')
+        
+        for vert in mesh.vertices:
+            pos = vert.co
+            norm = vert.normal
+            vertDataTag = ET.SubElement(meshTag, 'vertdata')
+            vertDataTag.set('px', str(pos.x))
+            vertDataTag.set('py', str(pos.y))
+            vertDataTag.set('pz', str(pos.z))
+            vertDataTag.set('nx', str(norm.x))
+            vertDataTag.set('ny', str(norm.y))
+            vertDataTag.set('nz', str(norm.z))
+        
+            weights = []
+        
+            for i in range(0, numGroups):
+                weights.append(0.0)
+        
+            for g in vert.groups:
+                weights[g.group] = g.weight
+        
+            for w in weights:
+                weightDataTag = ET.SubElement(vertDataTag, 'weight')
+                weightDataTag.set('value', str(w))
+        
+        if numGroups > 0:
+            for group in node.vertex_groups:
+                vertGroupTag = ET.SubElement(meshTag, 'vertexgroup')
+                vertGroupTag.set('name', group.name)
+        
+        mesh.calc_tangents()
+        
+        for face in mesh.polygons:
+            for vert, loopInd in zip(face.vertices, face.loop_indices):
+                uv = mesh.uv_layers[0].data[loopInd].uv
+                loop = mesh.loops[loopInd]
+                tan = loop.tangent
+                bitan = loop.bitangent
+                vertTag = ET.SubElement(meshTag, 'vert')
+                vertTag.set('id', str(vert))
+                vertTag.set('uvx', str(uv.x))
+                vertTag.set('uvy', str(uv.y))
+                vertTag.set('tx', str(tan.x))
+                vertTag.set('ty', str(tan.y))
+                vertTag.set('tz', str(tan.z))
+                vertTag.set('bx', str(bitan.x))
+                vertTag.set('by', str(bitan.y))
+                vertTag.set('bz', str(bitan.z))
+        
+        mesh.free_tangents()
+
+        i = 0
+        
+        for shape_key in mesh.shape_keys.key_blocks:
+            if shape_key.name != 'Basis':
+                shapeKeyTag = ET.SubElement(meshTag, 'shapekey')
+                shapeKeyTag.set('name', str(shape_key.name))
+                shapeKeyTag.set('min', str(shape_key.slider_min))
+                shapeKeyTag.set('max', str(shape_key.slider_max))
+
+                readDriver(node, mesh.shape_keys.animation_data.drivers[i], shapeKeyTag)
+        
+                for vert in shape_key.data:
+                    pos = vert.co
+                    vertTag = ET.SubElement(shapeKeyTag, 'vert')
+                    vertTag.set('px', str(pos.x))
+                    vertTag.set('py', str(pos.y))
+                    vertTag.set('pz', str(pos.z))
+
+                i = i + 1
+        
+        armatureMod = 'Armature'
+        
+        if(node.modifiers and node.modifiers[armatureMod] and node.modifiers[armatureMod].object):
+            skeleton = node.modifiers[armatureMod].object
+            meshTag.set('skeleton', skeleton.name)
+    elif node.type == 'ARMATURE':
+        skeletonTag = ET.SubElement(nodeTag, 'skeleton')
+        exportBone(node, node.data.bones[0], skeletonTag, True)
+    elif node.type == 'LIGHT':
+        lightTag = ET.SubElement(nodeTag, 'light')
+
+        lightData = node.data
+        color = lightData.color
+        lighTag.set('cr', str(color[0]))
+        lighTag.set('cg', str(color[1]))
+        lighTag.set('cb', str(color[2]))
+
+        type = lightData.type
+        lightTag.set('type', type)
+
+        outerAngle = 0
+        innerAngle = 0
+
+        if type == 'SPOT':
+            outerAngle = ob.data.spot_size
+            innerAngle = outerAngle * ob.data.spot_blend
+
+        lightTag.set('innerangle', str(innerAngle))
+        lightTag.set('outerangle', str(outerAngle))
+
+    if node.animation_data and node.animation_data.nla_tracks:
+        readAnimations(node, nodeTag)
+
+    for child in node.children:
+        export(child, nodeTag)
 
 objects = []
 selectedObjects = bpy.context.selected_objects
 
 for s in selectedObjects:
     sPar = s
-    while(sPar):
+
+    while(sPar.parent and sPar.parent in selectedObjects):
         sPar = sPar.parent
-    inObjects = False
-    for so in objects:
-        if(so == sPar):
-            inObjects = True
-            break
-    if inObjects == False:
+
+    if sPar not in objects:
         objects.append(sPar)
 
-file = open(fl, 'w')
-for ob in selectedObjects:
-    exportData(ob)
-    file.write('}\n')
-file.close()
+for obj in objects:
+    export(obj, rootTag)
+        
+fl = bpy.data.filepath
+fl = fl[0 : fl.rfind('.')] + '.xml'
+
+ET.indent(rootTag)
+binXml = ET.tostring(rootTag)
+
+with open(fl, 'wb') as f:
+    f.write(binXml)
