@@ -17,8 +17,9 @@ namespace vb01{
 			void lookAt(Vector3, Vector3);
 			Vector3 getBoneSpaceRestPos(Bone*);
 			Vector3 getModelSpacePos();
-			inline Bone* getIkTarget(){return ikTarget;}
-			inline void setIkTarget(Bone *target){this->ikTarget = target;}
+			inline Skeleton* getSkeleton(){return skeleton;}
+			inline std::string getIkTarget(){return ikTarget;}
+			inline void setIkTarget(std::string target){this->ikTarget = target;}
 			inline int getIkChainLength(){return ikChainLength;}
 			inline void setIkChainLength(int ikChainLength){this->ikChainLength = ikChainLength;}
 			inline float getLength(){return length;}
@@ -39,7 +40,7 @@ namespace vb01{
 			virtual float getDriverValue(Driver::VariableType);
 
 			float length;
-			Bone *ikTarget = nullptr;
+			std::string ikTarget = "";
 			int ikChainLength = -1;
 			bool ikFromTail = true;
 			Skeleton *skeleton = nullptr;

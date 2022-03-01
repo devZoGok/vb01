@@ -1,4 +1,5 @@
 #include "ikSolver.h"
+#include "skeleton.h"
 #include "bone.h"
 
 namespace vb01{
@@ -7,7 +8,8 @@ namespace vb01{
 		for(int i = 0; i < chainLength; i++)
 			sumLengths += boneChain[i]->getLength();
 		
-		Bone *subBase = (Bone*)boneChain[0]->getIkTarget()->getParent();
+		Skeleton *skeleton = boneChain[0]->getSkeleton();
+		Bone *subBase = (Bone*)skeleton->getBone(boneChain[0]->getIkTarget())->getParent();
 		Vector3 startPos = subBase->globalToLocalPosition(boneChain[chainLength - 1]->localToGlobalPosition(Vector3::VEC_ZERO));
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 500;

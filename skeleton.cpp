@@ -21,7 +21,7 @@ namespace vb01{
 
 	void Skeleton::updateIk(){
 		for(Bone *b : bones){
-			if(b->getIkTarget()){
+			if(b->getIkTarget() != ""){
 				const int chainLength = b->getIkChainLength();
 				Bone **boneChain = getIkBoneChain(b);
 				for(int i = 0; i < chainLength; i++){
@@ -33,13 +33,13 @@ namespace vb01{
 			}
 		}
 		for(Bone *b : bones)
-			if(b->getIkTarget())
+			if(getBone(b->getIkTarget()))
 				solveIk(b);
 	}
 
 	void Skeleton::solveIk(Bone *ikBone){
 		const int chainLength = ikBone->getIkChainLength();
-		Bone *ikTarget = ikBone->getIkTarget();
+		Bone *ikTarget = getBone(ikBone->getIkTarget());
 		Bone *subBase = (Bone*)ikTarget->getParent();
 
 		Bone **boneChain = getIkBoneChain(ikBone);

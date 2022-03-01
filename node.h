@@ -16,11 +16,14 @@ namespace vb01{
 	class Light;
 	class ParticleEmitter;
 	class Text;
+	class Skeleton;
+	class AnimationController;
 
 	class Node : public Animatable{
 		public:
 			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
 			virtual ~Node();
+			void addSkeleton(Skeleton*);
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
 			virtual void update();
@@ -81,6 +84,7 @@ namespace vb01{
 			std::vector<Node*> children;
 			std::vector<Light*> lights;
 			std::vector<Text*> texts;
+			std::vector<Skeleton*> skeletons;
 			std::string name;
 			Node *parent = nullptr;
 	};

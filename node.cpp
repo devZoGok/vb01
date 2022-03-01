@@ -118,6 +118,10 @@ namespace vb01{
 		mesh->setNode(this);
 	}
 
+	void Node::addSkeleton(Skeleton *skeleton){
+			skeletons.push_back(skeleton);
+	}
+
 	void Node::attachParticleEmitter(ParticleEmitter *emitter){
 		emitters.push_back(emitter);
 		emitter->setNode(this);

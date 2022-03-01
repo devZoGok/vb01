@@ -27,7 +27,7 @@ namespace vb01{
 		boneD->lookAt(Vector3::VEC_K, Vector3::VEC_J);
 
 		boneD->setIkChainLength(chainLength);
-		boneD->setIkTarget(ikBone);
+		boneD->setIkTarget(ikBone->getName());
 
 		ikPos = new Vector3[chainLength];
 		boneChain = new Bone*[chainLength];

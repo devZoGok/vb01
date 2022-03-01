@@ -225,7 +225,7 @@ namespace vb01{
 		for(it = ikRelationships.begin(); it != ikRelationships.end(); it++){
 			string targetBoneName = it->first;
 			string ikTargetBoneName = ikRelationships[targetBoneName];
-			skeleton->getBone(targetBoneName)->setIkTarget(skeleton->getBone(ikTargetBoneName));
+			skeleton->getBone(targetBoneName)->setIkTarget(ikTargetBoneName);
 		}
 	}
 

@@ -5,7 +5,6 @@ rootTag = ET.Element('model')
 
 def exportBone(armature, parentBone, parentTag, exportChildren = True):
     head = parentBone.head
-    tail = parentBone.tail
     xAxis = parentBone.x_axis
     yAxis = parentBone.y_axis
     ikTarget = None
@@ -16,9 +15,13 @@ def exportBone(armature, parentBone, parentTag, exportChildren = True):
     boneTag.set('hx', str(head.x))
     boneTag.set('hy', str(head.y))
     boneTag.set('hz', str(head.z))
-    boneTag.set('tx', str(tail.x))
-    boneTag.set('ty', str(tail.y))
-    boneTag.set('tz', str(tail.z))
+    boneTag.set('length', str(parentBone.length))
+    boneTag.set('xaxisx', str(xAxis.x))
+    boneTag.set('xaxisy', str(xAxis.y))
+    boneTag.set('xaxisz', str(xAxis.z))
+    boneTag.set('yaxisx', str(yAxis.x))
+    boneTag.set('yaxisy', str(yAxis.y))
+    boneTag.set('yaxisz', str(yAxis.z))
     
     ikConstraint = None
     
@@ -153,6 +156,9 @@ def export(node, parentTag):
             numShapeKeys = len(mesh.shape_keys.key_blocks) - 1
         
         meshTag = ET.SubElement(nodeTag, 'mesh')
+        meshTag.set('num_faces', str(numFaces))
+        meshTag.set('num_vertex_groups', str(numGroups))
+        meshTag.set('num_shape_keys', str(numShapeKeys))
         
         for vert in mesh.vertices:
             pos = vert.co

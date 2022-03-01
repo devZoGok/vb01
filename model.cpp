@@ -8,6 +8,7 @@
 #include "skeleton.h"
 #include "animation.h"
 #include "vbModelReader.h"
+#include "xmlModelReader.h"
 #include "assimpModelReader.h"
 
 #include <vector>
@@ -25,7 +26,9 @@ namespace vb01{
 		string extension = path.substr(dotId + 1, string::npos);
 		ModelReader *modelReader = nullptr;
 
-		if(extension == "vb")
+		if(extension == "xml")
+			modelReader = new XmlModelReader(this, path);
+		else if(extension == "vb")
 			modelReader = new VbModelReader(this, path);
 		else
 			modelReader = new AssimpModelReader(this, path);

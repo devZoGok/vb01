@@ -17,7 +17,7 @@ set(MATH quaternion.cpp vector.cpp matrix.cpp ray.cpp)
 set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.h keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_READERS abstractAssetReader.cpp imageReader.cpp fontReader.cpp modelReader.cpp assimpModelReader.cpp vbModelReader.cpp)
+set(ASSET_READERS abstractAssetReader.cpp imageReader.cpp fontReader.cpp modelReader.cpp assimpModelReader.cpp vbModelReader.cpp xmlModelReader.cpp)
 set(ASSET_MANAGER assetManager.cpp textAsset.h imageAsset.h modelAsset.h fontAsset.h)
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 
@@ -28,6 +28,7 @@ include_directories(external/stb)
 
 add_library(${LIB_NAME} SHARED external/glad/glad.c ${LIB_SRC})
 
+set(TINYXML2_DIR external/tinyxml2)
 set(GLFW_DIR external/glfw)
 set(FREETYPE_DIR external/freetype)
 set(ASSIMP_DIR external/assimp)
@@ -38,6 +39,11 @@ if(UNIX)
 elseif(WIN32)
 	message("Building for Windows")
 endif()
+
+add_subdirectory(${TINYXML2_DIR})
+set(TINYXML2_LIB_DIR build/${TINYXML2_DIR})
+target_include_directories(${LIB_NAME} PUBLIC ${TINYXML2_DIR})
+target_link_directories(${LIB_NAME} PUBLIC ${TINYXML2_LIB_DIR})
 
 add_subdirectory(${GLFW_DIR})
 set(GLFW_LIB_DIR build/${GLFW_DIR}/src)
@@ -54,7 +60,7 @@ add_subdirectory(${FREETYPE_DIR})
 target_include_directories(${LIB_NAME} PUBLIC ${FREETYPE_DIR}/include)
 target_link_directories(${LIB_NAME} PUBLIC ${FREETYPE_LIB_DIR})
 
-set(DEPS glfw assimp freetype ${CMAKE_DL_LIBS})
+set(DEPS glfw assimp freetype ${CMAKE_DL_LIBS} tinyxml2)
 
 target_link_libraries(${LIB_NAME} ${DEPS})
 
