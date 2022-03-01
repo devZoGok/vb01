@@ -40,7 +40,7 @@ int main(){
 	 * Populate the scene with cubes
 	*/
 	Box *driverBox = new Box(Vector3(1, 1, 1) * .25);
-	Node *driver = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
+	Node *driver = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "");
 	Material *driverMat = new Material(PATH + "texture");
 	driverMat->addBoolUniform("texturingEnabled", false);
 	driverMat->addVec4Uniform("diffuseColor", Vector4(0, 1, 0, 1));
@@ -113,7 +113,7 @@ int main(){
 	 * The AnimationController plays the animations set in the AnimationChannel objects.
 	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
 	*/
-	AnimationController *controller = driver->getAnimationController();
+	AnimationController *controller = AnimationController::getSingleton();
 	controller->addAnimation(anim);
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);

@@ -176,7 +176,7 @@ namespace vb01{
 			else
 				CPPUNIT_ASSERT(bones[i].parent == "-");
 		}
-		AnimationController *controller = skeleton->getAnimationController();
+		AnimationController *controller = AnimationController::getSingleton();
 		string animNames[]{"Action", "open"};
 		CPPUNIT_ASSERT(controller->getAnimation(animNames[0]));
 		CPPUNIT_ASSERT(controller->getAnimation(animNames[1]));

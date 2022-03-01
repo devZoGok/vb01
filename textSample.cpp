@@ -65,7 +65,7 @@ int main(){
 		text->setHorizontal(horizontal[i]);
 		text->setMaterial(textMat);
 
-		Node *textNode = new Node(Vector3(0, 50 * (i + 1), 0), Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
+		Node *textNode = new Node(Vector3(0, 50 * (i + 1), 0), Quaternion::QUAT_W, Vector3::VEC_IJK, "");
 		textNode->addText(text);
 		guiNode->attachChild(textNode);
 
@@ -103,7 +103,7 @@ int main(){
 		 * The AnimationController plays the animations set in the AnimationChannel objects.
 		 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
 		*/
-		AnimationController *controller = textNode->getAnimationController();
+		AnimationController *controller = AnimationController::getSingleton();
 		controller->addAnimation(anim);
 		AnimationChannel *channel = new AnimationChannel();
 		controller->addAnimationChannel(channel);

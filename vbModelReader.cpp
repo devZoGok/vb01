@@ -268,7 +268,7 @@ namespace vb01{
 		return keyframeChannel;
 	}
 
-	void VbModelReader::readAnimations(Animatable *animatable, AnimationController *controller, vector<string> &animationData){
+	void VbModelReader::readAnimations(Animatable *animatable, vector<string> &animationData){
 		int numAnimations = atoi(animationData[0].substr(animationData[0].find_first_of(':') + 2).c_str());
 		int animStartLine = 1;
 
@@ -279,7 +279,7 @@ namespace vb01{
 			currentAnim = data[0];
 
 			Animation *animation = new Animation(currentAnim);
-			controller->addAnimation(animation);
+			AnimationController::getSingleton()->addAnimation(animation);
 
 			int numKeyframeChannels = atoi(data[1].c_str());
 			int keyframeChannelStartLine = animStartLine + 1;
@@ -331,8 +331,7 @@ namespace vb01{
 		int animationStartLine = boneStartLine + numBones;
 		int driverStartLine = findDriverStartLine(skeletonData, animationStartLine);
 
-		AnimationController *controller = new AnimationController();
-		Skeleton *skeleton = new Skeleton(controller, name);
+		Skeleton *skeleton = new Skeleton(name);
 		currentSkeleton = skeleton;
 
 		vector<string> skeletonSubData = vector<string>(skeletonData.begin() + boneStartLine, skeletonData.begin() + boneStartLine + numBones);
@@ -340,7 +339,7 @@ namespace vb01{
 		skeletonSubData.clear();
 
 		skeletonSubData = vector<string>(skeletonData.begin() + animationStartLine, skeletonData.begin() + driverStartLine);
-		readAnimations(nullptr, controller, skeletonSubData);
+		readAnimations(nullptr, skeletonSubData);
 		skeletonSubData.clear();
 
 		skeletonSubData = vector<string>(skeletonData.begin() + driverStartLine, skeletonData.end());
@@ -536,12 +535,11 @@ namespace vb01{
 		getLineData(meshData[3].substr(meshData[3].find_first_of(':') + 2), data, 3);
 		Vector3 scale = Vector3(atof(data[0].c_str()), atof(data[1].c_str()), atof(data[2].c_str()));
 
-		AnimationController *controller = new AnimationController();
-		Node *node = new Node(pos, rot, scale, name, controller);
+		Node *node = new Node(pos, rot, scale, name);
 		nodes.push_back(node);
 
 		meshSubData = vector<string>(meshData.begin() + animationStartLine, meshData.begin() + driverStartLine);
-		readAnimations(node, controller, meshSubData);
+		readAnimations(node, meshSubData);
 		meshSubData.clear();
 
 		meshSubData = vector<string>(meshData.begin() + driverStartLine, meshData.end());
@@ -604,15 +602,14 @@ namespace vb01{
 		light->setInnerAngle(innerAngle);
 		currentLight = light;
 
-		AnimationController *controller = new AnimationController();
-		Node *node = new Node(pos, rot, scale, name, controller);
+		Node *node = new Node(pos, rot, scale, name);
 		node->addLight(light);
 		nodes.push_back(node);
 
 		int animationStartLine = 9;
 		int driverStartLine = findDriverStartLine(lightData, animationStartLine);
 		vector<string> lightSubData = vector<string>(lightData.begin() + animationStartLine, lightData.begin() + driverStartLine);
-		readAnimations(node, controller, lightSubData);
+		readAnimations(node, lightSubData);
 		lightSubData.clear();
 
 		lightSubData = vector<string>(lightData.begin() + driverStartLine, lightData.end());

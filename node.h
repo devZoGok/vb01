@@ -16,11 +16,10 @@ namespace vb01{
 	class Light;
 	class ParticleEmitter;
 	class Text;
-	class AnimationController;
 
 	class Node : public Animatable{
 		public:
-			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "", AnimationController *c = nullptr);
+			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
 			virtual ~Node();
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
@@ -63,14 +62,12 @@ namespace vb01{
 			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
 			inline void addDriver(Driver *d){drivers.push_back(d);}
-			inline AnimationController* getAnimationController(){return controller;}
 		private:
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
 			void updateShaders();
 
 			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
-			AnimationController *controller = nullptr;
 			std::vector<Driver*> drivers;
 		protected:
 			virtual void animate(float, KeyframeChannel);

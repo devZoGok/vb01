@@ -5,6 +5,7 @@
 #include "box.h"
 #include "quad.h"
 #include "lineRenderer.h"
+#include "animationController.h"
 
 #include "glad.h"
 #include <glfw3.h>
@@ -149,6 +150,8 @@ namespace vb01{
 			glDepthMask(GL_TRUE);
 			glCullFace(GL_BACK);
 		}
+
+		AnimationController::getSingleton()->update();
 
 		rootNode->update();
 

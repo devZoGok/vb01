@@ -27,7 +27,7 @@ namespace vb01{
 			int findDriverStartLine(std::vector<std::string>&, int);
 			void createBones(Skeleton*, std::vector<std::string>&);
 			KeyframeChannel readKeyframeChannel(Animatable*, std::vector<std::string>&, int&);
-			void readAnimations(Animatable*, AnimationController*, std::vector<std::string>&);
+			void readAnimations(Animatable*, std::vector<std::string>&);
 			Skeleton* readSkeleton(std::vector<std::string>&);
 			void readVertices(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<float>&, std::vector<std::string>&, int);
 			void readFaces(std::vector<Vector3>&, std::vector<Vector3>&, std::vector<u32>&, std::vector<float>&, std::vector<std::string>&, int, Mesh::Vertex*, u32*);

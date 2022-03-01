@@ -11,14 +11,12 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Skeleton::Skeleton(AnimationController *controller, string name){
+	Skeleton::Skeleton(string name){
 		this->name = name;
-		this->controller = controller;
 	}
 
 	void Skeleton::update(){
 		updateIk();
-		controller->update();
 	}
 
 	void Skeleton::updateIk(){

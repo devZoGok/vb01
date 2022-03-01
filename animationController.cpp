@@ -5,6 +5,15 @@
 using namespace std;
 
 namespace vb01{
+		static AnimationController *animationController = nullptr;
+
+		AnimationController* AnimationController::getSingleton(){
+				if(!animationController)
+						animationController = new AnimationController();
+
+				return animationController;
+		}
+
 	void AnimationController::update(){
 		for(AnimationChannel *channel : channels){
 			channel->update();
@@ -14,8 +23,10 @@ namespace vb01{
 
 	void AnimationController::transform(AnimationChannel *channel){
 		Animation *animation = getAnimation(channel->getAnimationName());
+
 		for(Animatable *animatable : channel->getAnimatables()){
 			vector<KeyframeChannel> keyframeChannels = animation->getKeyframeChannelsByAnimatable(animatable);
+
 			for(KeyframeChannel keyframeChannel : keyframeChannels){
 				int currentFrame = channel->getCurrentFrame();
 				Keyframe pastKeyframe = KeyframeChannel::findKeyframe(currentFrame, keyframeChannel, true);
@@ -33,11 +44,13 @@ namespace vb01{
 
 	Animation* AnimationController::getAnimation(string name){
 		Animation *anim = nullptr;
+
 		for(Animation *a : animations)
 			if(a->getName() == name){
 				anim = a;
 				break;
 			}
+
 		return anim;
 	}
 

@@ -8,15 +8,13 @@
 
 namespace vb01{
 	class Animation;
-	class AnimationController;
 
 	class Skeleton{
 		public:
-			Skeleton(AnimationController*, std::string = "");
+			Skeleton(std::string = "");
 			void update();
 			void addBone(Bone*, Bone*);
 			Bone* getBone(std::string);
-			inline AnimationController* getAnimationController(){return controller;}
 			inline Bone* getBone(int i){return bones[i];}
 			inline Bone* getRootBone(){return bones[0];}
 			inline std::vector<Bone*>& getBones(){return bones;}
@@ -30,7 +28,6 @@ namespace vb01{
 
 			std::string name;
 			std::vector<Bone*> bones;
-			AnimationController *controller = nullptr;
 	};
 }
 

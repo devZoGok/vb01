@@ -31,7 +31,7 @@ namespace vb01{
 		kg.bone = bone;
 		kg.keyframeChannels = vector<KeyframeChannel>({ch0, ch1});
 
-		controller = skeleton->getAnimationController();
+		controller = AnimationController::getSingleton();
 		Animation *anim = new Animation("anim");
 		anim->addKeyframeGroup(kg);
 		controller->addAnimation(anim);
@@ -45,7 +45,7 @@ namespace vb01{
 
 	void AnimationControllerTest::setUp(){
 		Node *rootNode = Root::getSingleton()->getRootNode();
-		skeleton = new Skeleton(new AnimationController());
+		skeleton = new Skeleton();
 		Bone *bone = new Bone("bone", 1.f, Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK);
 		skeleton->addBone(bone, (Bone*)rootNode);
 

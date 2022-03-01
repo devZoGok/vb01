@@ -15,8 +15,7 @@ namespace vb01{
 
 	class AnimationController{
 		public:
-			AnimationController(){}
-			~AnimationController(){}
+				static AnimationController* getSingleton();
 			void update();
 			Animation* getAnimation(std::string);
 			void addAnimationChannel(AnimationChannel *channel);
@@ -26,6 +25,7 @@ namespace vb01{
 			std::vector<Animation*> animations;
 			std::vector<AnimationChannel*> channels;
 
+			AnimationController(){}
 			void transform(AnimationChannel*);
 		protected:
 			void onAnimationEnd(std::string){}

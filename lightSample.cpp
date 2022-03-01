@@ -74,7 +74,7 @@ int main(){
 	Light *light = new Light(Light::SPOT);
 	light->setColor(Vector3(1, 1, 1));
 
-	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "", new AnimationController());
+	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "");
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
 	lightNode->setOrientation(Quaternion(.7, Vector3(1, 0, 0)));
@@ -111,7 +111,7 @@ int main(){
 	 * The AnimationController plays the animations set in the AnimationChannel objects.
 	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
 	*/
-	AnimationController *controller = lightNode->getAnimationController();
+	AnimationController *controller = AnimationController::getSingleton();
 	controller->addAnimation(animation);
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);

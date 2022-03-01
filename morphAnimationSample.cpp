@@ -58,7 +58,7 @@ int main(){
 	 * The AnimationController plays the animations set in the AnimationChannel objects.
 	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
 	*/
-	AnimationController *controller = skeleton->getAnimationController();
+	AnimationController *controller = AnimationController::getSingleton();
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);
 	channel->addAnimatable(skeleton->getBone("bone"));

@@ -12,9 +12,9 @@ using namespace std;
 namespace vb01{
 	void AnimationChannelTest::setUp(){
 		Bone *bone = new Bone("bone", 1, Vector3(0, 0, 0), Quaternion::QUAT_I, Vector3::VEC_IJK);
-		skeleton = new Skeleton(new AnimationController());
+		skeleton = new Skeleton();
 		skeleton->addBone(bone, nullptr);
-		AnimationController *controller = skeleton->getAnimationController();
+		AnimationController *controller = AnimationController::getSingleton();
 
 		Keyframe k1, k2;
 		k1.frame = 0;
