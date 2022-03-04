@@ -3,6 +3,7 @@
 #include "skeleton.h"
 #include "bone.h"
 #include "vector.h"
+#include "animationController.h"
 
 #include <vector>
 
@@ -16,8 +17,27 @@ namespace vb01{
 				XMLDocument *doc = new XMLDocument();
 				doc->LoadFile(path.c_str());
 
-				XMLNode *root = doc->FirstChild();
-				model->attachChild(processNode(model, (XMLElement*)root));
+				XMLElement *root = doc->FirstChildElement();
+
+				for(XMLElement *ch = root->FirstChildElement(); ch; ch = ch->NextSiblingElement())
+					model->attachChild(processNode(model, ch));
+
+				vector<Node*> descendants;
+				model->getDescendants(descendants);
+				vector<Mesh*> meshes;
+
+				for(Node *desc : descendants)
+						for(Mesh *m : desc->getMeshes())
+								if(m->getSkeleton())
+									meshes.push_back(m);
+
+				for(Mesh *m : meshes)
+						for(Node *desc : descendants)
+								for(Skeleton *sk : desc->getSkeletons())
+										if(m->getSkeleton()->getName() == sk->getName()){
+												delete m->getSkeleton();
+												m->setSkeleton(sk);
+										}
 		}
 
 		Mesh* XmlModelReader::processMesh(XMLElement *meshEl){
@@ -50,7 +70,6 @@ namespace vb01{
 
 				i = 0;
 				int numVertices = 3 * atoi(meshEl->Attribute("num_faces"));
-				int numBones;
 				Mesh::Vertex *vertices = new Mesh::Vertex[numVertices];
 				tagName = "vert";
 				vector<u32> vertIds;
@@ -81,10 +100,10 @@ namespace vb01{
 						vertex.tan = tan;
 						vertex.biTan = biTan;
 
-						for(int j = 0, boneIndex = 0; j < numBones; j++){
-							if(weights[id * numBones + j] > 0){
+						for(int j = 0, boneIndex = 0; j < numVertexGroups; j++){
+							if(weights[id * numVertexGroups + j] > 0){
 								vertex.boneIndices[boneIndex] = j;
-								vertex.weights[boneIndex] = weights[id * numBones + j];
+								vertex.weights[boneIndex] = weights[id * numVertexGroups + j];
 								boneIndex++;
 							}
 						}
@@ -119,20 +138,38 @@ namespace vb01{
 						}
 				}
 
-			Mesh *mesh = new Mesh(vertices, indices, numVertices / 3, vertexGroups, numBones, shapeKeys, numShapeKeys);
+			Mesh *mesh = new Mesh(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, shapeKeys, numShapeKeys);
+			mesh->construct();
+
+			const char *skeletonName = meshEl->Attribute("skeleton");
+
+			if(skeletonName){
+					int dotId = string(skeletonName).find_first_of(".");
+					string name = string(skeletonName).substr(dotId + 1, string::npos);
+					mesh->setSkeleton(new Skeleton(name));
+			}
+
 			return mesh;
 		}
 
 		Skeleton* XmlModelReader::processSkeleton(Node *root, XMLElement *skeletonEl){
 				XMLElement *rootBoneEl = skeletonEl->FirstChildElement("bone");
-				Skeleton *skeleton = new Skeleton(nullptr);
-				skeleton->addBone((Bone*)processNode(root, rootBoneEl, true), (Bone*)root);
+				Bone *rootBone = (Bone*)processNode(root, rootBoneEl, true);
+				vector<Node*> bones;
+				rootBone->getDescendants(bones);
+
+				Skeleton *skeleton = new Skeleton(skeletonEl->Attribute("name"));
+				skeleton->addBone(rootBone, (Bone*)root);
+
+				for(Node *bone : bones)
+						skeleton->addBone((Bone*)bone, (Bone*)bone->getParent());
 
 				return skeleton;
 		}
 
 		Node* XmlModelReader::processNode(Node *parent, XMLElement *xmlEl, bool bone){
 				Node *node = nullptr;
+				const char *name = xmlEl->Attribute("name");
 
 				if(bone){
 						float headX = atof(xmlEl->Attribute("hx"));
@@ -150,14 +187,14 @@ namespace vb01{
 						float yAxisZ = atof(xmlEl->Attribute("yaxisz"));
 						Vector3 yAxis = Vector3(yAxisX, yAxisY, yAxisZ);
 
-						string name = xmlEl->Attribute("name");
 						float length = atof(xmlEl->Attribute("length"));
 
 						Vector3 zAxis = xAxis.cross(yAxis).norm();
 						Vector3 pos = head;
 						
 						/*
-						if(!parent){
+						*/
+						if(xmlEl->Parent()->ToElement()->Name() == "skeleton"){
 							parent = model;
 							swap(pos.y, pos.z);
 							pos.z = -pos.z;
@@ -167,7 +204,6 @@ namespace vb01{
 							zAxis.z = -zAxis.z;
 						}
 						else
-						*/
 							pos = pos + Vector3(0, ((Bone*)parent)->getLength(), 0);
 						
 						node = new Bone(name, length, pos, Quaternion::QUAT_W, Vector3::VEC_IJK);
@@ -180,21 +216,25 @@ namespace vb01{
 							((Bone*)node)->setIkChainLength(ikChainLength);
 						}
 				}
+				else
+						node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name);
 
 				XMLElement *skeletonTag = xmlEl->FirstChildElement("skeleton");
 
 				if(skeletonTag)
-						processSkeleton(node, skeletonTag);
+						node->addSkeleton(processSkeleton(node, skeletonTag));
 
 				XMLElement *meshTag = xmlEl->FirstChildElement("mesh");
 
 				if(meshTag)
-						processMesh(meshTag);
+						node->attachMesh(processMesh(meshTag));
 
 				XMLElement *lightTag = xmlEl->FirstChildElement("light");
 
-				for(XMLElement *el = xmlEl->FirstChildElement("node"); el; el = el->NextSiblingElement())
-					parent->attachChild(processNode(parent, el, bone));
+				const char *tagName = (bone ? "bone" : "node");
+
+				for(XMLElement *el = xmlEl->FirstChildElement(tagName); el; el = el->NextSiblingElement())
+					node->attachChild(processNode(node, el, bone));
 
 				return node;
 		}

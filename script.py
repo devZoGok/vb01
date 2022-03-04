@@ -165,8 +165,8 @@ def export(node, parentTag):
             norm = vert.normal
             vertDataTag = ET.SubElement(meshTag, 'vertdata')
             vertDataTag.set('px', str(pos.x))
-            vertDataTag.set('py', str(pos.y))
-            vertDataTag.set('pz', str(pos.z))
+            vertDataTag.set('py', str(pos.z))
+            vertDataTag.set('pz', str(-pos.y))
             vertDataTag.set('nx', str(norm.x))
             vertDataTag.set('ny', str(norm.y))
             vertDataTag.set('nz', str(norm.z))
@@ -201,11 +201,11 @@ def export(node, parentTag):
                 vertTag.set('uvx', str(uv.x))
                 vertTag.set('uvy', str(uv.y))
                 vertTag.set('tx', str(tan.x))
-                vertTag.set('ty', str(tan.y))
-                vertTag.set('tz', str(tan.z))
+                vertTag.set('ty', str(tan.z))
+                vertTag.set('tz', str(-tan.y))
                 vertTag.set('bx', str(bitan.x))
-                vertTag.set('by', str(bitan.y))
-                vertTag.set('bz', str(bitan.z))
+                vertTag.set('by', str(bitan.z))
+                vertTag.set('bz', str(-bitan.y))
         
         mesh.free_tangents()
 
@@ -224,8 +224,8 @@ def export(node, parentTag):
                     pos = vert.co
                     vertTag = ET.SubElement(shapeKeyTag, 'vert')
                     vertTag.set('px', str(pos.x))
-                    vertTag.set('py', str(pos.y))
-                    vertTag.set('pz', str(pos.z))
+                    vertTag.set('py', str(pos.z))
+                    vertTag.set('pz', str(-pos.y))
 
                 i = i + 1
         
@@ -233,9 +233,10 @@ def export(node, parentTag):
         
         if(node.modifiers and node.modifiers[armatureMod] and node.modifiers[armatureMod].object):
             skeleton = node.modifiers[armatureMod].object
-            meshTag.set('skeleton', skeleton.name)
+            meshTag.set('skeleton', skeleton.name + '.' + skeleton.data.name_full)
     elif node.type == 'ARMATURE':
         skeletonTag = ET.SubElement(nodeTag, 'skeleton')
+        skeletonTag.set('name', node.data.name_full)
         exportBone(node, node.data.bones[0], skeletonTag, True)
     elif node.type == 'LIGHT':
         lightTag = ET.SubElement(nodeTag, 'light')

@@ -44,8 +44,10 @@ namespace vb01{
 			Quaternion globalToLocalOrientation(Quaternion);
 			Vector3 localToGlobalScale(Vector3);
 			Vector3 globalToLocalScale(Vector3);
+			inline Skeleton* getSkeleton(int i){return skeletons[i];}
 			inline Text* getText(int i){return texts[i];}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
+			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
 			inline Mesh* getMesh(int i){return meshes[i];}
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent = par;}

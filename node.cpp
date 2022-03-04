@@ -6,6 +6,7 @@
 #include "text.h"
 #include "material.h"
 #include "matrix.h"
+#include "skeleton.h"
 #include "animationController.h"
 
 #include <glm.hpp>
@@ -45,15 +46,23 @@ namespace vb01{
 		if(visible){
 			for(Light *l : lights)
 				l->update();
+
 			for(Mesh *m : meshes)
 				m->update();
+
 			for(Text *t : texts)
 				t->update();
-			for(Node *c : children)
-				c->update();
+
 			for(ParticleEmitter *p : emitters)
 				p->update();
+
+			for(Skeleton *sk : skeletons)
+					sk->update();
+
+			for(Node *c : children)
+				c->update();
 		}
+
 		for(Driver *driver : drivers)
 			driver->drive(getDriverValue(driver->getType()));
 	}
