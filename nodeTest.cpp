@@ -220,6 +220,7 @@ namespace vb01{
 			Vector3(0, -1, -.4).norm(),
 			Vector3(1, 1, 1).norm()
 		};
+
 		int numDirs = sizeof(dir) / sizeof(Vector3);
 
 		for(int i = 0; i < numDirs; i++){
@@ -232,6 +233,13 @@ namespace vb01{
 
 		for(int i = 0; i < numDirs; i++){
 			lookNode->lookAt(dir[i]);
+			CPPUNIT_ASSERT(lookNode->getGlobalAxis(2).getAngleBetween(rotQuat * dir[i]) < maxAngle);
+		}
+
+		for(int i = 0; i < numDirs; i++){
+			lookNodeParent->dettachChild(lookNode);
+			lookNode->lookAt(dir[i]);
+			lookNodeParent->attachChild(lookNode);
 			CPPUNIT_ASSERT(lookNode->getGlobalAxis(2).getAngleBetween(rotQuat * dir[i]) < maxAngle);
 		}
 	}
@@ -256,6 +264,7 @@ namespace vb01{
 			Vector3 upClamped = Vector3(up[i].x, up[i].y, 0).norm();
 			CPPUNIT_ASSERT(lookNode->getGlobalAxis(1).getAngleBetween(upClamped) < maxAngle);
 		}
+
 		lookNode->setOrientation(Quaternion::QUAT_W);
 		lookNode->lookAt(Vector3::VEC_K, Vector3::VEC_K);
 		CPPUNIT_ASSERT(lookNode->getGlobalAxis(1) == Vector3::VEC_J);
@@ -265,6 +274,14 @@ namespace vb01{
 
 		for(int i = 0; i < numDirs; i++){
 			lookNode->lookAt(Vector3::VEC_K, up[i]);
+			Vector3 upClamped = Vector3(up[i].x, up[i].y, 0).norm();
+			CPPUNIT_ASSERT(lookNode->getGlobalAxis(1).getAngleBetween(rotQuat * upClamped) < maxAngle);
+		}
+
+		for(int i = 0; i < numDirs; i++){
+				lookNodeParent->dettachChild(lookNode);
+			lookNode->lookAt(Vector3::VEC_K, up[i]);
+				lookNodeParent->attachChild(lookNode);
 			Vector3 upClamped = Vector3(up[i].x, up[i].y, 0).norm();
 			CPPUNIT_ASSERT(lookNode->getGlobalAxis(1).getAngleBetween(rotQuat * upClamped) < maxAngle);
 		}

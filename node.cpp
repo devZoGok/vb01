@@ -30,16 +30,18 @@ namespace vb01{
 	Node::~Node(){
 		for(Mesh *m : meshes)
 			delete m;
+
 		for(Light *l : lights)
 			delete l;
+
 		for(ParticleEmitter *p : emitters)
 			delete p;
+
 		for(Text *t : texts)
 			delete t;
-		for(Node *c : children){
-			//dettachChild(c);
+
+		for(Node *c : children)
 			delete c;
-		}
 	}
 
 	void Node::update(){
@@ -69,6 +71,7 @@ namespace vb01{
 
 	float Node::getDriverValue(Driver::VariableType type){
 		float driverValue;
+
 		switch(type){
 			case Driver::POS_X:
 				driverValue = pos.x;
@@ -101,6 +104,7 @@ namespace vb01{
 				driverValue = scale.z;
 				break;
 		}
+
 		return driverValue;
 	}
 
@@ -113,11 +117,13 @@ namespace vb01{
 	void Node::dettachChild(Node *child){
 		child->setParent(nullptr);
 		int id = -1;
+
 		for(int i = 0; i < children.size(); i++)
 			if(children[i] == child){
 				id = i;
 				break;
 			}
+
 		if(id != -1)
 			children.erase(children.begin() + id);
 	}
@@ -168,6 +174,7 @@ namespace vb01{
 	void Node::adjustDir(Vector3 newDir){
 		float angle = Vector3(0, 0, 1).getAngleBetween(newDir);
 		Vector3 rotAxis = Vector3(0, 0, 1).cross(newDir).norm();
+
 		if(rotAxis == Vector3::VEC_ZERO)
 			rotAxis = Vector3::VEC_I;
 
@@ -175,39 +182,21 @@ namespace vb01{
 	}
 
 	void Node::adjustUp(Vector3 newUp){
-		Vector3 xDir =
-		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_I)) - 
-		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
+		Vector3 xDir = orientation * Vector3(1, 0, 0),
+					 	yDir = orientation * Vector3(0, 1, 0),
+						zDir = orientation * Vector3(0, 0, 1);
+		newUp = Vector3(newUp.x, newUp.y, 0).norm();
 
-		Vector3 yDir =
-		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_J)) - 
-		   	parent->globalToLocalPosition(localToGlobalPosition(Vector3::VEC_ZERO));
-
-		Vector3 zDir = xDir.cross(yDir).norm();
-
-		mat3 mat;
-		mat[0][0] = xDir.x;
-		mat[1][0] = xDir.y;
-		mat[2][0] = xDir.z;
-		mat[0][1] = yDir.x;
-		mat[1][1] = yDir.y;
-		mat[2][1] = yDir.z;
-		mat[0][2] = zDir.x;
-		mat[1][2] = zDir.y;
-		mat[2][2] = zDir.z;
-
-		vec3 nu = vec3(newUp.x, newUp.y, newUp.z) * inverse(mat);
-		newUp = (xDir * nu.x + yDir * nu.y).norm();
 		if(newUp != Vector3::VEC_ZERO){
 			float angle = yDir.getAngleBetween(newUp);
-
-			setOrientation(Quaternion(angle * (nu.x < 0 ? 1 : -1), zDir) * orientation);
+			setOrientation(Quaternion(angle * (newUp.x < 0 ? 1 : -1), zDir) * orientation);
 		}
 	}
 
 	void Node::getDescendants(vector<Node*> &descendants){
 		for(Node *child : getChildren()){
 			descendants.push_back(child);
+
 			if(!child->getChildren().empty())
 				child->getDescendants(descendants);
 		}
@@ -216,20 +205,24 @@ namespace vb01{
 	vector<Node*> Node::getAncestors(Node *topAncestor){
 		vector<Node*> ancestors;
 		Node *parent = this;
+
 		while(parent){
 			ancestors.push_back(parent);
+
 			if(parent == topAncestor)
 				break;
+
 			parent = parent->getParent();
 		}
+
 		return ancestors;
 	}
 
 	void Node::updateAxis(){
 		Vector3 parGlobalAxis[3]{
-			parent->getGlobalAxis(0),
-			parent->getGlobalAxis(1),
-			parent->getGlobalAxis(2)
+			parent ? parent->getGlobalAxis(0) : Vector3::VEC_I,
+			parent ? parent->getGlobalAxis(1) : Vector3::VEC_J,
+			parent ? parent->getGlobalAxis(2) : Vector3::VEC_K
 		};
 
 		float rotAngle = orientation.getAngle();
@@ -256,6 +249,7 @@ namespace vb01{
 		        par ? par->getGlobalAxis(1) : Vector3::VEC_J,
 		        par ? par->getGlobalAxis(2) : Vector3::VEC_K
 	        };
+
 	        Vector3 p = ancestors[id]->getPosition();
 	        origin = origin + parAxis[0] * p.x + parAxis[1] * p.y+parAxis[2] * p.z;
 	        ancestors.pop_back();
@@ -320,17 +314,13 @@ namespace vb01{
 
 	Quaternion Node::localToGlobalOrientation(Quaternion localRot){
 		vector<Node*> ancestors = getAncestors();
-
 		Quaternion origin = adjustRot(ancestors, Quaternion::QUAT_W, true);
-
 		return localRot * origin;
 	}
 
 	Quaternion Node::globalToLocalOrientation(Quaternion globalRot){
 		vector<Node*> ancestors = getAncestors();
-		
 		Quaternion origin = adjustRot(ancestors, globalRot, false);
-
 		return origin;
 	}
 
@@ -344,6 +334,7 @@ namespace vb01{
 
 		for(Node *n : descendants){
 			vector<Mesh*> meshes = n->getMeshes();
+
 			for(Mesh *m : meshes){
 				Material *mat = m->getMaterial();
 				int numLights = root->getNumLights();
@@ -363,6 +354,7 @@ namespace vb01{
 	void Node::animate(float value, KeyframeChannel keyframeChannel){
 		Vector3 newPos = pos, newScale = scale;
 		Quaternion newRot = orientation;
+
 		switch(keyframeChannel.type){
 			case KeyframeChannel::POS_X:
 				newPos.x = value;
@@ -395,6 +387,7 @@ namespace vb01{
 				newScale.z = value;
 				break;
 		}
+
 		setPosition(newPos);
 		setOrientation(newRot);
 		setScale(newScale);

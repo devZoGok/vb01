@@ -172,29 +172,37 @@ namespace vb01{
 				const char *name = xmlEl->Attribute("name");
 
 				if(bone){
-						float headX = atof(xmlEl->Attribute("hx"));
-						float headY = atof(xmlEl->Attribute("hy"));
-						float headZ = atof(xmlEl->Attribute("hz"));
-						Vector3 head = Vector3(headX, headY, headZ);
+						float components[]{
+							atof(xmlEl->Attribute("hx")),
+							atof(xmlEl->Attribute("hy")),
+							atof(xmlEl->Attribute("hz")),
+							atof(xmlEl->Attribute("xaxisx")),
+							atof(xmlEl->Attribute("xaxisy")),
+							atof(xmlEl->Attribute("xaxisz")),
+							atof(xmlEl->Attribute("yaxisx")),
+							atof(xmlEl->Attribute("yaxisy")),
+							atof(xmlEl->Attribute("yaxisz"))
+						};
 
-						float xAxisX = atof(xmlEl->Attribute("xaxisx"));
-						float xAxisY = atof(xmlEl->Attribute("xaxisy"));
-						float xAxisZ = atof(xmlEl->Attribute("xaxisz"));
-						Vector3 xAxis = Vector3(xAxisX, xAxisY, xAxisZ);
+						float eps = pow(10, -2);
+						
+						for(int i = 0; i < 9; i++){
+								if(fabs(components[i]) < eps)
+										components[i] = 0;
+						}
+						/*
+								else if(fabs(components[i]) > 1.0)
+										components[i] = 1.0;
+						*/
 
-						float yAxisX = atof(xmlEl->Attribute("yaxisx"));
-						float yAxisY = atof(xmlEl->Attribute("yaxisy"));
-						float yAxisZ = atof(xmlEl->Attribute("yaxisz"));
-						Vector3 yAxis = Vector3(yAxisX, yAxisY, yAxisZ);
-
+						Vector3 head = Vector3(components[0], components[1], components[2]);
+						Vector3 xAxis = Vector3(components[3], components[4], components[5]);
+						Vector3 yAxis = Vector3(components[6], components[7], components[8]);
 						float length = atof(xmlEl->Attribute("length"));
-
 						Vector3 zAxis = xAxis.cross(yAxis).norm();
 						Vector3 pos = head;
 						
-						/*
-						*/
-						if(xmlEl->Parent()->ToElement()->Name() == "skeleton"){
+						if(strcmp(xmlEl->Parent()->ToElement()->Name(), "skeleton") == 0){
 							parent = model;
 							swap(pos.y, pos.z);
 							pos.z = -pos.z;

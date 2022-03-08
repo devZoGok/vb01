@@ -6,7 +6,6 @@
 #include "cameraTest.h"
 #include "nodeTest.h"
 #include "boneTest.h"
-#include "vbModelReaderTest.h"
 #include "animationChannelTest.h"
 #include "shaderTest.h"
 #include "particleEmitterTest.h"
@@ -20,7 +19,6 @@ int main(){
 	runner.addTest(CameraTest::suite());
 	runner.addTest(NodeTest::suite());
 	runner.addTest(BoneTest::suite());
-	runner.addTest(VbModelReaderTest::suite());
 	runner.addTest(AnimationChannelTest::suite());
 	runner.addTest(ShaderTest::suite());
 	runner.addTest(ParticleEmitterTest::suite());
