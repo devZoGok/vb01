@@ -15,7 +15,7 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
-	Light::Light(Type t){
+	Light::Light(Type t, string name) : Animatable(name){
 		this->type = t;
 
 		initDepthMap();

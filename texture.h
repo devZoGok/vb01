@@ -14,8 +14,8 @@ namespace vb01{
 		public:
 			~Texture();
 			Texture(int, int, bool = true);
-			Texture(std::string[], int, bool, int = 0, bool = false);
-			Texture(int, bool = true, int = 0);
+			Texture(std::string[], int, bool, int = 0, bool = false, std::string = "");
+			Texture(int, bool = true, int = 0, std::string = "");
 			Texture(FT_Face);
 			void select(int = 0, int = 0);
 			void update(int = 0);

@@ -2,8 +2,11 @@
 #include "mesh.h"
 #include "skeleton.h"
 #include "bone.h"
+#include "animation.h"
 #include "vector.h"
 #include "animationController.h"
+#include "animatable.h"
+#include "keyframeChannel.h"
 
 #include <vector>
 
@@ -152,6 +155,51 @@ namespace vb01{
 			return mesh;
 		}
 
+		Animation* XmlModelReader::processAnimation(XMLElement *animationEl, vector<Animatable*> animatables){
+				string name = animationEl->Attribute("name");
+				Animation *animation = new Animation(name);
+
+				for(XMLElement *channelEl = animationEl->FirstChildElement("channel"); channelEl; channelEl = channelEl->NextSiblingElement()){
+						vector<Keyframe> keyframes;
+
+						for(XMLElement *keyframeEl = channelEl->FirstChildElement("keyframe"); keyframeEl; keyframeEl = keyframeEl->NextSiblingElement()){
+								string interpString = keyframeEl->Attribute("interpolation");
+								Keyframe::Interpolation interpolation = KeyframeChannel::getKeyframeInterpolationType(interpString);
+								float frame = atof(keyframeEl->Attribute("frame"));
+								float value = atof(keyframeEl->Attribute("value"));
+								float leftFrame = atof(keyframeEl->Attribute("lefthandleframe"));
+								float leftValue = atof(keyframeEl->Attribute("lefthandlevalue"));
+								float rightFrame = atof(keyframeEl->Attribute("righthandleframe"));
+								float rightValue = atof(keyframeEl->Attribute("righthandlevalue"));
+								keyframes.push_back(KeyframeChannel::createKeyframe(interpolation, value, frame, leftValue, leftFrame, rightValue, rightFrame));
+						}
+
+						string typeStr = channelEl->Attribute("type");
+						KeyframeChannel::Type type = KeyframeChannel::getKeyframeChannelType(typeStr);
+						Animatable *animatable;
+						string name = channelEl->Attribute("name");
+
+						for(Animatable *an : animatables)
+								if(an->getName() == name){
+										animatable = an;
+										break;
+								}
+
+						KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(type, animatable, keyframes);
+						animation->addKeyframeChannel(channel);
+				}
+
+				return animation;
+		}
+
+		void XmlModelReader::processAnimations(XMLElement *animContainer, vector<Animatable*> animatables){
+				AnimationController *animController = AnimationController::getSingleton();
+				const char *animTag = "animation";
+
+				for(XMLElement *animEl = animContainer->FirstChildElement(animTag); animEl && strcmp(animEl->Name(), animTag) == 0; animEl = animEl->NextSiblingElement())
+					animController->addAnimation(processAnimation(animEl, animatables));
+		}
+
 		Skeleton* XmlModelReader::processSkeleton(Node *root, XMLElement *skeletonEl){
 				XMLElement *rootBoneEl = skeletonEl->FirstChildElement("bone");
 				Bone *rootBone = (Bone*)processNode(root, rootBoneEl, true);
@@ -163,6 +211,8 @@ namespace vb01{
 
 				for(Node *bone : bones)
 						skeleton->addBone((Bone*)bone, (Bone*)bone->getParent());
+
+				processAnimations(skeletonEl, vector<Animatable*>(bones.begin(), bones.end()));
 
 				return skeleton;
 		}
@@ -186,14 +236,9 @@ namespace vb01{
 
 						float eps = pow(10, -2);
 						
-						for(int i = 0; i < 9; i++){
+						for(int i = 0; i < 9; i++)
 								if(fabs(components[i]) < eps)
 										components[i] = 0;
-						}
-						/*
-								else if(fabs(components[i]) > 1.0)
-										components[i] = 1.0;
-						*/
 
 						Vector3 head = Vector3(components[0], components[1], components[2]);
 						Vector3 xAxis = Vector3(components[3], components[4], components[5]);
@@ -238,6 +283,8 @@ namespace vb01{
 						node->attachMesh(processMesh(meshTag));
 
 				XMLElement *lightTag = xmlEl->FirstChildElement("light");
+
+				processAnimations(xmlEl, vector<Animatable*>{node});
 
 				const char *tagName = (bone ? "bone" : "node");
 

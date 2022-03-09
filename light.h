@@ -17,7 +17,7 @@ namespace vb01{
 		public:
 			enum Type{POINT, DIRECTIONAL, SPOT, AMBIENT};
 
-			Light(Type);
+			Light(Type, std::string = "");
 			~Light();
 			void update();
 			inline void setNode(Node *node){this->node = node;}

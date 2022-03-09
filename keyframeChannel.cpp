@@ -5,6 +5,7 @@ using namespace std;
 namespace vb01{
 	float KeyframeChannel::interpolate(Keyframe pastKeyframe, Keyframe nextKeyframe, float ratio){
 		float currentValue;
+
 		switch(pastKeyframe.interpolation){
 			case Keyframe::CONSTANT:
 				currentValue = pastKeyframe.value;
@@ -17,12 +18,14 @@ namespace vb01{
 				currentValue = interpolateBezier(points, ratio);
 				break;
 		}
+
 		return currentValue;
 	}
 
 	float KeyframeChannel::interpolateBezier(vector<float> points, float ratio){
 		int numPoints = points.size();
 		vector<float> newPoints;
+
 		for(int i = 0; i < numPoints - 1; i++)
 			newPoints.push_back(points[i] + (points[i + 1] - points[i]) * ratio);
 		
@@ -34,6 +37,7 @@ namespace vb01{
 
 	KeyframeChannelType KeyframeChannel::getKeyframeChannelType(string typeString){
 		KeyframeChannelType type;
+
 		if(typeString == "pos_x")
 			type = KeyframeChannelType::POS_X;
 		else if(typeString == "pos_y")
@@ -66,17 +70,34 @@ namespace vb01{
 			type = KeyframeChannelType::SHAPE_KEY_VALUE;
 		else if(typeString == "shape_key_max")
 			type = KeyframeChannelType::SHAPE_KEY_MAX;
+
 		return type;
+	}
+
+	Keyframe::Interpolation KeyframeChannel::getKeyframeInterpolationType(string interpString){
+			Keyframe::Interpolation interpolation;
+
+		if(interpString == "BEZIER")
+				interpolation = Keyframe::Interpolation::BEZIER;
+		else if(interpString == "LINEAR")
+				interpolation = Keyframe::Interpolation::LINEAR;
+		else if(interpString == "CONSTANT")
+				interpolation = Keyframe::Interpolation::CONSTANT;
+
+		return interpolation;
 	}
 
 	Keyframe KeyframeChannel::findKeyframe(float time, KeyframeChannel keyframeChannel, bool last){
 		int pastKeyframeId = -1;
+
 		for(int i = 0; i < keyframeChannel.keyframes.size(); i++){
 			Keyframe keyframe = keyframeChannel.keyframes[i];
+
 			if(time >= keyframe.frame){
 				pastKeyframeId = i;
 			}
 		}
+
 		return keyframeChannel.keyframes[pastKeyframeId + (last ? 0 : 1)];
 	}
 

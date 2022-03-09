@@ -35,6 +35,7 @@ namespace vb01{
 
 		Animation *animation = controller->getAnimation(animName);
 		const vector<KeyframeChannel> &keyframeChannels = animation->getKeyframeChannels();
+
 		for(KeyframeChannel ch : keyframeChannels)
 			for(Keyframe k : ch.keyframes)
 				keyframes.push_back(k);
@@ -48,6 +49,7 @@ namespace vb01{
 
 		for(int i = 0; i < keyframes.size(); i++){
 			int curFrameNum = keyframes[i].frame;
+
 			if(maxKeyframeNum < curFrameNum)
 				maxKeyframeNum = curFrameNum;
 		}
@@ -61,6 +63,7 @@ namespace vb01{
 
 		for(int i = 0; i < keyframes.size(); i++){
 			int curFrameNum = keyframes[i].frame;
+
 			if(minKeyframeNum > curFrameNum)
 				minKeyframeNum = curFrameNum;
 		}

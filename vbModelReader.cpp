@@ -596,7 +596,7 @@ namespace vb01{
 		float outerAngle = atof(lightData[7].substr(lightData[7].find_first_of(':') + 2).c_str());
 		float innerAngle = atof(lightData[8].substr(lightData[8].find_first_of(':') + 2).c_str());
 
-		Light *light = new Light(type);
+		Light *light = new Light(type, name);
 		light->setColor(color);
 		light->setOuterAngle(outerAngle);
 		light->setInnerAngle(innerAngle);

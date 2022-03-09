@@ -68,6 +68,7 @@ namespace vb01{
 		std::vector<Keyframe> keyframes;
 
 		static float interpolateBezier(std::vector<float>, float);
+		static Keyframe::Interpolation getKeyframeInterpolationType(std::string);
 		static KeyframeChannel::Type getKeyframeChannelType(std::string);
 		static float interpolate(Keyframe, Keyframe, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);

@@ -15,6 +15,21 @@ namespace vb01{
 	class Material : public Animatable{
 		public:
 			struct Uniform : public Animatable{
+					enum Type{
+							INT,
+						 	BOOL,
+						 	FLOAT,
+						 	VECTOR_2,
+						 	VECTOR_3,
+						 	VECTOR_4,
+						 	TEXTURE
+					};
+
+					Uniform(std::string name, Type type) : Animatable(name){
+							this->name = name;
+							this->type = type;
+					}
+ 
 					void animate(float val, KeyframeChannel channel){
 							switch(channel.type){
 									case KeyframeChannel::UNIFORM_1:
@@ -32,16 +47,6 @@ namespace vb01{
 							}
 					}
 
-					enum Type{
-							INT,
-						 	BOOL,
-						 	FLOAT,
-						 	VECTOR_2,
-						 	VECTOR_3,
-						 	VECTOR_4,
-						 	TEXTURE
-					};
-
 					std::string name;
 					Type type;
 
@@ -55,10 +60,8 @@ namespace vb01{
 			struct IntUniform : public Uniform{
 					int value;
 
-					IntUniform(std::string name, int value){
-							this->name = name;
+					IntUniform(std::string name, int value) : Uniform(name, Uniform::INT){
 							this->value = value;
-							this->type = Uniform::INT;
 					}
 
 					void animateComponent1(float val){value = (int)val;}
@@ -67,10 +70,8 @@ namespace vb01{
 			struct BoolUniform : public Uniform{
 					bool value;
 
-					BoolUniform(std::string name, bool value){
-							this->name = name;
+					BoolUniform(std::string name, bool value) : Uniform(name, Uniform::BOOL){
 							this->value = value;
-							this->type = Uniform::BOOL;
 					}
 
 					void animateComponent1(float val){value = (bool)val;}
@@ -79,10 +80,8 @@ namespace vb01{
 			struct FloatUniform : public Uniform{
 					float value;
 
-					FloatUniform(std::string name, float value){
-							this->name = name;
+					FloatUniform(std::string name, float value) : Uniform(name, Uniform::FLOAT){
 							this->value = value;
-							this->type = Uniform::FLOAT;
 					}
 
 					void animateComponent1(float val){value = val;}
@@ -91,10 +90,8 @@ namespace vb01{
 			struct Vector2Uniform : public Uniform{
 					Vector2 value;
 
-					Vector2Uniform(std::string name, Vector2 value){
-							this->name = name;
+					Vector2Uniform(std::string name, Vector2 value) : Uniform(name, Uniform::VECTOR_2){
 							this->value = value;
-							this->type = Uniform::VECTOR_2;
 					}
 
 					void animateComponent1(float val){value.x = val;}
@@ -105,10 +102,8 @@ namespace vb01{
 			struct Vector3Uniform : public Uniform{
 					Vector3 value;
 
-					Vector3Uniform(std::string name, Vector3 value){
-							this->name = name;
+					Vector3Uniform(std::string name, Vector3 value) : Uniform(name, Uniform::VECTOR_3){
 							this->value = value;
-							this->type = Uniform::VECTOR_3;
 					}
 
 					void animateComponent1(float val){value.x = val;}
@@ -121,10 +116,8 @@ namespace vb01{
 			struct Vector4Uniform : public Uniform{
 					Vector4 value;
 
-					Vector4Uniform(std::string name, Vector4 value){
-							this->name = name;
+					Vector4Uniform(std::string name, Vector4 value) : Uniform(name, Uniform::VECTOR_4){
 							this->value = value;
-							this->type = Uniform::VECTOR_4;
 					}
 
 					void animateComponent1(float val){value.x = val;}
@@ -140,11 +133,9 @@ namespace vb01{
 					Texture *value = nullptr;
 					bool animatable = false;
 
-					TextureUniform(std::string name, Texture *value, bool animatable){
-							this->name = name;
+					TextureUniform(std::string name, Texture *value, bool animatable) : Uniform(name, Uniform::TEXTURE){
 							this->value = value;
 							this->animatable = animatable;
-							this->type = Uniform::TEXTURE;
 					}
 			};
 

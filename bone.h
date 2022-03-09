@@ -27,7 +27,6 @@ namespace vb01{
 			inline void setIkFromTail(bool ikFromTail){this->ikFromTail = ikFromTail;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
 			inline Vector3 getInitAxis(int i){return initAxis[i];}
-			inline std::string getName(){return name;}
 			inline Vector3 getRestPos(){return restPos;}
 			inline Quaternion getRestRot(){return restRot;}
 			inline Vector3 getRestScale(){return restScale;}

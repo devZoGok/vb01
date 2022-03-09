@@ -64,7 +64,6 @@ namespace vb01{
 			inline int getNumChildren(){return children.size();}
 			inline Quaternion getOrientation(){return orientation;}
 			inline bool isVisible(){return visible;}
-			inline std::string getName(){return name;}
 			inline void setVisible(bool v){this->visible = v;}
 			inline void addDriver(Driver *d){drivers.push_back(d);}
 		private:
@@ -87,7 +86,6 @@ namespace vb01{
 			std::vector<Light*> lights;
 			std::vector<Text*> texts;
 			std::vector<Skeleton*> skeletons;
-			std::string name;
 			Node *parent = nullptr;
 	};
 }

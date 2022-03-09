@@ -33,7 +33,7 @@ namespace vb01{
 
 	Mesh::Mesh(){}
 
-	Mesh::Mesh(Vertex *vertices, unsigned int *indices, int numTris, string *vertexGroups, int numVertexGroups, ShapeKey *shapeKeys, int numShapeKeys, string name) : Animatable(){
+	Mesh::Mesh(Vertex *vertices, unsigned int *indices, int numTris, string *vertexGroups, int numVertexGroups, ShapeKey *shapeKeys, int numShapeKeys, string name){
 		this->vertices = vertices;
 		this->indices = indices;
 		this->numTris = numTris;

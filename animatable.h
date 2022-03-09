@@ -6,8 +6,11 @@
 namespace vb01{
 	class Animatable{
 		public:
-			Animatable(){}
+			Animatable(std::string = "");
 			virtual void animate(float, KeyframeChannel){}
+			inline std::string getName(){return name;}
+		protected:
+			std::string name;
 	};
 }
 

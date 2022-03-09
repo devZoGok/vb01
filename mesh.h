@@ -14,7 +14,7 @@ namespace vb01{
 	class Texture;
 	class Skeleton;
 
-	class Mesh : public Animatable{
+	class Mesh{
 		public:
 			struct ShapeKey : public Animatable{
 				std::string name;
