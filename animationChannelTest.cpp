@@ -22,7 +22,7 @@ namespace vb01{
 		KeyframeChannel kc;
 		kc.type = KeyframeChannel::Type::POS_X;
 		kc.keyframes = vector<Keyframe>({k1, k2});
-		kc.animatable = bone;
+		kc.animatable = bone->getName();
 		Animation *anim = new Animation("anim");
 		anim->addKeyframeChannel(kc);
 

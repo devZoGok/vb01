@@ -64,7 +64,7 @@ namespace vb01{
 		};
 
 		Type type;
-		Animatable *animatable = nullptr;
+		std::string animatable = "";
 		std::vector<Keyframe> keyframes;
 
 		static float interpolateBezier(std::vector<float>, float);
@@ -73,7 +73,7 @@ namespace vb01{
 		static float interpolate(Keyframe, Keyframe, float); 
 		static Keyframe findKeyframe(float, KeyframeChannel, bool);
 		static Keyframe createKeyframe(Keyframe::Interpolation, float, float, float = 0, float = 0, float = 0, float = 0);
-		static KeyframeChannel createKeyframeChannel(KeyframeChannel::Type, Animatable*, std::vector<Keyframe>);
+		static KeyframeChannel createKeyframeChannel(KeyframeChannel::Type, std::string, std::vector<Keyframe>);
 	};
 
 	typedef KeyframeChannel::Type KeyframeChannelType; 

@@ -121,7 +121,7 @@ namespace vb01{
 		return keyframe;
 	}
 
-	KeyframeChannel KeyframeChannel::createKeyframeChannel(KeyframeChannelType type, Animatable *animatable, vector<Keyframe> keyframes){
+	KeyframeChannel KeyframeChannel::createKeyframeChannel(KeyframeChannelType type, string animatable, vector<Keyframe> keyframes){
 		KeyframeChannel keyframeChannel;
 		keyframeChannel.type = type;
 		keyframeChannel.animatable = animatable;

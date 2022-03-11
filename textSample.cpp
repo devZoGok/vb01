@@ -83,17 +83,17 @@ int main(){
 		 * and frame number.
 		*/
 		KeyframeChannel kcA;
-		kcA.animatable = texture;
+		kcA.animatable = texture->getName();
 		kcA.type = KeyframeChannel::TEXTURE_FRAME_A;
 		kcA.keyframes = vector<Keyframe>({KeyframeChannel::createKeyframe(Keyframe::CONSTANT, 0, 1)});
 		
 		KeyframeChannel kcB;
-		kcB.animatable = texture;
+		kcB.animatable = texture->getName();
 		kcB.type = KeyframeChannel::TEXTURE_FRAME_B;
 		kcB.keyframes = vector<Keyframe>({KeyframeChannel::createKeyframe(Keyframe::CONSTANT, 1, 1)});
 		
 		KeyframeChannel kcC;
-		kcC.animatable = texture;
+		kcC.animatable = texture->getName();
 		kcC.type = KeyframeChannel::TEXTURE_MIX_RATIO;
 		kcC.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 1),

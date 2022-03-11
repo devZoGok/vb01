@@ -176,16 +176,8 @@ namespace vb01{
 
 						string typeStr = channelEl->Attribute("type");
 						KeyframeChannel::Type type = KeyframeChannel::getKeyframeChannelType(typeStr);
-						Animatable *animatable;
-						string name = channelEl->Attribute("name");
-
-						for(Animatable *an : animatables)
-								if(an->getName() == name){
-										animatable = an;
-										break;
-								}
-
-						KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(type, animatable, keyframes);
+						string channelName = channelEl->Attribute("name");
+						KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(type, channelName, keyframes);
 						animation->addKeyframeChannel(channel);
 				}
 

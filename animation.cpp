@@ -7,7 +7,7 @@ namespace vb01{
 		this->name = name;
 	}
 
-	KeyframeChannel* Animation::getKeyframeChannel(Animatable *animatable, KeyframeChannelType type){
+	KeyframeChannel* Animation::getKeyframeChannel(string animatable, KeyframeChannelType type){
 		KeyframeChannel *k = nullptr;
 
 		for(KeyframeChannel &channel : keyframeChannels)
@@ -19,7 +19,7 @@ namespace vb01{
 		return k;
 	}
 
-	vector<KeyframeChannel> Animation::getKeyframeChannelsByAnimatable(Animatable *animatable){
+	vector<KeyframeChannel> Animation::getKeyframeChannelsByAnimatable(string animatable){
 		vector<KeyframeChannel> channels;
 
 		for(KeyframeChannel channel : keyframeChannels)

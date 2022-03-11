@@ -82,7 +82,7 @@ int main(){
 	 * and frame number.
 	*/
 	KeyframeChannel kcL;
-	kcL.animatable = leftMat->getUniform("diffuseColor");
+	kcL.animatable = leftMat->getUniform("diffuseColor")->getName();
 	kcL.type = KeyframeChannel::UNIFORM_1;
 	kcL.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 1, 0),
@@ -90,7 +90,7 @@ int main(){
 	});
 
 	KeyframeChannel kcR;
-	kcR.animatable = rightNode;
+	kcR.animatable = rightNode->getName();
 	kcR.type = KeyframeChannel::SCALE_Z;
 	kcR.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 1, 0),
@@ -98,7 +98,7 @@ int main(){
 	});
 
 	KeyframeChannel kcD;
-	kcD.animatable = driver;
+	kcD.animatable = driver->getName();
 	kcD.type = KeyframeChannel::POS_Y;
 	kcD.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 0),
@@ -110,8 +110,8 @@ int main(){
 	 * A Driver class is given a transform component, e.g, y coordinate of the position
 	 * and uses it to play the Keyframe.
 	*/
-	driver->addDriver(new Driver(kcL, Driver::POS_Y));
-	driver->addDriver(new Driver(kcR, Driver::POS_Y));
+	driver->addDriver(new Driver(leftMat->getUniform("diffuseColor"), kcL, Driver::POS_Y));
+	driver->addDriver(new Driver(rightNode, kcR, Driver::POS_Y));
 	
 	Animation *anim = new Animation("anim");
 	anim->addKeyframeChannel(kcD);

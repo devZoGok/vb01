@@ -7,7 +7,6 @@
 #include "root.h"
 #include "skeleton.h"
 #include "animation.h"
-#include "vbModelReader.h"
 #include "xmlModelReader.h"
 #include "assimpModelReader.h"
 
@@ -28,8 +27,6 @@ namespace vb01{
 
 		if(extension == "xml")
 			modelReader = new XmlModelReader(this, path);
-		else if(extension == "vb")
-			modelReader = new VbModelReader(this, path);
 		else
 			modelReader = new AssimpModelReader(this, path);
 	}

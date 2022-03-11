@@ -87,7 +87,7 @@ int main(){
 	 * and frame number.
 	*/
 	KeyframeChannel kcA;
-	kcA.animatable = light;
+	kcA.animatable = light->getName();
 	kcA.type = KeyframeChannel::SPOTLIGHT_OUTER_ANGLE;
 	kcA.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, .1, 1),
@@ -96,7 +96,7 @@ int main(){
 	});
 
 	KeyframeChannel kcB;
-	kcA.animatable = light;
+	kcA.animatable = light->getName();
 	kcA.type = KeyframeChannel::SPOTLIGHT_INNER_ANGLE;
 	kcA.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, .1, 1),

@@ -6,7 +6,8 @@
 using namespace std;
 
 namespace vb01{
-	Driver::Driver(KeyframeChannel keyframeChannel, VariableType type){
+	Driver::Driver(Animatable *animatable, KeyframeChannel keyframeChannel, VariableType type){
+			this->animatable = animatable;
 		this->keyframeChannel = keyframeChannel;
 		this->type = type;
 	}
@@ -18,16 +19,18 @@ namespace vb01{
 		float nextFrame = nextKeyframe.frame;
 
 		float ratio = (float)(driverValue - pastFrame) / (nextFrame - pastFrame);
+
 		if(ratio < 0)
 			ratio = 0;
 
 		Keyframe::Interpolation interp = pastKeyframe.interpolation;
 		float value = KeyframeChannel::interpolate(pastKeyframe, nextKeyframe, ratio);
-		keyframeChannel.animatable->animate(value, keyframeChannel);
+		animatable->animate(value, keyframeChannel);
 	}
 
 	Driver::VariableType Driver::getDriverVariableType(string typeString){
 		VariableType type;
+
 		if(typeString == "LOC_X")
 			type = Driver::POS_X;
 		else if(typeString == "LOC_Y")
@@ -48,6 +51,7 @@ namespace vb01{
 		   type = Driver::SCALE_Y;
 		else if(typeString == "SCALE_Z")
 			type = Driver::SCALE_Z;
+
 		return type;
 	}
 }

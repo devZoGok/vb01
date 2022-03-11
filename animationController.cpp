@@ -25,7 +25,7 @@ namespace vb01{
 		Animation *animation = getAnimation(channel->getAnimationName());
 
 		for(Animatable *animatable : channel->getAnimatables()){
-			vector<KeyframeChannel> keyframeChannels = animation->getKeyframeChannelsByAnimatable(animatable);
+			vector<KeyframeChannel> keyframeChannels = animation->getKeyframeChannelsByAnimatable(animatable->getName());
 
 			for(KeyframeChannel keyframeChannel : keyframeChannels){
 				int currentFrame = channel->getCurrentFrame();

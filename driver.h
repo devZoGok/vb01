@@ -23,14 +23,16 @@ namespace vb01{
 			   	SCALE_Z
 		   	};
 
-			Driver(KeyframeChannel, VariableType);
+			Driver(Animatable*, KeyframeChannel, VariableType);
 			void drive(float);
 			static VariableType getDriverVariableType(std::string);  
 			inline VariableType getType(){return type;}
 			inline KeyframeChannel& getKeyframeChannel(){return keyframeChannel;}
+			inline Animatable* getAnimatable(){return animatable;}
 		private:
 			VariableType type;
 			KeyframeChannel keyframeChannel;
+			Animatable *animatable = nullptr;
 	};
 }
 

@@ -13,8 +13,8 @@ namespace vb01{
 		public:
 			Animation(std::string);
 			~Animation(){}
-			KeyframeChannel* getKeyframeChannel(Animatable*, KeyframeChannel::Type);
-			std::vector<KeyframeChannel> getKeyframeChannelsByAnimatable(Animatable*);
+			KeyframeChannel* getKeyframeChannel(std::string, KeyframeChannel::Type);
+			std::vector<KeyframeChannel> getKeyframeChannelsByAnimatable(std::string);
 			inline void addKeyframeChannels(std::vector<KeyframeChannel> keyframeChannels){this->keyframeChannels.assign(keyframeChannels.begin(), keyframeChannels.end());}
 			inline void addKeyframeChannel(KeyframeChannel channel){keyframeChannels.push_back(channel);}
 			inline std::string getName(){return name;}
