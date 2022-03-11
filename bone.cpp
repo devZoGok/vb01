@@ -17,9 +17,15 @@ namespace vb01{
 	void Bone::updateBoneInfo(){
 		for(int i = 0; i < 3; i++)
 			this->initAxis[i] = globalAxis[i];
+
 		restPos = pos;
 		restRot = orientation;
 		restScale = scale;
+	}
+
+	void Bone::onAttached(){
+			Node::onAttached();
+			updateBoneInfo();
 	}
 
 	Vector3 Bone::getBoneSpaceRestPos(Bone *bone){

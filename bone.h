@@ -36,6 +36,7 @@ namespace vb01{
 		private:
 			void updateBoneInfo();
 			void animate(float, KeyframeChannel);
+			void onAttached();
 			virtual float getDriverValue(Driver::VariableType);
 
 			float length;

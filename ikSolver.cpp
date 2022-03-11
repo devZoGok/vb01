@@ -5,12 +5,14 @@
 namespace vb01{
 	void IkSolver::calculateFabrik(int chainLength, Bone **boneChain, Vector3 boneIkPos[], Vector3 targetPos){
 		float sumLengths = 0;
+
 		for(int i = 0; i < chainLength; i++)
 			sumLengths += boneChain[i]->getLength();
 		
 		Skeleton *skeleton = boneChain[0]->getSkeleton();
 		Bone *subBase = (Bone*)skeleton->getBone(boneChain[0]->getIkTarget())->getParent();
 		Vector3 startPos = subBase->globalToLocalPosition(boneChain[chainLength - 1]->localToGlobalPosition(Vector3::VEC_ZERO));
+		
 		if(startPos.getDistanceFrom(targetPos) < sumLengths){
 			int numIterations = 500;
 	
@@ -21,6 +23,7 @@ namespace vb01{
 					int boneId;
 					float length;
 					Vector3 ikPos, bonePos, fromBoneToIkPos;
+
 					if(backward){
 						boneId = j;
 						length = boneChain[boneId]->getLength();
@@ -28,6 +31,7 @@ namespace vb01{
 					}
 					else{
 						boneId = chainLength - 1 - j;
+
 						if(j == 0){
 							ikPos = startPos;
 							length = 0;
@@ -37,6 +41,7 @@ namespace vb01{
 							length = boneChain[boneId + 0]->getLength();
 						}
 					}
+
 					bonePos = boneIkPos[boneId];
 					fromBoneToIkPos = (ikPos - bonePos).norm();
 					boneIkPos[boneId] = ikPos - fromBoneToIkPos * length;
@@ -45,9 +50,11 @@ namespace vb01{
 		}
 		else{
 			Vector3 startToEndVec = (targetPos - startPos).norm();
+
 			for(int i = chainLength - 1; i >= 0; i--){
 				float length;
 				Vector3 bonePos;
+
 				if(i == chainLength - 1){
 					length = 0;
 					bonePos = boneIkPos[i];
@@ -56,6 +63,7 @@ namespace vb01{
 					length = boneChain[i]->getLength();
 					bonePos = boneIkPos[i + 1];
 				}
+
 				boneIkPos[i] = bonePos + startToEndVec * length;
 			}
 		}

@@ -111,6 +111,7 @@ namespace vb01{
 		child->setParent(this);
 		children.push_back(child);
 		child->updateAxis();
+		child->onAttached();
 	}
 
 	void Node::dettachChild(Node *child){
@@ -184,11 +185,12 @@ namespace vb01{
 		Vector3 xDir = orientation * Vector3(1, 0, 0),
 					 	yDir = orientation * Vector3(0, 1, 0),
 						zDir = orientation * Vector3(0, 0, 1);
-		newUp = Vector3(newUp.x, newUp.y, 0).norm();
+		//newUp = Vector3(newUp.x, newUp.y, 0).norm();
 
 		if(newUp != Vector3::VEC_ZERO){
 			float angle = yDir.getAngleBetween(newUp);
-			setOrientation(Quaternion(angle * (newUp.x < 0 ? 1 : -1), zDir) * orientation);
+			bool forw = (xDir.getAngleBetween(newUp) < PI / 2);
+			setOrientation(Quaternion(angle * (forw ? -1 : 1), zDir) * orientation);
 		}
 	}
 

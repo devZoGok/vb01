@@ -24,14 +24,17 @@ namespace vb01{
 			if(b->getIkTarget() != ""){
 				const int chainLength = b->getIkChainLength();
 				Bone **boneChain = getIkBoneChain(b);
+
 				for(int i = 0; i < chainLength; i++){
 					boneChain[i]->setPosePos(Vector3::VEC_ZERO);
 					boneChain[i]->setPoseRot(Quaternion::QUAT_W);
 					boneChain[i]->setPoseScale(Vector3::VEC_IJK);
 				}
+
 				delete[] boneChain;
 			}
 		}
+
 		for(Bone *b : bones)
 			if(getBone(b->getIkTarget()))
 				solveIk(b);
@@ -44,6 +47,7 @@ namespace vb01{
 
 		Bone **boneChain = getIkBoneChain(ikBone);
 		Vector3 *boneIkPos = new Vector3[chainLength];
+
 		for(int i = chainLength - 1; i >= 0; i--)
 			boneIkPos[i] = subBase->globalToLocalPosition(boneChain[i]->localToGlobalPosition(Vector3::VEC_ZERO));
 
@@ -57,10 +61,11 @@ namespace vb01{
 
 	void Skeleton::transformIkChain(int chainLength, Bone **boneChain, Vector3 boneIkPos[], Bone* ikTarget){
 		Bone *subBase = (Bone*)ikTarget->getParent();
+
 		for(int i = chainLength - 1; i >= 0; i--){
 			boneChain[i]->setPoseRot(Quaternion::QUAT_W);
-
 			Vector3 tailPosBoneSpace;
+
 			if(i == 0)
 				tailPosBoneSpace = subBase->globalToLocalPosition(ikTarget->localToGlobalPosition(Vector3::VEC_ZERO));
 			else
@@ -75,6 +80,7 @@ namespace vb01{
 			axis = 
 				boneChain[i]->globalToLocalPosition(subBase->localToGlobalPosition(axis)) - 
 				boneChain[i]->globalToLocalPosition(subBase->localToGlobalPosition(Vector3::VEC_ZERO));
+
 			if(axis == Vector3::VEC_ZERO)
 				axis = Vector3::VEC_I;
 
@@ -86,17 +92,20 @@ namespace vb01{
 	void Skeleton::addBone(Bone *bone, Bone *parent){
 		if(parent)
 			parent->attachChild(bone);
+
 		bone->setSkeleton(this);
 		bones.push_back(bone);
 	}
 
 	Bone* Skeleton::getBone(string name){
 		Bone *bone = nullptr;
+
 		for(Bone *b : bones)
 			if(b->getName() == name){
 				bone = b;
 				break;
 			}
+
 		return bone;
 	}
 
@@ -104,10 +113,12 @@ namespace vb01{
 		int chainLength = ikBone->getIkChainLength();
 		Bone **chain = new Bone*[chainLength];
 		Bone *ikBoneAncestor = ikBone;
+
 		for(int i = 0; i < chainLength; i++){
 			chain[i] = ikBoneAncestor;
 			ikBoneAncestor = (Bone*)ikBoneAncestor->getParent();
 		}
+
 		return chain;
 	}
 }

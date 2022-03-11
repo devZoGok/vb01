@@ -27,6 +27,7 @@ namespace vb01{
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
 			virtual void update();
+			virtual void onAttached(){}
 			void attachChild(Node*);
 			void dettachChild(Node*);
 			void addLight(Light*);
