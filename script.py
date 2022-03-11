@@ -111,16 +111,21 @@ def readChannel(animatableName, channel, tag):
         keyframeTag.set('righthandleframe', str(rightHandleFrame))
         keyframeTag.set('righthandlevalue', str(rightHandleValue))
 
-def readAnimations(ob, tag):
+def readAnimations(ob, tag, node):
     for nlaStrip in ob.animation_data.nla_tracks[0].strips:
-        animName = nlaStrip.name
-        action = bpy.data.actions[animName]
-    
+        objTrans = 'Object Transforms'
+
+        if(nlaStrip.action.fcurves):
+            groupName = nlaStrip.action.fcurves[0].group.name
+
+            if((node and groupName != objTrans) or (not node and groupName == objTrans)):
+                continue
+
         animTag = ET.SubElement(tag, 'animation')
-        animTag.set('name', animName)
+        animTag.set('name', nlaStrip.name)
     
-        for channel in action.fcurves:
-            readChannel((ob.name if channel.group is None or channel.group.name == 'Object Transforms' else channel.group.name), channel, animTag)
+        for channel in nlaStrip.action.fcurves:
+            readChannel((ob.name if channel.group is None or channel.group.name == objTrans else channel.group.name), channel, animTag)
 
 
 def readDriver(node, channel, tag):
@@ -238,6 +243,7 @@ def export(node, parentTag):
         skeletonTag = ET.SubElement(nodeTag, 'skeleton')
         skeletonTag.set('name', node.data.name_full)
         exportBone(node, node.data.bones[0], skeletonTag, True)
+        readAnimations(node, skeletonTag, False)
     elif node.type == 'LIGHT':
         lightTag = ET.SubElement(nodeTag, 'light')
 
@@ -261,7 +267,7 @@ def export(node, parentTag):
         lightTag.set('outerangle', str(outerAngle))
 
     if node.animation_data and node.animation_data.nla_tracks:
-        readAnimations(node, nodeTag)
+        readAnimations(node, nodeTag, True)
 
     for child in node.children:
         export(child, nodeTag)
