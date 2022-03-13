@@ -27,6 +27,8 @@ namespace vb01{
 
 				vector<Node*> descendants;
 				model->getDescendants(descendants);
+				setupDrivers(descendants);
+
 				vector<Mesh*> meshes;
 
 				for(Node *desc : descendants)
@@ -41,6 +43,18 @@ namespace vb01{
 												delete m->getSkeleton();
 												m->setSkeleton(sk);
 										}
+		}
+
+		void XmlModelReader::setupDrivers(vector<Node*> descendants){
+				for(pair<string, Driver*> pair : driversByNodeNames){
+					for(Node *desc : descendants){
+						int dotId = pair.first.find_first_of(".");
+						string driverNodeName = (dotId == string::npos ? pair.first : pair.first.substr(dotId + 1));
+
+						if(driverNodeName == desc->getName())
+								desc->addDriver(pair.second);
+					}
+				}
 		}
 
 		Mesh* XmlModelReader::processMesh(XMLElement *meshEl){
@@ -127,18 +141,23 @@ namespace vb01{
 						shapeKeys[i].maxValue = atof(shapeKeyEl->Attribute("max"));
 
 						XMLElement *driverEl = shapeKeyEl->FirstChildElement("driver");
+						KeyframeChannel channel = processKeyframeChannells(driverEl)[0];
+						const char *nodeName = driverEl->Attribute("obj");
+						const char *boneName = driverEl->Attribute("bone");
+						Driver::VariableType type = Driver::getDriverVariableType(driverEl->Attribute("type"));
+						driversByNodeNames.push_back(make_pair(string(nodeName) + (boneName ? "." + string(boneName) : ""), new Driver(&shapeKeys[i], channel, type)));
 
 						vector<Vector3> shapeKeyPos;
 
-						for(XMLElement *vertEl = shapeKeyEl->FirstChildElement(tagName); vertEl; vertEl = vertEl->NextSiblingElement()){
+						for(XMLElement *vertEl = shapeKeyEl->FirstChildElement("vert"); vertEl; vertEl = vertEl->NextSiblingElement()){
 								float posX = atof(vertEl->Attribute("px"));
 								float posY = atof(vertEl->Attribute("py"));
 								float posZ = atof(vertEl->Attribute("pz"));
 								shapeKeyPos.push_back(Vector3(posX, posY, posZ));
-
-								for(int j = 0; j < numVertices; j++)
-										vertices[j].shapeKeyOffsets[i] = shapeKeyPos[vertIds[j]] - vertPos[vertIds[j]];
 						}
+
+						for(int j = 0; j < numVertices; j++)
+								vertices[j].shapeKeyOffsets[i] = shapeKeyPos[vertIds[j]] - vertPos[vertIds[j]];
 				}
 
 			Mesh *mesh = new Mesh(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, shapeKeys, numShapeKeys);
@@ -155,11 +174,10 @@ namespace vb01{
 			return mesh;
 		}
 
-		Animation* XmlModelReader::processAnimation(XMLElement *animationEl, vector<Animatable*> animatables){
-				string name = animationEl->Attribute("name");
-				Animation *animation = new Animation(name);
+		vector<KeyframeChannel> XmlModelReader::processKeyframeChannells(XMLElement *containerTag){
+				vector<KeyframeChannel> keyframeChannels;
 
-				for(XMLElement *channelEl = animationEl->FirstChildElement("channel"); channelEl; channelEl = channelEl->NextSiblingElement()){
+				for(XMLElement *channelEl = containerTag->FirstChildElement("channel"); channelEl; channelEl = channelEl->NextSiblingElement()){
 						vector<Keyframe> keyframes;
 
 						for(XMLElement *keyframeEl = channelEl->FirstChildElement("keyframe"); keyframeEl; keyframeEl = keyframeEl->NextSiblingElement()){
@@ -177,32 +195,35 @@ namespace vb01{
 						string typeStr = channelEl->Attribute("type");
 						KeyframeChannel::Type type = KeyframeChannel::getKeyframeChannelType(typeStr);
 						string channelName = channelEl->Attribute("name");
-						KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(type, channelName, keyframes);
-						animation->addKeyframeChannel(channel);
+						keyframeChannels.push_back(KeyframeChannel::createKeyframeChannel(type, channelName, keyframes));
 				}
 
-				return animation;
+				return keyframeChannels;
 		}
 
 		void XmlModelReader::processAnimations(XMLElement *animContainer, vector<Animatable*> animatables){
 				AnimationController *animController = AnimationController::getSingleton();
 				const char *animTag = "animation";
 
-				for(XMLElement *animEl = animContainer->FirstChildElement(animTag); animEl && strcmp(animEl->Name(), animTag) == 0; animEl = animEl->NextSiblingElement())
-					animController->addAnimation(processAnimation(animEl, animatables));
+				for(XMLElement *animEl = animContainer->FirstChildElement(animTag); animEl && strcmp(animEl->Name(), animTag) == 0; animEl = animEl->NextSiblingElement()){
+					string name = animEl->Attribute("name");
+					Animation *animation = new Animation(name);
+					animation->addKeyframeChannels(processKeyframeChannells(animEl));
+					animController->addAnimation(animation);
+				}
 		}
 
 		Skeleton* XmlModelReader::processSkeleton(Node *root, XMLElement *skeletonEl){
 				XMLElement *rootBoneEl = skeletonEl->FirstChildElement("bone");
 				Bone *rootBone = (Bone*)processNode(root, rootBoneEl, true);
-				vector<Node*> bones;
+				root->attachChild(rootBone);
+				Skeleton *skeleton = new Skeleton(skeletonEl->Attribute("name"));
+
+				vector<Node*> bones = vector<Node*>{rootBone};
 				rootBone->getDescendants(bones);
 
-				Skeleton *skeleton = new Skeleton(skeletonEl->Attribute("name"));
-				skeleton->addBone(rootBone, (Bone*)root);
-
 				for(Node *bone : bones)
-						skeleton->addBone((Bone*)bone, (Bone*)bone->getParent());
+						skeleton->addBone((Bone*)bone, nullptr);
 
 				processAnimations(skeletonEl, vector<Animatable*>(bones.begin(), bones.end()));
 

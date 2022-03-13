@@ -1,5 +1,5 @@
 #ifndef DRIVER_H
-#define DRIVER
+#define DRIVER_H
 
 #include "keyframeChannel.h"
 

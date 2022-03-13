@@ -133,6 +133,7 @@ def readDriver(node, channel, tag):
     target = driver.variables[0].targets[0];
     
     driverTag = ET.SubElement(tag, 'driver')
+    driverTag.set('type', target.transform_type)
     driverTag.set('obj', target.id.name)
 
     if(target.bone_target):
