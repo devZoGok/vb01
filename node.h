@@ -11,7 +11,6 @@
 #include <string>
 
 namespace vb01{
-	class Mesh;
 	class Model;
 	class Light;
 	class ParticleEmitter;

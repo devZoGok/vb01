@@ -17,31 +17,8 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	void Mesh::ShapeKey::animate(float value, KeyframeChannel keyframeChannel){
-		switch(keyframeChannel.type){
-			case KeyframeChannel::SHAPE_KEY_MIN:
-				this->minValue = value;
-				break;
-			case KeyframeChannel::SHAPE_KEY_VALUE:
-				this->value = value;
-				break;
-			case KeyframeChannel::SHAPE_KEY_MAX:
-				this->maxValue = value;
-				break;
-		}
-	}
-
-	Mesh::Mesh(){}
-
-	Mesh::Mesh(Vertex *vertices, unsigned int *indices, int numTris, string *vertexGroups, int numVertexGroups, ShapeKey *shapeKeys, int numShapeKeys, string name){
-		this->vertices = vertices;
-		this->indices = indices;
-		this->numTris = numTris;
-		this->vertexGroups = vertexGroups;
-		this->numVertexGroups = numVertexGroups;
-		this->shapeKeys = shapeKeys;
-		this->numShapeKeys = numShapeKeys;
-		this->name = name;
+	Mesh::Mesh(MeshData meshBase){
+			this->meshBase = meshBase;
 	}
 
 	Mesh::~Mesh(){
@@ -54,9 +31,6 @@ namespace vb01{
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &EBO);
 		glDeleteBuffers(1, &VBO);
-
-		delete[] indices;
-		delete[] vertices;
 	}
 
 	void Mesh::construct(){
@@ -99,31 +73,31 @@ namespace vb01{
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);	
 
-		u32 size = sizeof(Vertex);
+		u32 size = sizeof(MeshData::Vertex);
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, 3 * numTris * size, staticVerts ? vertices : NULL, staticVerts ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 3 * meshBase.numTris * size, meshBase.vertices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * numTris * sizeof(u32), staticVerts ? indices : NULL, staticVerts ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * meshBase.numTris * sizeof(u32), meshBase.indices, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, norm)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, norm)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, uv)));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, uv)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, tan)));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, tan)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, biTan)));
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, biTan)));
 		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, weights)));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, weights)));
 		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, boneIndices)));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, boneIndices)));
 		glEnableVertexAttribArray(6);
 
-		for(int i = 0; i < numShapeKeys; i++){
-			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
+		for(int i = 0; i < meshBase.numShapeKeys; i++){
+			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
 			glEnableVertexAttribArray(7 + i);
 		}
 	}
@@ -163,7 +137,7 @@ namespace vb01{
 		if(skeleton)
 			updateSkeleton(shader);
 
-		if(numShapeKeys > 0)
+		if(meshBase.numShapeKeys > 0)
 			updateShapeKeys(shader);
 
 		if(reflect)
@@ -187,22 +161,22 @@ namespace vb01{
 	}
 
 	void Mesh::updateShapeKeys(Shader *shader){
-		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(numShapeKeys) + ";");
+		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(meshBase.numShapeKeys) + ";");
 
-		for(int i = 0; i < numShapeKeys; i++){
-			if(shapeKeys[i].value < shapeKeys[i].minValue)
-				shapeKeys[i].value = shapeKeys[i].minValue;
-			else if(shapeKeys[i].value > shapeKeys[i].maxValue)
-				shapeKeys[i].value = shapeKeys[i].maxValue;
+		for(int i = 0; i < meshBase.numShapeKeys; i++){
+			if(meshBase.shapeKeys[i].value < meshBase.shapeKeys[i].minValue)
+				meshBase.shapeKeys[i].value = meshBase.shapeKeys[i].minValue;
+			else if(meshBase.shapeKeys[i].value > meshBase.shapeKeys[i].maxValue)
+				meshBase.shapeKeys[i].value = meshBase.shapeKeys[i].maxValue;
 
-			shader->setFloat(shapeKeys[i].value, "shapeKeyFactors[" + to_string(i) + "]");
+			shader->setFloat(meshBase.shapeKeys[i].value, "shapeKeyFactors[" + to_string(i) + "]");
 		}
 	}
 
 	void Mesh::updateSkeleton(Shader *shader){
 		skeleton->update();
 		shader->editShader(Shader::VERTEX_SHADER, 2, "const int numBones=" + to_string(skeleton->getNumBones()) + ";");
-		shader->editShader(Shader::VERTEX_SHADER, 3, "const int numVertGroups=" + to_string(numVertexGroups) + ";");
+		shader->editShader(Shader::VERTEX_SHADER, 3, "const int numVertGroups=" + to_string(meshBase.numVertexGroups) + ";");
 		Node *modelNode = skeleton->getRootBone()->getParent();
 
 		for(int i = 0; i < skeleton->getNumBones(); i++){
@@ -215,8 +189,8 @@ namespace vb01{
 
 			int vertGroupId = -1;
 
-			for(int j = 0; j < numVertexGroups; j++)
-				if(bone->getName() == vertexGroups[j])
+			for(int j = 0; j < meshBase.numVertexGroups; j++)
+				if(bone->getName() == meshBase.vertexGroups[j])
 					vertGroupId = j;
 
 			int parentId = -1;
@@ -429,15 +403,7 @@ namespace vb01{
 
 	void Mesh::render(){
 		glBindVertexArray(VAO);
-
-		if(!staticVerts){
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * numTris * sizeof(Vertex), vertices);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 3 * numTris * sizeof(u32), indices);
-		}
-
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-		glDrawElements(GL_TRIANGLES, 3 * numTris, GL_UNSIGNED_INT, 0);	
+		glDrawElements(GL_TRIANGLES, 3 * meshBase.numTris, GL_UNSIGNED_INT, 0);	
 	}
 }

@@ -5,6 +5,8 @@
 #include "util.h"
 #include "material.h"
 #include "animatable.h"
+#include "meshData.h"
+
 #include <vector>
 #include <string>
 
@@ -16,22 +18,7 @@ namespace vb01{
 
 	class Mesh{
 		public:
-			struct ShapeKey : public Animatable{
-				std::string name;
-				float minValue, value, maxValue;
-
-				void animate(float, KeyframeChannel);
-			};
-
-			struct Vertex{
-				Vector3 pos, norm, tan, biTan;
-				Vector2 uv;	
-				float weights[4]{0, 0, 0, 0};
-				int boneIndices[4]{-1, -1, -1, -1};
-				Vector3 shapeKeyOffsets[100];
-			};
-
-			Mesh(Vertex*, u32*, int, std::string *vg = nullptr, int = 0, ShapeKey *sk = nullptr, int = 0, std::string = "");
+			Mesh(MeshData);
 			~Mesh();
 			void construct();
 			virtual void update();
@@ -45,22 +32,14 @@ namespace vb01{
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
 			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
-			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline bool isReflective(){return reflective;}
 			inline bool isCastShadow(){return castShadow;}
-			inline int getNumVerts(){return 3 * numTris;}
-			inline Vertex* getVerts(){return vertices;}
-			inline std::string getName(){return name;}
 			inline Skeleton* getSkeleton(){return skeleton;}
-			inline std::string* getVertexGroups(){return vertexGroups;}
-			inline int getNumVertexGroups(){return numVertexGroups;}
-			inline u32* getIndices(){return indices;}
-			inline ShapeKey& getShapeKey(int i){return shapeKeys[i];}
-			inline int getNumShapeKeys(){return numShapeKeys;}
 			inline Texture* getPrefilterMap(){return prefilterMap;}
 			inline Texture* getIrradianceMap(){return irradianceMap;}
 			inline Texture* getPostfilterMap(){return postfilterMap;}
 			inline Texture* getBrdfIntegrationMap(){return brdfIntegrationMap;}
+			inline MeshData getMeshBase(){return meshBase;}
 		private:
 			void initMesh();
 			void initFramebuffer(u32&, u32&, int);
@@ -82,17 +61,13 @@ namespace vb01{
 			Material *material = nullptr;
 			Node *node = nullptr;
 			std::vector<Mesh*> meshes;
-			std::string name = "";
 			Skeleton *skeleton = nullptr;
 		protected:
-			Mesh();
+			Mesh(){}
 
-			bool staticVerts = true, castShadow = false, reflect = false, reflective = false, wireframe = false;
-			Vertex *vertices;
-			std::string *vertexGroups = nullptr;
-			ShapeKey *shapeKeys = nullptr;
-			u32 *indices, VAO, VBO, EBO;
-			int numTris, numVertexGroups = 0, numShapeKeys = 0;
+			MeshData meshBase;
+			bool castShadow = false, reflect = false, reflective = false, wireframe = false;
+			u32 VAO, VBO, EBO;
 	};
 }
 

@@ -2,19 +2,13 @@
 
 namespace vb01{
 	Box::Box(Vector3 size){
-		this->staticVerts = false;
-
-		numTris = 12;
-		indices = new u32[3 * numTris];
-		vertices = new Vertex[3 * numTris];
-
 		setSize(size);
-
 		construct();
 	}
 
 	void Box::setSize(Vector3 size){
 		this->size = size;
+
 		Vector3 pos[] = {
 			Vector3(size.x / 2, size.y / 2, size.z / 2),
 			Vector3(-size.x / 2, size.y / 2, size.z / 2),
@@ -26,6 +20,7 @@ namespace vb01{
 			Vector3(-size.x / 2, -size.y / 2, -size.z / 2),
 			Vector3(size.x / 2, -size.y / 2, -size.z / 2)
 		};
+
 		Vector3 norm[] = {
 			Vector3(0, 0, 1),
 			Vector3(0, 1, 0),
@@ -35,12 +30,14 @@ namespace vb01{
 			Vector3(0, -1, 0),
 			Vector3(-1, 0, 0)
 		};
+
 		Vector2 tex[] = {
 			Vector2(1, 1),
 			Vector2(0, 1),
 			Vector2(0, 0),
 			Vector2(1, 0)
 		};
+
 		unsigned int data[] = {
 			1, 3, 2, 4, 3, 0, 0, 3, 1,
 			4, 3, 0, 1, 3, 2, 5, 3, 3,
@@ -60,13 +57,20 @@ namespace vb01{
 			5, 5, 2, 6, 5, 1, 4, 5, 3,
 			7, 5, 0, 4, 5, 3, 6, 5, 1
 		};
+
+		int numTris = 12;
+		u32 *indices = new u32[3 * numTris];
+		MeshData::Vertex *vertices = new MeshData::Vertex[3 * numTris];
+
 		for(int i = 0; i < 3 * numTris; i++){
-			Vertex v;
+				MeshData::Vertex v;
 			v.pos = pos[data[3 * i]];
 			v.norm = norm[data[3 * i + 1]];
 			v.uv = tex[data[3 * i + 2]];
 			vertices[i] = v;
 			indices[i] = i;
 		}
+
+		meshBase = MeshData(vertices, indices, 3 * numTris);
 	}
 }
