@@ -1,7 +1,8 @@
 #ifndef XML_MODEL_READER_H
 #define XML_MODEL_READER_H
 
-#include "modelReader.h"
+#include "abstractAssetReader.h"
+#include "keyframeChannel.h"
 
 #include <vector>
 #include <utility>
@@ -17,11 +18,14 @@ namespace vb01{
 		class Animatable;
 		class Animation;
 		class Driver;
+		struct Asset;
 
-		class XmlModelReader : public ModelReader{
+		class XmlModelReader : public AbstractAssetReader{
 				public:
-						XmlModelReader(Model*, std::string);
+						static XmlModelReader* getSingleton();
+						Asset* readAsset(std::string);
 				private:
+						XmlModelReader(){};
 						Node* processNode(Node*, tinyxml2::XMLElement*, bool = false);
 						Mesh* processMesh(tinyxml2::XMLElement*);
 						std::vector<KeyframeChannel> processKeyframeChannells(tinyxml2::XMLElement*);
@@ -30,6 +34,7 @@ namespace vb01{
 						void setupDrivers(std::vector<Node*>);
 
 						std::vector<std::pair<std::string, Driver*>> driversByNodeNames;
+						Node *assetRootNode = nullptr;
 		};
 }
 

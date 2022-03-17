@@ -1,17 +1,22 @@
 #ifndef ASSIMP_MODEL_READER_H
 #define ASSIMP_MODEL_READER_H
 
-#include "modelReader.h"
+#include "abstractAssetReader.h"
 
 class aiNode;
 class aiMesh;
 class aiScene;
 
 namespace vb01{
-	class AssimpModelReader : public ModelReader{
+		struct Asset;
+		class Node;
+
+	class AssimpModelReader : public AbstractAssetReader{
 		public:
-			AssimpModelReader(Model*, std::string);
+			static AssimpModelReader* getSingleton();
+			Asset* readAsset(std::string);
 		private:
+			AssimpModelReader(){}
 			void processNode(aiNode*, const aiScene*, Node*);
 			void processMesh(aiMesh*, const aiScene*, Node*);
 			void processMaterial();

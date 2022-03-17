@@ -3,6 +3,7 @@
 #include "util.h"
 #include "imageReader.h"
 #include "fontReader.h"
+#include "xmlModelReader.h"
 
 #include <algorithm>
 
@@ -33,6 +34,11 @@ namespace vb01{
 
 				if(find(fontFormats.begin(), fontFormats.end(), format) != fontFormats.end())
 						assetReader = FontReader::getSingleton();
+
+				vector<string> modelFormats = vector<string>{"xml"};
+
+				if(find(modelFormats.begin(), modelFormats.end(), format) != modelFormats.end())
+						assetReader = XmlModelReader::getSingleton();
 
 				assets.push_back(assetReader->readAsset(path));
 		}

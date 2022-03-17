@@ -21,6 +21,7 @@ namespace vb01{
 	class Node : public Animatable{
 		public:
 			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
+			Node(Node*);
 			virtual ~Node();
 			void addSkeleton(Skeleton*);
 			void attachMesh(Mesh*);
@@ -78,7 +79,7 @@ namespace vb01{
 			virtual float getDriverValue(Driver::VariableType);
 			
 			bool visible = true;
-			Vector3 pos, scale, globalAxis[3];
+			Vector3 pos, scale, globalAxis[3]{Vector3::VEC_I, Vector3::VEC_J, Vector3::VEC_K};
 			Quaternion orientation;
 			std::vector<Mesh*> meshes;
 			std::vector<ParticleEmitter*> emitters;

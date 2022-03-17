@@ -6,7 +6,7 @@
 #include "vector.h"
 #include "animationController.h"
 #include "animatable.h"
-#include "keyframeChannel.h"
+#include "modelAsset.h"
 
 #include <vector>
 
@@ -16,17 +16,30 @@ using namespace std;
 using namespace tinyxml2;
 
 namespace vb01{
-		XmlModelReader::XmlModelReader(Model *model, string path) : ModelReader(model, path){
+		XmlModelReader *xmlModelReader = nullptr;
+
+		XmlModelReader* XmlModelReader::getSingleton(){
+				if(!xmlModelReader)
+						xmlModelReader = new XmlModelReader();
+
+				return xmlModelReader;
+		}
+
+		Asset* XmlModelReader::readAsset(string path){
 				XMLDocument *doc = new XMLDocument();
 				doc->LoadFile(path.c_str());
 
 				XMLElement *root = doc->FirstChildElement();
+				ModelAsset *asset = new ModelAsset();
+				asset->path = path;
+				asset->rootNode = new Node();
+				assetRootNode = asset->rootNode;
 
 				for(XMLElement *ch = root->FirstChildElement(); ch; ch = ch->NextSiblingElement())
-					model->attachChild(processNode(model, ch));
+					assetRootNode->attachChild(processNode(assetRootNode, ch));
 
 				vector<Node*> descendants;
-				model->getDescendants(descendants);
+				assetRootNode->getDescendants(descendants);
 				setupDrivers(descendants);
 
 				vector<Mesh*> meshes;
@@ -43,6 +56,8 @@ namespace vb01{
 												delete m->getSkeleton();
 												m->setSkeleton(sk);
 										}
+
+				return asset;
 		}
 
 		void XmlModelReader::setupDrivers(vector<Node*> descendants){
@@ -87,7 +102,7 @@ namespace vb01{
 
 				i = 0;
 				int numVertices = 3 * atoi(meshEl->Attribute("num_faces"));
-				Mesh::Vertex *vertices = new Mesh::Vertex[numVertices];
+				MeshData::Vertex *vertices = new MeshData::Vertex[numVertices];
 				tagName = "vert";
 				vector<u32> vertIds;
 				u32 *indices = new u32[numVertices];
@@ -110,7 +125,7 @@ namespace vb01{
 						float biTanZ = atof(vertEl->Attribute("bz"));
 						Vector3 biTan = Vector3(biTanX, biTanY, biTanZ);
 
-						Mesh::Vertex vertex;
+						MeshData::Vertex vertex;
 						vertex.pos = vertPos[id];
 						vertex.norm = vertNorm[id];
 						vertex.uv = uv;
@@ -133,7 +148,7 @@ namespace vb01{
 				tagName = "shapekey";
 				i = 0;
 				int numShapeKeys = atoi(meshEl->Attribute("num_shape_keys"));
-				Mesh::ShapeKey *shapeKeys = new Mesh::ShapeKey[numShapeKeys];
+				MeshData::ShapeKey *shapeKeys = new MeshData::ShapeKey[numShapeKeys];
 
 				for(XMLElement *shapeKeyEl = meshEl->FirstChildElement(tagName); shapeKeyEl && strcmp(shapeKeyEl->Name(), tagName) == 0; shapeKeyEl = shapeKeyEl->NextSiblingElement(), i++){
 						shapeKeys[i].name = shapeKeyEl->Attribute("name");
@@ -160,8 +175,7 @@ namespace vb01{
 								vertices[j].shapeKeyOffsets[i] = shapeKeyPos[vertIds[j]] - vertPos[vertIds[j]];
 				}
 
-			Mesh *mesh = new Mesh(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, shapeKeys, numShapeKeys);
-			mesh->construct();
+			Mesh *mesh = new Mesh(MeshData(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, shapeKeys, numShapeKeys));
 
 			const char *skeletonName = meshEl->Attribute("skeleton");
 
@@ -261,7 +275,7 @@ namespace vb01{
 						Vector3 pos = head;
 						
 						if(strcmp(xmlEl->Parent()->ToElement()->Name(), "skeleton") == 0){
-							parent = model;
+							parent = assetRootNode;
 							swap(pos.y, pos.z);
 							pos.z = -pos.z;
 							swap(yAxis.y, yAxis.z);

@@ -7,8 +7,8 @@
 #include "root.h"
 #include "skeleton.h"
 #include "animation.h"
-#include "xmlModelReader.h"
-#include "assimpModelReader.h"
+#include "modelAsset.h"
+#include "assetManager.h"
 
 #include <vector>
 #include <Importer.hpp>
@@ -20,15 +20,14 @@ using namespace std;
 using namespace Assimp;
 
 namespace vb01{
-	Model::Model(string path) : Node(){
-		int dotId = getCharId(path, '.', true);
-		string extension = path.substr(dotId + 1, string::npos);
-		ModelReader *modelReader = nullptr;
+	Model::Model(string path) : Node(((ModelAsset*)AssetManager::getSingleton()->getAsset(path))->rootNode){
+			vector<Node*> descendants;
+			getDescendants(descendants);
 
-		if(extension == "xml")
-			modelReader = new XmlModelReader(this, path);
-		else
-			modelReader = new AssimpModelReader(this, path);
+			for(Node *desc : descendants)
+					for(Mesh *mesh : desc->getMeshes()){
+							mesh->construct();
+					}
 	}
 
 	Model::~Model(){

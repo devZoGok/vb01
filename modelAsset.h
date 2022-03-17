@@ -7,7 +7,7 @@ namespace vb01{
 		class Node;
 
 		struct ModelAsset : public Asset{
-				Node *rootNode;
+				Node *rootNode = nullptr;
 		};
 }
 

@@ -1,5 +1,5 @@
 #include "root.h"
-#include "node.h"
+#include "bone.h"
 #include "mesh.h"
 #include "particleEmitter.h"
 #include "light.h"
@@ -20,10 +20,24 @@ namespace vb01{
 		this->pos = pos;
 		this->scale = scale;
 		this->orientation = orientation;
+	}
 
-		globalAxis[0] = Vector3::VEC_I;
-		globalAxis[1] = Vector3::VEC_J;
-		globalAxis[2] = Vector3::VEC_K;
+	Node::Node(Node *node) : Animatable(node->getName()){
+			for(Mesh *m : node->getMeshes())
+					attachMesh(new Mesh(m->getMeshBase()));
+
+			for(Skeleton *skel : node->getSkeletons()){
+					Skeleton *sk = new Skeleton();
+					vector<Bone*> bones = skel->getBones();
+
+					for(Bone *b : bones)
+							sk->addBone(b, nullptr);
+
+					addSkeleton(sk);
+			}
+
+			for(Node *child : node->getChildren())
+					attachChild(new Node(child));
 	}
 
 	Node::~Node(){

@@ -17,7 +17,7 @@ set(MATH quaternion.cpp vector.cpp matrix.cpp ray.cpp)
 set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp meshData.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.cpp keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_READERS abstractAssetReader.cpp imageReader.cpp fontReader.cpp modelReader.cpp assimpModelReader.cpp xmlModelReader.cpp)
+set(ASSET_READERS imageReader.cpp fontReader.cpp modelReader.cpp assimpModelReader.cpp xmlModelReader.cpp)
 set(ASSET_MANAGER assetManager.cpp textAsset.h imageAsset.h modelAsset.h fontAsset.h)
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 

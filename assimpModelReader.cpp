@@ -1,5 +1,7 @@
 #include "assimpModelReader.h"
 #include "mesh.h"
+#include "modelAsset.h"
+#include "node.h"
 
 #include <Importer.hpp>
 #include <scene.h>
@@ -9,16 +11,30 @@ using namespace std;
 using namespace Assimp;
 
 namespace vb01{
-	AssimpModelReader::AssimpModelReader(Model *model, string path) : ModelReader(model, path){
+		AssimpModelReader *assimpModelReader = nullptr;
+
+		AssimpModelReader* AssimpModelReader::getSingleton(){
+				if(!assimpModelReader)
+						assimpModelReader = new AssimpModelReader();
+
+				return assimpModelReader;
+		}
+
+	Asset* AssimpModelReader::readAsset(string path){
 		Importer importer;
 		const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-			cout<<"Failed to load model:"<<importer.GetErrorString()<<endl;
+			cout << "Failed to load model:" << importer.GetErrorString() << endl;
 			exit(-1);	
 		}
 
-		processNode(scene->mRootNode, scene, model);
+		ModelAsset *asset = new ModelAsset();
+		asset->path = path;
+		asset->rootNode = new Node();
+		processNode(scene->mRootNode, scene, asset->rootNode);
+
+		return asset;
 	}
 
 	void AssimpModelReader::processNode(aiNode *node, const aiScene *scene, Node *currentNode){
@@ -78,7 +94,6 @@ namespace vb01{
 		}
 		*/
 		Mesh *vbMesh = new Mesh(MeshData(vertices, indices, numTris));
-		vbMesh ->construct();
 		currentNode->attachMesh(vbMesh);
 	}
 }
