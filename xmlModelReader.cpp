@@ -42,21 +42,6 @@ namespace vb01{
 				assetRootNode->getDescendants(descendants);
 				setupDrivers(descendants);
 
-				vector<Mesh*> meshes;
-
-				for(Node *desc : descendants)
-						for(Mesh *m : desc->getMeshes())
-								if(m->getSkeleton())
-									meshes.push_back(m);
-
-				for(Mesh *m : meshes)
-						for(Node *desc : descendants)
-								for(Skeleton *sk : desc->getSkeletons())
-										if(m->getSkeleton()->getName() == sk->getName()){
-												delete m->getSkeleton();
-												m->setSkeleton(sk);
-										}
-
 				return asset;
 		}
 
@@ -175,15 +160,8 @@ namespace vb01{
 								vertices[j].shapeKeyOffsets[i] = shapeKeyPos[vertIds[j]] - vertPos[vertIds[j]];
 				}
 
-			Mesh *mesh = new Mesh(MeshData(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, shapeKeys, numShapeKeys));
-
-			const char *skeletonName = meshEl->Attribute("skeleton");
-
-			if(skeletonName){
-					int dotId = string(skeletonName).find_first_of(".");
-					string name = string(skeletonName).substr(dotId + 1, string::npos);
-					mesh->setSkeleton(new Skeleton(name));
-			}
+			const char *fullSkeletonName = meshEl->Attribute("skeleton");
+			Mesh *mesh = new Mesh(MeshData(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, (fullSkeletonName ? fullSkeletonName : ""), shapeKeys, numShapeKeys));
 
 			return mesh;
 		}

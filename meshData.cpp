@@ -17,12 +17,13 @@ namespace vb01{
 		}
 	}
 
-	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string *vertexGroups, int numVertexGroups, ShapeKey *shapeKeys, int numShapeKeys){
+	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string *vertexGroups, int numVertexGroups, string fullSkeletonName, ShapeKey *shapeKeys, int numShapeKeys){
 		this->vertices = vertices;
 		this->indices = indices;
 		this->numTris = numTris;
 		this->vertexGroups = vertexGroups;
 		this->numVertexGroups = numVertexGroups;
+		this->fullSkeletonName = fullSkeletonName;
 		this->shapeKeys = shapeKeys;
 		this->numShapeKeys = numShapeKeys;
 	}

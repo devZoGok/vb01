@@ -22,24 +22,6 @@ namespace vb01{
 		this->orientation = orientation;
 	}
 
-	Node::Node(Node *node) : Animatable(node->getName()){
-			for(Mesh *m : node->getMeshes())
-					attachMesh(new Mesh(m->getMeshBase()));
-
-			for(Skeleton *skel : node->getSkeletons()){
-					Skeleton *sk = new Skeleton();
-					vector<Bone*> bones = skel->getBones();
-
-					for(Bone *b : bones)
-							sk->addBone(b, nullptr);
-
-					addSkeleton(sk);
-			}
-
-			for(Node *child : node->getChildren())
-					attachChild(new Node(child));
-	}
-
 	Node::~Node(){
 		for(Mesh *m : meshes)
 			delete m;
@@ -80,6 +62,57 @@ namespace vb01{
 
 		for(Driver *driver : drivers)
 			driver->drive(getDriverValue(driver->getType()));
+	}
+
+	Node* Node::clone(){
+			return cloneNode(true);
+	}
+
+	Node* Node::cloneNode(bool firstIter){
+			Node *node = new Node(pos, orientation, scale, name);
+
+			for(Mesh *mesh : meshes){
+					Mesh *m = new Mesh(mesh->getMeshBase());
+					m->construct();
+					node->attachMesh(m);
+			}
+
+			for(Skeleton *skel : skeletons){
+					vector<Bone*> bones = skel->getBones();
+					Skeleton *sk = new Skeleton(skel->getName());
+
+					for(Bone *bone : bones)
+							sk->addBone(bone, nullptr);
+
+					node->addSkeleton(sk);
+			}
+
+			for(Node *child : children)
+					node->attachChild(child->cloneNode(false));
+
+			if(firstIter){
+					vector<Node*> descendants = vector<Node*>{node};
+					node->getDescendants(descendants);
+					vector<Mesh*> meshes;
+
+					for(Node *desc : descendants)
+							for(Mesh *mesh : desc->getMeshes())
+									meshes.push_back(mesh);
+
+					for(Mesh *mesh : meshes){
+							int dotId = mesh->getMeshBase().fullSkeletonName.find_first_of(".");
+							string nodeName = mesh->getMeshBase().fullSkeletonName.substr(0, dotId);
+							string skelName = mesh->getMeshBase().fullSkeletonName.substr(dotId + 1, string::npos);
+
+							for(Node *desc : descendants)
+								if(nodeName == desc->getName())
+										for(Skeleton *sk : desc->getSkeletons())
+												if(sk->getName() == skelName)
+														mesh->setSkeleton(sk);
+					}
+			}
+
+			return node;
 	}
 
 	float Node::getDriverValue(Driver::VariableType type){

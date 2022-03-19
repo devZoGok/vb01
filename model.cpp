@@ -20,14 +20,12 @@ using namespace std;
 using namespace Assimp;
 
 namespace vb01{
-	Model::Model(string path) : Node(((ModelAsset*)AssetManager::getSingleton()->getAsset(path))->rootNode){
-			vector<Node*> descendants;
-			getDescendants(descendants);
+	Model::Model(string path) : Node(){
+			ModelAsset *asset = ((ModelAsset*)AssetManager::getSingleton()->getAsset(path));
+			Node *clonedRoot = asset->rootNode->clone();
 
-			for(Node *desc : descendants)
-					for(Mesh *mesh : desc->getMeshes()){
-							mesh->construct();
-					}
+			for(Node *child : clonedRoot->getChildren())
+					attachChild(child);
 	}
 
 	Model::~Model(){

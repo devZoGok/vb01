@@ -21,8 +21,8 @@ namespace vb01{
 	class Node : public Animatable{
 		public:
 			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
-			Node(Node*);
 			virtual ~Node();
+			Node* clone();
 			void addSkeleton(Skeleton*);
 			void attachMesh(Mesh*);
 			void attachParticleEmitter(ParticleEmitter*);
@@ -68,6 +68,7 @@ namespace vb01{
 			inline void setVisible(bool v){this->visible = v;}
 			inline void addDriver(Driver *d){drivers.push_back(d);}
 		private:
+			Node* cloneNode(bool);
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
 			void updateShaders();
