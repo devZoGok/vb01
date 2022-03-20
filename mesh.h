@@ -66,6 +66,8 @@ namespace vb01{
 			Mesh(){}
 
 			MeshData meshBase;
+			int numShapeKeys = 0;
+			MeshData::ShapeKey *shapeKeys = nullptr;
 			bool castShadow = false, reflect = false, reflective = false, wireframe = false;
 			u32 VAO, VBO, EBO;
 	};

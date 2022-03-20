@@ -19,6 +19,11 @@ using namespace glm;
 namespace vb01{
 	Mesh::Mesh(MeshData meshBase){
 			this->meshBase = meshBase;
+			numShapeKeys = meshBase.numShapeKeys;
+			shapeKeys = new MeshData::ShapeKey[numShapeKeys];
+
+			for(int i = 0; i < numShapeKeys; i++)
+					shapeKeys[i] = meshBase.shapeKeys[i];
 	}
 
 	Mesh::~Mesh(){
@@ -161,15 +166,15 @@ namespace vb01{
 	}
 
 	void Mesh::updateShapeKeys(Shader *shader){
-		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(meshBase.numShapeKeys) + ";");
+		shader->editShader(Shader::VERTEX_SHADER, 5, "const int numShapeKeys=" + to_string(numShapeKeys) + ";");
 
-		for(int i = 0; i < meshBase.numShapeKeys; i++){
-			if(meshBase.shapeKeys[i].value < meshBase.shapeKeys[i].minValue)
-				meshBase.shapeKeys[i].value = meshBase.shapeKeys[i].minValue;
-			else if(meshBase.shapeKeys[i].value > meshBase.shapeKeys[i].maxValue)
-				meshBase.shapeKeys[i].value = meshBase.shapeKeys[i].maxValue;
+		for(int i = 0; i < numShapeKeys; i++){
+			if(shapeKeys[i].value < shapeKeys[i].minValue)
+				shapeKeys[i].value = shapeKeys[i].minValue;
+			else if(shapeKeys[i].value > shapeKeys[i].maxValue)
+				shapeKeys[i].value = shapeKeys[i].maxValue;
 
-			shader->setFloat(meshBase.shapeKeys[i].value, "shapeKeyFactors[" + to_string(i) + "]");
+			shader->setFloat(shapeKeys[i].value, "shapeKeyFactors[" + to_string(i) + "]");
 		}
 	}
 
