@@ -3,7 +3,8 @@
 namespace vb01{
 		using namespace std;
 
-		Animatable::Animatable(string name){
+		Animatable::Animatable(Type type, string name){
+				this->type = type;
 				this->name = name;
 		}
 }

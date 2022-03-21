@@ -136,9 +136,10 @@ namespace vb01{
 				MeshData::ShapeKey *shapeKeys = new MeshData::ShapeKey[numShapeKeys];
 
 				for(XMLElement *shapeKeyEl = meshEl->FirstChildElement(tagName); shapeKeyEl && strcmp(shapeKeyEl->Name(), tagName) == 0; shapeKeyEl = shapeKeyEl->NextSiblingElement(), i++){
-						shapeKeys[i].name = shapeKeyEl->Attribute("name");
-						shapeKeys[i].minValue = atof(shapeKeyEl->Attribute("min"));
-						shapeKeys[i].maxValue = atof(shapeKeyEl->Attribute("max"));
+						string name = shapeKeyEl->Attribute("name");
+						float minValue = atof(shapeKeyEl->Attribute("min"));
+						float maxValue = atof(shapeKeyEl->Attribute("max"));
+						shapeKeys[i] = MeshData::ShapeKey(name, minValue, minValue, maxValue);
 
 						XMLElement *driverEl = shapeKeyEl->FirstChildElement("driver");
 						KeyframeChannel channel = processKeyframeChannells(driverEl)[0];

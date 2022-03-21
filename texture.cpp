@@ -15,7 +15,7 @@
 using namespace std;
 
 namespace vb01{
-	Texture::Texture(int width, int height, bool shadowMap) : Animatable(){
+	Texture::Texture(int width, int height, bool shadowMap) : Animatable(Animatable::TEXTURE){
 		this->width = width;
 		this->height = height;
 		texture = new u32;
@@ -42,7 +42,7 @@ namespace vb01{
 		}
 	}
 
-	Texture::Texture(string paths[], int numPaths, bool cubemap, int mipmapLevel, bool flip, string name) : Animatable(name){
+	Texture::Texture(string paths[], int numPaths, bool cubemap, int mipmapLevel, bool flip, string name) : Animatable(Animatable::TEXTURE, name){
 			this->cubemap = cubemap;
 			this->paths = new string[numPaths];
 
@@ -86,7 +86,7 @@ namespace vb01{
 		}
 	}
 
-	Texture::Texture(int width, bool depth, int mipmapLevel, string name) : Animatable(name){
+	Texture::Texture(int width, bool depth, int mipmapLevel, string name) : Animatable(Animatable::TEXTURE, name){
 		this->width = width;
 		this->mipmapLevel = mipmapLevel;
 		this->cubemap = true;
@@ -127,7 +127,7 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
-	Texture::Texture(FT_Face face) : Animatable(){
+	Texture::Texture(FT_Face face) : Animatable(Animatable::TEXTURE){
 		texture = new u32;
 
 		glGenTextures(1, &texture[0]);

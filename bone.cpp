@@ -4,9 +4,10 @@
 using namespace std;
 
 namespace vb01{
-	Bone::Bone(string name, float length, Vector3 pos, Quaternion rot, Vector3 scale) : Node(pos, rot, scale, name){
+	Bone::Bone(string name, float length, Vector3 pos, Quaternion rot, Vector3 scale) : Node(pos, rot, scale, name, Animatable::BONE){
 		this->name = name;
 		this->length = length;
+		this->type = Animatable::BONE;
 	}
 
 	void Bone::lookAt(Vector3 newDir, Vector3 newUp){

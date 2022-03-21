@@ -16,10 +16,13 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name) : Animatable(name){
+	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, Animatable::Type type) : Animatable(type, name){
 		this->pos = pos;
 		this->scale = scale;
 		this->orientation = orientation;
+
+		if(type == Animatable::NONE)
+				type = Animatable::NODE;
 	}
 
 	Node::~Node(){

@@ -17,6 +17,13 @@ namespace vb01{
 		}
 	}
 
+	MeshData::ShapeKey::ShapeKey(string name, float value, float minValue, float maxValue) : Animatable(Animatable::SHAPE_KEY, name){
+			this->name = name;
+			this->value = value;
+			this->minValue = minValue;
+			this->maxValue = maxValue;
+	}
+
 	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string *vertexGroups, int numVertexGroups, string fullSkeletonName, ShapeKey *shapeKeys, int numShapeKeys){
 		this->vertices = vertices;
 		this->indices = indices;

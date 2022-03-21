@@ -15,7 +15,7 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
-	ParticleEmitter::ParticleEmitter(int numParticles){
+	ParticleEmitter::ParticleEmitter(int numParticles) : Animatable(Animatable::PARTICLE_EMITTER){
 		this->numParticles = numParticles;
 
 		Vertex v1, v2, v3, v4, v5, v6;

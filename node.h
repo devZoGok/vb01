@@ -20,7 +20,7 @@ namespace vb01{
 
 	class Node : public Animatable{
 		public:
-			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "");
+			Node(Vector3 = Vector3::VEC_ZERO, Quaternion = Quaternion::QUAT_W, Vector3 = Vector3::VEC_IJK, std::string = "", Animatable::Type = Animatable::NODE);
 			virtual ~Node();
 			Node* clone();
 			void addSkeleton(Skeleton*);

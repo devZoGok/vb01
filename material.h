@@ -12,7 +12,7 @@
 namespace vb01{
 		class Texture;
 
-	class Material : public Animatable{
+	class Material{
 		public:
 			struct Uniform : public Animatable{
 					enum Type{
@@ -25,7 +25,7 @@ namespace vb01{
 						 	TEXTURE
 					};
 
-					Uniform(std::string name, Type type) : Animatable(name){
+					Uniform(std::string name, Type type) : Animatable(Animatable::MATERIAL_UNIFORM, name){
 							this->name = name;
 							this->type = type;
 					}

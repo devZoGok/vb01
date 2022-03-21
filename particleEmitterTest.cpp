@@ -10,6 +10,7 @@ namespace vb01{
 		particleEmitter = new ParticleEmitter();
 		particleEmitter->numParticles = numParticles;
 		particleEmitter->particles = new ParticleEmitter::Particle*[numParticles];
+
 		for(int i = 0; i < numParticles; i++){
 			ParticleEmitter::Particle *particle = new ParticleEmitter::Particle;
 			particle->distToCamPlane = rand() % 1000;
@@ -22,6 +23,7 @@ namespace vb01{
 
 	void ParticleEmitterTest::testHeapSort(){
 		particleEmitter->heapSort();
+
 		for(int i = 1; i < numParticles; i++){
 			ParticleEmitter::Particle *prevPart = particleEmitter->particles[i - 1];
 			ParticleEmitter::Particle *currPart = particleEmitter->particles[i];

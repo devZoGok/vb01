@@ -14,8 +14,8 @@ namespace vb01{
 
 	class ParticleEmitter : public Animatable{
 		public:
-			ParticleEmitter(){}
 			ParticleEmitter(int);
+			ParticleEmitter() : Animatable(Animatable::NONE){}
 			~ParticleEmitter();
 			void update();
 			inline void setMaterial(Material *mat){this->material = mat;}
