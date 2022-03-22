@@ -32,10 +32,10 @@ namespace vb01{
 			ShapeKey *shapeKeys = nullptr;
 			u32 *indices, VAO, VBO, EBO;
 			int numTris, numVertexGroups = 0, numShapeKeys = 0;
-			std::string fullSkeletonName = "";
+			std::string attachableName = "", fullSkeletonName = "";
 
 			MeshData(){}
-			MeshData(Vertex*, u32*, int, std::string *vg = nullptr, int = 0, std::string = "", ShapeKey *sk = nullptr, int = 0);
+			MeshData(Vertex*, u32*, int, std::string = "", std::string *vg = nullptr, int = 0, std::string = "", ShapeKey *sk = nullptr, int = 0);
 		};
 }
 

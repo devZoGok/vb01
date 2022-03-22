@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+
+#include "attachable.h"
 #include "vector.h"
 #include "util.h"
 
@@ -12,7 +14,7 @@ namespace vb01{
 	class Shader;
 	class Material;
 
-	class Text{
+	class Text : public Attachable{
 		public:
 			struct Glyph{
 				u16 ch;

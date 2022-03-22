@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "util.h"
 #include "animatable.h"
+#include "attachable.h"
 
 #include <glm.hpp>
 
@@ -12,7 +13,7 @@ namespace vb01{
 	class Node;
 	class Material;
 
-	class ParticleEmitter : public Animatable{
+	class ParticleEmitter : public Animatable, public Attachable{
 		public:
 			ParticleEmitter(int);
 			ParticleEmitter() : Animatable(Animatable::NONE){}
@@ -28,7 +29,6 @@ namespace vb01{
 			inline void setHighLife(float h){this->highLife = h;}
 			inline void setGravity(Vector3 g){this->gravity = g;}
 			inline void setSpeed(float s){this->speed = s;}
-			inline Node* getNode(){return node;}
 		private:
 			struct Vertex{
 				Vector3 pos;

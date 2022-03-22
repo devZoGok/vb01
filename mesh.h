@@ -4,7 +4,7 @@
 #include "vector.h"
 #include "util.h"
 #include "material.h"
-#include "animatable.h"
+#include "attachable.h"
 #include "meshData.h"
 
 #include <vector>
@@ -16,7 +16,7 @@ namespace vb01{
 	class Texture;
 	class Skeleton;
 
-	class Mesh{
+	class Mesh : public Attachable{
 		public:
 			Mesh(MeshData);
 			~Mesh();
@@ -24,13 +24,11 @@ namespace vb01{
 			virtual void update();
 			void render();
 			void setMaterial(Material *mat){this->material = mat;}
-			inline void setNode(Node *node){this->node = node;}
 			inline void setCastShadow(bool castShadow){this->castShadow = castShadow;}
 			inline void setReflect(bool r){this->reflect = r;}
 			inline void setReflective(bool r){this->reflective = r;}
 			inline void setWireframe(bool w){this->wireframe = w;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
-			inline Node* getNode(){return node;}
 			inline Material* getMaterial(){return material;}
 			inline bool isReflective(){return reflective;}
 			inline bool isCastShadow(){return castShadow;}
@@ -59,7 +57,6 @@ namespace vb01{
 			Shader *environmentShader = nullptr, *irradianceShader = nullptr, *brdfIntegrationShader = nullptr;
 			u32 preFilterFramebuffer, preFilterRenderbuffer, irrandianceFramebuffer, irradianceRenderbuffer, postFilterFramebuffer, postFilterRenderbuffer, brdfFramebuffer, brdfRenderbuffer;
 			Material *material = nullptr;
-			Node *node = nullptr;
 			std::vector<Mesh*> meshes;
 			Skeleton *skeleton = nullptr;
 		protected:

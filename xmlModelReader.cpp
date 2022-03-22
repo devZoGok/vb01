@@ -162,7 +162,8 @@ namespace vb01{
 				}
 
 			const char *fullSkeletonName = meshEl->Attribute("skeleton");
-			Mesh *mesh = new Mesh(MeshData(vertices, indices, numVertices / 3, vertexGroups, numVertexGroups, (fullSkeletonName ? fullSkeletonName : ""), shapeKeys, numShapeKeys));
+			string name = string(meshEl->Parent()->ToElement()->Attribute("name")) + string(meshEl->Attribute("name"));
+			Mesh *mesh = new Mesh(MeshData(vertices, indices, numVertices / 3, name, vertexGroups, numVertexGroups, (fullSkeletonName ? fullSkeletonName : ""), shapeKeys, numShapeKeys));
 
 			return mesh;
 		}

@@ -162,6 +162,7 @@ def export(node, parentTag):
             numShapeKeys = len(mesh.shape_keys.key_blocks) - 1
         
         meshTag = ET.SubElement(nodeTag, 'mesh')
+        meshTag.set('name', node.name + mesh.name_full)
         meshTag.set('num_faces', str(numFaces))
         meshTag.set('num_vertex_groups', str(numGroups))
         meshTag.set('num_shape_keys', str(numShapeKeys))

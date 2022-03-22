@@ -11,10 +11,6 @@ using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Skeleton::Skeleton(string name){
-		this->name = name;
-	}
-
 	void Skeleton::update(){
 		updateIk();
 	}

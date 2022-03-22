@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "animatable.h"
+#include "attachable.h"
 
 #include <vector>
 #include <glm.hpp>
@@ -13,14 +14,13 @@ namespace vb01{
 	class Shader;
 	class Material;
 
-	class Light : public Animatable{
+	class Light : public Animatable, public Attachable{
 		public:
 			enum Type{POINT, DIRECTIONAL, SPOT, AMBIENT};
 
 			Light(Type, std::string = "");
 			~Light();
 			void update();
-			inline void setNode(Node *node){this->node = node;}
 			inline void setColor(Vector3 color){this->color = color;}
 			inline void setAttenuationValues(float a, float b, float c){
 				attenuationValues.x = a;
@@ -36,7 +36,6 @@ namespace vb01{
 			inline float getOuterAngle(){return outerAngle;}
 			inline float getShadowNearPlane(){return nearPlane;}
 			inline float getShadowFarPlane(){return farPlane;}
-			inline Node* getNode(){return node;}
 		private:
 			void animate(float, KeyframeChannel);
 			void initDepthMap();
@@ -46,7 +45,6 @@ namespace vb01{
 			Type type;
 			Shader *depthMapShader;
 			Texture *depthMap = nullptr;
-			Node *node = nullptr;
 			Vector3 color = Vector3::VEC_IJK, attenuationValues = Vector3(1.8, .7, 1);
 			float innerAngle = .707, outerAngle = .714, nearPlane = .1, farPlane = 100;
 			unsigned int depthmapFBO, depthMapSize = 1024;

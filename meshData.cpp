@@ -24,10 +24,11 @@ namespace vb01{
 			this->maxValue = maxValue;
 	}
 
-	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string *vertexGroups, int numVertexGroups, string fullSkeletonName, ShapeKey *shapeKeys, int numShapeKeys){
+	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string attachableName, string *vertexGroups, int numVertexGroups, string fullSkeletonName, ShapeKey *shapeKeys, int numShapeKeys){
 		this->vertices = vertices;
 		this->indices = indices;
 		this->numTris = numTris;
+		this->attachableName = attachableName;
 		this->vertexGroups = vertexGroups;
 		this->numVertexGroups = numVertexGroups;
 		this->fullSkeletonName = fullSkeletonName;
