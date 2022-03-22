@@ -1,6 +1,10 @@
 #include "nodeTest.h"
-#include "node.h"
+#include "bone.h"
 #include "root.h"
+#include "skeleton.h"
+#include "mesh.h"
+#include "meshData.h"
+#include "keyframeChannel.h"
 
 #include <vector>
 
@@ -34,9 +38,94 @@ namespace vb01{
 		ancestorA->attachChild(ancestorB);
 		ancestorB->attachChild(ancestorC);
 		ancestorC->attachChild(ancestorD);
+
+		originalA = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "A");
+		originalB = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "B");
+		originalC = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "C");
+		originalD = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "D");
+
+		rootNode->attachChild(originalA);
+		originalA->attachChild(originalB);
+		originalA->attachChild(originalC);
+		originalC->attachChild(originalD);
 	}
 
 	void NodeTest::tearDown(){
+	}
+
+	void NodeTest::setupOriginalNodes(){
+
+	}
+
+	void NodeTest::testClonedMeshes(){
+			int numTris = 3;
+			u32 *indices =  new u32[3 * 3];
+			originalD->attachMesh(new Mesh(MeshData(nullptr, indices, numTris)));
+
+			Node *clonedA = originalA->clone();
+			vector<Node*> clonedDescendands;
+			clonedA->getDescendants(clonedDescendands);
+			Node *clonedD = nullptr;
+
+			for(Node *desc : clonedDescendands)
+					if(desc->getName() == "D"){
+							clonedD = desc;
+							break;
+					}
+
+			CPPUNIT_ASSERT(clonedD->getMesh(0)->getMeshBase().vertices == nullptr);
+			CPPUNIT_ASSERT(clonedD->getMesh(0)->getMeshBase().indices == indices);
+			CPPUNIT_ASSERT(clonedD->getMesh(0)->getMeshBase().numTris == numTris);
+	}
+
+	void NodeTest::testClonedDrivers(){
+			vector<Keyframe> keyframes = vector<Keyframe>{
+					KeyframeChannel::createKeyframe(KeyframeInterpolation::LINEAR, 1, 1),
+					KeyframeChannel::createKeyframe(KeyframeInterpolation::LINEAR, 2, 2),
+					KeyframeChannel::createKeyframe(KeyframeInterpolation::LINEAR, 3, 3)
+			};
+			KeyframeChannelType channelType = KeyframeChannelType::POS_X;
+			KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(channelType, "D", keyframes);
+			Driver::VariableType driverType = Driver::POS_X;
+			Driver *driver = new Driver(nullptr, channel, driverType);
+			originalB->addDriver(driver);
+
+			Node *clonedA = originalA->clone();
+			vector<Node*> clonedDescendands;
+			clonedA->getDescendants(clonedDescendands);
+			Node *clonedB = nullptr;
+			Node *clonedD = nullptr;
+
+			for(Node *desc : clonedDescendands){
+					if(desc->getName() == "B"){
+							clonedB = desc;
+							break;
+					}
+					else if(desc->getName() == "D"){
+							clonedD = desc;
+							break;
+					}
+			}
+
+			Driver *driverClone = clonedB->getDriver(0);
+			CPPUNIT_ASSERT(driverClone->getAnimatable() == clonedD);
+			CPPUNIT_ASSERT(driverClone->getKeyframeChannel().type == channelType);
+			CPPUNIT_ASSERT(driverClone->getType() == driverType);
+	}
+
+	void NodeTest::testClonedSkeletons(){
+			Skeleton *skeleton = new Skeleton();
+			skeleton->addBone((Bone*)originalC, nullptr);
+			skeleton->addBone((Bone*)originalD, nullptr);
+			originalA->addSkeleton(skeleton);
+
+			Node *clonedA = originalA->clone();
+			CPPUNIT_ASSERT(!empty(clonedA->getSkeletons()));
+			CPPUNIT_ASSERT(clonedA->getSkeleton(0));
+
+			Skeleton *clonedSkeleton = originalA->getSkeleton(0);
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getName() == originalC->getName());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getName() == originalD->getName());
 	}
 
 	void NodeTest::testGetAncestors(){
