@@ -46,9 +46,9 @@ int main(){
 	cam->setPosition(Vector3(0, 0.25, 1) * 20);
 	cam->lookAt(Vector3(0, 0, -1).norm(), Vector3(0, 1, 0).norm());
 
-	AssetManager::getSingleton()->load(MODEL_PATH + "kek.xml");
-
-	Model *model = new Model(MODEL_PATH + "kek.xml");
+	string modelPath = MODEL_PATH + "kek.xml";
+	AssetManager::getSingleton()->load(modelPath);
+	Model *model = new Model(modelPath);
 	Material *mat = new Material(PATH + "texture");
 
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
