@@ -7,13 +7,16 @@
 #include "animation.h"
 #include "animationController.h"
 #include "animationChannel.h"
+#include "assetManager.h"
 
 using namespace std;
 using namespace vb01;
 
 int main(){
 	const string PATH = "../", TEX_PATH = PATH + "samples/textures/", MODEL_PATH = PATH + "samples/models/";
-	string skyboxTextures[] = {
+
+	const int numTextures = 6;
+	string skyboxTextures[numTextures] = {
 		TEX_PATH + "top.jpg",
 		TEX_PATH + "bottom.jpg",
 		TEX_PATH + "left.jpg",
@@ -21,6 +24,10 @@ int main(){
 		TEX_PATH + "front.jpg",
 		TEX_PATH + "back.jpg"
 	};
+
+	//Loads the assets to be stored and retrievable at a later time
+	for(int i = 0; i < numTextures; i++)
+		AssetManager::getSingleton()->load(skyboxTextures[i]);
 
 	/*
 	 * Gets Root object to start the sample, 
@@ -38,7 +45,9 @@ int main(){
 	cam->setPosition(Vector3(0, 1, 1) * 20);
 	cam->lookAt(Vector3(0, -1, -1).norm(), Vector3(0, 1, -1).norm());
 
-	Model *box = new Model(MODEL_PATH + "platform.vb");
+	string modelPath = MODEL_PATH + "platform.xml";
+	AssetManager::getSingleton()->load(modelPath);
+	Model *box = new Model(modelPath);
 
 	/*
 	 * Creates a material with diffuse, normal, and specular maps attached.
@@ -50,18 +59,21 @@ int main(){
 	mat->addBoolUniform("specularMapEnabled", true);
 
 	string im0[] = {TEX_PATH + "bricks.jpg"};
+	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
+	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
+	AssetManager::getSingleton()->load(im0[0]);
+	AssetManager::getSingleton()->load(im0[1]);
+	AssetManager::getSingleton()->load(im0[2]);
+
 	Texture *diffuseTex = new Texture(im0, 1, false);
 	mat->addTexUniform("textures[0]", diffuseTex, true);
 
-	string im1[] = {TEX_PATH + "bricksNormal.jpg"};
 	Texture *normalTex = new Texture(im1, 1, false);
 	mat->addTexUniform("textures[1]", normalTex, true);
 	
-	string im2[] = {TEX_PATH + "bricksSpecular.jpg"};
 	Texture *specularTex = new Texture(im2, 1, false);
 	mat->addTexUniform("textures[2]", specularTex, true);
 
-	//Setting specular parameteres
 	mat->addFloatUniform("specularStrength", 1);
 	mat->addFloatUniform("shinyness", 2);
 	box->setMaterial(mat);
@@ -74,11 +86,9 @@ int main(){
 	Light *light = new Light(Light::SPOT);
 	light->setColor(Vector3(1, 1, 1));
 
-	Node *lightNode = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "");
+	Node *lightNode = new Node(Vector3(0, 5, -10), Quaternion(.7, Vector3(1, 0, 0)));
 	lightNode->addLight(light);
 	rootNode->attachChild(lightNode);
-	lightNode->setOrientation(Quaternion(.7, Vector3(1, 0, 0)));
-	lightNode->setPosition(Vector3(0, 5, -10));
 
 	/*
 	 * KeyframeChannel structs determine what object and how it will be animated.
@@ -96,14 +106,15 @@ int main(){
 	});
 
 	KeyframeChannel kcB;
-	kcA.animatable = light->getName();
-	kcA.type = KeyframeChannel::SPOTLIGHT_INNER_ANGLE;
-	kcA.keyframes = vector<Keyframe>({
+	kcB.animatable = light->getName();
+	kcB.type = KeyframeChannel::SPOTLIGHT_INNER_ANGLE;
+	kcB.keyframes = vector<Keyframe>({
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, .1, 1),
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, .7, 60)
 	});
 
-	Animation *animation = new Animation("spotlightAnim");
+	string animName = "spotlightAnim";
+	Animation *animation = new Animation(animName);
 	animation->addKeyframeChannel(kcA);
 	animation->addKeyframeChannel(kcB);
 
@@ -116,8 +127,8 @@ int main(){
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);
 	channel->addAnimatable(light);
+	channel->setAnimationName(animName);
 	channel->setLoop(true);
-	channel->setAnimationName("spotlightAnim");
 
 	while(true)
 		root->update();
