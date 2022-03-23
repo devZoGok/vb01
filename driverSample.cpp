@@ -58,24 +58,22 @@ int main(){
 	rootNode->attachChild(driver);
 
 	Box *leftBox = new Box(size);
-	Node *leftNode = new Node();
+	Node *leftNode = new Node(Vector3(-1, 0, 0));
 	Material *leftMat = new Material(shaderPath);
 	leftMat->addBoolUniform("texturingEnabled", false);
 	leftMat->addVec4Uniform("diffuseColor", Vector4(1, 0, 0, 1));
 	leftBox->setMaterial(leftMat);
 	leftNode->attachMesh(leftBox);
 	rootNode->attachChild(leftNode);
-	leftNode->setPosition(Vector3(-1, 0, 0));
 
 	Box *rightBox = new Box(size);
-	Node *rightNode = new Node();
+	Node *rightNode = new Node(Vector3(1, 0, 0));
 	Material *rightMat = new Material(shaderPath);
 	rightMat->addBoolUniform("texturingEnabled", false);
 	rightMat->addVec4Uniform("diffuseColor", Vector4(0, 0, 1, 1));
 	rightBox->setMaterial(rightMat);
 	rightNode->attachMesh(rightBox);
 	rootNode->attachChild(rightNode);
-	rightNode->setPosition(Vector3(1, 0, 0));
 
 	/*
 	 * KeyframeChannel structs determine what object and how it will be animated.
