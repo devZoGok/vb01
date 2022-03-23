@@ -12,7 +12,9 @@ using namespace vb01;
 
 int main(){
 	const string PATH = "../", TEX_PATH = PATH + "samples/textures/", MODEL_PATH = PATH + "samples/models/";
-	string skyboxTextures[] = {
+
+	const int numTextures = 6;
+	string skyboxTextures[numTextures] = {
 		TEX_PATH + "top.jpg",
 		TEX_PATH + "bottom.jpg",
 		TEX_PATH + "left.jpg",
@@ -20,12 +22,10 @@ int main(){
 		TEX_PATH + "front.jpg",
 		TEX_PATH + "back.jpg"
 	};
-	AssetManager::getSingleton()->load(skyboxTextures[0]);
-	AssetManager::getSingleton()->load(skyboxTextures[1]);
-	AssetManager::getSingleton()->load(skyboxTextures[2]);
-	AssetManager::getSingleton()->load(skyboxTextures[3]);
-	AssetManager::getSingleton()->load(skyboxTextures[4]);
-	AssetManager::getSingleton()->load(skyboxTextures[5]);
+
+	//Loads the assets to be stored and retrievable at a later time
+	for(int i = 0; i < numTextures; i++)
+		AssetManager::getSingleton()->load(skyboxTextures[i]);
 
 	/*
 	 * Gets Root object to start the sample, 
@@ -46,18 +46,20 @@ int main(){
 	/*
 	 * Populate the scene with cubes
 	*/
-	Box *driverBox = new Box(Vector3(1, 1, 1) * .25);
-	Node *driver = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, "");
-	Material *driverMat = new Material(PATH + "texture");
+	Vector3 size = Vector3(1, 1, 1) * .25;
+	Box *driverBox = new Box(size);
+	Node *driver = new Node();
+	string shaderPath = PATH + "texture";
+	Material *driverMat = new Material(shaderPath);
 	driverMat->addBoolUniform("texturingEnabled", false);
 	driverMat->addVec4Uniform("diffuseColor", Vector4(0, 1, 0, 1));
 	driverBox->setMaterial(driverMat);
 	driver->attachMesh(driverBox);
 	rootNode->attachChild(driver);
 
-	Box *leftBox = new Box(Vector3(1, 1, 1) * .25);
+	Box *leftBox = new Box(size);
 	Node *leftNode = new Node();
-	Material *leftMat = new Material(PATH + "texture");
+	Material *leftMat = new Material(shaderPath);
 	leftMat->addBoolUniform("texturingEnabled", false);
 	leftMat->addVec4Uniform("diffuseColor", Vector4(1, 0, 0, 1));
 	leftBox->setMaterial(leftMat);
@@ -65,9 +67,9 @@ int main(){
 	rootNode->attachChild(leftNode);
 	leftNode->setPosition(Vector3(-1, 0, 0));
 
-	Box *rightBox = new Box(Vector3(1, 1, 1) * .25);
+	Box *rightBox = new Box(size);
 	Node *rightNode = new Node();
-	Material *rightMat = new Material(PATH + "texture");
+	Material *rightMat = new Material(shaderPath);
 	rightMat->addBoolUniform("texturingEnabled", false);
 	rightMat->addVec4Uniform("diffuseColor", Vector4(0, 0, 1, 1));
 	rightBox->setMaterial(rightMat);
@@ -108,12 +110,13 @@ int main(){
 
 	/*
 	 * A Driver class is given a transform component, e.g, y coordinate of the position
-	 * and uses it to play the Keyframe.
+	 * and uses it to play the KeyframeChannel.
 	*/
 	driver->addDriver(new Driver(leftMat->getUniform("diffuseColor"), kcL, Driver::POS_Y));
 	driver->addDriver(new Driver(rightNode, kcR, Driver::POS_Y));
 	
-	Animation *anim = new Animation("anim");
+	string animName = "anim";
+	Animation *anim = new Animation(animName);
 	anim->addKeyframeChannel(kcD);
 
 	/*
@@ -125,7 +128,7 @@ int main(){
 	AnimationChannel *channel = new AnimationChannel();
 	controller->addAnimationChannel(channel);
 	channel->addAnimatable(driver);
-	channel->setAnimationName("anim");
+	channel->setAnimationName(animName);
 	channel->setLoop(true);
 
 	while(true){
