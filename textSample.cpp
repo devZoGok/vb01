@@ -28,7 +28,7 @@ int main(){
 	wstring texts[] = {
 		L"대한민국",
 		L"ĄČĘĖĮŠŲŪ„“",
-		L"عشر",
+		L"عشرة",
 		L"中華民國"
 	}; 
 	string fonts[] = {
@@ -57,22 +57,26 @@ int main(){
 	Material *textMat = new Material(PATH + "text");
 	textMat->addBoolUniform("texturingEnabled", true);
 
+	//Loads the assets to be stored and retrievable at a later time
 	string frames[]{TEX_PATH + "bricks.jpg", TEX_PATH + "defaultTexture.jpg"};
 	AssetManager::getSingleton()->load(frames[0]);
 	AssetManager::getSingleton()->load(frames[1]);
+
 	Texture *texture = new Texture(frames, 2, false);
 	textMat->addTexUniform("textures[0]", texture, true);
 
 	for(int i = 0; i < numTexts; i++){
-		AssetManager::getSingleton()->load(FONT_PATH + fonts[i]);
+		string font = FONT_PATH + fonts[i];
+		AssetManager::getSingleton()->load(font);
 
-		Text *text = new Text(FONT_PATH + fonts[i], texts[i], 0, 60000);
+		//Specifies the range where to look for characters used in the current font
+		Text *text = new Text(font, texts[i], 0, 60000);
 		text->setLeftToRight(leftToRight[i]);
 		text->setScale(.5);
 		text->setHorizontal(horizontal[i]);
 		text->setMaterial(textMat);
 
-		Node *textNode = new Node(Vector3(0, 50 * (i + 1), 0), Quaternion::QUAT_W, Vector3::VEC_IJK, "");
+		Node *textNode = new Node(Vector3(0, 50 * (i + 1), 0));
 		textNode->addText(text);
 		guiNode->attachChild(textNode);
 
@@ -101,7 +105,8 @@ int main(){
 			KeyframeChannel::createKeyframe(Keyframe::LINEAR, 0, 29)
 		});
 
-		Animation *anim = new Animation("tex");
+		string animName = "tex";
+		Animation *anim = new Animation(animName);
 		anim->addKeyframeChannel(kcA);
 		anim->addKeyframeChannel(kcB);
 		anim->addKeyframeChannel(kcC);
@@ -115,7 +120,7 @@ int main(){
 		AnimationChannel *channel = new AnimationChannel();
 		controller->addAnimationChannel(channel);
 		channel->addAnimatable(texture);
-		channel->setAnimationName("tex");
+		channel->setAnimationName(animName);
 		channel->setLoop(true);
 	}
 
