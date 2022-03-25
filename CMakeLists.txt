@@ -105,6 +105,9 @@ if(BUILD_SAMPLES)
 	add_executable(particleEmitterSample particleEmitterSample.cpp)
 	target_link_libraries(particleEmitterSample ${LIB_NAME})
 
+	add_executable(raySample raySample.cpp)
+	target_link_libraries(raySample ${LIB_NAME})
+
 	add_executable(pbrSample pbrSample.cpp)
 	target_link_libraries(pbrSample ${LIB_NAME})
 endif()
