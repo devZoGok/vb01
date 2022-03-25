@@ -20,8 +20,7 @@ namespace vb01{
 			void update();
 			inline void setMaterial(Material *mat){this->material = mat;}
 			inline void setNode(Node *node){this->node = node;}
-			inline void setStartSize(Vector2 size){this->startSize = size;}
-			inline void setEndSize(Vector2 size){this->endSize = size;}
+			inline void setSize(Vector2 size){this->size = size;}
 			inline void setStartColor(Vector4 color){this->startColor = color;}
 			inline void setEndColor(Vector4 color){this->endColor = color;}
 			inline void setSpread(float s){this->spread = s;}
@@ -38,7 +37,7 @@ namespace vb01{
 			struct Particle{
 				int VAO;
 				s64 time = 0, timeToLive = 0;
-				Vector3 trans;
+				Vector3 trans, dir;
 				float distToCamPlane;
 			};
 
@@ -56,9 +55,9 @@ namespace vb01{
 			Particle **particles;
 			Material *material = nullptr;
 			Node *node = nullptr;
-			Vector2 startSize = Vector2::VEC_IJ, endSize = Vector2::VEC_IJ;
+			Vector2 size = Vector2::VEC_IJ;
 			Vector3 gravity = Vector3::VEC_ZERO;
-			Vector4 startColor, endColor;
+			Vector4 startColor = Vector4::VEC_IJKL, endColor = Vector4::VEC_IJKL;
 			float speed = .2, spread = 1, lowLife = 1, highLife = 2;
 
 			friend class ParticleEmitterTest;

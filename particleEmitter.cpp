@@ -102,8 +102,10 @@ namespace vb01{
 
 	void ParticleEmitter::makeHeap(int offset){
 		bool heap = false;
+
 		while(!heap){
 			bool end = true;
+
 			for(int i = 0; 2 * i + 1 + offset < numParticles; i++){
 				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane ||
 						   	particles[i + offset]->distToCamPlane < particles[2 * i + 2 + offset]->distToCamPlane))
@@ -114,6 +116,7 @@ namespace vb01{
 				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane)
 					swap(particles[i + offset], particles[2 * i + 1 + offset]);
 			}
+
 			for(int i = 0; 2 * i + 1 < numParticles; i++){
 				if(2 * i + 2 + offset < numParticles && (particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane ||
 						   	particles[i + offset]->distToCamPlane < particles[2 * i + 2 + offset]->distToCamPlane))
@@ -123,6 +126,7 @@ namespace vb01{
 				else if(2 * i + 2 + offset == numParticles && particles[i + offset]->distToCamPlane < particles[2 * i + 1 + offset]->distToCamPlane)
 					end = false;
 			}
+
 			if(end)
 				heap = true;
 		}
@@ -157,8 +161,7 @@ namespace vb01{
 		shader->setMat4(proj, "proj");
 		shader->setVec4(startColor, "startColor");
 		shader->setVec4(endColor, "endColor");
-		shader->setVec2(startSize, "startSize");
-		shader->setVec2(endSize, "endSize");
+		shader->setVec2(size, "size");
 
 		heapSort();
 		render();
@@ -172,24 +175,26 @@ namespace vb01{
 		Vector3 nodeLeft = node->getGlobalAxis(0);
 
 		for(int i = 0; i < numParticles; i++){
-			Vector3 dir = nodeDir;
 			if(getTime() - particles[i]->time >= particles[i]->timeToLive){
+				Vector3 dir = nodeDir;
 				float factor = (float)(rand() % 100) / 100;
 				particles[i]->time = getTime();
 				particles[i]->timeToLive = s64(1000 * ((highLife - lowLife) * factor + lowLife));
 
 				float spr1 = float(rand() % (int)spread) / 180 * PI, spr2 = float(rand() % 360) / 180 * PI;
 				Vector3 ra1 = (nodeUp.cross(dir)).norm(), ra2 = dir.norm();
+
 				if(ra1 == Vector3::VEC_ZERO)
 				   	ra1 = Vector3::VEC_I;
+
 				dir = Quaternion(spr1, ra1) * dir;
 				dir = Quaternion(spr2, ra2) * dir;
 
+				particles[i]->dir = dir.norm() * speed + gravity;
 				particles[i]->trans = nodePos;
 			}
 
-			dir = dir.norm() * speed + gravity;
-			particles[i]->trans = particles[i]->trans + dir;
+			particles[i]->trans = particles[i]->trans + particles[i]->dir;
 			particles[i]->distToCamPlane = cos(camDir.getAngleBetween((particles[i]->trans - camPos).norm())) * camPos.getDistanceFrom(particles[i]->trans);
 
 			float lifePercentage = (float)(getTime() - particles[i]->time) / particles[i]->timeToLive;
@@ -237,17 +242,11 @@ namespace vb01{
 			case KeyframeChannel::PARTICLE_EMITTER_END_COLOR_Z:
 				endColor.z = value;
 				break;
-			case KeyframeChannel::PARTICLE_EMITTER_START_SIZE_X:
-				startSize.x = value;
+			case KeyframeChannel::PARTICLE_EMITTER_SIZE_X:
+				size.x = value;
 				break;
-			case KeyframeChannel::PARTICLE_EMITTER_START_SIZE_Y:
-				startSize.y = value;
-				break;
-			case KeyframeChannel::PARTICLE_EMITTER_END_SIZE_X:
-				endSize.x = value;
-				break;
-			case KeyframeChannel::PARTICLE_EMITTER_END_SIZE_Y:
-				endSize.y = value;
+			case KeyframeChannel::PARTICLE_EMITTER_SIZE_Y:
+				size.y = value;
 				break;
 			case KeyframeChannel::PARTICLE_EMITTER_LOW_LIFE:
 				lowLife = value;
