@@ -32,6 +32,11 @@ namespace vb01{
 			uni->animatable = animatable;
 	}
 
+	void Material::setVec4Uniform(string name, Vector4 value){
+			Vector4Uniform *uni = (Vector4Uniform*)getUniform(name);
+			uni->value = value;
+	}
+
 	void Material::update(){
 		shader->use();
 
