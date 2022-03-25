@@ -174,8 +174,8 @@ def export(node, parentTag):
             vertDataTag.set('py', str(pos.z))
             vertDataTag.set('pz', str(-pos.y))
             vertDataTag.set('nx', str(norm.x))
-            vertDataTag.set('ny', str(norm.y))
-            vertDataTag.set('nz', str(norm.z))
+            vertDataTag.set('ny', str(-norm.z))
+            vertDataTag.set('nz', str(norm.y))
         
             weights = []
         
@@ -217,23 +217,24 @@ def export(node, parentTag):
 
         i = 0
         
-        for shape_key in mesh.shape_keys.key_blocks:
-            if shape_key.name != 'Basis':
-                shapeKeyTag = ET.SubElement(meshTag, 'shapekey')
-                shapeKeyTag.set('name', str(shape_key.name))
-                shapeKeyTag.set('min', str(shape_key.slider_min))
-                shapeKeyTag.set('max', str(shape_key.slider_max))
+        if numShapeKeys > 1:
+            for shape_key in mesh.shape_keys.key_blocks:
+                if shape_key.name != 'Basis':
+                    shapeKeyTag = ET.SubElement(meshTag, 'shapekey')
+                    shapeKeyTag.set('name', str(shape_key.name))
+                    shapeKeyTag.set('min', str(shape_key.slider_min))
+                    shapeKeyTag.set('max', str(shape_key.slider_max))
 
-                readDriver(node, mesh.shape_keys.animation_data.drivers[i], shapeKeyTag)
-        
-                for vert in shape_key.data:
-                    pos = vert.co
-                    vertTag = ET.SubElement(shapeKeyTag, 'vert')
-                    vertTag.set('px', str(pos.x))
-                    vertTag.set('py', str(pos.z))
-                    vertTag.set('pz', str(-pos.y))
+                    readDriver(node, mesh.shape_keys.animation_data.drivers[i], shapeKeyTag)
+            
+                    for vert in shape_key.data:
+                        pos = vert.co
+                        vertTag = ET.SubElement(shapeKeyTag, 'vert')
+                        vertTag.set('px', str(pos.x))
+                        vertTag.set('py', str(pos.z))
+                        vertTag.set('pz', str(-pos.y))
 
-                i = i + 1
+                    i = i + 1
         
         armatureMod = 'Armature'
         
