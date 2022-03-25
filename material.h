@@ -142,6 +142,7 @@ namespace vb01{
 			Material(std::string, bool = false);
 			~Material();
 			void update();
+			void setVec4Uniform(std::string, Vector4);
 			void setTexUniform(std::string, Texture*, bool);
 			Uniform* getUniform(std::string);
 			inline Uniform* getUniform(int i){return uniforms[i];}
