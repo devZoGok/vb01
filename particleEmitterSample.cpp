@@ -46,6 +46,11 @@ int main(){
 	Texture *texture = new Texture(images, 1, false);
 	mat->addTexUniform("tex", texture, false);
 
+	/*
+	 * Sets emitter properties, such as the color gradient of the
+	 * grayscale particle image, particle lifetime in seconds and
+	 * their speed
+	*/
 	emitter->setMaterial(mat);
 	emitter->setStartColor(Vector4(1, 1, 1, 1));
 	emitter->setEndColor(Vector4(1, 0, 1, 1));
@@ -84,6 +89,10 @@ int main(){
 	animation->addKeyframeChannel(startRedChan);
 	animation->addKeyframeChannel(endRedChan);
 
+	/*
+	 * The AnimationController plays the animations set in the AnimationChannel objects.
+	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
+	*/
 	AnimationController *controller = AnimationController::getSingleton();
 	controller->addAnimation(animation);
 	AnimationChannel *animChan = new AnimationChannel();
