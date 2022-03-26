@@ -38,6 +38,9 @@ int main(){
 		
 		Node *rootNode = root->getRootNode();
 
+		/*
+		 * Creates an icosphere as a target for the ray
+		*/
 		string modelPath = MODEL_PATH + "sphere.xml";
 		AssetManager::getSingleton()->load(modelPath);
 		Model *sphModel = new Model(modelPath);
@@ -49,6 +52,9 @@ int main(){
 		rootNode->attachChild(sphModel);
 		sphModel->setPosition(Vector3(-4, 0, 0));
 
+		/*
+		 * Creates a visual line to represent a castable ray
+		*/
 		LineRenderer *lineRenderer = LineRenderer::getSingleton();
 		float endYPos = -4;
 		Vector3 rayStart = Vector3(4, 0, 0);
@@ -56,6 +62,7 @@ int main(){
 		float shiftSpeed = -.1;
 
 		while(true){
+				//Animates the line
 				if(endYPos < -4)
 						shiftSpeed = .1;
 				else if(endYPos > 4)
@@ -65,6 +72,10 @@ int main(){
 				Vector3 rayEnd = Vector3(-4, endYPos, 0);
 				lineRenderer->changeLineField(0, rayEnd, LineRenderer::END);
 
+				/*
+				 * Casts an infinite ray that checks for collision against meshes under 
+				 * the icoshpere model node and paints it red upon collision
+				*/
 				vector<Ray::CollisionResult> results;
 				Ray::retrieveCollisions(rayStart, rayEnd - rayStart, sphModel, results);
 				Ray::sortResults(results);
