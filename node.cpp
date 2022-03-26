@@ -385,11 +385,14 @@ namespace vb01{
 
 			for(Mesh *m : meshes){
 				Material *mat = m->getMaterial();
-				int numLights = root->getNumLights();
-				string str = "const int numLights = " + to_string(numLights > 0 ? numLights : 1) + ";";
 
-				if(mat)
-					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 1, str);
+				if(mat){
+					int numLights = root->getNumLights();
+					string str1 = "const int numLights = " + to_string(numLights > 0 ? numLights : 1) + ";";
+					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 1, str1);
+					string str2 = "const bool checkLights = " + string(numLights > 0 ? "true" : "false") + ";";
+					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 2, str2);
+				}
 			}
 		}
 	}
