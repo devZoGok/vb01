@@ -46,6 +46,7 @@ namespace vb01{
 			Vector3 localToGlobalScale(Vector3);
 			Vector3 globalToLocalScale(Vector3);
 			inline Skeleton* getSkeleton(int i){return skeletons[i];}
+			inline int getNumSkeletons(){return skeletons.size();}
 			inline Text* getText(int i){return texts[i];}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
@@ -67,8 +68,9 @@ namespace vb01{
 			inline bool isVisible(){return visible;}
 			inline void setVisible(bool v){this->visible = v;}
 			inline void addDriver(Driver *d){drivers.push_back(d);}
+			inline Driver* getDriver(int i){return drivers[i];}
+			inline std::vector<Driver*> getDrivers(){return drivers;}
 		private:
-			Node* cloneNode(bool);
 			void adjustUp(Vector3);
 			void adjustDir(Vector3);
 			void updateShaders();

@@ -12,6 +12,7 @@ namespace vb01{
 		CPPUNIT_TEST(testClonedMeshes);
 		CPPUNIT_TEST(testClonedDrivers);
 		CPPUNIT_TEST(testClonedSkeletons);
+		CPPUNIT_TEST(testClonedMeshSkeleton);
 		CPPUNIT_TEST(testGetAncestors);
 		CPPUNIT_TEST(testAdjustDir);
 		CPPUNIT_TEST(testAdjustUp);
@@ -30,6 +31,7 @@ namespace vb01{
 			void testClonedMeshes();
 			void testClonedDrivers();
 			void testClonedSkeletons();
+			void testClonedMeshSkeleton();
 			void testAdjustDir();
 			void testAdjustUp();
 			void testDetachChild();

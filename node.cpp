@@ -68,54 +68,65 @@ namespace vb01{
 	}
 
 	Node* Node::clone(){
-			return cloneNode(true);
-	}
+			vector<Node*> originalDescendants = vector<Node*>{this};
+			getDescendants(originalDescendants);
 
-	Node* Node::cloneNode(bool firstIter){
-			Node *node = new Node(pos, orientation, scale, name);
+			int numDescendants = originalDescendants.size();
+			vector<Node*> clonedDescendants;
 
-			for(Mesh *mesh : meshes){
-					Mesh *m = new Mesh(mesh->getMeshBase());
-					m->construct();
-					node->attachMesh(m);
+			for(int i = 0; i < numDescendants; i++){
+					Node *original = originalDescendants[i];
+					Node *clone = new Node(original->getPosition(), original->getOrientation(), original->getScale(), original->getName());
+
+					for(int j = 0; j < i; j++)
+							if(original->getParent() == originalDescendants[j]){
+								clonedDescendants[j]->attachChild(clone);
+								break;
+							}
+
+					clonedDescendants.push_back(clone);
 			}
 
-			for(Skeleton *skel : skeletons){
-					vector<Bone*> bones = skel->getBones();
-					Skeleton *sk = new Skeleton(skel->getName());
+			for(int i = 0; i < numDescendants; i++){
+					Node *original = originalDescendants[i];
 
-					for(Bone *bone : bones)
-							sk->addBone(bone, nullptr);
+					for(Skeleton *skel : original->getSkeletons()){
+							Skeleton *sk = new Skeleton(skel->getAttachableName());
 
-					node->addSkeleton(sk);
-			}
+							for(Bone *bone : skel->getBones())
+									for(int j = 0; j < numDescendants; j++)
+											if(bone == originalDescendants[j]){
+													sk->addBone((Bone*)clonedDescendants[j], nullptr);
+													break;
+											}
 
-			for(Node *child : children)
-					node->attachChild(child->cloneNode(false));
+							clonedDescendants[i]->addSkeleton(sk);
+					}
 
-			if(firstIter){
-					vector<Node*> descendants = vector<Node*>{node};
-					node->getDescendants(descendants);
-					vector<Mesh*> meshes;
+					for(Mesh *mesh : original->getMeshes()){
+							Mesh *m = new Mesh(MeshData(mesh->getMeshBase()));
 
-					for(Node *desc : descendants)
-							for(Mesh *mesh : desc->getMeshes())
-									meshes.push_back(mesh);
+							if(mesh->getSkeleton())
+									for(int j = 0; j < numDescendants; j++)
+											for(int k = 0; k < clonedDescendants[j]->getNumSkeletons(); k++)
+													if(
+																	clonedDescendants[j]->getName() == originalDescendants[j]->getName() &&
+																 	clonedDescendants[j]->getSkeleton(k)->getAttachableName() == mesh->getSkeleton()->getAttachableName()
+													){
+															m->setSkeleton(clonedDescendants[j]->getSkeleton(k));
+															break;
+													}
 
-					for(Mesh *mesh : meshes){
-							int dotId = mesh->getMeshBase().fullSkeletonName.find_first_of(".");
-							string nodeName = mesh->getMeshBase().fullSkeletonName.substr(0, dotId);
-							string skelName = mesh->getMeshBase().fullSkeletonName.substr(dotId + 1, string::npos);
+							clonedDescendants[i]->attachMesh(m);
+					}
 
-							for(Node *desc : descendants)
-								if(nodeName == desc->getName())
-										for(Skeleton *sk : desc->getSkeletons())
-												if(sk->getName() == skelName)
-														mesh->setSkeleton(sk);
+					for(Driver *driver : original->getDrivers()){
+							Driver *dr = new Driver(nullptr, driver->getKeyframeChannel(), driver->getType());
+							clonedDescendants[i]->addDriver(dr);
 					}
 			}
 
-			return node;
+			return clonedDescendants[0];
 	}
 
 	float Node::getDriverValue(Driver::VariableType type){
@@ -180,7 +191,7 @@ namespace vb01{
 
 	void Node::attachMesh(Mesh *mesh){
 		meshes.push_back(mesh);
-		mesh->setNode(this);
+		mesh->onAttached(this);
 	}
 
 	void Node::addSkeleton(Skeleton *skeleton){
@@ -189,27 +200,26 @@ namespace vb01{
 
 	void Node::attachParticleEmitter(ParticleEmitter *emitter){
 		emitters.push_back(emitter);
-		emitter->setNode(this);
+		emitter->onAttached(this);
 	}
 
 	void Node::addLight(Light *light){
 		Root::getSingleton()->shiftNumLights(true);
 		lights.push_back(light);	
-		light->setNode(this);
+		light->onAttached(this);
 		updateShaders();
 	}
 
 	void Node::removeLight(int id){
 		Root::getSingleton()->shiftNumLights(false);
 		Light *light = lights[id];
-		light->setNode(nullptr);
 		lights.erase(lights.begin() + id);
 		updateShaders();
 	}
 
 	void Node::addText(Text *text){
 		texts.push_back(text);
-		text->setNode(this);	
+		text->onAttached(this);	
 	}
 
 	void Node::lookAt(Vector3 newDir, Vector3 newUp){
