@@ -32,6 +32,7 @@ namespace vb01{
 			inline Material* getMaterial(){return material;}
 			inline bool isReflective(){return reflective;}
 			inline bool isCastShadow(){return castShadow;}
+			inline MeshData::ShapeKey* getShapeKey(int i){return &shapeKeys[i];}
 			inline Skeleton* getSkeleton(){return skeleton;}
 			inline Texture* getPrefilterMap(){return prefilterMap;}
 			inline Texture* getIrradianceMap(){return irradianceMap;}

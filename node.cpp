@@ -120,8 +120,28 @@ namespace vb01{
 							clonedDescendants[i]->attachMesh(m);
 					}
 
-					for(Driver *driver : original->getDrivers()){
-							Driver *dr = new Driver(nullptr, driver->getKeyframeChannel(), driver->getType());
+			}
+
+			for(int i = 0; i < numDescendants; i++){
+					for(Driver *driver : originalDescendants[i]->getDrivers()){
+							Animatable *animatable = nullptr;
+
+							for(int j = 0; j < numDescendants; j++){
+									if(originalDescendants[j] == driver->getAnimatable()){
+											animatable = clonedDescendants[j];
+											break;
+									}
+
+									for(int k = 0; k < originalDescendants[j]->getNumMeshes(); k++){
+											for(int l = 0; l < originalDescendants[j]->getMesh(k)->getMeshBase().numShapeKeys; l++)
+													if(originalDescendants[j]->getMesh(k)->getShapeKey(l) == driver->getAnimatable()){
+															animatable = clonedDescendants[j]->getMesh(k)->getShapeKey(l);
+															break;
+													}
+									}
+							}
+
+							Driver *dr = new Driver(animatable, driver->getKeyframeChannel(), driver->getType());
 							clonedDescendants[i]->addDriver(dr);
 					}
 			}

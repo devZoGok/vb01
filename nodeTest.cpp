@@ -83,8 +83,12 @@ namespace vb01{
 			KeyframeChannelType channelType = KeyframeChannelType::POS_X;
 			string animName = "D";
 			KeyframeChannel channel = KeyframeChannel::createKeyframeChannel(channelType, animName, keyframes);
-			Driver::VariableType driverType = Driver::POS_X;
-			Driver *driver = new Driver(originalD, channel, driverType);
+
+			int numKeys = 1;
+			Mesh *mesh = new Mesh(MeshData(nullptr, nullptr, 0, "", nullptr, 0, "", new MeshData::ShapeKey[numKeys], numKeys));
+			originalD->attachMesh(mesh);
+
+			Driver *driver = new Driver(mesh->getShapeKey(0), channel, Driver::POS_X);
 			originalB->addDriver(driver);
 
 			Node *clonedA = originalA->clone();
@@ -94,21 +98,17 @@ namespace vb01{
 			Node *clonedD = nullptr;
 
 			for(Node *desc : clonedDescendands){
-					if(desc->getName() == "B"){
+					if(desc->getName() == "B")
 							clonedB = desc;
-							break;
-					}
-					else if(desc->getName() == animName){
+					else if(desc->getName() == animName)
 							clonedD = desc;
-							break;
-					}
 			}
 
 			Driver *driverClone = clonedB->getDriver(0);
-			CPPUNIT_ASSERT(driverClone->getAnimatable() == clonedD);
+			CPPUNIT_ASSERT(driverClone->getAnimatable() == clonedD->getMesh(0)->getShapeKey(0));
 			CPPUNIT_ASSERT(driverClone->getKeyframeChannel().type == channelType);
 			CPPUNIT_ASSERT(driverClone->getKeyframeChannel().animatable == animName);
-			CPPUNIT_ASSERT(driverClone->getType() == driverType);
+			CPPUNIT_ASSERT(driverClone->getType() == Driver::POS_X);
 	}
 
 	void NodeTest::testClonedSkeletons(){

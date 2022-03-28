@@ -51,6 +51,7 @@ namespace vb01{
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
 			inline Mesh* getMesh(int i){return meshes[i];}
+			inline int getNumMeshes(){return meshes.size();}
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent = par;}
 			inline Node* getChild(int i){return children[i];}
