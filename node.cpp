@@ -76,7 +76,13 @@ namespace vb01{
 
 			for(int i = 0; i < numDescendants; i++){
 					Node *original = originalDescendants[i];
-					Node *clone = new Node(original->getPosition(), original->getOrientation(), original->getScale(), original->getName());
+					Bone *originalBone = dynamic_cast<Bone*>(original);
+					Node *clone = nullptr;
+
+					if(originalBone)
+						clone = new Bone(originalBone->getName(), originalBone->getLength(), originalBone->getPosition(), originalBone->getOrientation(), originalBone->getScale());
+					else
+						clone = new Node(original->getPosition(), original->getOrientation(), original->getScale(), original->getName());
 
 					for(int j = 0; j < i; j++)
 							if(original->getParent() == originalDescendants[j]){
@@ -96,7 +102,7 @@ namespace vb01{
 							for(Bone *bone : skel->getBones())
 									for(int j = 0; j < numDescendants; j++)
 											if(bone == originalDescendants[j]){
-													sk->addBone((Bone*)clonedDescendants[j], nullptr);
+													sk->addBone(dynamic_cast<Bone*>(clonedDescendants[j]), nullptr);
 													break;
 											}
 
@@ -106,12 +112,12 @@ namespace vb01{
 					for(Mesh *mesh : original->getMeshes()){
 							Mesh *m = new Mesh(MeshData(mesh->getMeshBase()));
 
-							if(mesh->getSkeleton())
+							if(mesh->getMeshBase().fullSkeletonName != "")
 									for(int j = 0; j < numDescendants; j++)
 											for(int k = 0; k < clonedDescendants[j]->getNumSkeletons(); k++)
 													if(
 																	clonedDescendants[j]->getName() == originalDescendants[j]->getName() &&
-																 	clonedDescendants[j]->getSkeleton(k)->getAttachableName() == mesh->getSkeleton()->getAttachableName()
+																 	clonedDescendants[j]->getSkeleton(k)->getAttachableName() == mesh->getMeshBase().fullSkeletonName
 													){
 															m->setSkeleton(clonedDescendants[j]->getSkeleton(k));
 															break;
@@ -119,7 +125,6 @@ namespace vb01{
 
 							clonedDescendants[i]->attachMesh(m);
 					}
-
 			}
 
 			for(int i = 0; i < numDescendants; i++){
@@ -134,7 +139,7 @@ namespace vb01{
 
 									for(int k = 0; k < originalDescendants[j]->getNumMeshes(); k++){
 											for(int l = 0; l < originalDescendants[j]->getMesh(k)->getMeshBase().numShapeKeys; l++)
-													if(originalDescendants[j]->getMesh(k)->getShapeKey(l) == driver->getAnimatable()){
+													if(originalDescendants[j]->getMesh(k)->getShapeKey(l)->name == driver->getAnimatable()->getName()){
 															animatable = clonedDescendants[j]->getMesh(k)->getShapeKey(l);
 															break;
 													}
@@ -215,6 +220,7 @@ namespace vb01{
 	}
 
 	void Node::addSkeleton(Skeleton *skeleton){
+			skeleton->onAttached(this);
 			skeletons.push_back(skeleton);
 	}
 

@@ -88,7 +88,7 @@ namespace vb01{
 			Mesh *mesh = new Mesh(MeshData(nullptr, nullptr, 0, "", nullptr, 0, "", new MeshData::ShapeKey[numKeys], numKeys));
 			originalD->attachMesh(mesh);
 
-			Driver *driver = new Driver(mesh->getShapeKey(0), channel, Driver::POS_X);
+			Driver *driver = new Driver(&mesh->getMeshBase().shapeKeys[0], channel, Driver::POS_X);
 			originalB->addDriver(driver);
 
 			Node *clonedA = originalA->clone();
@@ -113,23 +113,31 @@ namespace vb01{
 
 	void NodeTest::testClonedSkeletons(){
 			Skeleton *skeleton = new Skeleton();
-			skeleton->addBone((Bone*)originalC, (Bone*)originalC->getParent());
-			skeleton->addBone((Bone*)originalD, (Bone*)originalD->getParent());
+			originalC->dettachChild(originalD);
+			originalA->dettachChild(originalC);
+			originalC = new Bone(originalC->getName(), .25);
+			originalD = new Bone(originalD->getName(), .5);
+			originalC->attachChild(originalD);
+			originalA->attachChild(originalC);
+
+			skeleton->addBone(dynamic_cast<Bone*>(originalC), nullptr);
+			skeleton->addBone(dynamic_cast<Bone*>(originalD), nullptr);
 			originalA->addSkeleton(skeleton);
 
 			Node *clonedA = originalA->clone();
 			CPPUNIT_ASSERT(clonedA->getSkeleton(0));
 
 			Skeleton *clonedSkeleton = originalA->getSkeleton(0);
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getName() == originalC->getName());
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getName() == originalD->getName());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getName() == dynamic_cast<Bone*>(originalC)->getName());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getLength() == dynamic_cast<Bone*>(originalC)->getLength());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getLength() == dynamic_cast<Bone*>(originalD)->getLength());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getName() == dynamic_cast<Bone*>(originalD)->getName());
 	}
 
 	void NodeTest::testClonedMeshSkeleton(){
 			string name = "skeleton";
-			Mesh *mesh = new Mesh(MeshData(nullptr, nullptr, 0));
+			Mesh *mesh = new Mesh(MeshData(nullptr, nullptr, 0, "", nullptr, 0, name));
 			Skeleton *skeleton = new Skeleton(name);
-			mesh->setSkeleton(skeleton);
 
 			originalD->attachMesh(mesh);
 			originalD->addSkeleton(skeleton);

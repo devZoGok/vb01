@@ -89,8 +89,8 @@ namespace vb01{
 		if(parent)
 			parent->attachChild(bone);
 
-		bones.push_back(bone);
 		bone->setSkeleton(this);
+		bones.push_back(bone);
 	}
 
 	Bone* Skeleton::getBone(string name){
