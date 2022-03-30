@@ -241,7 +241,7 @@ def export(node, parentTag):
         
         if(node.modifiers and node.modifiers[armatureMod] and node.modifiers[armatureMod].object):
             skeleton = node.modifiers[armatureMod].object
-            meshTag.set('skeleton', skeleton.name + '.' + skeleton.data.name_full)
+            meshTag.set('skeleton', skeleton.data.name_full)
     elif node.type == 'ARMATURE':
         skeletonTag = ET.SubElement(nodeTag, 'skeleton')
         skeletonTag.set('name', node.data.name_full)
