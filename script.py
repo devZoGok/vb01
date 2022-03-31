@@ -252,9 +252,9 @@ def export(node, parentTag):
 
         lightData = node.data
         color = lightData.color
-        lighTag.set('cr', str(color[0]))
-        lighTag.set('cg', str(color[1]))
-        lighTag.set('cb', str(color[2]))
+        lightTag.set('cr', str(color[0]))
+        lightTag.set('cg', str(color[1]))
+        lightTag.set('cb', str(color[2]))
 
         type = lightData.type
         lightTag.set('type', type)
