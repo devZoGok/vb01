@@ -85,7 +85,6 @@ if(BUILD_TESTS)
 	
 	set(RENDER_TEST nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
 	set(ARMATURE_TEST boneTest.cpp ikSolverTest.cpp)
-	set(MODEL_TEST vbModelReaderTest.cpp)
 	set(ANIMATION_TEST animationChannelTest.cpp)
 	set(TEST_SRC main.cpp ${LIB_SRC} ${RENDER_TEST} ${ARMATURE_TEST} ${ANIMATION_TEST})
 	
