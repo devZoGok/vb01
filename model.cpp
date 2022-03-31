@@ -10,14 +10,7 @@
 #include "modelAsset.h"
 #include "assetManager.h"
 
-#include <vector>
-#include <Importer.hpp>
-#include <scene.h>
-#include <postprocess.h>
-#include <fstream>
-
 using namespace std;
-using namespace Assimp;
 
 namespace vb01{
 	Model::Model(string path) : Node(){

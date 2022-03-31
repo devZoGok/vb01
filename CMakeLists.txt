@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS ON)
 set(BUILD_SAMPLES ON)
+set(BUILD_WITH_ASSIMP OFF)
 set(LIB_NAME vb01)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -17,8 +18,13 @@ set(MATH quaternion.cpp vector.cpp matrix.cpp ray.cpp)
 set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp meshData.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.cpp keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_READERS imageReader.cpp fontReader.cpp modelReader.cpp assimpModelReader.cpp xmlModelReader.cpp)
 set(ASSET_MANAGER assetManager.cpp textAsset.h imageAsset.h modelAsset.h fontAsset.h)
+set(ASSET_READERS imageReader.cpp fontReader.cpp modelReader.cpp xmlModelReader.cpp)
+
+if(BUILD_WITH_ASSIMP)
+	set(ASSET_READERS ${ASSET_READERS} assimpModelReader.cpp)
+endif()
+
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 
 include_directories(external/glm)
@@ -50,17 +56,21 @@ set(GLFW_LIB_DIR build/${GLFW_DIR}/src)
 target_include_directories(${LIB_NAME} PUBLIC ${GLFW_DIR}/include/GLFW)
 target_link_directories(${LIB_NAME} PUBLIC ${GLFW_LIB_DIR})
 
-add_subdirectory(${ASSIMP_DIR})
-set(ASSIMP_LIB_DIR build/${ASSIMP_DIR}/lib)
-target_include_directories(${LIB_NAME} PUBLIC ${ASSIMP_DIR}/include/assimp)
-target_link_directories(${LIB_NAME} PUBLIC ${ASSIMP_LIB_DIR})
-
 set(FREETYPE_LIB_DIR build/${FREETYPE_DIR})
 add_subdirectory(${FREETYPE_DIR})
 target_include_directories(${LIB_NAME} PUBLIC ${FREETYPE_DIR}/include)
 target_link_directories(${LIB_NAME} PUBLIC ${FREETYPE_LIB_DIR})
 
-set(DEPS glfw assimp freetype ${CMAKE_DL_LIBS} tinyxml2)
+set(DEPS glfw freetype ${CMAKE_DL_LIBS} tinyxml2)
+
+if(${BUILD_WITH_ASSIMP})
+	add_subdirectory(${ASSIMP_DIR})
+	set(ASSIMP_LIB_DIR build/${ASSIMP_DIR}/lib)
+	target_include_directories(${LIB_NAME} PUBLIC ${ASSIMP_DIR}/include/assimp)
+	target_link_directories(${LIB_NAME} PUBLIC ${ASSIMP_LIB_DIR})
+
+	set(DEPS assimp ${DEPS})
+endif()
 
 target_link_libraries(${LIB_NAME} ${DEPS})
 
