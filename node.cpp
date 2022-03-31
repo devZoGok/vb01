@@ -79,8 +79,12 @@ namespace vb01{
 					Bone *originalBone = dynamic_cast<Bone*>(original);
 					Node *clone = nullptr;
 
-					if(originalBone)
-						clone = new Bone(originalBone->getName(), originalBone->getLength(), originalBone->getPosition(), originalBone->getOrientation(), originalBone->getScale());
+					if(originalBone){
+						Bone *boneClone = new Bone(originalBone->getName(), originalBone->getLength(), originalBone->getPosition(), originalBone->getOrientation(), originalBone->getScale());
+						boneClone->setIkChainLength(originalBone->getIkChainLength());
+						boneClone->setIkTarget(originalBone->getIkTarget());
+						clone = boneClone;
+					}
 					else
 						clone = new Node(original->getPosition(), original->getOrientation(), original->getScale(), original->getName());
 

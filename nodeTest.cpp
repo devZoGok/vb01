@@ -115,11 +115,18 @@ namespace vb01{
 			Skeleton *skeleton = new Skeleton();
 			originalC->dettachChild(originalD);
 			originalA->dettachChild(originalC);
+			originalA->dettachChild(originalB);
 			originalC = new Bone(originalC->getName(), .25);
 			originalD = new Bone(originalD->getName(), .5);
+			originalB = new Bone(originalB->getName(), .1);
 			originalC->attachChild(originalD);
 			originalA->attachChild(originalC);
+			originalA->attachChild(originalB);
+			
+			dynamic_cast<Bone*>(originalB)->setIkChainLength(2);
+			dynamic_cast<Bone*>(originalB)->setIkTarget(originalD->getName());
 
+			skeleton->addBone(dynamic_cast<Bone*>(originalB), nullptr);
 			skeleton->addBone(dynamic_cast<Bone*>(originalC), nullptr);
 			skeleton->addBone(dynamic_cast<Bone*>(originalD), nullptr);
 			originalA->addSkeleton(skeleton);
@@ -128,10 +135,12 @@ namespace vb01{
 			CPPUNIT_ASSERT(clonedA->getSkeleton(0));
 
 			Skeleton *clonedSkeleton = originalA->getSkeleton(0);
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getName() == dynamic_cast<Bone*>(originalC)->getName());
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(0)->getLength() == dynamic_cast<Bone*>(originalC)->getLength());
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getLength() == dynamic_cast<Bone*>(originalD)->getLength());
-			CPPUNIT_ASSERT(clonedSkeleton->getBone(1)->getName() == dynamic_cast<Bone*>(originalD)->getName());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalB->getName())->getIkChainLength() == dynamic_cast<Bone*>(originalB)->getIkChainLength());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalB->getName())->getIkTarget() == dynamic_cast<Bone*>(originalB)->getIkTarget());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalC->getName())->getName() == dynamic_cast<Bone*>(originalC)->getName());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalC->getName())->getLength() == dynamic_cast<Bone*>(originalC)->getLength());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalD->getName())->getLength() == dynamic_cast<Bone*>(originalD)->getLength());
+			CPPUNIT_ASSERT(clonedSkeleton->getBone(originalD->getName())->getName() == dynamic_cast<Bone*>(originalD)->getName());
 	}
 
 	void NodeTest::testClonedMeshSkeleton(){
