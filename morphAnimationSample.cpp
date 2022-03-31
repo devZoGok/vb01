@@ -6,6 +6,8 @@
 #include "animationController.h"
 #include "animationChannel.h"
 #include "box.h"
+#include "assetManager.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -14,7 +16,9 @@ using namespace vb01;
 
 int main(){
 	const string PATH = "../", TEX_PATH = PATH + "samples/textures/", MODEL_PATH = PATH + "samples/models/";
-	string skyboxTextures[] = {
+
+	const int numTextures = 6;
+	string skyboxTextures[numTextures] = {
 		TEX_PATH + "top.jpg",
 		TEX_PATH + "bottom.jpg",
 		TEX_PATH + "left.jpg",
@@ -22,6 +26,10 @@ int main(){
 		TEX_PATH + "front.jpg",
 		TEX_PATH + "back.jpg"
 	};
+
+	//Loads the assets to be stored and retrievable at a later time
+	for(int i = 0; i < numTextures; i++)
+		AssetManager::getSingleton()->load(skyboxTextures[i]);
 
 	/*
 	 * Gets Root object to start the sample, 
@@ -39,20 +47,22 @@ int main(){
 	cam->setPosition(Vector3(-1, 0.25, .2) * 20);
 	cam->lookAt(Vector3(1, 0, 0).norm(), Vector3(0, 1, 0).norm());
 
-	Model *model = new Model(MODEL_PATH + "kek.vb");
+	string modelPath = MODEL_PATH + "kek.xml";
+	AssetManager::getSingleton()->load(modelPath);
+	Model *model = new Model(modelPath);
+
 	Material *mat = new Material(PATH + "texture");
 	mat->addBoolUniform("lightingEnabled", false);
 	mat->addBoolUniform("texturingEnabled", true);
+
 	string images[] = {TEX_PATH + "defaultTexture.jpg"};
+	AssetManager::getSingleton()->load(images[0]);
 	Texture *texture = new Texture(images, 1, false);
 	mat->addTexUniform("textures[0]", texture, true);
+
 	model->setMaterial(mat);
 	rootNode->attachChild(model);
-
-	int numChildren = model->getNumChildren();
-	Node *node = model->getChild(1);
-	Mesh *mesh = node->getMesh(0);
-	Skeleton *skeleton = mesh->getSkeleton();
+	Skeleton *skeleton = model->getChild(0)->getSkeleton(0);
 
 	/*
 	 * The AnimationController plays the animations set in the AnimationChannel objects.
