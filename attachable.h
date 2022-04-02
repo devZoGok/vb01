@@ -11,6 +11,7 @@ namespace vb01{
 					Attachable(std::string fullName){this->fullName = fullName;}
 					Attachable(){}
 					virtual void onAttached(Node *node){this->node = node;}
+					Node* getNode(){return node;}
 					std::string getAttachableName(){return fullName;}
 				protected:
 					std::string fullName = "";
