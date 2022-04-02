@@ -27,8 +27,6 @@ namespace vb01{
 			~Text();
 			void update();
 			void setText(std::wstring);
-			inline Node* getNode(){return node;}
-			inline void setNode(Node *node){this->node = node;}
 			inline void setScale(float s){this->scale = s;}
 			inline int getLength(){return entry.length();}
 			inline std::wstring getText(){return entry;}
@@ -45,7 +43,6 @@ namespace vb01{
 			void prepareGlyphs(Glyph, Vector2);
 			void renderGlyphs(Glyph, float[], u32);
 
-			Node *node = nullptr;
 			Material *material = nullptr;
 			std::wstring entry;
 			std::vector<Glyph> characters;
