@@ -65,6 +65,6 @@ namespace vb01{
 		vertices[4] = v5;
 		vertices[5] = v6;
 
-		meshBase = MeshData(vertices, indices, numTris * 3);
+		meshBase = MeshData(vertices, indices, numTris);
 	}
 }

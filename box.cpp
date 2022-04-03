@@ -71,6 +71,6 @@ namespace vb01{
 			indices[i] = i;
 		}
 
-		meshBase = MeshData(vertices, indices, 3 * numTris);
+		meshBase = MeshData(vertices, indices, numTris);
 	}
 }
