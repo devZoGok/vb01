@@ -39,7 +39,7 @@ namespace vb01{
 			inline Quaternion fromAngle(float angle, Vector3 axis){
 				return Quaternion(cos(angle / 2), axis.x * sin(angle / 2), axis.y * sin(angle / 2), axis.z * sin(angle / 2));
 			}
-			inline float getAngle(){return w > 1 ? 0 : 2 * acos(w);}
+			inline float getAngle(){return fabs(w) > 1 ? 0 : 2 * acos(w);}
 			inline Vector3 getAxis(){return x == 0 && y == 0 && z == 0 ? Vector3(1, 0, 0) : Vector3(x, y, z).norm();}
 			inline Quaternion operator+(Quaternion q){return Quaternion(w + q.w, x + q.x, y + q.y, z + q.z);}
 			inline Quaternion operator-(Quaternion q){return Quaternion(w - q.w, x - q.x, y - q.y, z - q.z);}
