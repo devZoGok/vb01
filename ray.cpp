@@ -26,8 +26,8 @@ namespace vb01{
 			for(int i = 0; i < numVerts / 3; i++){
 				Vector3 pointA = pos + rot * vertices[indices[i * 3]].pos, pointB = pos + rot * vertices[indices[i * 3 + 1]].pos, pointC = pos + rot * vertices[indices[i * 3 + 2]].pos;
 				Vector3 hypVec = pointA - rayPos;
-				Vector3 perpVec = (pointB - pointA).cross(pointC - pointA);
-				float a1 = hypVec.norm().getAngleBetween(perpVec.norm());
+				Vector3 perpVec = (pointB - pointA).cross(pointC - pointA).norm();
+				float a1 = hypVec.norm().getAngleBetween(perpVec);
 
 				if(a1 > PI / 2){
 					a1 = PI - a1;
@@ -35,7 +35,7 @@ namespace vb01{
 				}	 
 
 				float perpLine = hypVec.getLength() * cos(a1);
-		   		float a2 = perpVec.norm().getAngleBetween(rayDir.norm());
+		   		float a2 = perpVec.getAngleBetween(rayDir.norm());
 
 				if(a2 <= PI / 2){
 					float distance = perpLine / cos(a2);
@@ -55,6 +55,7 @@ namespace vb01{
 						if(withinBisecA && withinBisecB && withinBisecC){
 							CollisionResult result;
 							result.pos = contactPoint;
+							result.norm = -perpVec;
 							result.distance = distance;
 							result.mesh = m;
 							results.push_back(result);
