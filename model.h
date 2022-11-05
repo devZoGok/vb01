@@ -20,6 +20,7 @@ namespace vb01{
 			Model(){}
 			Model(std::string);
 			~Model();
+			inline Material* getMaterial(){return material;}
 			void update();
 			void setMaterial(Material*);
 			void setCastShadow(bool);
