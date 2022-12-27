@@ -69,6 +69,7 @@ namespace vb01{
 			void initGuiPlane(Texture*, Texture*);
 			void updateBloomFramebuffer();
 			void updateGuiPlane();
+			void updateNodeTree(vb01::Node*);
 	};
 }
 

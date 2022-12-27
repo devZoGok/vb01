@@ -153,7 +153,7 @@ namespace vb01{
 
 		AnimationController::getSingleton()->update();
 
-		rootNode->update();
+		updateNodeTree(rootNode);
 
 		LineRenderer::getSingleton()->drawLines();
 
@@ -167,10 +167,36 @@ namespace vb01{
 		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
-		guiNode->update();
+		updateNodeTree(guiNode);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+	}
+
+	//TODO replace sorting algorithm and sort only transparent objects
+	void Root::updateNodeTree(Node *node){
+			vector<Node*> descendants;
+			node->getDescendants(descendants);
+
+			int numDesc = descendants.size();
+
+			for(int i = 0; i < numDesc; i++){
+					Vector3 v1 = descendants[i]->getPosition() - camera->getPosition();
+					float a1 = v1.norm().getAngleBetween(camera->getDirection());
+					float d1 = v1.getLength() * cos(a1);
+
+					for(int j = i; j < numDesc; j++){
+							Vector3 v2 = descendants[j]->getPosition() - camera->getPosition();
+							float a2 = v2.norm().getAngleBetween(camera->getDirection());
+							float d2 = v2.getLength() * cos(a2);
+
+							if(d1 < d2)
+									swap(descendants[i], descendants[j]);
+					}
+			}
+
+			for(Node *desc : descendants)
+					desc->update();
 	}
 
 	void Root::updateBloomFramebuffer(){

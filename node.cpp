@@ -58,9 +58,6 @@ namespace vb01{
 
 			for(Skeleton *sk : skeletons)
 					sk->update();
-
-			for(Node *c : children)
-				c->update();
 		}
 
 		for(Driver *driver : drivers)
