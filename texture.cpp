@@ -64,7 +64,6 @@ namespace vb01{
 		mixRatio = .1;
 
 		for(int i = 0; i < numFrames; i++){
-			bool png = false;
 			int length = paths[i].length();
 
 			if(paths[i].substr(length - 4, string::npos) == ".png")

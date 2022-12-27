@@ -26,8 +26,9 @@ namespace vb01{
 			inline int getMipmapLevel(){return mipmapLevel;}
 			inline float getMixRatio(){return mixRatio;}
 			inline bool isCubemap(){return cubemap;}
+			inline bool isTransparent(){return png;}
 		private:
-			bool cubemap = false;
+			bool cubemap = false, png = false;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
 			int width, height, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0, mipmapLevel = 1;

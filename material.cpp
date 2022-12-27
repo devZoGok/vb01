@@ -97,4 +97,14 @@ namespace vb01{
 
 		}
 	}
+
+	vector<Material::Uniform*> Material::getUniformsByType(Material::Uniform::Type type){
+			vector<Material::Uniform*> uniforms;
+
+			for(Uniform *uni : this->uniforms)
+					if(uni->type == type)
+							uniforms.push_back(uni);
+
+			return uniforms;
+	}
 }

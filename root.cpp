@@ -173,30 +173,51 @@ namespace vb01{
 		glfwPollEvents();
 	}
 
-	//TODO replace sorting algorithm and sort only transparent objects
+	//TODO replace sorting algorithm
 	void Root::updateNodeTree(Node *node){
-			vector<Node*> descendants;
+			vector<Node*> descendants, opaqueNodes, transparentNodes;
 			node->getDescendants(descendants);
 
-			int numDesc = descendants.size();
+			for(Node *desc : descendants){
+					if(!desc->getMeshes().empty())
+						for(Mesh *mesh : desc->getMeshes()){
+								Material *mat = mesh->getMaterial();
+								vector<Material::Uniform*> uniforms = mat->getUniformsByType(Material::Uniform::TEXTURE);
 
-			for(int i = 0; i < numDesc; i++){
-					Vector3 v1 = descendants[i]->getPosition() - camera->getPosition();
+								if(!uniforms.empty())
+									for(Material::Uniform *uni : uniforms){
+											bool transparent = ((Material::TextureUniform*)uni)->value->isTransparent();
+											(transparent ? transparentNodes : opaqueNodes).push_back(desc);
+									}
+								else
+										opaqueNodes.push_back(desc);
+						}
+					else
+							opaqueNodes.push_back(desc);
+			}
+
+			for(Node *node : opaqueNodes)
+					node->update();
+
+			int numNodes = transparentNodes.size();
+
+			for(int i = 0; i < numNodes; i++){
+					Vector3 v1 = transparentNodes[i]->getPosition() - camera->getPosition();
 					float a1 = v1.norm().getAngleBetween(camera->getDirection());
 					float d1 = v1.getLength() * cos(a1);
 
-					for(int j = i; j < numDesc; j++){
-							Vector3 v2 = descendants[j]->getPosition() - camera->getPosition();
+					for(int j = i; j < numNodes; j++){
+							Vector3 v2 = transparentNodes[j]->getPosition() - camera->getPosition();
 							float a2 = v2.norm().getAngleBetween(camera->getDirection());
 							float d2 = v2.getLength() * cos(a2);
 
 							if(d1 < d2)
-									swap(descendants[i], descendants[j]);
+									swap(transparentNodes[i], transparentNodes[j]);
 					}
 			}
 
-			for(Node *desc : descendants)
-					desc->update();
+			for(Node *node : transparentNodes)
+					node->update();
 	}
 
 	void Root::updateBloomFramebuffer(){

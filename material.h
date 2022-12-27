@@ -145,6 +145,7 @@ namespace vb01{
 			void setVec4Uniform(std::string, Vector4);
 			void setTexUniform(std::string, Texture*, bool);
 			Uniform* getUniform(std::string);
+			std::vector<Uniform*> getUniformsByType(Uniform::Type);
 			inline Uniform* getUniform(int i){return uniforms[i];}
 			inline void addIntUniform(std::string name, int value){uniforms.push_back(new IntUniform(name, value));}
 			inline void addBoolUniform(std::string name, bool value){uniforms.push_back(new BoolUniform(name, value));}
