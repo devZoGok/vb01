@@ -13,12 +13,23 @@ namespace vb01{
 			this->z = z;
 			this->w = w;
 		}
-		Vector4 operator-(const Vector4 &v){return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);}
-		Vector4 operator+(const Vector4 &v){return Vector4(x + v.x, y + v.y, z + v.z, w + v.w);}
-		template<typename T>Vector4 operator+(T s){return Vector4(x + s, y + s, z + s, w + s);}
-		template<typename T>Vector4 operator-(T s){return Vector4(x - s, y - s, z - s, w - s);}
-		template<typename T>Vector4 operator*(T s){return Vector4(x * s, y * s, z * s, w * s);}
-		template<typename T>Vector4 operator/(T s){return Vector4(x / s, y / s, z / s, w / s);}
+		Vector4 friend operator-(Vector4 v){return Vector4(-v.x, -v.y, -v.z, -v.w);}
+		Vector4 friend operator-(Vector4 v1, Vector4 v2){return Vector4(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w);}
+		Vector4 friend operator+(Vector4 v1, Vector4 v2){return Vector4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);}
+		template<typename T> friend Vector4 operator+(Vector4 v, T s){return Vector4(v.x + s, v.y + s, v.z + s, v.w + s);}
+		template<typename T> friend Vector4 operator-(Vector4 v, T s){return Vector4(v.x - s, v.y - s, v.z - s, v.w - s);}
+		template<typename T> friend Vector4 operator*(Vector4 v, T s){return Vector4(v.x * s, v.y * s, v.z * s, v.w * s);}
+		template<typename T> friend Vector4 operator/(Vector4 v, T s){return Vector4(v.x / s, v.y / s, v.z / s, v.w / s);}
+		template<typename T> friend Vector4 operator+(T s, Vector4 v){return Vector4(v.x + s, v.y + s, v.z + s, v.w + s);}
+		template<typename T> friend Vector4 operator-(T s, Vector4 v){return Vector4(v.x - s, v.y - s, v.z - s, v.w - s);}
+		template<typename T> friend Vector4 operator*(T s, Vector4 v){return Vector4(v.x * s, v.y * s, v.z * s, v.w * s);}
+		template<typename T> friend Vector4 operator/(T s, Vector4 v){return Vector4(v.x / s, v.y / s, v.z / s, v.w / s);}
+		void operator+=(Vector4 v){x += v.x, y +=v.y, z += v.z, w += v.w;}
+		void operator-=(Vector4 v){x -= v.x, y -=v.y, z -= v.z, w -= v.w;}
+		template<typename T> void operator+=(T s){x += s, y +=s, z += s, w += s;}
+		template<typename T> void operator-=(T s){x -= s, y -=s, z -= s, w -= s;}
+		template<typename T> void operator*=(T s){x *= s, y *=s, z *= s, w *= s;}
+		template<typename T> void operator/=(T s){x /= s, y /=s, z /= s, w /= s;}
 
 		float x, y, z, w;
 		static const Vector4 VEC_IJKL, VEC_I, VEC_J, VEC_K, VEC_L, VEC_ZERO;
@@ -33,13 +44,23 @@ namespace vb01{
 		}
 		bool operator!=(const Vector3 &v){return x != v.x || y != v.y || z != v.z;}
 		bool operator==(const Vector3 &v){return x == v.x && y == v.y && z == v.z;}
-		Vector3 operator-(){return Vector3(-x, -y, -z);}
-		Vector3 operator-(const Vector3 &v){return Vector3(x - v.x, y - v.y, z - v.z);}
-		Vector3 operator+(const Vector3 &v){return Vector3(x + v.x, y + v.y, z + v.z);}
-		template<typename T>Vector3 operator+(T s){return Vector3(x + s, y + s, z + s);}
-		template<typename T>Vector3 operator-(T s){return Vector3(x - s, y - s, z - s);}
-		template<typename T>Vector3 operator*(T s){return Vector3(x * s, y * s, z * s);}
-		template<typename T>Vector3 operator/(T s){return Vector3(x / s, y / s, z / s);}
+		Vector3 friend operator-(Vector3 v){return Vector3(-v.x, -v.y, -v.z);}
+		Vector3 friend operator-(Vector3 v1, Vector3 v2){return Vector3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);}
+		Vector3 friend operator+(Vector3 v1, Vector3 v2){return Vector3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);}
+		template<typename T> friend Vector3 operator+(Vector3 v, T s){return Vector3(v.x + s, v.y + s, v.z + s);}
+		template<typename T> friend Vector3 operator-(Vector3 v, T s){return Vector3(v.x - s, v.y - s, v.z - s);}
+		template<typename T> friend Vector3 operator*(Vector3 v, T s){return Vector3(v.x * s, v.y * s, v.z * s);}
+		template<typename T> friend Vector3 operator/(Vector3 v, T s){return Vector3(v.x / s, v.y / s, v.z / s);}
+		template<typename T> friend Vector3 operator+(T s, Vector3 v){return Vector3(v.x + s, v.y + s, v.z + s);}
+		template<typename T> friend Vector3 operator-(T s, Vector3 v){return Vector3(v.x - s, v.y - s, v.z - s);}
+		template<typename T> friend Vector3 operator*(T s, Vector3 v){return Vector3(v.x * s, v.y * s, v.z * s);}
+		template<typename T> friend Vector3 operator/(T s, Vector3 v){return Vector3(v.x / s, v.y / s, v.z / s);}
+		void operator+=(Vector3 v){x += v.x, y += v.y, z += v.z;}
+		void operator-=(Vector3 v){x -= v.x, y -= v.y, z -= v.z;}
+		template<typename T> void operator+=(T s){x += s, y += s, z += s;}
+		template<typename T> void operator-=(T s){x -= s, y -= s, z -= s;}
+		template<typename T> void operator*=(T s){x *= s, y *= s, z *= s;}
+		template<typename T> void operator/=(T s){x /= s, y /= s, z /= s;}
 		float getLengthSq(){return x * x + y * y + z * z;}
 		float getLength(){return std::sqrt(getLengthSq());}
 		float dot(Vector3 v){return x * v.x + y * v.y + z * v.z;}
@@ -67,12 +88,23 @@ namespace vb01{
 		}
 		bool operator!=(const Vector2 &v){return x != v.x || y != v.y;}
 		bool operator==(const Vector2 &v){return x == v.x && y == v.y;}
-		Vector2 operator-(const Vector2 &v){return Vector2(x - v.x, y - v.y);}
-		Vector2 operator+(const Vector2 &v){return Vector2(x + v.x, y + v.y);}
-		template<typename T>Vector2 operator+(T s){return Vector2(x + s, y + s);}
-		template<typename T>Vector2 operator-(T s){return Vector2(x - s, y - s);}
-		template<typename T>Vector2 operator*(T s){return Vector2(x * s, y * s);}
-		template<typename T>Vector2 operator/(T s){return Vector2(x / s, y / s);}
+		Vector2 friend operator-(Vector2 v){return Vector2(-v.x, -v.y);}
+		Vector2 friend operator+(Vector2 v1, Vector2 v2){return Vector2(v1.x + v2.x, v1.y + v2.y);}
+		Vector2 friend operator-(Vector2 v1, Vector2 v2){return Vector2(v1.x - v2.x, v1.y - v2.y);}
+		template<typename T> friend Vector2 operator+(Vector2 v, T s){return Vector2(v.x + s, v.y + s);}
+		template<typename T> friend Vector2 operator-(Vector2 v, T s){return Vector2(v.x - s, v.y - s);}
+		template<typename T> friend Vector2 operator*(Vector2 v, T s){return Vector2(v.x * s, v.y * s);}
+		template<typename T> friend Vector2 operator/(Vector2 v, T s){return Vector2(v.x / s, v.y / s);}
+		template<typename T> friend Vector2 operator+(T s, Vector2 v){return Vector2(v.x + s, v.y + s);}
+		template<typename T> friend Vector2 operator-(T s, Vector2 v){return Vector2(v.x - s, v.y - s);}
+		template<typename T> friend Vector2 operator*(T s, Vector2 v){return Vector2(v.x * s, v.y * s);}
+		template<typename T> friend Vector2 operator/(T s, Vector2 v){return Vector2(v.x / s, v.y / s);}
+		void operator+=(Vector2 v){x += v.x, y += v.y;}
+		void operator-=(Vector2 v){x -= v.x, y -= v.y;}
+		template<typename T> void operator+=(T s){x += s, y += s;}
+		template<typename T> void operator-=(T s){x -= s, y -= s;}
+		template<typename T> void operator*=(T s){x *= s, y *= s;}
+		template<typename T> void operator/=(T s){x /= s, y /= s;}
 		float getLengthSq(){return x * x + y * y;}
 		float getLength(){return std::sqrt(getLengthSq());}
 		float dot(Vector2 v){return x * v.x + y * v.y;}

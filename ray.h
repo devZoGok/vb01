@@ -10,7 +10,7 @@ namespace vb01{
 	class Ray{
 		public:
 			struct CollisionResult{
-				Vector3 pos;
+				Vector3 pos, norm;
 				float distance;
 				Mesh *mesh = nullptr;
 			};
