@@ -142,6 +142,11 @@ namespace vb01{
 			Material(std::string, bool = false);
 			~Material();
 			void update();
+			void setIntUniform(std::string, int);
+			void setBoolUniform(std::string, bool);
+			void setFloatUniform(std::string, float);
+			void setVec2Uniform(std::string, Vector2);
+			void setVec3Uniform(std::string, Vector3);
 			void setVec4Uniform(std::string, Vector4);
 			void setTexUniform(std::string, Texture*, bool);
 			Uniform* getUniform(std::string);

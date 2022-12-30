@@ -26,15 +26,40 @@ namespace vb01{
 			return uni;
 	}
 
+	void Material::setIntUniform(string name, int value){
+		IntUniform *uni = (IntUniform*)getUniform(name);
+		uni->value = value;
+	}
+
+	void Material::setBoolUniform(string name, bool value){
+		BoolUniform *uni = (BoolUniform*)getUniform(name);
+		uni->value = value;
+	}
+
+	void Material::setFloatUniform(string name, float value){
+		FloatUniform *uni = (FloatUniform*)getUniform(name);
+		uni->value = value;
+	}
+
 	void Material::setTexUniform(string name, Texture *texture, bool animatable){
-			TextureUniform *uni = (TextureUniform*)getUniform(name);
-			uni->value = texture;
-			uni->animatable = animatable;
+		TextureUniform *uni = (TextureUniform*)getUniform(name);
+		uni->value = texture;
+		uni->animatable = animatable;
+	}
+
+	void Material::setVec2Uniform(string name, Vector2 value){
+		Vector2Uniform *uni = (Vector2Uniform*)getUniform(name);
+		uni->value = value;
+	}
+
+	void Material::setVec3Uniform(string name, Vector3 value){
+		Vector3Uniform *uni = (Vector3Uniform*)getUniform(name);
+		uni->value = value;
 	}
 
 	void Material::setVec4Uniform(string name, Vector4 value){
-			Vector4Uniform *uni = (Vector4Uniform*)getUniform(name);
-			uni->value = value;
+		Vector4Uniform *uni = (Vector4Uniform*)getUniform(name);
+		uni->value = value;
 	}
 
 	void Material::update(){
