@@ -6,18 +6,19 @@
 #include <vector>
 
 namespace vb01{
-		class AbstractAssetReader;
+	class AbstractAssetReader;
 
-		class AssetManager{
-				public:
-						static AssetManager* getSingleton();
-						void load(std::string);
-						Asset* getAsset(std::string);
-				private:
-						AssetManager(){}
+	class AssetManager{
+		public:
+			static AssetManager* getSingleton();
+			void load(std::string, bool = false);
+			Asset* getAsset(std::string);
+		private:
+			AssetManager(){}
+			void readDir(std::string, std::vector<std::string>&, bool);
 
-						std::vector<Asset*> assets;
-		};
+			std::vector<Asset*> assets;
+	};
 }
 
 #endif

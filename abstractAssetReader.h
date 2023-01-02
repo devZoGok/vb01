@@ -4,12 +4,12 @@
 #include "asset.h"
 
 namespace vb01{
-		class AbstractAssetReader{
-				public:
-						virtual Asset* readAsset(std::string){return nullptr;}
-				protected:
-						AbstractAssetReader(){}
-		};
+	class AbstractAssetReader{
+		public:
+			virtual Asset* readAsset(std::string){return nullptr;}
+		protected:
+			AbstractAssetReader(){}
+	};
 }
 
 #endif

@@ -5,49 +5,71 @@
 #include "fontReader.h"
 #include "xmlModelReader.h"
 
+#include <tinydir.h>
+
 #include <algorithm>
 
 using namespace std;
 
 namespace vb01{
-		AssetManager *assetManager = nullptr;
+	AssetManager *assetManager = nullptr;
 
-		AssetManager* AssetManager::getSingleton(){
-				if(!assetManager)
-						assetManager = new AssetManager();
+	AssetManager* AssetManager::getSingleton(){
+		if(!assetManager)
+			assetManager = new AssetManager();
 
-				return assetManager;
+		return assetManager;
+	}
+
+	void AssetManager::readDir(string path, vector<string> &contents, bool recursive){
+		tinydir_dir dir;
+		tinydir_open_sorted(&dir, path.c_str());
+
+		for(int i = 0; i < dir.n_files; i++){
+			tinydir_file file;
+			tinydir_readfile_n(&dir, &file, i);
+
+			if(file.is_dir && recursive)
+				readDir(path + file.name, contents, recursive);
+			else if(!file.is_dir)
+				contents.push_back(file.name);
 		}
 
-		void AssetManager::load(string path){
-				if(getAsset(path))
-						return;
+		tinydir_close(&dir);
+	}
 
-				string format = path.substr(path.find_last_of(".") + 1, string::npos);
-				AbstractAssetReader *assetReader = nullptr;
-				vector<string> imageFormats = vector<string>{"png", "jpeg", "jpg"};
+	void AssetManager::load(string path, bool recursive){
+		if(getAsset(path))
+			return;
 
-				if(find(imageFormats.begin(), imageFormats.end(), format) != imageFormats.end())
-						assetReader = ImageReader::getSingleton();
+		vector<string> files;
+		readDir(path, files, recursive);
 
-				vector<string> fontFormats = vector<string>{"ttf"};
+		string format = path.substr(path.find_last_of(".") + 1, string::npos);
+		AbstractAssetReader *assetReader = nullptr;
+		vector<string> imageFormats = vector<string>{"png", "jpeg", "jpg"};
 
-				if(find(fontFormats.begin(), fontFormats.end(), format) != fontFormats.end())
-						assetReader = FontReader::getSingleton();
+		if(find(imageFormats.begin(), imageFormats.end(), format) != imageFormats.end())
+			assetReader = ImageReader::getSingleton();
 
-				vector<string> modelFormats = vector<string>{"xml"};
+		vector<string> fontFormats = vector<string>{"ttf"};
 
-				if(find(modelFormats.begin(), modelFormats.end(), format) != modelFormats.end())
-						assetReader = XmlModelReader::getSingleton();
+		if(find(fontFormats.begin(), fontFormats.end(), format) != fontFormats.end())
+			assetReader = FontReader::getSingleton();
 
-				assets.push_back(assetReader->readAsset(path));
-		}
+		vector<string> modelFormats = vector<string>{"xml"};
 
-		Asset* AssetManager::getAsset(string path){
-				for(Asset *a : assets)
-						if(a->path == path)
-								return a;
-				
-				return nullptr;
-		}
+		if(find(modelFormats.begin(), modelFormats.end(), format) != modelFormats.end())
+			assetReader = XmlModelReader::getSingleton();
+
+		assets.push_back(assetReader->readAsset(path));
+	}
+
+	Asset* AssetManager::getAsset(string path){
+		for(Asset *a : assets)
+			if(a->path == path)
+				return a;
+		
+		return nullptr;
+	}
 }
