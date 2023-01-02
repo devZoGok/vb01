@@ -10,6 +10,7 @@
 #include "shaderTest.h"
 #include "particleEmitterTest.h"
 #include "ikSolverTest.h"
+#include "assetManagerTest.h"
 
 using namespace CppUnit;
 using namespace vb01;
@@ -23,6 +24,7 @@ int main(){
 	runner.addTest(ShaderTest::suite());
 	runner.addTest(ParticleEmitterTest::suite());
 	runner.addTest(IkSolverTest::suite());
+	runner.addTest(AssetManagerTest::suite());
 	runner.run();
 	return 0;
 }
