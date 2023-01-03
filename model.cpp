@@ -55,6 +55,8 @@ namespace vb01{
 		for(Node *node : descendants)
 			for(Mesh *mesh : node->getMeshes())
 				mesh->setMaterial(mat);
+
+		this->material = mat;
 	}
 
 	void Model::setCastShadow(bool castShadow){
