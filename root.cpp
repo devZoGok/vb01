@@ -260,9 +260,13 @@ namespace vb01{
 	}
 
 	void Root::createSkybox(string paths[6]){
-		skybox = new Box(Vector3(1, 1, 1) * 10);
-		Material *skyboxMat = new Material(libPath + "skybox");
 		Texture *texture = new Texture(paths, 6, true);
+		createSkybox(texture);
+	}
+
+	void Root::createSkybox(Texture *texture){
+		skybox = new Box(Vector3::VEC_IJK * 10);
+		Material *skyboxMat = new Material(libPath + "skybox");
 		skyboxMat->addTexUniform("tex", texture, true);
 		skybox->setMaterial(skyboxMat);
 	}

@@ -40,6 +40,7 @@ namespace vb01{
 			inline Box* getIblBox(){return iblBox;}
 			inline Quad* getBrdfLutPlane(){return brdfLutPlane;}
 			void createSkybox(std::string[6]);
+			void createSkybox(vb01::Texture*);
 			void removeSkybox();
 			static Root* getSingleton();
 			inline void shiftNumLights(bool increase){numLights += (increase ? 1 : -1);}

@@ -8,6 +8,7 @@
 namespace vb01{
 		class AbstractAssetReader;
 
+<<<<<<< Updated upstream
 		class AssetManager{
 				public:
 						static AssetManager* getSingleton();
@@ -15,6 +16,19 @@ namespace vb01{
 						Asset* getAsset(std::string);
 				private:
 						AssetManager(){}
+=======
+	class AssetManager{
+		public:
+			static AssetManager* getSingleton();
+			void load(std::string, bool = false);
+			Asset* getAsset(std::string);
+			inline Asset* getAsset(int i){return assets[i];}
+			inline std::vector<Asset*> getAssets(){return assets;}
+			inline int getNumAssets(){return assets.size();}
+		private:
+			AssetManager(){}
+			void readDir(std::string, std::vector<std::string>&, bool);
+>>>>>>> Stashed changes
 
 						std::vector<Asset*> assets;
 		};
