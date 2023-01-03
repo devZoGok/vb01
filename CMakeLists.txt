@@ -27,6 +27,7 @@ endif()
 
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 
+include_directories(external/tinydir)
 include_directories(external/glm)
 include_directories(external/glm/glm)
 include_directories(external/glad)
@@ -86,7 +87,8 @@ if(BUILD_TESTS)
 	set(RENDER_TEST nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
 	set(ARMATURE_TEST boneTest.cpp ikSolverTest.cpp)
 	set(ANIMATION_TEST animationChannelTest.cpp)
-	set(TEST_SRC main.cpp ${LIB_SRC} ${RENDER_TEST} ${ARMATURE_TEST} ${ANIMATION_TEST})
+	set(ASSET_MANAGER_TEST assetManagerTest.cpp)
+	set(TEST_SRC main.cpp ${LIB_SRC} ${RENDER_TEST} ${ARMATURE_TEST} ${ANIMATION_TEST} ${ASSET_MANAGER_TEST})
 	
 	add_executable(vb01Tests ${TEST_SRC})
 	target_link_libraries(vb01Tests ${LIB_NAME} ${DEPS} cppunit)

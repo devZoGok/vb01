@@ -6,17 +6,8 @@
 #include <vector>
 
 namespace vb01{
-		class AbstractAssetReader;
+	class AbstractAssetReader;
 
-<<<<<<< Updated upstream
-		class AssetManager{
-				public:
-						static AssetManager* getSingleton();
-						void load(std::string);
-						Asset* getAsset(std::string);
-				private:
-						AssetManager(){}
-=======
 	class AssetManager{
 		public:
 			static AssetManager* getSingleton();
@@ -28,10 +19,9 @@ namespace vb01{
 		private:
 			AssetManager(){}
 			void readDir(std::string, std::vector<std::string>&, bool);
->>>>>>> Stashed changes
 
-						std::vector<Asset*> assets;
-		};
+			std::vector<Asset*> assets;
+	};
 }
 
 #endif
