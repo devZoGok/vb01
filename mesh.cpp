@@ -73,6 +73,7 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, *Root::getSingleton()->getFBO());
 	}
 
+	//TODO allow to init meshes to be drawn statically or dynamically
 	void Mesh::initMesh(){
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -82,7 +83,7 @@ namespace vb01{
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, 3 * meshBase.numTris * size, meshBase.vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 3 * meshBase.numTris * size, meshBase.vertices, GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * meshBase.numTris * sizeof(u32), meshBase.indices, GL_STATIC_DRAW);
 
@@ -105,6 +106,11 @@ namespace vb01{
 			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
 			glEnableVertexAttribArray(7 + i);
 		}
+	}
+
+	void Mesh::updateVerts(MeshData meshData){
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::Vertex) * meshBase.numTris, meshData.vertices);
 	}
 
 	void Mesh::update(){

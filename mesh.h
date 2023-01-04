@@ -21,9 +21,10 @@ namespace vb01{
 			Mesh(MeshData);
 			~Mesh();
 			void construct();
+			void updateVerts(MeshData);
 			virtual void update();
 			void render();
-			void setMaterial(Material *mat){this->material = mat;}
+			inline void setMaterial(Material *mat){this->material = mat;}
 			inline void setCastShadow(bool castShadow){this->castShadow = castShadow;}
 			inline void setReflect(bool r){this->reflect = r;}
 			inline void setReflective(bool r){this->reflective = r;}
