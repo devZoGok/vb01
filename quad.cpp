@@ -1,8 +1,10 @@
 #include "quad.h"
 
 namespace vb01{
-	Quad::Quad(Vector3 size, bool spatial){
+	Quad::Quad(Vector3 size, bool spatial, int numVertDiv, int numHorDiv){
 		this->spatial = spatial;
+		this->numVertDiv = numVertDiv;
+		this->numHorDiv = numHorDiv;
 
 		setSize(size);
 		Mesh::construct();
@@ -11,59 +13,55 @@ namespace vb01{
 	void Quad::setSize(Vector3 size){
 		this->size = size;
 
-		MeshData::Vertex v1, v2, v3, v4, v5, v6;
+		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
+		const int numTris = 2 * numHorQuads * numVertQuads, numVerts = 3 * numTris;
+		Vector2 subQuadSize = Vector2(size.x / numHorQuads, size.z / numVertQuads);
 
-		if(spatial){
-			v1.pos = Vector3(size.x / 2, size.y / 2, 0);
-			v2.pos = Vector3(-size.x / 2, size.y / 2, 0);
-			v3.pos = Vector3(-size.x / 2, -size.y / 2, 0);
-			v4.pos = Vector3(-size.x / 2, -size.y / 2, 0);
-			v5.pos = Vector3(size.x / 2, -size.y / 2, 0);
-			v6.pos = Vector3(size.x / 2, size.y / 2, 0);
+		MeshData::Vertex *vertices = new MeshData::Vertex[numVerts];
+
+		for(int i = 0; i < numHorQuads; i++){
+			for(int j = 0; j < numVertQuads; j++){
+				int id = i * 6 * numHorQuads + j * 6;
+				Vector2 offset = Vector2(subQuadSize.x, subQuadSize.y);
+				Vector3 faceVertPos[]{
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * (i + 1)),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * (i + 1)),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * i)
+				};
+				Vector2 faceVertUv[]{
+					Vector2(float(j) / numHorQuads, float(i) / numVertQuads),
+					Vector2(float(j + 1) / numHorQuads, float(i + 1) / numVertQuads),
+					Vector2(float(j + 1) / numHorQuads, float(i) / numVertQuads),
+					Vector2(float(j) / numHorQuads, float(i) / numVertQuads),
+					Vector2(float(j) / numHorQuads, float(i + 1) / numVertQuads),
+					Vector2(float(j + 1) / numHorQuads, float(i + 1) / numVertQuads),
+				};
+
+				for(int k = 0; k < 6; k++){
+					if(!spatial){
+						faceVertPos[k].y = -faceVertPos[k].z;
+						faceVertPos[k].z = 0;
+						faceVertPos[k] += Vector3(.5 * size.x, -.5 * size.y, 0);
+					}
+
+					MeshData::Vertex v;
+					v.pos = faceVertPos[k];
+					v.uv = faceVertUv[k];
+					v.tan = Vector3::VEC_I;
+					v.norm = Vector3::VEC_J;
+					v.biTan = Vector3::VEC_K;
+					vertices[id + k];
+				}
+			}
 		}
-		else{
-			v1.pos = Vector3(size.x, 0, 0);
-			v2.pos = Vector3(0, 0, 0);
-			v3.pos = Vector3(0, size.y, 0);
-			v4.pos = Vector3(0, size.y, 0);
-			v5.pos = Vector3(size.x, size.y, 0);
-			v6.pos = Vector3(size.x, 0, 0);
-		}
 
-		v1.norm = Vector3(0, 0, -1);
-		v1.uv = Vector2(1, 1);
+		u32 *indices = new u32[numVerts];
 
-		v2.norm = Vector3(0, 0, -1);
-		v2.uv = Vector2(0, 1);
-
-		v3.norm = Vector3(0, 0, -1);
-		v3.uv = Vector2(0,0);
-
-		v4.norm = Vector3(0, 0, -1);
-		v4.uv = Vector2(0, 0);
-
-		v5.norm = Vector3(0, 0, -1);
-		v5.uv = Vector2(1,0);
-
-		v6.norm = Vector3(0, 0, -1);
-		v6.uv = Vector2(1, 1);
-
-		int numTris = 2;
-		u32 *indices = new u32[numTris * 3];
-		indices[0] = 0;
-		indices[1] = 1;
-		indices[2] = 2;
-		indices[3] = 3;
-		indices[4] = 4;
-		indices[5] = 5;
-
-		MeshData::Vertex *vertices = new MeshData::Vertex[numTris * 3];
-		vertices[0] = v1;
-		vertices[1] = v2;
-		vertices[2] = v3;
-		vertices[3] = v4;
-		vertices[4] = v5;
-		vertices[5] = v6;
+		for(int i = 0; i < numVerts; i++)
+			indices[i] = i;
 
 		meshBase = MeshData(vertices, indices, numTris);
 	}
