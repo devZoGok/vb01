@@ -15,7 +15,7 @@ namespace vb01{
 
 		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
 		const int numTris = 2 * numHorQuads * numVertQuads, numVerts = 3 * numTris;
-		Vector2 subQuadSize = Vector2(size.x / numHorQuads, size.z / numVertQuads);
+		Vector2 subQuadSize = Vector2(size.x / numHorQuads, size.y / numVertQuads);
 
 		MeshData::Vertex *vertices = new MeshData::Vertex[numVerts];
 
@@ -24,12 +24,12 @@ namespace vb01{
 				int id = i * 6 * numHorQuads + j * 6;
 				Vector2 offset = Vector2(subQuadSize.x, subQuadSize.y);
 				Vector3 faceVertPos[]{
-					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * i),
-					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * (i + 1)),
-					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * i),
-					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * i),
-					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.z + offset.y * (i + 1)),
-					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.z + offset.y * i)
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.y + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.y + offset.y * (i + 1)),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.y + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.y + offset.y * i),
+					Vector3(-.5 * size.x + offset.x * j, 0, -.5 * size.y + offset.y * (i + 1)),
+					Vector3(-.5 * size.x + offset.x * (j + 1),  0, -.5 * size.y + offset.y * (i + 1))
 				};
 				Vector2 faceVertUv[]{
 					Vector2(float(j) / numHorQuads, float(i) / numVertQuads),
@@ -44,7 +44,7 @@ namespace vb01{
 					if(!spatial){
 						faceVertPos[k].y = -faceVertPos[k].z;
 						faceVertPos[k].z = 0;
-						faceVertPos[k] += Vector3(.5 * size.x, -.5 * size.y, 0);
+						faceVertPos[k] += .5 * Vector3(size.x, size.y, 0);
 					}
 
 					MeshData::Vertex v;
@@ -53,7 +53,7 @@ namespace vb01{
 					v.tan = Vector3::VEC_I;
 					v.norm = Vector3::VEC_J;
 					v.biTan = Vector3::VEC_K;
-					vertices[id + k];
+					vertices[id + k] = v;
 				}
 			}
 		}
