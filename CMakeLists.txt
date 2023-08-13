@@ -7,6 +7,7 @@ set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SAMPLES OFF)
 set(BUILD_WITH_ASSIMP OFF)
+set(BUILD_GUI_ELEMENTS ON)
 set(LIB_NAME vb01)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -23,6 +24,10 @@ set(ASSET_READERS imageReader.cpp fontReader.cpp modelReader.cpp xmlModelReader.
 
 if(BUILD_WITH_ASSIMP)
 	set(ASSET_READERS ${ASSET_READERS} assimpModelReader.cpp)
+endif()
+
+if(BUILD_GUI_ELEMENTS)
+	set(GUI ${GUI} button.cpp listbox.cpp textbox.cpp checkbox.cpp slider.cpp)
 endif()
 
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
