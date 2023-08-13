@@ -31,6 +31,9 @@ namespace vb01Gui{
 			void removeAllCheckboxes();
 			void removeAllSliders();
 			void removeAllTextboxes();
+			inline std::vector<Button*> getButtons(){return buttons;}
+			inline std::vector<Listbox*> getListboxes(){return listboxes;}
+			inline std::vector<Textbox*> getTextboxes(){return textboxes;}
 		private:
 			void updateCurrentListbox(vb01Gui::Button*, bool&);
 			void updateCurrentSlider(vb01Gui::Button*);
