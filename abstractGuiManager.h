@@ -31,6 +31,13 @@ namespace vb01Gui{
 			void removeAllCheckboxes();
 			void removeAllSliders();
 			void removeAllTextboxes();
+			void removeAllGuiElements(
+					std::vector<Button*> = std::vector<Button*>{},
+					std::vector<Listbox*> = std::vector<Listbox*>{},
+					std::vector<Checkbox*> = std::vector<Checkbox*>{},
+					std::vector<Slider*> = std::vector<Slider*>{},
+					std::vector<Textbox*> = std::vector<Textbox*>{}
+			);
 			inline std::vector<Button*> getButtons(){return buttons;}
 			inline std::vector<Listbox*> getListboxes(){return listboxes;}
 			inline std::vector<Textbox*> getTextboxes(){return textboxes;}

@@ -44,8 +44,6 @@ namespace vb01Gui{
         for (Textbox *t : textboxes){
             t->update();
 
-			if(t->isDeleteCharacters())
-				t->deleteCharacter();
 		}
     }
 
@@ -252,4 +250,17 @@ namespace vb01Gui{
             textboxes.pop_back();
         }
     }
+
+	void AbstractGuiManager::removeAllGuiElements(
+			vector<Button*> buttonExceptions,
+			vector<Listbox*> listboxExceptions,
+			vector<Checkbox*> checkboxExceptions,
+			vector<Slider*> sliderExceptions,
+			vector<Textbox*> textboxExceptions){
+		removeAllButtons(buttonExceptions);
+		removeAllListboxes();
+		removeAllCheckboxes();
+		removeAllSliders();
+		removeAllTextboxes();
+	}
 }
