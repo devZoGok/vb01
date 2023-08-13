@@ -69,7 +69,7 @@ namespace vb01Gui{
 				cursorNode->setVisible(canShowCursor);
 			}
 
-			if(deleteCharacters && canDeleteChar())
+			if(deleteCharacters)
 				deleteCharacter();
 		}
 	}
