@@ -68,6 +68,9 @@ namespace vb01Gui{
 				lastBlinkTime = getTime();
 				cursorNode->setVisible(canShowCursor);
 			}
+
+			if(deleteCharacters && canDeleteChar())
+				deleteCharacter();
 		}
 	}
 

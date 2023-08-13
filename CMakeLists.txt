@@ -27,7 +27,7 @@ if(BUILD_WITH_ASSIMP)
 endif()
 
 if(BUILD_GUI_ELEMENTS)
-	set(GUI ${GUI} button.cpp listbox.cpp textbox.cpp checkbox.cpp slider.cpp)
+	set(GUI ${GUI} abstractGuiManager.cpp button.cpp listbox.cpp textbox.cpp checkbox.cpp slider.cpp)
 endif()
 
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
