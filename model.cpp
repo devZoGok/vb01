@@ -49,7 +49,7 @@ namespace vb01{
 	}
 
 	void Model::setMaterial(Material *mat){
-		vector<Node*> descendants;
+		vector<Node*> descendants = vector<Node*>{this};
 		getDescendants(descendants);
 
 		for(Node *node : descendants)
