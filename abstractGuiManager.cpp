@@ -209,7 +209,7 @@ namespace vb01Gui{
 		int targetId = 0;
 		
 		while(targetId != buttons.size()){
-			if(find(exceptions.begin(), exceptions.end(), buttons[targetId]) == exceptions.end()){
+			if(buttons[targetId]->isSeparate() && find(exceptions.begin(), exceptions.end(), buttons[targetId]) == exceptions.end()){
 				delete buttons[targetId];
 				buttons.erase(buttons.begin() + targetId);
 			}
@@ -218,36 +218,60 @@ namespace vb01Gui{
 		}
 	}
 
-    void AbstractGuiManager::removeAllListboxes() {
-        while (listboxes.size() > 0) {
-            removeButton(listboxes[listboxes.size() - 1]->getListboxButton());
-            delete listboxes[listboxes.size() - 1];
-            listboxes.pop_back();
+    void AbstractGuiManager::removeAllListboxes(vector<Listbox*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != listboxes.size()) {
+			if(find(exceptions.begin(), exceptions.end(), listboxes[targetId]) == exceptions.end()){
+				removeButton(listboxes[listboxes.size() - 1]->getListboxButton());
+				delete listboxes[listboxes.size() - 1];
+				listboxes.pop_back();
+			}
+			else
+				targetId++;
         }
     }
 
-    void AbstractGuiManager::removeAllCheckboxes() {
-        while (checkboxes.size() > 0) {
-            removeButton(checkboxes[checkboxes.size() - 1]->getCheckboxButton());
-            delete checkboxes[checkboxes.size() - 1];
-            checkboxes.pop_back();
+    void AbstractGuiManager::removeAllCheckboxes(vector<Checkbox*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != checkboxes.size()) {
+			if(find(exceptions.begin(), exceptions.end(), checkboxes[targetId]) == exceptions.end()){
+			   removeButton(checkboxes[checkboxes.size() - 1]->getCheckboxButton());
+			   delete checkboxes[checkboxes.size() - 1];
+			   checkboxes.pop_back();
+			}
+			else
+				targetId++;
         }
     }
 
-    void AbstractGuiManager::removeAllSliders() {
-        while (sliders.size() > 0) {
-            removeButton(sliders[sliders.size() - 1]->getMovableSliderButton());
-            removeButton(sliders[sliders.size() - 1]->getStaticSliderButton());
-            delete sliders[sliders.size() - 1];
-            sliders.pop_back();
+    void AbstractGuiManager::removeAllSliders(vector<Slider*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != sliders.size()) {
+			if(find(exceptions.begin(), exceptions.end(), sliders[targetId]) == exceptions.end()){
+            	removeButton(sliders[sliders.size() - 1]->getMovableSliderButton());
+            	removeButton(sliders[sliders.size() - 1]->getStaticSliderButton());
+            	delete sliders[sliders.size() - 1];
+            	sliders.pop_back();
+			}
+			else
+				targetId++;
         }
     }
 
-    void AbstractGuiManager::removeAllTextboxes() {
-        while (textboxes.size() > 0) {
-            removeButton(textboxes[textboxes.size() - 1]->getTextboxButton());
-            delete textboxes[textboxes.size() - 1];
-            textboxes.pop_back();
+    void AbstractGuiManager::removeAllTextboxes(vector<Textbox*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != textboxes.size()) {
+			if(find(exceptions.begin(), exceptions.end(), textboxes[targetId]) == exceptions.end()){
+				removeButton(textboxes[textboxes.size() - 1]->getTextboxButton());
+				delete textboxes[textboxes.size() - 1];
+				textboxes.pop_back();
+			}
+			else
+				targetId++;
         }
     }
 
@@ -258,9 +282,9 @@ namespace vb01Gui{
 			vector<Slider*> sliderExceptions,
 			vector<Textbox*> textboxExceptions){
 		removeAllButtons(buttonExceptions);
-		removeAllListboxes();
-		removeAllCheckboxes();
-		removeAllSliders();
-		removeAllTextboxes();
+		removeAllListboxes(listboxExceptions);
+		removeAllCheckboxes(checkboxExceptions);
+		removeAllSliders(sliderExceptions);
+		removeAllTextboxes(textboxExceptions);
 	}
 }
