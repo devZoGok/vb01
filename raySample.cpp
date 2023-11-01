@@ -76,11 +76,9 @@ int main(){
 				 * Casts an infinite ray that checks for collision against meshes under 
 				 * the icoshpere model node and paints it red upon collision
 				*/
-				vector<Ray::CollisionResult> results;
-				Ray::retrieveCollisions(rayStart, rayEnd - rayStart, sphModel, results);
-				Ray::sortResults(results);
 
 				mat->setVec4Uniform("diffuseColor", Vector4::VEC_L);
+				vector<RayCaster::CollisionResult> results = RayCaster::cast(rayStart, rayEnd - rayStart, sphModel);
 
 				if(!results.empty())
 					mat->setVec4Uniform("diffuseColor", Vector4(1, 0, 0, 1));

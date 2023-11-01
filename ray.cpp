@@ -7,16 +7,32 @@
 using namespace std;
 
 namespace vb01{
-	void Ray::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, std::vector<CollisionResult> &results, const float rayLength){
-		castRay(rayPos, rayDir, node, results, rayLength);
-
-		for(Node *c : node->getChildren())
-			retrieveCollisions(rayPos, rayDir, c, results, rayLength);
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, Node *node, const float rayLength){
+		return cast(rayPos, rayDir, vector<Node*>{node}, rayLength);
 	}
 
-	void Ray::castRay(Vector3 rayPos, Vector3 rayDir, Node *node, vector<CollisionResult> &results, float rayLength){
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, vector<Node*> nodes, const float rayLength){
+		vector<CollisionResult> results;
+
+		for(Node *node : nodes){
+			vector<Node*> descendants = vector<Node*>{node};
+			node->getDescendants(descendants);
+
+			for(Node *desc : descendants){
+				vector<CollisionResult> res = retrieveCollisions(rayPos, rayDir, desc, rayLength);
+				results.insert(results.end(), res.begin(), res.end());
+			}
+		}
+
+		if(!results.empty()) sortResults(results);
+
+		return results;
+	}
+
+	vector<RayCaster::CollisionResult> RayCaster::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, float rayLength){
 		Vector3 pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 		Quaternion rot = node->localToGlobalOrientation(Quaternion::QUAT_W);
+		vector<CollisionResult> results;
 
 		for(Mesh *m : node->getMeshes()){
 			const int numVerts = m->getMeshBase().numTris * 3;
@@ -64,14 +80,15 @@ namespace vb01{
 				}
 			}
 		}
+
+		return results;
 	}
         
-	void Ray::sortResults(std::vector<CollisionResult> &results){
-		if(!results.empty())
-			for(int i = 0; i < results.size(); i++){
-				for(int i2 = i; i2 < results.size(); i2++)
-					if(results[i].distance > results[i2].distance)
-						swap(results[i], results[i2]);
-			}
+	void RayCaster::sortResults(std::vector<CollisionResult> &results){
+		for(int i = 0; i < results.size(); i++){
+			for(int j = i; j < results.size(); j++)
+				if(results[i].distance > results[j].distance)
+					swap(results[i], results[j]);
+		}
 	}
 }

@@ -7,15 +7,18 @@ namespace vb01{
 	class Node;
 	class Mesh;
 
-	class Ray{
+	class RayCaster{
 		public:
 			struct CollisionResult{
 				Vector3 pos, norm;
 				float distance;
 				Mesh *mesh = nullptr;
 			};
-			static void retrieveCollisions(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float = .0);
-			static void castRay(Vector3, Vector3, Node*, std::vector<CollisionResult>&, const float);
+
+			static std::vector<CollisionResult> cast(Vector3, Vector3, Node*, const float = .0);
+			static std::vector<CollisionResult> cast(Vector3, Vector3, std::vector<Node*>, const float = .0);
+		private:
+			static std::vector<CollisionResult> retrieveCollisions(Vector3, Vector3, Node*, const float);
 			static void sortResults(std::vector<CollisionResult>&);
 	};
 
