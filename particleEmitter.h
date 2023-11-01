@@ -54,7 +54,6 @@ namespace vb01{
 			int numParticles;
 			Particle **particles;
 			Material *material = nullptr;
-			Node *node = nullptr;
 			Vector2 size = Vector2::VEC_IJ;
 			Vector3 gravity = Vector3::VEC_ZERO;
 			Vector4 startColor = Vector4::VEC_IJKL, endColor = Vector4::VEC_IJKL;
