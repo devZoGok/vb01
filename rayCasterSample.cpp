@@ -3,7 +3,7 @@
 #include "material.h"
 #include "assetManager.h"
 #include "lineRenderer.h"
-#include "ray.h"
+#include "rayCaster.h"
 
 using namespace std;
 using namespace vb01;

@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "ray.h"
+#include "rayCaster.h"
 #include "mesh.h"
 #include "node.h"
 
