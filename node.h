@@ -52,6 +52,7 @@ namespace vb01{
 			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
 			inline Mesh* getMesh(int i){return meshes[i];}
 			inline int getNumMeshes(){return meshes.size();}
+			inline ParticleEmitter* getParticleEmitter(int i){return emitters[i];}
 			inline Node* getParent(){return parent;}
 			inline void setParent(Node *par){this->parent = par;}
 			inline Node* getChild(int i){return children[i];}

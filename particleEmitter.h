@@ -19,6 +19,7 @@ namespace vb01{
 			ParticleEmitter() : Animatable(Animatable::NONE){}
 			~ParticleEmitter();
 			void update();
+			inline Material* getMaterial(){return material;}
 			inline void setMaterial(Material *mat){this->material = mat;}
 			inline void setNode(Node *node){this->node = node;}
 			inline void setSize(Vector2 size){this->size = size;}
