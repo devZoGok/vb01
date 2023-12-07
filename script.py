@@ -151,6 +151,19 @@ def export(node, parentTag):
     nodeTag = ET.SubElement(parentTag, 'node')
     nodeTag.set('name', node.name)
 
+    nodeTag.set('px', str(node.location[0]))
+    nodeTag.set('py', str(node.location[2]))
+    nodeTag.set('pz', str(-node.location[1]))
+
+    nodeTag.set('rw', str(node.rotation_quaternion[0]))
+    nodeTag.set('rx', str(node.rotation_quaternion[1]))
+    nodeTag.set('ry', str(node.rotation_quaternion[2]))
+    nodeTag.set('rz', str(node.rotation_quaternion[3]))
+
+    nodeTag.set('sx', str(node.scale[0]))
+    nodeTag.set('sy', str(node.scale[1]))
+    nodeTag.set('sz', str(node.scale[2]))
+
     if node.type == 'MESH':
         mesh = node.data
         numFaces = len(mesh.polygons)
