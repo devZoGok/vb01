@@ -4,6 +4,11 @@
 #include <vector>
 #include <string>
 
+namespace vb01{
+	class Node;
+	class Text;
+}
+
 namespace vb01Gui{
 	class Button;
 	class Listbox;
@@ -15,45 +20,56 @@ namespace vb01Gui{
 		public:
 			void update();
 			void findClickedButton();
-			void addButton(vb01Gui::Button*);
-			void removeButton(vb01Gui::Button*);
+			void addButton(Button *b){buttons.push_back(b);}
+			void removeButton(Button*);
 			void removeButton(std::string);
-			void addListbox(vb01Gui::Listbox*);
-			void removeListbox(vb01Gui::Listbox*);
-			void addCheckbox(vb01Gui::Checkbox*);
-			void removeCheckbox(vb01Gui::Checkbox*);
-			void addTextbox(vb01Gui::Textbox*);
-			void removeTextbox(vb01Gui::Textbox*);
-			void addSlider(vb01Gui::Slider*);
-			void removeSlider(vb01Gui::Slider*);
-			void removeAllButtons(std::vector<vb01Gui::Button*> = std::vector<vb01Gui::Button*>{});
-			void removeAllListboxes(std::vector<vb01Gui::Listbox*> = std::vector<vb01Gui::Listbox*>{});
-			void removeAllCheckboxes(std::vector<vb01Gui::Checkbox*> = std::vector<vb01Gui::Checkbox*>{});
-			void removeAllSliders(std::vector<vb01Gui::Slider*> = std::vector<vb01Gui::Slider*>{});
-			void removeAllTextboxes(std::vector<vb01Gui::Textbox*> = std::vector<vb01Gui::Textbox*>{});
+			void addListbox(Listbox*);
+			void removeListbox(Listbox*);
+			void addCheckbox(Checkbox*);
+			void removeCheckbox(Checkbox*);
+			void addTextbox(Textbox*);
+			void removeTextbox(Textbox*);
+			void addSlider(Slider*);
+			void addGuiRectangle(vb01::Node *r){guiRectangles.push_back(r);}
+			void removeGuiRectangle(vb01::Node*);
+			void addText(vb01::Text *t){texts.push_back(t);}
+			void removeText(vb01::Text*);
+			vb01::Text* getText(std::string);
+			void removeSlider(Slider*);
+			void removeAllButtons(std::vector<Button*> = std::vector<Button*>{});
+			void removeAllListboxes(std::vector<Listbox*> = std::vector<Listbox*>{});
+			void removeAllCheckboxes(std::vector<Checkbox*> = std::vector<Checkbox*>{});
+			void removeAllSliders(std::vector<Slider*> = std::vector<Slider*>{});
+			void removeAllTextboxes(std::vector<Textbox*> = std::vector<Textbox*>{});
+			void removeAllGuiRectangles(std::vector<vb01::Node*> = std::vector<vb01::Node*>{});
+			void removeAllTexts(std::vector<vb01::Text*> = std::vector<vb01::Text*>{});
 			void removeAllGuiElements(
 					std::vector<Button*> = std::vector<Button*>{},
 					std::vector<Listbox*> = std::vector<Listbox*>{},
 					std::vector<Checkbox*> = std::vector<Checkbox*>{},
 					std::vector<Slider*> = std::vector<Slider*>{},
-					std::vector<Textbox*> = std::vector<Textbox*>{}
+					std::vector<Textbox*> = std::vector<Textbox*>{},
+					std::vector<vb01::Node*> = std::vector<vb01::Node*>{},
+					std::vector<vb01::Text*> = std::vector<vb01::Text*>{}
 			);
 			inline std::vector<Button*> getButtons(){return buttons;}
 			inline std::vector<Listbox*> getListboxes(){return listboxes;}
 			inline std::vector<Textbox*> getTextboxes(){return textboxes;}
 		private:
-			void updateCurrentListbox(vb01Gui::Button*, bool&);
-			void updateCurrentSlider(vb01Gui::Button*);
-			void updateCurrentTextbox(vb01Gui::Button*, bool&);
+			void updateCurrentListbox(Button*, bool&);
+			void updateCurrentSlider(Button*);
+			void updateCurrentTextbox(Button*, bool&);
 
 			std::vector<Button*> buttons;
 			std::vector<Listbox*> listboxes;
 			std::vector<Checkbox*> checkboxes;
 			std::vector<Slider*> sliders;
 			std::vector<Textbox*> textboxes;
-			vb01Gui::Slider *currentSlider = nullptr;
-			vb01Gui::Textbox *currentTextbox = nullptr;
-			vb01Gui::Listbox *currentListbox = nullptr;
+			std::vector<vb01::Node*> guiRectangles;
+			std::vector<vb01::Text*> texts;
+			Slider *currentSlider = nullptr;
+			Textbox *currentTextbox = nullptr;
+			Listbox *currentListbox = nullptr;
 		protected:
 			AbstractGuiManager(){}
 	};

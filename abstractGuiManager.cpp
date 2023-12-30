@@ -5,6 +5,8 @@
 #include "slider.h"
 #include "checkbox.h"
 #include "listbox.h"
+#include "node.h"
+#include "text.h"
 #include "util.h"
 
 namespace vb01Gui{
@@ -120,10 +122,6 @@ namespace vb01Gui{
 		}
 	}
 
-    void AbstractGuiManager::addButton(Button* b) {
-        buttons.push_back(b);
-    }
-
     void AbstractGuiManager::addListbox(Listbox* l) {
         listboxes.push_back(l);
         buttons.push_back(l->getListboxButton());
@@ -205,6 +203,41 @@ namespace vb01Gui{
         }
     }
 
+    void AbstractGuiManager::removeGuiRectangle(Node* r) {
+        for (int i = 0; i < guiRectangles.size(); i++) {
+            if (r == guiRectangles[i]) {
+                guiRectangles.erase(guiRectangles.begin() + i);
+				Root::getSingleton()->getGuiNode()->dettachChild(r);
+                delete r;
+				break;
+            }
+        }
+    }
+
+    void AbstractGuiManager::removeText(Text* t) {
+        for (int i = 0; i < texts.size(); i++) {
+            if (t == texts[i]) {
+                texts.erase(texts.begin() + i);
+				Node *textNode = t->getNode();
+				Root::getSingleton()->getGuiNode()->dettachChild(textNode);
+                delete textNode;
+				break;
+            }
+        }
+    }
+
+	Text* AbstractGuiManager::getText(string name){
+		Text *text = nullptr;
+
+		for(Text *t : texts)
+			if(t->getNode()->getName() == name){
+				text = t;
+				break;
+			}
+
+		return text;
+	}
+
 	void AbstractGuiManager::removeAllButtons(vector<Button*> exceptions){
 		int targetId = 0;
 		
@@ -275,16 +308,50 @@ namespace vb01Gui{
         }
     }
 
+    void AbstractGuiManager::removeAllGuiRectangles(vector<Node*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != guiRectangles.size()) {
+			if(find(exceptions.begin(), exceptions.end(), guiRectangles[targetId]) == exceptions.end()){
+				Node *guiRect = guiRectangles[guiRectangles.size() - 1];
+				guiRectangles.pop_back();
+				Root::getSingleton()->getGuiNode()->dettachChild(guiRect);
+				delete guiRect;
+			}
+			else
+				targetId++;
+        }
+    }
+
+    void AbstractGuiManager::removeAllTexts(vector<Text*> exceptions) {
+		int targetId = 0;
+
+        while(targetId != texts.size()) {
+			if(find(exceptions.begin(), exceptions.end(), texts[targetId]) == exceptions.end()){
+				Node *textNode = texts[texts.size() - 1]->getNode();
+				texts.pop_back();
+				Root::getSingleton()->getGuiNode()->dettachChild(textNode);
+				delete textNode;
+			}
+			else
+				targetId++;
+        }
+    }
+
 	void AbstractGuiManager::removeAllGuiElements(
 			vector<Button*> buttonExceptions,
 			vector<Listbox*> listboxExceptions,
 			vector<Checkbox*> checkboxExceptions,
 			vector<Slider*> sliderExceptions,
-			vector<Textbox*> textboxExceptions){
+			vector<Textbox*> textboxExceptions,
+			vector<Node*> guiRectExceptions,
+			vector<Text*> textExceptions){
 		removeAllButtons(buttonExceptions);
 		removeAllListboxes(listboxExceptions);
 		removeAllCheckboxes(checkboxExceptions);
 		removeAllSliders(sliderExceptions);
 		removeAllTextboxes(textboxExceptions);
+		removeAllGuiRectangles(guiRectExceptions);
+		removeAllTexts(textExceptions);
 	}
 }

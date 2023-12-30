@@ -28,6 +28,7 @@ namespace vb01{
 			void update();
 			void setText(std::wstring);
 			inline void setScale(float s){this->scale = s;}
+			inline float getScale(){return scale;}
 			inline int getLength(){return entry.length();}
 			inline std::wstring getText(){return entry;}
 			inline bool isHorizontal(){return horizontal;}
