@@ -276,8 +276,12 @@ namespace vb01{
 							((Bone*)node)->setIkChainLength(ikChainLength);
 						}
 				}
-				else
-						node = new Node(Vector3::VEC_ZERO, Quaternion::QUAT_W, Vector3::VEC_IJK, name);
+				else{
+					Vector3 pos = Vector3(atof(xmlEl->Attribute("px")), atof(xmlEl->Attribute("py")), atof(xmlEl->Attribute("pz")));
+					Quaternion rot = Quaternion(atof(xmlEl->Attribute("rw")), atof(xmlEl->Attribute("rx")), atof(xmlEl->Attribute("ry")), atof(xmlEl->Attribute("rz")));
+					Vector3 scale = Vector3(atof(xmlEl->Attribute("sx")), atof(xmlEl->Attribute("sy")), atof(xmlEl->Attribute("sz")));
+					node = new Node(pos, rot, scale, name);
+				}
 
 				XMLElement *skeletonTag = xmlEl->FirstChildElement("skeleton");
 
