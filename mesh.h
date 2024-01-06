@@ -24,9 +24,9 @@ namespace vb01{
 			void updateVerts(MeshData);
 			virtual void update();
 			void render();
+			void setReflect(bool);
 			inline void setMaterial(Material *mat){this->material = mat;}
 			inline void setCastShadow(bool castShadow){this->castShadow = castShadow;}
-			inline void setReflect(bool r){this->reflect = r;}
 			inline void setReflective(bool r){this->reflective = r;}
 			inline void setWireframe(bool w){this->wireframe = w;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
@@ -41,7 +41,6 @@ namespace vb01{
 			inline Texture* getBrdfIntegrationMap(){return brdfIntegrationMap;}
 			inline MeshData getMeshBase(){return meshBase;}
 		private:
-			void initMesh();
 			void initFramebuffer(u32&, u32&, int);
 			void updateSkeleton(Shader*);
 			void updatePrefilterMap(Vector3, glm::mat4&, glm::vec3[6]);

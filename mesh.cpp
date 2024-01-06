@@ -38,43 +38,8 @@ namespace vb01{
 		glDeleteBuffers(1, &VBO);
 	}
 
-	void Mesh::construct(){
-		string libPath = Root::getSingleton()->getLibPath();
-		environmentShader = new Shader(libPath + "environmentPreFilter");
-		irradianceShader = new Shader(libPath + "irradiance");
-		brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
-
-		prefilterMap = new Texture(preFilterMapSize, false);
-		irradianceMap = new Texture(irradianceMapSize, false);
-		postfilterMap = new Texture(environmentMapSize, false, 5);
-		brdfIntegrationMap = new Texture(brdfMapSize, brdfMapSize, false);
-
-		initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, preFilterMapSize);
-		initFramebuffer(irrandianceFramebuffer, irradianceRenderbuffer, irradianceMapSize);
-		initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, environmentMapSize);
-		initFramebuffer(brdfFramebuffer, brdfRenderbuffer, brdfMapSize);
-
-		initMesh();
-	}
-
-	void Mesh::initFramebuffer(u32 &framebuffer, u32 &renderbuffer, int width){
-		glGenFramebuffers(1, &framebuffer);
-		glGenRenderbuffers(1, &renderbuffer);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, width);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
-
-		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			cout << "Mesh framebuffer not complete\n";
-
-		glBindFramebuffer(GL_FRAMEBUFFER, *Root::getSingleton()->getFBO());
-	}
-
 	//TODO allow to init meshes to be drawn statically or dynamically
-	void Mesh::initMesh(){
+	void Mesh::construct(){
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);	
@@ -106,6 +71,22 @@ namespace vb01{
 			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::Vertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
 			glEnableVertexAttribArray(7 + i);
 		}
+	}
+
+	void Mesh::initFramebuffer(u32 &framebuffer, u32 &renderbuffer, int width){
+		glGenFramebuffers(1, &framebuffer);
+		glGenRenderbuffers(1, &renderbuffer);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, width);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			cout << "Mesh framebuffer not complete\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER, *Root::getSingleton()->getFBO());
 	}
 
 	void Mesh::updateVerts(MeshData meshData){
@@ -416,5 +397,26 @@ namespace vb01{
 		glBindVertexArray(VAO);
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 		glDrawElements(GL_TRIANGLES, 3 * meshBase.numTris, GL_UNSIGNED_INT, 0);	
+	}
+
+	void Mesh::setReflect(bool reflect){
+		this->reflect = reflect;
+
+		if(reflect && !environmentShader){
+			string libPath = Root::getSingleton()->getLibPath();
+			environmentShader = new Shader(libPath + "environmentPreFilter");
+			irradianceShader = new Shader(libPath + "irradiance");
+			brdfIntegrationShader = new Shader(libPath + "brdfIntegration");
+
+			prefilterMap = new Texture(preFilterMapSize, false);
+			irradianceMap = new Texture(irradianceMapSize, false);
+			postfilterMap = new Texture(environmentMapSize, false, 5);
+			brdfIntegrationMap = new Texture(brdfMapSize, brdfMapSize, false);
+
+			initFramebuffer(preFilterFramebuffer, preFilterRenderbuffer, preFilterMapSize);
+			initFramebuffer(irrandianceFramebuffer, irradianceRenderbuffer, irradianceMapSize);
+			initFramebuffer(postFilterFramebuffer, postFilterRenderbuffer, environmentMapSize);
+			initFramebuffer(brdfFramebuffer, brdfRenderbuffer, brdfMapSize);
+		}
 	}
 }
