@@ -7,11 +7,11 @@
 using namespace std;
 
 namespace vb01{
-	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, Node *node, const float rayLength){
-		return cast(rayPos, rayDir, vector<Node*>{node}, rayLength);
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, Node *node, const float rayLength, const float distToRay){
+		return cast(rayPos, rayDir, vector<Node*>{node}, rayLength, distToRay);
 	}
 
-	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, vector<Node*> nodes, const float rayLength){
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, vector<Node*> nodes, const float rayLength, const float distToRay){
 		vector<CollisionResult> results;
 
 		for(Node *node : nodes){
@@ -19,7 +19,7 @@ namespace vb01{
 			node->getDescendants(descendants);
 
 			for(Node *desc : descendants){
-				vector<CollisionResult> res = retrieveCollisions(rayPos, rayDir, desc, rayLength);
+				vector<CollisionResult> res = retrieveCollisions(rayPos, rayDir, desc, rayLength, distToRay);
 				results.insert(results.end(), res.begin(), res.end());
 			}
 		}
@@ -29,7 +29,7 @@ namespace vb01{
 		return results;
 	}
 
-	vector<RayCaster::CollisionResult> RayCaster::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, float rayLength){
+	vector<RayCaster::CollisionResult> RayCaster::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, float rayLength, const float distToRay){
 		Vector3 pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 		Quaternion rot = node->localToGlobalOrientation(Quaternion::QUAT_W);
 		vector<CollisionResult> results;
@@ -40,6 +40,13 @@ namespace vb01{
 			u32 *indices = m->getMeshBase().indices;
 
 			for(int i = 0; i < numVerts / 3; i++){
+				if(distToRay > 0.0){
+					Vector3 rayPosToVert = (vertices[i].pos - rayPos);
+					float dist = sin(rayDir.getAngleBetween(rayPosToVert.norm())) * rayPosToVert.getLength();
+
+					if(dist > distToRay) continue;
+				}
+
 				Vector3 pointA = pos + rot * vertices[indices[i * 3]].pos, pointB = pos + rot * vertices[indices[i * 3 + 1]].pos, pointC = pos + rot * vertices[indices[i * 3 + 2]].pos;
 				Vector3 hypVec = pointA - rayPos;
 				Vector3 perpVec = (pointB - pointA).cross(pointC - pointA).norm();
