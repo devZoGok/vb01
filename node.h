@@ -45,6 +45,7 @@ namespace vb01{
 			Quaternion globalToLocalOrientation(Quaternion);
 			Vector3 localToGlobalScale(Vector3);
 			Vector3 globalToLocalScale(Vector3);
+			inline void dettachMesh(int id){meshes.erase(meshes.begin() + id);}
 			inline Skeleton* getSkeleton(int i){return skeletons[i];}
 			inline int getNumSkeletons(){return skeletons.size();}
 			inline Text* getText(int i){return texts[i];}
