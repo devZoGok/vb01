@@ -19,7 +19,8 @@ namespace vb01Gui{
 	class AbstractGuiManager{
 		public:
 			void update();
-			void findClickedButton();
+			std::vector<Button*> findClickedButtons();
+			void updateGui();
 			void addButton(Button *b){buttons.push_back(b);}
 			void removeButton(Button*);
 			void removeButton(std::string);
