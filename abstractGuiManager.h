@@ -54,6 +54,7 @@ namespace vb01Gui{
 					std::vector<vb01::Text*> = std::vector<vb01::Text*>{}
 			);
 			inline std::vector<Button*> getButtons(){return buttons;}
+			inline std::vector<vb01::Node*> getGuiRectangles(){return guiRectangles;}
 			inline std::vector<Listbox*> getListboxes(){return listboxes;}
 			inline std::vector<Textbox*> getTextboxes(){return textboxes;}
 		private:
