@@ -20,7 +20,7 @@ namespace vb01Gui{
 		public:
 			Button(vb01::Vector2, vb01::Vector2, std::string, std::string, int = -1, bool = true, std::string = "");
 			virtual ~Button();
-			void update();
+			virtual void update();
 			virtual void onMouseOver();
 			virtual void onMouseOff();
 			virtual void onClick(){}
