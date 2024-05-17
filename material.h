@@ -160,9 +160,12 @@ namespace vb01{
 			inline void addVec4Uniform(std::string name, Vector4 value){uniforms.push_back(new Vector4Uniform(name, value));}
 			inline void addTexUniform(std::string name, Texture *value, bool animatable){uniforms.push_back(new TextureUniform(name, value, animatable));}
 			inline Shader* getShader(){return shader;}
+			inline bool isTransparent(){return transparent;}
+			inline void setTransparent(bool t){this->transparent = t;}
 		private:
 			std::vector<Uniform*> uniforms;
 			Shader *shader = nullptr;
+			bool transparent = false;
 	};
 }
 

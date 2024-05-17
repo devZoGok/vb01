@@ -49,6 +49,7 @@ namespace vb01{
 			inline Skeleton* getSkeleton(int i){return skeletons[i];}
 			inline int getNumSkeletons(){return skeletons.size();}
 			inline Text* getText(int i){return texts[i];}
+			inline std::vector<Text*>& getTexts(){return texts;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
 			inline Mesh* getMesh(int i){return meshes[i];}
