@@ -7,18 +7,15 @@ using namespace vb01;
 using namespace std;
 
 namespace vb01Gui{
-    Checkbox::CheckboxButton::CheckboxButton(Checkbox *ch, Vector2 pos, Vector2 size, string name, bool separate) : Button(pos, size, name, "", -1, separate) {
-        checkbox = ch;
-    }
+    Checkbox::CheckboxButton::CheckboxButton(Checkbox *ch, Vector3 pos, Vector2 size, string name, bool separate) : Button(pos, size, name, "", -1, separate), checkbox(ch) {}
     
     void Checkbox::CheckboxButton::onClick() {
         checkbox->check();
-				float col = (checkbox->isChecked() ? .6 : .2);
-				setColor(Vector4(col, col, col, 1));
+		float col = (checkbox->isChecked() ? .6 : .2);
+		setColor(Vector4(col, col, col, 1));
     }
 
-    Checkbox::Checkbox(Vector2 pos, string fontPath){
-        this->pos = pos;
+    Checkbox::Checkbox(Vector3 p, string fontPath) : pos(p){
         checkboxButton = new CheckboxButton(this, pos, Vector2(length,length), "CheckboxButton", false);
 
 				/*

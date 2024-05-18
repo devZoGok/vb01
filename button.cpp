@@ -15,18 +15,19 @@ using namespace std;
 using namespace vb01;
 
 namespace vb01Gui{
-	Button::Button(Vector2 pos, Vector2 size, string name, string fontPath, int trigger, bool separate, string imagePath){
-		this->pos = pos;
-		this->size = size;
-		this->name = name;
-		this->separate = separate;
-		this->imagePath = imagePath;
-		this->trigger = trigger;
-
+	Button::Button(Vector3 p, Vector2 s, string n, string fontPath, int t, bool sep, string ip) : 
+		pos(p), 
+		size(s), 
+		name(n), 
+		trigger(t), 
+		separate(sep), 
+		imagePath(ip),
+		textOffset(Vector3(0, s.y, .1))
+	{
 		Root *root = Root::getSingleton();
 		guiNode = root->getGuiNode();
 		rect = new Quad(Vector3(size.x, size.y, 0), false);
-		rectNode = new Node(Vector3(pos.x, pos.y, 0));
+		rectNode = new Node(pos);
 		Material *mat = new Material(root->getLibPath() + "gui");
 
 		if(imagePath == ""){
@@ -47,9 +48,9 @@ namespace vb01Gui{
 
 		if(separate){
 			text = new Text(fontPath, stringToWstring(name));
-			text->setScale(.2);
 
-			textNode = new Node(Vector3(pos.x, pos.y + size.y, - .1));
+			float sc = .2;
+			textNode = new Node(pos + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
 			textNode->addText(text);
 
 			Material *textMat = new Material(root->getLibPath() + "text");
@@ -79,14 +80,14 @@ namespace vb01Gui{
 		GLFWwindow *window = Root::getSingleton()->getWindow();
 		glfwGetWindowSize(window, &width, &height);
 
-			float posRatio[] = {pos.x / initWindowSize[0], pos.y / initWindowSize[1]};
-			float sizeRatio[] = {size.x / initWindowSize[0], size.y / initWindowSize[1]};
+		float posRatio[] = {pos.x / initWindowSize[0], pos.y / initWindowSize[1]};
+		float sizeRatio[] = {size.x / initWindowSize[0], size.y / initWindowSize[1]};
 
-			pos = Vector2(width * posRatio[0], height * posRatio[1]);
-			size = Vector2(width * sizeRatio[0], height * sizeRatio[1]);
+		pos = Vector3(width * posRatio[0], height * posRatio[1], pos.z);
+		size = Vector2(width * sizeRatio[0], height * sizeRatio[1]);
 
-			initWindowSize[0] = width;
-			initWindowSize[1] = height;
+		initWindowSize[0] = width;
+		initWindowSize[1] = height;
 
 		if(textNode)
 			textNode->setVisible(active);
@@ -102,15 +103,13 @@ namespace vb01Gui{
 		mouseOver = false;
 	}
 
-	void Button::setPos(Vector2 pos){
+	void Button::setPos(Vector3 pos){
 		this->pos = pos;
-		float z1 = rectNode->getPosition().z;
-		rectNode->setPosition(Vector3(pos.x, pos.y, z1));
 
-		if(textNode){
-			float z2 = textNode->getPosition().z;
-			textNode->setPosition(Vector3(pos.x, pos.y + size.y, z2));
-		}
+		rectNode->setPosition(pos);
+
+		if(textNode)
+			textNode->setPosition(pos + textOffset);
 	}
 
 	void Button::setSize(Vector2 size){
@@ -123,16 +122,6 @@ namespace vb01Gui{
 		((Material::Vector4Uniform*)rect->getMaterial()->getUniform(diffColUni))->value = color;
 	}
 	
-	void Button::setZOrder(float zOrder){
-		Vector3 rectPos = rectNode->getPosition();
-		rectNode->setPosition(Vector3(rectPos.x, rectPos.y, zOrder));
-
-		if(textNode){
-			Vector3 textPos = textNode->getPosition();	
-			textNode->setPosition(Vector3(textPos.x, textPos.y, zOrder - .1));
-		}
-	}
-
 	void Button::setImage(string image){
 		int texId = -1;
 		Material *mat = rect->getMaterial();

@@ -80,17 +80,19 @@ namespace vb01{
 			Vector2 size = glyph.size, bearing = glyph.bearing;
 
 			if(horizontal)
-				advanceOffset.x += (size.x + bearing.x);
+				advanceOffset.x += node->getScale().x * (size.x + bearing.x);
 			else
-				advanceOffset.y += size.y;
+				advanceOffset.y += node->getScale().y * size.y;
 		}
 	}
 
 	void Text::prepareGlyphs(Glyph glyph, Vector2 advanceOffset){
 		Vector3 nodePos = node->getPosition();
 		Vector2 origin = Vector2(nodePos.x, nodePos.y) + (advanceOffset * scale);
+		Vector3 scale = node->getScale();
 
-		Vector2 size = glyph.size * scale, bearing = glyph.bearing * scale;
+		Vector2 size = Vector2(glyph.size.x * scale.x, glyph.size.y * scale.y);
+		Vector2 bearing = Vector2(glyph.bearing.x * scale.x, glyph.bearing.y * scale.y);
 
 		float data[] = {
 			origin.x + bearing.x, origin.y - bearing.y, 0, 0,

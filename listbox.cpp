@@ -12,7 +12,7 @@ using namespace vb01;
 using namespace std;
 
 namespace vb01Gui{
-	Listbox::ListboxButton::ListboxButton(Listbox *l, Vector2 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false){listbox = l;}
+	Listbox::ListboxButton::ListboxButton(Listbox *l, Vector3 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false), listbox(l) {}
 
 	void Listbox::ListboxButton::onClick(){
 		if(!listbox->isOpen())
@@ -29,18 +29,18 @@ namespace vb01Gui{
 		}
 	}
 
-	Listbox::ScrollingButton::ScrollingButton(Vector2 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false){}
+	Listbox::ScrollingButton::ScrollingButton(Vector3 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false){}
 
 	void Listbox::ScrollingButton::onClick(){}
 
-	Listbox::Listbox(Vector2 pos, Vector2 size, std::vector<string> &lines, int maxDisplay, string fontPath, bool closeable){
-		this->pos = pos;
-		this->size = size; 
-		this->maxDisplay = maxDisplay;
-		this->fontPath = fontPath;
-		this->lineHeight = size.y;
-		this->closeable = closeable;
-
+	Listbox::Listbox(Vector3 p, Vector2 s, std::vector<string> &lines, int md, string fp, bool cl) : 
+		pos(p),
+		size(s),
+		maxDisplay(md),
+		fontPath(fp),
+		closeable(cl),
+		textOffset(Vector3(0, 0, .3))
+	{
 		Root *root = Root::getSingleton();
 		Vector2 mousePos = getCursorPos();
 		guiNode = Root::getSingleton()->getGuiNode();
@@ -48,14 +48,14 @@ namespace vb01Gui{
 
 		for(int i = 0; i < lines.size(); i++){
 			Text *text = new Text(fontPath, stringToWstring(lines[i]));
-			text->setScale(.2);
 
 			Material *textMat = new Material(root->getLibPath() + "text");
 			textMat->addBoolUniform(texUni, false);
 			textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
 			text->setMaterial(textMat);
 
-			Node *node = new Node(Vector3(pos.x, pos.y + size.y * (i + 1), textZCoord));
+			float sc = .2;
+			Node *node = new Node(pos + Vector3(0, size.y * (i + 1), 0) + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
 			node->addText(text);
 			guiNode->attachChild(node);
 			node->setVisible(false);
@@ -67,9 +67,8 @@ namespace vb01Gui{
 
 		listboxButton = new ListboxButton(this, pos, size, "ListboxButton");
 
-		scrollingButton = new ScrollingButton(Vector2(pos.x + size.x - 20, pos.y + lineHeight), Vector2(20, lineHeight * (maxDisplay - 2) / (maxDisplay + 1)), "scrollingButton");
+		scrollingButton = new ScrollingButton(Vector3(pos.x + size.x - 20, pos.y + lineHeight, pos.z - .05), Vector2(20, lineHeight * (maxDisplay - 2) / (maxDisplay + 1)), "scrollingButton");
 		scrollingButton->setColor(Vector4(.2, .2, .2, 1));
-		scrollingButton->setZOrder(-.05);
 		scrollingButton->setActive(false);
 
 		Quad *selRect = new Quad(Vector3(size.x, size.y, 0), false);
@@ -99,13 +98,14 @@ namespace vb01Gui{
 		delete selRectNode;
 	}
 
+	//TODO selection rectangle Z offset
 	void Listbox::update(){
 		scrollingButton->update();
 		listboxButton->update();
 
 		if(open){
 			Vector2 mousePos = getCursorPos();
-			Vector2 p = pos;
+			Vector3 p = pos;
 
 			if(mousePos.y > pos.y && mousePos.y < pos.y + size.y * maxDisplay){
 				selectedOption = scrollOffset + ((int)(mousePos.y - pos.y) / ((int)size.y));
@@ -122,7 +122,7 @@ namespace vb01Gui{
 
 			selRectNode->setPosition(Vector3(p.x, p.y, -.05));
 
-			Vector2 scrollButtonPos = Vector2(pos.x + size.x - 20, pos.y + lineHeight + lineHeight * scrollOffset * (double(maxDisplay - 2) / (maxDisplay + 1)));
+			Vector3 scrollButtonPos = Vector3(pos.x + size.x - 20, pos.y + lineHeight + lineHeight * scrollOffset * (double(maxDisplay - 2) / (maxDisplay + 1)), pos.z - .05);
 			scrollingButton->setPos(scrollButtonPos);
 		} 
 	}
@@ -142,7 +142,8 @@ namespace vb01Gui{
 
 	void Listbox::openUp(){
 		open = true;
-		lines[selectedOption]->getNode()->setPosition(Vector3(pos.x, pos.y + size.y * (selectedOption-scrollOffset + 1), textZCoord));
+		Vector3 selOpPos = pos + Vector3(0, size.y * (selectedOption - scrollOffset + 1), 0) + textOffset;
+		lines[selectedOption]->getNode()->setPosition(selOpPos);
 		lines[selectedOption]->getNode()->setVisible(false);
 		Vector2 size = listboxButton->getSize();
 		size.y *= maxDisplay;
@@ -167,7 +168,7 @@ namespace vb01Gui{
 		for(int i = scrollOffset; i < scrollOffset + maxDisplay; i++)
 			lines[i]->getNode()->setVisible(false);
 
-		lines[selectedOption]->getNode()->setPosition(Vector3(pos.x, pos.y + size.y, textZCoord));
+		lines[selectedOption]->getNode()->setPosition(pos + Vector3(0, size.y, 0) + textOffset);
 		lines[selectedOption]->getNode()->setVisible(true);
 
 		onClose();
@@ -222,7 +223,7 @@ namespace vb01Gui{
 
 	void Listbox::addLine(wstring line){
 		Text *t = new Text(fontPath, line);
-		Node *node = new Node(Vector3(pos.x, pos.y - size.y * lines.size(), textZCoord));
+		Node *node = new Node(pos + Vector3(0, size.y * lines.size(), 0) + textOffset);
 		node->addText(t);
 		guiNode->attachChild(node);
 		lines.push_back(t);

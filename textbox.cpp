@@ -14,7 +14,7 @@ using namespace vb01;
 using namespace std;
 
 namespace vb01Gui{
-	Textbox::TextboxButton::TextboxButton(Textbox *t, Vector2 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false) {textbox = t;}
+	Textbox::TextboxButton::TextboxButton(Textbox *t, Vector3 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false), textbox(t) {}
 
 	void Textbox::TextboxButton::onClick(){
 		if(!textbox->isEnabled())
@@ -23,28 +23,25 @@ namespace vb01Gui{
 			textbox->disable();
 	}
 
-	Textbox::Textbox(Vector2 pos, Vector2 size, string fontPath, wstring entry){
-		this->pos = pos;
-		this->size = size;
-		this->fontPath = fontPath;
-
+	Textbox::Textbox(Vector3 p, Vector2 s, string fp, wstring entry) : pos(p), size(s), fontPath(fp), cursorZCoord(.01){
 		textboxButton = new TextboxButton(this, pos, size, "TextboxButton");
 		string libPath = Root::getSingleton()->getLibPath();
 
 		guiNode = Root::getSingleton()->getGuiNode();
 		text = new Text(fontPath, entry);
-		text->setScale(.5);
 		Material *textMat = new Material(libPath + "text");
 		textMat->addBoolUniform("texturingEnabled", false);
 		textMat->addVec4Uniform("diffuseColor", Vector4(1, 1, 1, 1));
 		text->setMaterial(textMat);
-		textNode = new Node(Vector3(pos.x, pos.y + size.y, -.1));
+
+		float sc = .5;
+		textNode = new Node(Vector3(pos.x, pos.y + size.y, pos.z + cursorZCoord), Quaternion::QUAT_W, Vector3(sc, sc, 1));
 		textNode->addText(text);
 		guiNode->attachChild(textNode);
 
 		cursorPosOffset = entry.length();
 		cursorRect = new Quad(Vector3(cursorWidth, size.y, 0), false);
-		cursorNode = new Node(Vector3(pos.x + text->getLength(), pos.y, cursorZCoord));
+		cursorNode = new Node(Vector3(pos.x + text->getLength(), pos.y, pos.z + cursorZCoord));
 		Material *mat = new Material(libPath + "gui");
 		mat->addBoolUniform("texturingEnabled", false);
 		mat->addVec4Uniform("diffuseColor", Vector4(1, 1, 1, 1));
