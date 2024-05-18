@@ -44,26 +44,18 @@ namespace vb01Gui{
 		Root *root = Root::getSingleton();
 		Vector2 mousePos = getCursorPos();
 		guiNode = Root::getSingleton()->getGuiNode();
+
 		string texUni = "texturingEnabled", diffColUni = "diffuseColor";
+		textMat = new Material(root->getLibPath() + "text");
+		textMat->addBoolUniform(texUni, false);
+		textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
 
-		for(int i = 0; i < lines.size(); i++){
-			Text *text = new Text(fontPath, stringToWstring(lines[i]));
+		if(!lines.empty()){
+			for(int i = 0; i < lines.size(); i++)
+				addLine(stringToWstring(lines[i]));
 
-			Material *textMat = new Material(root->getLibPath() + "text");
-			textMat->addBoolUniform(texUni, false);
-			textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
-			text->setMaterial(textMat);
-
-			float sc = .2;
-			Node *node = new Node(pos + Vector3(0, size.y * (i + 1), 0) + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
-			node->addText(text);
-			guiNode->attachChild(node);
-			node->setVisible(false);
-
-			this->lines.push_back(text);
+			this->lines[0]->getNode()->setVisible(true);
 		}
-
-		this->lines[0]->getNode()->setVisible(true);
 
 		listboxButton = new ListboxButton(this, pos, size, "ListboxButton");
 
@@ -120,7 +112,7 @@ namespace vb01Gui{
 				p.y = pos.y + size.y * (maxDisplay - 1);
 			}
 
-			selRectNode->setPosition(Vector3(p.x, p.y, -.05));
+			selRectNode->setPosition(Vector3(p.x, p.y, p.z + .05));
 
 			Vector3 scrollButtonPos = Vector3(pos.x + size.x - 20, pos.y + lineHeight + lineHeight * scrollOffset * (double(maxDisplay - 2) / (maxDisplay + 1)), pos.z - .05);
 			scrollingButton->setPos(scrollButtonPos);
@@ -141,6 +133,8 @@ namespace vb01Gui{
 	}
 
 	void Listbox::openUp(){
+		if(lines.empty()) return;
+
 		open = true;
 		Vector3 selOpPos = pos + Vector3(0, size.y * (selectedOption - scrollOffset + 1), 0) + textOffset;
 		lines[selectedOption]->getNode()->setPosition(selOpPos);
@@ -222,11 +216,16 @@ namespace vb01Gui{
 	}
 
 	void Listbox::addLine(wstring line){
-		Text *t = new Text(fontPath, line);
-		Node *node = new Node(pos + Vector3(0, size.y * lines.size(), 0) + textOffset);
-		node->addText(t);
-		guiNode->attachChild(node);
-		lines.push_back(t);
+		float sc = .2;
+		Node *node = new Node(pos + Vector3(0, size.y * (lines.size() + 1), 0) + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
+		Root::getSingleton()->getGuiNode()->attachChild(node);
+		node->setVisible(false);
+
+		Text *text = new Text(fontPath, line);
+		text->setMaterial(textMat);
+		node->addText(text);
+		
+		lines.push_back(text);
 	}
 
 	string Listbox::convert(string str){

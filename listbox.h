@@ -8,6 +8,7 @@
 
 namespace vb01{
 	class Node;
+	class Material;
 	class Text;
 }
 
@@ -40,6 +41,7 @@ namespace vb01Gui{
 			inline bool isCloseable(){return closeable;}
 			void appendLines(std::vector<std::wstring>&);
 			inline int getSelectedOption(){return selectedOption;}
+			inline void setMaxDisplay(int md){this->maxDisplay = md;}
 			inline int getMaxDisplay(){return maxDisplay;}
 			inline int getNumLines(){return lines.size();}
 			std::vector<std::wstring> getContents();
@@ -65,6 +67,7 @@ namespace vb01Gui{
 			ScrollingButton *scrollingButton;
 			vb01::Node *selRectNode, *guiNode;
 			std::vector<vb01::Text*> lines;
+			vb01::Material *textMat = nullptr;
 		protected:
 		   	int selectedOption = 0;
 		public: 
