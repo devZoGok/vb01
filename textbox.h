@@ -15,7 +15,7 @@ namespace vb01Gui{
 
 	class Textbox{
 		public: 
-			Textbox(vb01::Vector2, vb01::Vector2, std::string, std::wstring = L"");
+			Textbox(vb01::Vector3, vb01::Vector2, std::string, std::wstring = L"");
 			~Textbox();
 			void update();
 			void enable();
@@ -33,7 +33,7 @@ namespace vb01Gui{
 		private:
 			class TextboxButton : public Button{
 				public:
-					TextboxButton(Textbox*, vb01::Vector2, vb01::Vector2, std::string);
+					TextboxButton(Textbox*, vb01::Vector3, vb01::Vector2, std::string);
 					void onClick();
 				private:
 					Textbox *textbox;
@@ -41,9 +41,10 @@ namespace vb01Gui{
 			inline bool canChangeCursor(){return vb01::getTime() - lastBlinkTime > 250;}
 			inline bool canDeleteChar(){return vb01::getTime() - lastDeleteTime > 50;}
 
-			float cursorZCoord = -.2;
+			float cursorZCoord;
 			const int cursorWidth = 5;
-			vb01::Vector2 pos, size;
+			vb01::Vector3 pos;
+			vb01::Vector2 size;
 			std::wstring entry = L"";
 			std::string fontPath = "";
 			bool enabled = false, canShowCursor = false, capitalLeters = false, deleteCharacters = false;

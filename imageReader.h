@@ -15,7 +15,7 @@ namespace vb01{
 				private:
 						ImageReader(){}
 
-						bool flip = false;
+						bool flip = true;
 		};
 }
 

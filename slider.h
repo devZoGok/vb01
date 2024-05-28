@@ -8,7 +8,7 @@
 namespace vb01Gui{
     class Slider {
     public:
-        Slider(vb01::Vector2, vb01::Vector2, double, double);
+        Slider(vb01::Vector3, vb01::Vector2, double, double);
         ~Slider();
         void update();
         inline void setTextbox(Textbox *t){this->textbox=t;}
@@ -16,13 +16,13 @@ namespace vb01Gui{
         inline double getValue(){return value;}
         inline double getMaxValue(){return maxValue;}
         inline void setValue(double v){this->value=v;}
-        inline vb01::Vector2 getPos(){return pos;}
+        inline vb01::Vector3 getPos(){return pos;}
         inline vb01::Vector2 getSize(){return size;}
         inline Textbox* getTextbox(){return textbox;}
     private:
         class MovableSliderButton : public Button {
         public:
-            MovableSliderButton(Slider*, vb01::Vector2, vb01::Vector2, std::string, bool);
+            MovableSliderButton(Slider*, vb01::Vector3, vb01::Vector2, std::string, bool);
             void onClick();
             void update();
         private:
@@ -32,7 +32,7 @@ namespace vb01Gui{
 
         class StaticSliderButton : public Button {
         public:
-            StaticSliderButton(Slider*, vb01::Vector2, vb01::Vector2, std::string, bool);
+            StaticSliderButton(Slider*, vb01::Vector3, vb01::Vector2, std::string, bool);
             void onClick();
         private:
             Slider *slider;
@@ -41,7 +41,8 @@ namespace vb01Gui{
         MovableSliderButton *movableSliderButton = nullptr;
         StaticSliderButton *staticSliderButton = nullptr;
         double minValue, value, maxValue;
-				vb01::Vector2 pos, size;
+		vb01::Vector3 pos;
+		vb01::Vector2 size;
         Textbox *textbox = nullptr;
     public:
         inline MovableSliderButton* getMovableSliderButton(){return movableSliderButton;}
