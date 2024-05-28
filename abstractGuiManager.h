@@ -36,6 +36,7 @@ namespace vb01Gui{
 			void addText(vb01::Text *t){texts.push_back(t);}
 			void removeText(vb01::Text*);
 			vb01::Text* getText(std::string);
+			vb01::Node* getGuiRectangle(std::string);
 			void removeSlider(Slider*);
 			void removeAllButtons(std::vector<Button*> = std::vector<Button*>{});
 			void removeAllListboxes(std::vector<Listbox*> = std::vector<Listbox*>{});

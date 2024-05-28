@@ -248,6 +248,18 @@ namespace vb01Gui{
 		return text;
 	}
 
+	Node* AbstractGuiManager::getGuiRectangle(string name){
+		Node *guiRect = nullptr;
+
+		for(Node *rect : guiRectangles)
+			if(rect->getName() == name){
+				guiRect = rect;
+				break;
+			}
+
+		return guiRect;
+	}
+
 	void AbstractGuiManager::removeAllButtons(vector<Button*> exceptions){
 		int targetId = 0;
 		
