@@ -43,7 +43,17 @@ namespace vb01{
 	}
 
 	void Node::update(){
-		if(visible){
+		bool render = true;
+		Node *ancestor = this;
+
+		while(ancestor){
+			render = ancestor->isVisible();
+			ancestor = ancestor->getParent();
+
+			if(!render) break;
+		}
+
+		if(render){
 			for(Light *l : lights)
 				l->update();
 
