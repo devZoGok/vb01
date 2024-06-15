@@ -3,7 +3,6 @@ project(vb01)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
-set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SAMPLES OFF)
 set(BUILD_WITH_ASSIMP OFF)
@@ -38,7 +37,7 @@ include_directories(external/glm/glm)
 include_directories(external/glad)
 include_directories(external/stb)
 
-add_library(${LIB_NAME} SHARED external/glad/glad.c ${LIB_SRC})
+add_library(${LIB_NAME} external/glad/glad.c ${LIB_SRC})
 
 set(TINYXML2_DIR external/tinyxml2)
 set(GLFW_DIR external/glfw)
