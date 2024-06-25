@@ -422,6 +422,21 @@ namespace vb01{
 		return origin;
 	}
 
+	Node* Node::findDescendant(string name, bool allDescendants){
+		vector<Node*> descendants = children;
+
+		if(allDescendants){
+			descendants.clear();
+			getDescendants(descendants);
+		}
+
+		for(Node *desc : descendants)
+			if(desc->getName() == name)
+				return desc;
+
+		return nullptr;
+	}
+
 	void Node::updateShaders(){
 		Root *root = Root::getSingleton();
 
