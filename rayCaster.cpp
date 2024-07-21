@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "rayCaster.h"
 #include "mesh.h"
 #include "node.h"
@@ -41,10 +39,23 @@ namespace vb01{
 
 			for(int i = 0; i < numVerts / 3; i++){
 				if(distToRay > 0.0){
-					Vector3 rayPosToVert = (vertices[i].pos - rayPos);
-					float dist = sin(rayDir.getAngleBetween(rayPosToVert.norm())) * rayPosToVert.getLength();
+					bool skip = false;
 
-					if(dist > distToRay) continue;
+					for(int j = 0; j < 3; j++){
+						Vector3 rayPosToVert = (vertices[i * 3 + j].pos - rayPos);
+						float angle = rayDir.getAngleBetween(rayPosToVert.norm());
+
+						if(angle > PI / 2) angle = PI - angle;
+
+						float dist = sin(angle) * rayPosToVert.getLength();
+
+						if(dist > distToRay){
+							skip = true;
+							break;
+						}
+					}
+
+					if(skip) continue;
 				}
 
 				Vector3 pointA = pos + rot * vertices[indices[i * 3]].pos, pointB = pos + rot * vertices[indices[i * 3 + 1]].pos, pointC = pos + rot * vertices[indices[i * 3 + 2]].pos;
@@ -71,9 +82,10 @@ namespace vb01{
 						Vector3 bisecAVec = ((pointB - pointA) + (pointC - pointA));
 						Vector3 bisecBVec = ((pointA - pointB) + (pointC - pointB));
 						Vector3 bisecCVec = ((pointB - pointC) + (pointA - pointC));
-						bool withinBisecA = (contactPoint - pointA).norm().getAngleBetween(bisecAVec.norm()) <= angleA / 2;
-						bool withinBisecB = (contactPoint - pointB).norm().getAngleBetween(bisecBVec.norm()) <= angleB / 2;
-						bool withinBisecC = (contactPoint - pointC).norm().getAngleBetween(bisecCVec.norm()) <= angleC / 2;
+						float eps = .1;
+						bool withinBisecA = ((contactPoint - pointA).norm().getAngleBetween(bisecAVec.norm()) - angleA / 2) <= eps;
+						bool withinBisecB = ((contactPoint - pointB).norm().getAngleBetween(bisecBVec.norm()) - angleB / 2) <= eps;
+						bool withinBisecC = ((contactPoint - pointC).norm().getAngleBetween(bisecCVec.norm()) - angleC / 2) <= eps;
 
 						if(withinBisecA && withinBisecB && withinBisecC){
 							CollisionResult result;
