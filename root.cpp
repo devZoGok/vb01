@@ -153,7 +153,7 @@ namespace vb01{
 
 		AnimationController::getSingleton()->update();
 
-		updateNodeTree(rootNode);
+		updateNodeTree(rootNode, false);
 
 		LineRenderer::getSingleton()->drawLines();
 
@@ -167,33 +167,28 @@ namespace vb01{
 		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
-		updateNodeTree(guiNode);
+		updateNodeTree(guiNode, true);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	//TODO replace sorting algorithm
-	void Root::updateNodeTree(Node *node){
+	//TODO specify differentiation of nodes with translucent meshes AND texts
+	void Root::updateNodeTree(Node *node, bool gui){
 			vector<Node*> descendants, opaqueNodes, transparentNodes;
 			node->getDescendants(descendants);
 
 			for(Node *desc : descendants){
-					if(!desc->getMeshes().empty())
-						for(Mesh *mesh : desc->getMeshes()){
-								Material *mat = mesh->getMaterial();
-								vector<Material::Uniform*> uniforms = mat->getUniformsByType(Material::Uniform::TEXTURE);
-
-								if(!uniforms.empty())
-									for(Material::Uniform *uni : uniforms){
-											bool transparent = ((Material::TextureUniform*)uni)->value->isTransparent();
-											(transparent ? transparentNodes : opaqueNodes).push_back(desc);
-									}
-								else
-										opaqueNodes.push_back(desc);
-						}
-					else
-							opaqueNodes.push_back(desc);
+				if(!desc->getMeshes().empty())
+					for(Mesh *mesh : desc->getMeshes()){
+						(mesh->getMaterial()->isTransparent() ? transparentNodes : opaqueNodes).push_back(desc);
+						break;
+					}
+				else if(!desc->getTexts().empty())
+					transparentNodes.push_back(desc);
+				else
+					opaqueNodes.push_back(desc);
 			}
 
 			for(Node *node : opaqueNodes)
@@ -202,22 +197,30 @@ namespace vb01{
 			int numNodes = transparentNodes.size();
 
 			for(int i = 0; i < numNodes; i++){
+				float d1 = transparentNodes[i]->getPosition().z;
+
+				if(!gui){
 					Vector3 v1 = transparentNodes[i]->getPosition() - camera->getPosition();
 					float a1 = v1.norm().getAngleBetween(camera->getDirection());
-					float d1 = v1.getLength() * cos(a1);
+					d1 = v1.getLength() * cos(a1);
+				}
 
-					for(int j = i; j < numNodes; j++){
-							Vector3 v2 = transparentNodes[j]->getPosition() - camera->getPosition();
-							float a2 = v2.norm().getAngleBetween(camera->getDirection());
-							float d2 = v2.getLength() * cos(a2);
+				for(int j = i; j < numNodes; j++){
+					float d2 = transparentNodes[j]->getPosition().z;
 
-							if(d1 < d2)
-									swap(transparentNodes[i], transparentNodes[j]);
+					if(!gui){
+						Vector3 v2 = transparentNodes[j]->getPosition() - camera->getPosition();
+						float a2 = v2.norm().getAngleBetween(camera->getDirection());
+						d2 = v2.getLength() * cos(a2);
 					}
+
+					if(d1 > d2)
+						swap(transparentNodes[i], transparentNodes[j]);
+				}
 			}
 
 			for(Node *node : transparentNodes)
-					node->update();
+				node->update();
 	}
 
 	void Root::updateBloomFramebuffer(){

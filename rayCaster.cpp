@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "rayCaster.h"
 #include "mesh.h"
 #include "node.h"
@@ -7,11 +5,11 @@
 using namespace std;
 
 namespace vb01{
-	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, Node *node, const float rayLength){
-		return cast(rayPos, rayDir, vector<Node*>{node}, rayLength);
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, Node *node, const float rayLength, const float distToRay){
+		return cast(rayPos, rayDir, vector<Node*>{node}, rayLength, distToRay);
 	}
 
-	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, vector<Node*> nodes, const float rayLength){
+	vector<RayCaster::CollisionResult> RayCaster::cast(Vector3 rayPos, Vector3 rayDir, vector<Node*> nodes, const float rayLength, const float distToRay){
 		vector<CollisionResult> results;
 
 		for(Node *node : nodes){
@@ -19,7 +17,7 @@ namespace vb01{
 			node->getDescendants(descendants);
 
 			for(Node *desc : descendants){
-				vector<CollisionResult> res = retrieveCollisions(rayPos, rayDir, desc, rayLength);
+				vector<CollisionResult> res = retrieveCollisions(rayPos, rayDir, desc, rayLength, distToRay);
 				results.insert(results.end(), res.begin(), res.end());
 			}
 		}
@@ -29,7 +27,7 @@ namespace vb01{
 		return results;
 	}
 
-	vector<RayCaster::CollisionResult> RayCaster::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, float rayLength){
+	vector<RayCaster::CollisionResult> RayCaster::retrieveCollisions(Vector3 rayPos, Vector3 rayDir, Node *node, float rayLength, const float distToRay){
 		Vector3 pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 		Quaternion rot = node->localToGlobalOrientation(Quaternion::QUAT_W);
 		vector<CollisionResult> results;
@@ -40,6 +38,26 @@ namespace vb01{
 			u32 *indices = m->getMeshBase().indices;
 
 			for(int i = 0; i < numVerts / 3; i++){
+				if(distToRay > 0.0){
+					bool skip = false;
+
+					for(int j = 0; j < 3; j++){
+						Vector3 rayPosToVert = (vertices[i * 3 + j].pos - rayPos);
+						float angle = rayDir.getAngleBetween(rayPosToVert.norm());
+
+						if(angle > PI / 2) angle = PI - angle;
+
+						float dist = sin(angle) * rayPosToVert.getLength();
+
+						if(dist > distToRay){
+							skip = true;
+							break;
+						}
+					}
+
+					if(skip) continue;
+				}
+
 				Vector3 pointA = pos + rot * vertices[indices[i * 3]].pos, pointB = pos + rot * vertices[indices[i * 3 + 1]].pos, pointC = pos + rot * vertices[indices[i * 3 + 2]].pos;
 				Vector3 hypVec = pointA - rayPos;
 				Vector3 perpVec = (pointB - pointA).cross(pointC - pointA).norm();
@@ -64,9 +82,10 @@ namespace vb01{
 						Vector3 bisecAVec = ((pointB - pointA) + (pointC - pointA));
 						Vector3 bisecBVec = ((pointA - pointB) + (pointC - pointB));
 						Vector3 bisecCVec = ((pointB - pointC) + (pointA - pointC));
-						bool withinBisecA = (contactPoint - pointA).norm().getAngleBetween(bisecAVec.norm()) <= angleA / 2;
-						bool withinBisecB = (contactPoint - pointB).norm().getAngleBetween(bisecBVec.norm()) <= angleB / 2;
-						bool withinBisecC = (contactPoint - pointC).norm().getAngleBetween(bisecCVec.norm()) <= angleC / 2;
+						float eps = .1;
+						bool withinBisecA = ((contactPoint - pointA).norm().getAngleBetween(bisecAVec.norm()) - angleA / 2) <= eps;
+						bool withinBisecB = ((contactPoint - pointB).norm().getAngleBetween(bisecBVec.norm()) - angleB / 2) <= eps;
+						bool withinBisecC = ((contactPoint - pointC).norm().getAngleBetween(bisecCVec.norm()) - angleC / 2) <= eps;
 
 						if(withinBisecA && withinBisecB && withinBisecC){
 							CollisionResult result;

@@ -8,6 +8,7 @@ namespace vb01{
 		public:
 			Box(Vector3);
 			void setSize(Vector3);
+			inline Vector3 getSize(){return size;}
 		private:
 			Vector3 size;
 	};

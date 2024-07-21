@@ -19,7 +19,8 @@ namespace vb01Gui{
 	class AbstractGuiManager{
 		public:
 			void update();
-			void findClickedButton();
+			std::vector<Button*> findClickedButtons();
+			void updateGui();
 			void addButton(Button *b){buttons.push_back(b);}
 			void removeButton(Button*);
 			void removeButton(std::string);
@@ -35,6 +36,7 @@ namespace vb01Gui{
 			void addText(vb01::Text *t){texts.push_back(t);}
 			void removeText(vb01::Text*);
 			vb01::Text* getText(std::string);
+			vb01::Node* getGuiRectangle(std::string);
 			void removeSlider(Slider*);
 			void removeAllButtons(std::vector<Button*> = std::vector<Button*>{});
 			void removeAllListboxes(std::vector<Listbox*> = std::vector<Listbox*>{});
@@ -54,7 +56,11 @@ namespace vb01Gui{
 			);
 			inline std::vector<Button*> getButtons(){return buttons;}
 			inline std::vector<Listbox*> getListboxes(){return listboxes;}
+			inline std::vector<Checkbox*> getCheckboxes(){return checkboxes;}
+			inline std::vector<Slider*> getSliders(){return sliders;}
 			inline std::vector<Textbox*> getTextboxes(){return textboxes;}
+			inline std::vector<vb01::Node*> getGuiRectangles(){return guiRectangles;}
+			inline std::vector<vb01::Text*> getTexts(){return texts;}
 		private:
 			void updateCurrentListbox(Button*, bool&);
 			void updateCurrentSlider(Button*);

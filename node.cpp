@@ -43,7 +43,17 @@ namespace vb01{
 	}
 
 	void Node::update(){
-		if(visible){
+		bool render = true;
+		Node *ancestor = this;
+
+		while(ancestor){
+			render = ancestor->isVisible();
+			ancestor = ancestor->getParent();
+
+			if(!render) break;
+		}
+
+		if(render){
 			for(Light *l : lights)
 				l->update();
 
@@ -410,6 +420,21 @@ namespace vb01{
 		vector<Node*> ancestors = getAncestors();
 		Quaternion origin = adjustRot(ancestors, globalRot, false);
 		return origin;
+	}
+
+	Node* Node::findDescendant(string name, bool allDescendants){
+		vector<Node*> descendants = children;
+
+		if(allDescendants){
+			descendants.clear();
+			getDescendants(descendants);
+		}
+
+		for(Node *desc : descendants)
+			if(desc->getName() == name)
+				return desc;
+
+		return nullptr;
 	}
 
 	void Node::updateShaders(){

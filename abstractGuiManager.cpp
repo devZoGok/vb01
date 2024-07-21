@@ -94,22 +94,32 @@ namespace vb01Gui{
 			}
 	}
 
-	void AbstractGuiManager::findClickedButton(){
-		bool textboxClicked = false, listboxClicked = false;
-		
+	vector<Button*> AbstractGuiManager::findClickedButtons(){
+		vector<Button*> clickedButtons;
+		Vector2 mousePos = getCursorPos();
+
 		for (int i = 0; i < buttons.size(); i++) {
-			Vector2 mousePos = getCursorPos();
-			Button *b = buttons[i];
-			bool withinX = mousePos.x > b->getPos().x && mousePos.x < b->getPos().x + b->getSize().x;
-			bool withinY = mousePos.y > b->getPos().y && mousePos.y < b->getPos().y + b->getSize().y;
+			bool withinX = mousePos.x > buttons[i]->getPos().x && mousePos.x < buttons[i]->getPos().x + buttons[i]->getSize().x;
+			bool withinY = mousePos.y > buttons[i]->getPos().y && mousePos.y < buttons[i]->getPos().y + buttons[i]->getSize().y;
 		
-			if (b->isActive() && withinX && withinY){
+			if (withinX && withinY)
+				clickedButtons.push_back(buttons[i]);
+		}
+
+		return clickedButtons;
+	}
+
+	void AbstractGuiManager::updateGui(){
+		bool textboxClicked = false, listboxClicked = false;
+		vector<Button*> clickedButtons = findClickedButtons();
+		
+		for (Button *b : clickedButtons)
+			if (b->isActive()){
 			    b->onClick();
 				updateCurrentListbox(b, listboxClicked);
 				updateCurrentSlider(b);
 				updateCurrentTextbox(b, textboxClicked);
 			}
-		}
 		
 		if(!textboxClicked && currentTextbox){
 			currentTextbox->disable();
@@ -236,6 +246,18 @@ namespace vb01Gui{
 			}
 
 		return text;
+	}
+
+	Node* AbstractGuiManager::getGuiRectangle(string name){
+		Node *guiRect = nullptr;
+
+		for(Node *rect : guiRectangles)
+			if(rect->getName() == name){
+				guiRect = rect;
+				break;
+			}
+
+		return guiRect;
 	}
 
 	void AbstractGuiManager::removeAllButtons(vector<Button*> exceptions){
