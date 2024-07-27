@@ -17,9 +17,9 @@ namespace vb01{
 
 			static std::vector<CollisionResult> cast(Vector3, Vector3, Node*, const float = .0, const float = .0);
 			static std::vector<CollisionResult> cast(Vector3, Vector3, std::vector<Node*>, const float = .0, const float = .0);
+			static void sortResults(std::vector<CollisionResult>&);
 		private:
 			static std::vector<CollisionResult> retrieveCollisions(Vector3, Vector3, Node*, const float, const float);
-			static void sortResults(std::vector<CollisionResult>&);
 	};
 
 }
