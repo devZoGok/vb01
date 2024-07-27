@@ -252,7 +252,7 @@ def export(node, parentTag):
         
         armatureMod = 'Armature'
         
-        if(node.modifiers and node.modifiers[armatureMod] and node.modifiers[armatureMod].object):
+        if(node.modifiers and armatureMod in list(node.modifiers.keys()) and node.modifiers[armatureMod].object):
             skeleton = node.modifiers[armatureMod].object
             meshTag.set('skeleton', skeleton.data.name_full)
     elif node.type == 'ARMATURE':
