@@ -42,6 +42,8 @@ namespace vb01{
 				assetRootNode->getDescendants(descendants);
 				setupDrivers(descendants);
 
+				delete doc;
+
 				return asset;
 		}
 
