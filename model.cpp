@@ -28,14 +28,14 @@ namespace vb01{
 	}
 
 	Model::~Model(){
-		delete children[0]->getMesh(0)->getMaterial();
-
 		vector<Node*> descendants;
 		getDescendants(descendants);
 
 		for(Node *node : descendants)
-			for(Mesh *mesh : node->getMeshes())
+			for(Mesh *mesh : node->getMeshes()){
+				delete mesh->getMaterial();
 				mesh->setMaterial(nullptr);
+			}
 
 		while(!children.empty()){
 			Node *c = children[children.size() - 1];

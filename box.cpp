@@ -63,14 +63,14 @@ namespace vb01{
 		MeshData::Vertex *vertices = new MeshData::Vertex[3 * numTris];
 
 		for(int i = 0; i < 3 * numTris; i++){
-				MeshData::Vertex v;
-			v.pos = pos[data[3 * i]];
-			v.norm = norm[data[3 * i + 1]];
+			MeshData::Vertex v;
+			v.pos = &pos[data[3 * i]];
+			v.norm = &norm[data[3 * i + 1]];
 			v.uv = tex[data[3 * i + 2]];
 			vertices[i] = v;
 			indices[i] = i;
 		}
 
-		meshBase = MeshData(vertices, indices, numTris);
+		meshBase = MeshData((Vector3*)pos, nullptr, nullptr, nullptr, 8, (Vector3*)norm, vertices, indices, numTris);
 	}
 }
