@@ -95,7 +95,10 @@ namespace vb01{
 
 	void Mesh::updateVerts(MeshData meshData){
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::Vertex) * meshBase.numTris, meshData.vertices);
+
+		MeshData::OldVertex *glVertData = meshBase.toGlVerts();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::OldVertex) * meshBase.numTris, glVertData);
+		delete glVertData;
 	}
 
 	void Mesh::update(){
