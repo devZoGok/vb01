@@ -33,10 +33,11 @@ namespace vb01{
 					vertData[i].weights[j] = vertices[i].weights[j];
 					vertData[i].boneIndices[j] = vertices[i].boneIndices[j];
 				}
-
 			}
 
-			//if(shapeKeyOffsets) for(int j = 0; j < 100; j++) vertData[i].shapeKeyOffsets[j] = vertices[i].shapeKeyOffsets[j];
+			if(shapeKeyOffsets)
+				for(int j = 0; j < 100; j++) 
+					vertData[i].shapeKeyOffsets[j] = vertices[i].shapeKeyOffsets[j];
 		}
 
 		return vertData;

@@ -14,7 +14,7 @@ namespace vb01{
 				std::string name;
 				float minValue, value, maxValue;
 			
-				ShapeKey(std::string n, float v, float mnv, float mxv) : name(n), value(v), minValue(mnv), maxValue(mxv), Animatable(Animatable::SHAPE_KEY, name){}
+				ShapeKey(std::string n, float v, float mnv, float mxv) : name(n), value(v), minValue(mnv), maxValue(mxv), Animatable(Animatable::SHAPE_KEY, n){}
 				ShapeKey() : Animatable(Animatable::SHAPE_KEY){}
 				void animate(float, KeyframeChannel);
 			};

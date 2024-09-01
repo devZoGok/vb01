@@ -9,27 +9,23 @@ namespace vb01{
 	void Box::setSize(Vector3 size){
 		this->size = size;
 
-		Vector3 pos[] = {
-			Vector3(size.x / 2, size.y / 2, size.z / 2),
-			Vector3(-size.x / 2, size.y / 2, size.z / 2),
-			Vector3(-size.x / 2, size.y / 2, -size.z / 2),
-			Vector3(size.x / 2, size.y / 2, -size.z / 2),
+		Vector3 *pos = new Vector3[8];
+		pos[0] = Vector3(size.x / 2, size.y / 2, size.z / 2);
+		pos[1] = Vector3(-size.x / 2, size.y / 2, size.z / 2);
+		pos[2] = Vector3(-size.x / 2, size.y / 2, -size.z / 2);
+		pos[3] = Vector3(size.x / 2, size.y / 2, -size.z / 2);
+		pos[4] = Vector3(size.x / 2, -size.y / 2, size.z / 2);
+		pos[5] = Vector3(-size.x / 2, -size.y / 2, size.z / 2);
+		pos[6] = Vector3(-size.x / 2, -size.y / 2, -size.z / 2);
+		pos[7] = Vector3(size.x / 2, -size.y / 2, -size.z / 2);
 
-			Vector3(size.x / 2, -size.y / 2, size.z / 2),
-			Vector3(-size.x / 2, -size.y / 2, size.z / 2),
-			Vector3(-size.x / 2, -size.y / 2, -size.z / 2),
-			Vector3(size.x / 2, -size.y / 2, -size.z / 2)
-		};
-
-		Vector3 norm[] = {
-			Vector3(0, 0, 1),
-			Vector3(0, 1, 0),
-			Vector3(1, 0, 0),
-
-			Vector3(0, 0, -1),
-			Vector3(0, -1, 0),
-			Vector3(-1, 0, 0)
-		};
+		Vector3 *norm = new Vector3[6];
+		norm[0] = Vector3(0, 0, 1);
+		norm[1] = Vector3(0, 1, 0);
+		norm[2] = Vector3(1, 0, 0);
+		norm[3] = Vector3(0, 0, -1);
+		norm[4] = Vector3(0, -1, 0);
+		norm[5] = Vector3(-1, 0, 0);
 
 		Vector2 tex[] = {
 			Vector2(1, 1),
@@ -71,6 +67,6 @@ namespace vb01{
 			indices[i] = i;
 		}
 
-		meshBase = MeshData((Vector3*)pos, nullptr, nullptr, nullptr, 8, (Vector3*)norm, vertices, indices, numTris);
+		meshBase = MeshData(pos, nullptr, nullptr, nullptr, 8, norm, vertices, indices, numTris);
 	}
 }

@@ -61,48 +61,49 @@ namespace vb01{
 
 		//TODO remove the 4 literal for bone weights and indices
 		Mesh* XmlModelReader::processMesh(XMLElement *meshEl){
-				int numVertPos = 0;
-				vector<Vector3> vp;
-				vector<float> w;
-				const char *tagName = "vertdata";
-
-				for(XMLElement *vertEl = meshEl->FirstChildElement(tagName); vertEl && strcmp(vertEl->Name(), tagName) == 0; vertEl = vertEl->NextSiblingElement(), numVertPos++){
-						float posX = atof(vertEl->Attribute("px"));
-						float posY = atof(vertEl->Attribute("py"));
-						float posZ = atof(vertEl->Attribute("pz"));
-						vp.push_back(Vector3(posX, posY, posZ));
-
-						for(XMLElement *weightEl = vertEl->FirstChildElement("weight"); weightEl; weightEl = weightEl->NextSiblingElement())
-								w.push_back(atof(weightEl->Attribute("value")));
-				}
-
+				int numVertPos = atoi(meshEl->Attribute("num_vertex_pos"));
 				int numVertexGroups = atoi(meshEl->Attribute("num_vertex_groups"));
+
+				const char *tagName = "vertdata";
 
 				Vector3 *vertPos = new Vector3[numVertPos];
 				float **weights = new float*[numVertPos];
-				int **boneIndices = new int*[numVertPos];
+				int **boneIndices = new int*[numVertPos], i = 0;
 
-				for(int i = 0; i < vp.size(); i++){
-					vertPos[i] = vp[i];
-					weights[i] = new float[4];
-					boneIndices[i] = new int[4];
+				for(XMLElement *vertEl = meshEl->FirstChildElement(tagName); vertEl && strcmp(vertEl->Name(), tagName) == 0, i < numVertPos; vertEl = vertEl->NextSiblingElement(), i++){
+						float posX = atof(vertEl->Attribute("px"));
+						float posY = atof(vertEl->Attribute("py"));
+						float posZ = atof(vertEl->Attribute("pz"));
+						vertPos[i] = Vector3(posX, posY, posZ);
 
-					for(int j = 0; j < 4; j++){
-						weights[i][j] = 0;
-						//weights[i][j] = w[i * numVertexGroups + j];
-						boneIndices[i][j] = -1;
-					}
+						weights[i] = new float[4];
+						boneIndices[i] = new int[4];
+
+						for(int j = 0; j < 4; j++){
+							weights[i][j] = 0;
+							boneIndices[i][j] = -1;
+						}
+
+						int boneIndex = 0, j = 0;
+
+						for(XMLElement *weightEl = vertEl->FirstChildElement("weight"); weightEl, j < numVertexGroups; weightEl = weightEl->NextSiblingElement(), j++){
+							float w = atof(weightEl->Attribute("value"));
+
+							if(w > 0){
+								weights[i][boneIndex] = w;
+								boneIndices[i][boneIndex] = j;
+								boneIndex++;
+							}
+						}
 				}
-
-				vp.clear();
-				w.clear();
 
 				string *vertexGroups = new string[numVertexGroups];
 				tagName = "vertexgroup";
-				int i = 0;
+				i = 0;
 
-				for(XMLElement *vertGroupEl = meshEl->FirstChildElement(tagName); vertGroupEl && strcmp(vertGroupEl->Name(), tagName) == 0; vertGroupEl = vertGroupEl->NextSiblingElement(), i++)
-					vertexGroups[i] = (vertGroupEl->Attribute("name"));
+				if(numVertexGroups > 0)
+					for(XMLElement *vertGroupEl = meshEl->FirstChildElement(tagName); vertGroupEl && strcmp(vertGroupEl->Name(), tagName) == 0 && i < numVertexGroups; vertGroupEl = vertGroupEl->NextSiblingElement(), i++)
+						vertexGroups[i] = vertGroupEl->Attribute("name");
 
 				i = 0;
 				int numVertices = 3 * atoi(meshEl->Attribute("num_faces"));
@@ -111,9 +112,11 @@ namespace vb01{
 				u32 *indices = new u32[numVertices];
 
 				Vector3 *normals = new Vector3[numVertices];
+				vector<int> vertIds;
 
 				for(XMLElement *vertEl = meshEl->FirstChildElement(tagName); vertEl && strcmp(vertEl->Name(), tagName) == 0; vertEl = vertEl->NextSiblingElement(), i++){
 						int id = atoi(vertEl->Attribute("id"));
+						vertIds.push_back(id);
 
 						float uvX = atof(vertEl->Attribute("uvx"));
 						float uvY = atof(vertEl->Attribute("uvy"));
@@ -138,14 +141,6 @@ namespace vb01{
 						vertex.tan = tan;
 						vertex.biTan = biTan;
 
-						for(int j = 0, boneIndex = 0; j < numVertexGroups; j++){
-							if(weights[id][j] > 0){
-								boneIndices[id][boneIndex] = j;
-								//weights[id][boneIndex] = weights[id * numVertexGroups + j];
-								boneIndex++;
-							}
-						}
-
 						vertex.weights = weights[id];
 						vertex.boneIndices = boneIndices[id];
 
@@ -156,43 +151,41 @@ namespace vb01{
 				tagName = "shapekey";
 				i = 0;
 				int numShapeKeys = atoi(meshEl->Attribute("num_shape_keys"));
-				MeshData::ShapeKey *shapeKeys = new MeshData::ShapeKey[numShapeKeys];
-				Vector3 **shapeKeyOffsets = new Vector3*[numVertPos];
+				MeshData::ShapeKey *shapeKeys = nullptr;
+				Vector3 **shapeKeyOffsets = nullptr;
 
-				for(int i = 0; i < numVertPos; i++){
-					shapeKeyOffsets[i] = new Vector3[100];
-				}
+				if(numShapeKeys > 0){
+					shapeKeys = new MeshData::ShapeKey[numShapeKeys];
+					shapeKeyOffsets = new Vector3*[numVertPos];
 
-				for(XMLElement *shapeKeyEl = meshEl->FirstChildElement(tagName); shapeKeyEl && strcmp(shapeKeyEl->Name(), tagName) == 0; shapeKeyEl = shapeKeyEl->NextSiblingElement(), i++){
-						string name = shapeKeyEl->Attribute("name");
-						float minValue = atof(shapeKeyEl->Attribute("min"));
-						float maxValue = atof(shapeKeyEl->Attribute("max"));
-						shapeKeys[i] = MeshData::ShapeKey(name, minValue, minValue, maxValue);
+					for(int i = 0; i < numVertPos; i++)
+						shapeKeyOffsets[i] = new Vector3[100];
 
-						XMLElement *driverEl = shapeKeyEl->FirstChildElement("driver");
-						KeyframeChannel channel = processKeyframeChannells(driverEl)[0];
-						const char *nodeName = driverEl->Attribute("obj");
-						const char *boneName = driverEl->Attribute("bone");
-						Driver::VariableType type = Driver::getDriverVariableType(driverEl->Attribute("type"));
-						driversByNodeNames.push_back(make_pair(string(nodeName) + (boneName ? "." + string(boneName) : ""), new Driver(&shapeKeys[i], channel, type)));
+					for(XMLElement *shapeKeyEl = meshEl->FirstChildElement(tagName); shapeKeyEl && strcmp(shapeKeyEl->Name(), tagName) == 0 && i < numShapeKeys; shapeKeyEl = shapeKeyEl->NextSiblingElement(), i++){
+							string name = shapeKeyEl->Attribute("name");
+							float minValue = atof(shapeKeyEl->Attribute("min"));
+							float maxValue = atof(shapeKeyEl->Attribute("max"));
+							shapeKeys[i] = MeshData::ShapeKey(name, minValue, minValue, maxValue);
 
-						vector<Vector3> shapeKeyPos;
+							XMLElement *driverEl = shapeKeyEl->FirstChildElement("driver");
+							KeyframeChannel channel = processKeyframeChannells(driverEl)[0];
+							const char *nodeName = driverEl->Attribute("obj");
+							const char *boneName = driverEl->Attribute("bone");
+							Driver::VariableType type = Driver::getDriverVariableType(driverEl->Attribute("type"));
+							driversByNodeNames.push_back(make_pair(string(nodeName) + (boneName ? "." + string(boneName) : ""), new Driver(&shapeKeys[i], channel, type)));
 
-						for(XMLElement *vertEl = shapeKeyEl->FirstChildElement("vert"); vertEl; vertEl = vertEl->NextSiblingElement()){
-								float posX = atof(vertEl->Attribute("px"));
-								float posY = atof(vertEl->Attribute("py"));
-								float posZ = atof(vertEl->Attribute("pz"));
-								shapeKeyPos.push_back(Vector3(posX, posY, posZ));
-						}
+							int j = 0;
 
-						/*
-						for(int j = 0; j < numVertPos; j++){
-							shapeKeyOffsets[i] = new Vector3[100];
+							for(XMLElement *vertEl = shapeKeyEl->FirstChildElement("vert"); vertEl; vertEl = vertEl->NextSiblingElement(), j++){
+									float posX = atof(vertEl->Attribute("px"));
+									float posY = atof(vertEl->Attribute("py"));
+									float posZ = atof(vertEl->Attribute("pz"));
+									shapeKeyOffsets[j][i] = Vector3(posX, posY, posZ) - vertPos[j];
+							}
+					}
 
-							for(int k = 0; k < 100; k++)
-								shapeKeyOffsets[i][k] = shapeKeyPos[vertIds[j]] - vertPos[vertIds[j]];
-						}
-						*/
+					for(int i = 0; i < numVertices; i++)
+						vertices[i].shapeKeyOffsets = shapeKeyOffsets[vertIds[i]];
 				}
 
 			const char *fullSkeletonName = meshEl->Attribute("skeleton");
