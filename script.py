@@ -166,6 +166,7 @@ def export(node, parentTag):
 
     if node.type == 'MESH':
         mesh = node.data
+        numVertexPos = len(mesh.vertices)
         numFaces = len(mesh.polygons)
         numVerts = len(mesh.vertices)
         numGroups = len(node.vertex_groups)
@@ -176,6 +177,7 @@ def export(node, parentTag):
         
         meshTag = ET.SubElement(nodeTag, 'mesh')
         meshTag.set('name', node.name + mesh.name_full)
+        meshTag.set('num_vertex_pos', str(numVertexPos))
         meshTag.set('num_faces', str(numFaces))
         meshTag.set('num_vertex_groups', str(numGroups))
         meshTag.set('num_shape_keys', str(numShapeKeys))

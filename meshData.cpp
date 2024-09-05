@@ -17,22 +17,29 @@ namespace vb01{
 		}
 	}
 
-	MeshData::ShapeKey::ShapeKey(string name, float value, float minValue, float maxValue) : Animatable(Animatable::SHAPE_KEY, name){
-			this->name = name;
-			this->value = value;
-			this->minValue = minValue;
-			this->maxValue = maxValue;
-	}
+	MeshData::GpuVertex* MeshData::toGpuVerts(){
+		int numVertices = 3 * numTris;
+		GpuVertex *vertData = new GpuVertex[numVertices];
 
-	MeshData::MeshData(Vertex *vertices, u32 *indices, int numTris, string attachableName, string *vertexGroups, int numVertexGroups, string fullSkeletonName, ShapeKey *shapeKeys, int numShapeKeys){
-		this->vertices = vertices;
-		this->indices = indices;
-		this->numTris = numTris;
-		this->attachableName = attachableName;
-		this->vertexGroups = vertexGroups;
-		this->numVertexGroups = numVertexGroups;
-		this->fullSkeletonName = fullSkeletonName;
-		this->shapeKeys = shapeKeys;
-		this->numShapeKeys = numShapeKeys;
+		for(int i = 0; i < numVertices; i++){
+			vertData[i].pos = *vertices[i].pos;
+			vertData[i].norm = *vertices[i].norm;
+			vertData[i].tan = vertices[i].tan;
+			vertData[i].biTan = vertices[i].biTan;
+			vertData[i].uv = vertices[i].uv;
+
+			if(weights){
+				for(int j = 0; j < 4; j++){
+					vertData[i].weights[j] = vertices[i].weights[j];
+					vertData[i].boneIndices[j] = vertices[i].boneIndices[j];
+				}
+			}
+
+			if(shapeKeyOffsets)
+				for(int j = 0; j < 100; j++) 
+					vertData[i].shapeKeyOffsets[j] = vertices[i].shapeKeyOffsets[j];
+		}
+
+		return vertData;
 	}
 }
