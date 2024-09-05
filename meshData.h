@@ -19,7 +19,7 @@ namespace vb01{
 				void animate(float, KeyframeChannel);
 			};
 			
-			struct OldVertex{
+			struct GpuVertex{
 				Vector3 pos, norm, tan, biTan;
 				Vector2 uv;	
 				float weights[4]{0, 0, 0, 0};
@@ -35,7 +35,7 @@ namespace vb01{
 				Vector3 *shapeKeyOffsets = nullptr;
 			};
 
-			OldVertex* toGlVerts();
+			GpuVertex* toGpuVerts();
 
 			Vector3 *positions = nullptr, *normals = nullptr, **shapeKeyOffsets = nullptr;
 			float **weights = nullptr;

@@ -44,12 +44,12 @@ namespace vb01{
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);	
 
-		u32 size = sizeof(MeshData::OldVertex);
+		u32 size = sizeof(MeshData::GpuVertex);
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-		MeshData::OldVertex *glVertData = meshBase.toGlVerts();
+		MeshData::GpuVertex *glVertData = meshBase.toGpuVerts();
 		glBufferData(GL_ARRAY_BUFFER, 3 * meshBase.numTris * size, glVertData, GL_DYNAMIC_DRAW);
 		delete glVertData;
 
@@ -58,21 +58,21 @@ namespace vb01{
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, norm)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, norm)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, uv)));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, uv)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, tan)));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, tan)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, biTan)));
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, biTan)));
 		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, weights)));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, weights)));
 		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, boneIndices)));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, boneIndices)));
 		glEnableVertexAttribArray(6);
 
 		for(int i = 0; i < meshBase.numShapeKeys; i++){
-			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::OldVertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
+			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
 			glEnableVertexAttribArray(7 + i);
 		}
 	}
@@ -96,8 +96,8 @@ namespace vb01{
 	void Mesh::updateVerts(MeshData meshData){
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-		MeshData::OldVertex *glVertData = meshBase.toGlVerts();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::OldVertex) * meshBase.numTris, glVertData);
+		MeshData::GpuVertex *glVertData = meshBase.toGpuVerts();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::GpuVertex) * meshBase.numTris, glVertData);
 		delete glVertData;
 	}
 

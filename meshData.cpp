@@ -17,9 +17,9 @@ namespace vb01{
 		}
 	}
 
-	MeshData::OldVertex* MeshData::toGlVerts(){
+	MeshData::GpuVertex* MeshData::toGpuVerts(){
 		int numVertices = 3 * numTris;
-		OldVertex *vertData = new OldVertex[numVertices];
+		GpuVertex *vertData = new GpuVertex[numVertices];
 
 		for(int i = 0; i < numVertices; i++){
 			vertData[i].pos = *vertices[i].pos;
