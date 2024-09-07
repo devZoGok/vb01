@@ -133,9 +133,9 @@ void main(){
 				float shadow = getShadow(i);
 				diffuseCol *= (1.0 - shadow);
 			}
-
-			finalColor *= vec4(diffuseCol + specularCol, 1);
 		}
+
+		finalColor *= vec4(diffuseCol + specularCol, 1);
 	}
 
 	float brightness = dot(finalColor.rgb, vec3(0.2126, 0.7152, 0.0722));
