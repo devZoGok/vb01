@@ -12,6 +12,7 @@ namespace vb01{
 		public:
 			static AssetManager* getSingleton();
 			void load(std::string, bool = false);
+			void editAsset(std::string, Asset&);
 			Asset* getAsset(std::string);
 			inline Asset* getAsset(int i){return assets[i];}
 			inline std::vector<Asset*> getAssets(){return assets;}
