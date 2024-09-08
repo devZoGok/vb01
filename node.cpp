@@ -253,6 +253,18 @@ namespace vb01{
 
 	}
 
+	void Node::removeLight(Light *light){
+		for(int i = 0; i < lights.size(); i++)
+			if(lights[i] == light){
+				lights.erase(lights.begin() + i);
+
+				Root::getSingleton()->shiftNumLights(false);
+				updateShaders();
+
+				break;
+			}
+	}
+
 	void Node::removeLight(int id){
 		Root::getSingleton()->shiftNumLights(false);
 		Light *light = lights[id];
