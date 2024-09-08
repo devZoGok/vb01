@@ -98,11 +98,14 @@ void main(){
 		if(checkLights){
 			for(int i = 0; i < numLights; i++){
 				vec3 lightDir = vec3(0), viewDir = normalize(camPos - fragPos);
-				float attenuation = 1.0;
-				float a = lights[i].a, b = lights[i].b, c = lights[i].c, dist = length(fragPos - lights[i].pos), factor, coef = 1;
+				float attenuation = 1.0, coef = 1;
 
 				if(lights[i].type == 0){
 					lightDir = normalize(lights[i].pos - fragPos);
+
+					float a = lights[i].a, b = lights[i].b, c = lights[i].c;
+					float dist = length(fragPos - lights[i].pos);
+
 					attenuation = 1.0 / (a * dist * dist + b * dist + c);
 				}
 				else if(lights[i].type == 1)
@@ -120,8 +123,8 @@ void main(){
 						continue;
 				}
 
-				factor = max(dot(lightDir, normal), 0.);
-				diffuseCol += lights[i].color * (factor * attenuation * coef);
+				float factor = (lights[i].type < 3 ? (max(dot(lightDir, normalize(normal)), 0.) * attenuation * coef) : 1);
+				diffuseCol += lights[i].color * factor;
 
 				if(specularMapEnabled){
 					float specularSample = texture(textures[2].pastTexture, texCoords).r;
@@ -130,8 +133,8 @@ void main(){
 					specularCol += specularStrength * spec * specularSample * lights[i].color;
 				}
 
-				float shadow = getShadow(i);
-				diffuseCol *= (1.0 - shadow);
+				if(castShadow)
+					diffuseCol *= (1.0 - getShadow(i));
 			}
 		}
 
