@@ -185,6 +185,7 @@ namespace vb01{
 			shader->setVec3(color, "lights[" + to_string(thisId) + "].color");
 			shader->setFloat(nearPlane, "lights[" + to_string(thisId) + "].near");
 			shader->setFloat(farPlane, "lights[" + to_string(thisId) + "].far");
+			shader->setBool(additiveLighting, "lights[" + to_string(thisId) + "].additive");
 
 			int depthMapId = 10;
 			shader->setInt(depthMapId, "lights[" + to_string(thisId) + "].depthMap");
@@ -194,9 +195,12 @@ namespace vb01{
 			switch(type){
 				case POINT:
 					shader->setVec3(position, "lights[" + to_string(thisId) + "].pos");
+					shader->setInt((int)attenuation, "lights[" + to_string(thisId) + "].attenuation");
+					shader->setFloat(radius, "lights[" + to_string(thisId) + "].radius");
 					shader->setFloat(attenuationValues.x, "lights[" + to_string(thisId) + "].a");
 					shader->setFloat(attenuationValues.y, "lights[" + to_string(thisId) + "].b");
 					shader->setFloat(attenuationValues.z, "lights[" + to_string(thisId) + "].c");
+					shader->setBool(useAngle, "lights[" + to_string(thisId) + "].additive");
 					break;
 				case DIRECTIONAL:
 					shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");

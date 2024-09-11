@@ -15,10 +15,11 @@ layout (location = 1) out vec4 BrightColor;
 //0-POINT,1-DIRECTIONAL,2-SPOT
 
 struct Light{
-	int type;
+	bool useAngle, additive;
+	int type, attenuation;
 	vec3 pos, color, direction;
 	float innerAngle, outerAngle;
-	float a, b, c, near, far;
+	float a, b, c, near, far, radius;
 	sampler2D depthMap;
 	samplerCube depthMapCube;
 	mat4 lightMat;
@@ -33,7 +34,7 @@ struct Texture{
 uniform Texture textures[4];
 uniform samplerCube environmentMap;
 uniform Light lights[numLights];
-uniform bool lightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
+uniform bool lightingEnabled, constLightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
 uniform vec4 diffuseColor, specularColor;
 uniform float shinyness, specularStrength;
 uniform vec3 camPos;
@@ -96,20 +97,36 @@ void main(){
 		vec3 diffuseCol = vec3(0), specularCol = vec3(0);
 
 		if(checkLights){
+			bool addedLighting = false;
+
 			for(int i = 0; i < numLights; i++){
 				vec3 lightDir = vec3(0), viewDir = normalize(camPos - fragPos);
-				float attenuation = 1.0, coef = 1;
+				float attenuation = 0, coef = 1;
+				float factor = 0;
+				bool canAdd = false;
 
 				if(lights[i].type == 0){
 					lightDir = normalize(lights[i].pos - fragPos);
+					float dist = length(lights[i].pos - fragPos), radius = lights[i].radius;
 
-					float a = lights[i].a, b = lights[i].b, c = lights[i].c;
-					float dist = length(fragPos - lights[i].pos);
-
-					attenuation = 1.0 / (a * dist * dist + b * dist + c);
+					if(lights[i].attenuation == 0){
+						float a = lights[i].a, b = lights[i].b, c = lights[i].c;
+						attenuation = 1.0 / (a * dist * dist + b * dist + c);
+						factor = (lights[i].useAngle ? max(dot(lightDir, normalize(normal)), 0.) : 1) * attenuation;
+					}
+					else if(lights[i].attenuation == 1 && dist < radius && radius > 0){
+						canAdd = !lights[i].additive;
+						factor = 1.0 - dist / lights[i].radius;
+					}
+					else if(lights[i].attenuation == 2 && dist < radius && radius > 0){
+						canAdd = !lights[i].additive;
+						factor = 1;
+					}
 				}
-				else if(lights[i].type == 1)
+				else if(lights[i].type == 1){
 					lightDir = -normalize(lights[i].direction);
+					factor = max(dot(lightDir, normalize(normal)), 0.) * attenuation * coef;
+				}
 				else if(lights[i].type == 2){
 					lightDir = normalize(lights[i].pos - fragPos);
 					float innerAngle = lights[i].innerAngle;
@@ -121,10 +138,18 @@ void main(){
 
 					if(angle > lights[i].outerAngle)
 						continue;
-				}
 
-				float factor = (lights[i].type < 3 ? (max(dot(lightDir, normalize(normal)), 0.) * attenuation * coef) : 1);
-				diffuseCol += lights[i].color * factor;
+					factor = max(dot(lightDir, normalize(normal)), 0.) * attenuation * coef;
+				}
+				else factor = 1;
+
+
+				if(lights[i].additive)
+					diffuseCol += lights[i].color * factor;
+				else if(!lights[i].additive && constLightingEnabled && !addedLighting && canAdd){
+					addedLighting = true;
+					diffuseCol += lights[i].color * factor;
+				}
 
 				if(specularMapEnabled){
 					float specularSample = texture(textures[2].pastTexture, texCoords).r;
