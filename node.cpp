@@ -58,10 +58,10 @@ namespace vb01{
 			if(!render) break;
 		}
 
-		if(render){
-			for(Light *l : lights)
-				l->update();
+		for(Light *l : lights)
+			l->update(render);
 
+		if(render){
 			for(Mesh *m : meshes)
 				m->update();
 

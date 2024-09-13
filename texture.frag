@@ -15,7 +15,7 @@ layout (location = 1) out vec4 BrightColor;
 //0-POINT,1-DIRECTIONAL,2-SPOT
 
 struct Light{
-	bool useAngle, additive;
+	bool useAngle, additive, render;
 	int type, attenuation;
 	vec3 pos, color, direction;
 	float innerAngle, outerAngle;
@@ -100,8 +100,10 @@ void main(){
 			bool addedLighting = false;
 
 			for(int i = 0; i < numLights; i++){
+				if(!lights[i].render) continue;
+
 				vec3 lightDir = vec3(0), viewDir = normalize(camPos - fragPos);
-				float attenuation = 0, coef = 1;
+				float attenuation = 1, coef = 1;
 				float factor = 0;
 				bool canAdd = false;
 
@@ -125,7 +127,7 @@ void main(){
 				}
 				else if(lights[i].type == 1){
 					lightDir = -normalize(lights[i].direction);
-					factor = max(dot(lightDir, normalize(normal)), 0.) * attenuation * coef;
+					factor = max(dot(lightDir, normalize(normal)), 0.) * attenuation;
 				}
 				else if(lights[i].type == 2){
 					lightDir = normalize(lights[i].pos - fragPos);

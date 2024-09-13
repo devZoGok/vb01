@@ -21,7 +21,9 @@ namespace vb01{
 
 			Light(Type, std::string = "");
 			~Light();
-			void update();
+			void update(bool);
+			inline Vector3 getColor(){return color;}
+			inline Type getLightType(){return type;}
 			inline void setColor(Vector3 color){this->color = color;}
 			inline void setAttenuationValues(float a, float b, float c){
 				attenuationValues.x = a;
