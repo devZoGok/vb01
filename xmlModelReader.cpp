@@ -132,7 +132,7 @@ namespace vb01{
 						float biTanZ = atof(vertEl->Attribute("bz"));
 						Vector3 biTan = Vector3(biTanX, biTanY, biTanZ);
 
-						normals[i] = tan.cross(biTan);
+						normals[i] = biTan.cross(tan);
 
 						MeshData::Vertex vertex;
 						vertex.pos = &vertPos[id];

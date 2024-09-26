@@ -1,8 +1,13 @@
 #include "assetManager.h"
 #include "abstractAssetReader.h"
 #include "util.h"
+#include "root.h"
+#include "node.h"
+#include "mesh.h"
+#include "material.h"
 #include "imageReader.h"
 #include "fontReader.h"
+#include "shaderReader.h"
 #include "xmlModelReader.h"
 
 #include <tinydir.h>
@@ -71,6 +76,11 @@ namespace vb01{
 			if(find(modelFormats.begin(), modelFormats.end(), format) != modelFormats.end())
 				assetReader = XmlModelReader::getSingleton();
 
+			vector<string> shaderFormats = vector<string>{"vert", "frag", "geo"};
+
+			if(find(shaderFormats.begin(), shaderFormats.end(), format) != shaderFormats.end())
+				assetReader = ShaderReader::getSingleton();
+
 			if(assetReader)
 				assets.push_back(assetReader->readAsset(file));
 			else
@@ -84,5 +94,29 @@ namespace vb01{
 				return a;
 		
 		return nullptr;
+	}
+
+	void AssetManager::editAsset(string path, Asset &newAsset){
+		ShaderAsset *oldAsset = (ShaderAsset*)getAsset(path);
+
+		if(oldAsset){
+			oldAsset->shaderString = ((ShaderAsset&)newAsset).shaderString;
+
+			Root *root = Root::getSingleton();
+			vector<Node*> descendants;
+			root->getRootNode()->getDescendants(descendants);
+			root->getGuiNode()->getDescendants(descendants);
+
+			for(Node *desc : descendants){
+				vector<Mesh*> meshes = desc->getMeshes();
+
+				for(Mesh *mesh : meshes){
+					Material *mat = mesh->getMaterial();
+
+					if(mat)
+						mat->getShader()->loadShaders();
+				}
+			}
+		}
 	}
 }

@@ -1,12 +1,12 @@
 #include "glad.h"
 #include <glfw3.h>
 #include <iostream>
-#include <sstream>
-#include <fstream>
 
-#include "shader.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "shader.h"
+#include "assetManager.h"
 
 using namespace std;
 using namespace glm;
@@ -14,7 +14,6 @@ using namespace glm;
 namespace vb01{
 	Shader::Shader(string shaderPath, bool geometry){
 		this->geometry = geometry;
-		this->path = shaderPath;
 
 		initShaders(shaderPath + ".vert", shaderPath + ".frag", shaderPath + ".geo");
 		loadShaders();
@@ -22,7 +21,6 @@ namespace vb01{
 
 	Shader::Shader(string vertShader, string fragShader){
 		this->geometry = false;
-		this->path = vertShader;
 
 		initShaders(vertShader, fragShader, "");
 		loadShaders();
@@ -30,88 +28,30 @@ namespace vb01{
 
 	Shader::Shader(string vertShader, string fragShader, string geoShader){
 		this->geometry = true;
-		this->path = vertShader;
 
 		initShaders(vertShader, fragShader, geoShader);
 		loadShaders();
 	}
 
-	Shader::~Shader(){}
-
 	string Shader::getName(){
-			int dirId = path.find_last_of('/');
-			string name = (dirId != -1 ? path.substr(dirId + 1) : path);
+		int dirId = vString->path.find_last_of('/');
+		string name = (dirId != -1 ? vString->path.substr(dirId + 1) : vString->path);
 
-			int dotId = path.find_last_of('.');
+		int dotId = name.find_last_of('.');
 
-			if(dotId != -1)
-				name = name.substr(0, dotId);
+		if(dotId != -1)
+			name = name.substr(0, dotId);
 
-			return name;
+		return name;
 	}
 
 	void Shader::initShaders(string vertShaderPath, string fragShaderPath, string geoShaderPath){
-		ifstream vertShaderFile, fragShaderFile;
-		vertShaderFile.open(vertShaderPath);
-		fragShaderFile.open(fragShaderPath);
-		
-		stringstream vertShaderStream, fragShaderStream;
-		vertShaderStream << vertShaderFile.rdbuf();
-		fragShaderStream << fragShaderFile.rdbuf();
-		
-		vertShaderFile.close();
-		fragShaderFile.close();
-		
-		vString = vertShaderStream.str();
-		fString = fragShaderStream.str();
+		AssetManager *am = AssetManager::getSingleton();
+		vString = (ShaderAsset*)am->getAsset(vertShaderPath);
+		fString = (ShaderAsset*)am->getAsset(fragShaderPath);
 
-		if(geometry){
-			ifstream geoShaderFile;
-			geoShaderFile.open(geoShaderPath);
-
-			stringstream geoShaderStream;
-			geoShaderStream << geoShaderFile.rdbuf();
-
-			geoShaderFile.close();
-			gString = geoShaderStream.str();
-		}
-	}
-
-	void Shader::editShader(ShaderType type, int line, string insertion){
-		replaceLine(type, line, insertion);
-		loadShaders();
-	}
-
-	void Shader::replaceLine(ShaderType type, int line, string insertion){
-		string *shaderString;
-
-		switch(type){
-			case VERTEX_SHADER:
-				shaderString = &vString;
-				break;
-			case FRAGMENT_SHADER:
-				shaderString = &fString;
-				break;
-			case GEOMETRY_SHADER:
-				shaderString = &gString;
-				break;
-		}
-
-		int numPassedLines = 0, lineStart = -1, lineEnd = -1;
-		for(int i = 0; i < shaderString->length(); i++)
-			if(shaderString[0][i] == '\n'){
-				if(numPassedLines == line - 1)
-					lineStart = i + 1;
-
-				if(numPassedLines == line){
-					lineEnd = i;
-					break;
-				}
-
-				numPassedLines++;
-			}
-
-		*shaderString = shaderString->substr(0, lineStart) + insertion + shaderString->substr(lineEnd);
+		if(geometry)
+			gString = (ShaderAsset*)am->getAsset(geoShaderPath);
 	}
 
 	void Shader::pushShader(u32 &type, string &sString, int glType, ErrorType errorType){
@@ -124,11 +64,11 @@ namespace vb01{
 
 	void Shader::loadShaders(){
 		u32 vert, geo, frag;
-		pushShader(vert, vString, GL_VERTEX_SHADER, VERTEX_ERROR);
-		pushShader(frag, fString, GL_FRAGMENT_SHADER, FRAGMENT_ERROR);
+		pushShader(vert, vString->shaderString, GL_VERTEX_SHADER, VERTEX_ERROR);
+		pushShader(frag, fString->shaderString, GL_FRAGMENT_SHADER, FRAGMENT_ERROR);
 
 		if(geometry)
-			pushShader(geo, gString, GL_GEOMETRY_SHADER, GEOMETRY_ERROR);
+			pushShader(geo, gString->shaderString, GL_GEOMETRY_SHADER, GEOMETRY_ERROR);
 
 		id = glCreateProgram();
 		glAttachShader(id, vert);
