@@ -58,10 +58,10 @@ namespace vb01{
 			if(!render) break;
 		}
 
-		if(render){
-			for(Light *l : lights)
-				l->update();
+		for(Light *l : lights)
+			l->update(render);
 
+		if(render){
 			for(Mesh *m : meshes)
 				m->update();
 
@@ -251,6 +251,18 @@ namespace vb01{
 		light->onAttached(this);
 		updateShaders();
 
+	}
+
+	void Node::removeLight(Light *light){
+		for(int i = 0; i < lights.size(); i++)
+			if(lights[i] == light){
+				lights.erase(lights.begin() + i);
+
+				Root::getSingleton()->shiftNumLights(false);
+				updateShaders();
+
+				break;
+			}
 	}
 
 	void Node::removeLight(int id){

@@ -75,32 +75,39 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, *(Root::getSingleton()->getFBO()));
 	}
 
-	void Light::update(){
+	void Light::update(bool render){
 		Root *root = Root::getSingleton();
 		Node *rootNode = root->getRootNode();
 
 		vector<Node*> descendants;
 		rootNode->getDescendants(descendants);
 		descendants.push_back(rootNode);
+
 		vector<Light*> lights;
 		vector<Material*> materials;
 
 		for(Node *d : descendants){
 			for(Light *l : d->getLights())
 				lights.push_back(l);
-			for(Mesh *m : d->getMeshes())
-				materials.push_back(m->getMaterial());
+			for(Mesh *mesh : d->getMeshes())
+				materials.push_back(mesh->getMaterial());
 		}
 
 		int thisId = -1;
+
 		for(int i = 0; i < lights.size(); i++)
 			if(lights[i] == this)
 				thisId = i;
 
+		for(Material *mat : materials){
+			Shader *shader = mat->getShader();
+			shader->use();
+			shader->setBool(render, "lights[" + to_string(thisId) + "].render");
+		}
+
 		mat4 proj = mat4(1.), view = mat4(1.);
 		renderShadow(descendants, proj, view);
 		updateShader(materials, thisId, proj, view);
-
 	}
 
 	void Light::renderShadow(std::vector<Node*> descendants, mat4 &proj, mat4 &view){
@@ -176,8 +183,10 @@ namespace vb01{
 		glViewport(0, 0, root->getWidth(), root->getHeight());
 	}
 
+	//TODO replace depth map id literals
 	void Light::updateShader(vector<Material*> materials, int thisId, mat4 &proj, mat4 &view){
 		Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO), direction = node->getGlobalAxis(2);
+
 		for(Material *m : materials){
 			Shader *shader = m->getShader();
 			shader->use();
@@ -185,6 +194,7 @@ namespace vb01{
 			shader->setVec3(color, "lights[" + to_string(thisId) + "].color");
 			shader->setFloat(nearPlane, "lights[" + to_string(thisId) + "].near");
 			shader->setFloat(farPlane, "lights[" + to_string(thisId) + "].far");
+			shader->setBool(additiveLighting, "lights[" + to_string(thisId) + "].additive");
 
 			int depthMapId = 10;
 			shader->setInt(depthMapId, "lights[" + to_string(thisId) + "].depthMap");
@@ -194,9 +204,12 @@ namespace vb01{
 			switch(type){
 				case POINT:
 					shader->setVec3(position, "lights[" + to_string(thisId) + "].pos");
+					shader->setInt((int)attenuation, "lights[" + to_string(thisId) + "].attenuation");
+					shader->setFloat(radius, "lights[" + to_string(thisId) + "].radius");
 					shader->setFloat(attenuationValues.x, "lights[" + to_string(thisId) + "].a");
 					shader->setFloat(attenuationValues.y, "lights[" + to_string(thisId) + "].b");
 					shader->setFloat(attenuationValues.z, "lights[" + to_string(thisId) + "].c");
+					shader->setBool(useAngle, "lights[" + to_string(thisId) + "].useAngle");
 					break;
 				case DIRECTIONAL:
 					shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
