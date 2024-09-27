@@ -18,6 +18,6 @@ namespace vb01{
 			stbi_set_flip_vertically_on_load(flip);
 			int width, height, numChannels;
 			u8 *data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
-			return new ImageAsset(path, data, width, height);
+			return new ImageAsset(path, data, width, height, numChannels);
 		}
 }

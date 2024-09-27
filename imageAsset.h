@@ -5,15 +5,16 @@
 
 namespace vb01{
 		struct ImageAsset : public Asset{
-				ImageAsset(std::string path, u8 *image, int width, int height){
+				ImageAsset(std::string path, u8 *image, int width, int height, int numChannels){
 						this->path = path;
 						this->image = image;
 						this->width = width;
 						this->height = height;
+						this->numChannels = numChannels;
 				}
 
 				u8 *image;
-				int width, height;
+				int width, height, numChannels;
 		};
 }
 
