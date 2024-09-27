@@ -46,7 +46,7 @@ namespace vb01Gui{
 		rectNode->attachMesh(rect);
 		guiNode->attachChild(rectNode);	
 
-		if(separate){
+		if(separate && fontPath != ""){
 			text = new Text(fontPath, stringToWstring(name));
 
 			float sc = .2;
