@@ -31,6 +31,7 @@ endif()
 
 set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
 
+include_directories(external/algorithm)
 include_directories(external/tinydir)
 include_directories(external/glm)
 include_directories(external/glm/glm)
