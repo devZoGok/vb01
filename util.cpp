@@ -90,4 +90,15 @@ namespace vb01{
 
 		return str;
 	}
+
+	int findNthOccurence(string &str, string occ, int occId, bool forward){
+		int occurenceId = (forward ? str.find(occ) : str.rfind(occ)), iteration = 0;
+
+		while(occurenceId != -1 && iteration != occId){
+			occurenceId = (forward ? str.find(occ, occurenceId + 1) : str.rfind(occ, occurenceId - 1)); 
+			iteration++;
+		}
+
+		return occurenceId;
+	}
 }
