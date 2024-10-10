@@ -2,6 +2,7 @@
 #include "bone.h"
 #include "mesh.h"
 #include "text.h"
+#include "util.h"
 #include "light.h"
 #include "matrix.h"
 #include "material.h"
@@ -11,14 +12,11 @@
 #include "assetManager.h"
 #include "animationController.h"
 
-#include <boost/algorithm/string/find.hpp>
-
 #include <glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
 using namespace std;
 using namespace glm;
-using namespace boost;
 
 namespace vb01{
 	Node::Node(Vector3 pos, Quaternion orientation, Vector3 scale, string name, Animatable::Type type) : Animatable(type, name){
@@ -463,13 +461,13 @@ namespace vb01{
 		int numLights = root->getNumLights();
 
 		string str1 = "const int numLights = " + to_string(numLights > 0 ? numLights : 1) + ";";
-		int a1 = std::distance(shaderStr.begin(), find_nth(shaderStr, "\n", 0).begin());
-		int a2 = std::distance(shaderStr.begin(), find_nth(shaderStr, "\n", 1).begin());
+		int a1 = findNthOccurence(shaderStr, "\n", 0);
+		int a2 = findNthOccurence(shaderStr, "\n", 1);
 		shaderStr.replace(a1 + 1, a2 - a1 - 1, str1);
 
 		string str2 = "const bool checkLights = " + string(numLights > 0 ? "true" : "false") + ";";
-		a1 = std::distance(shaderStr.begin(), find_nth(shaderStr, "\n", 1).begin());
-		a2 = std::distance(shaderStr.begin(), find_nth(shaderStr, "\n", 2).begin());
+		a1 = findNthOccurence(shaderStr, "\n", 1);
+		a2 = findNthOccurence(shaderStr, "\n", 2);
 		shaderStr.replace(a1 + 1, a2 - a1 - 1, str2);
 
 		ShaderAsset sa2(sa->path, shaderStr);
