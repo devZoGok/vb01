@@ -154,6 +154,14 @@ namespace vb01Gui{
         textboxes.push_back(t);
     }
 
+	Button* AbstractGuiManager::getButton(string name){
+		for(Button *b : buttons)
+			if(b->getName() == name)
+				return b;
+
+		return nullptr;
+	}
+
     void AbstractGuiManager::removeButton(Button *b) {
         for (int i = 0; i < buttons.size(); i++) {
             if (b == buttons[i]) {

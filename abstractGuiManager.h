@@ -22,6 +22,7 @@ namespace vb01Gui{
 			std::vector<Button*> findClickedButtons();
 			void updateGui();
 			void addButton(Button *b){buttons.push_back(b);}
+			Button* getButton(std::string);
 			void removeButton(Button*);
 			void removeButton(std::string);
 			void addListbox(Listbox*);

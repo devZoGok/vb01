@@ -42,7 +42,7 @@ namespace vb01{
 					bool skip = false;
 
 					for(int j = 0; j < 3; j++){
-						Vector3 rayPosToVert = (vertices[i * 3 + j].pos - rayPos);
+						Vector3 rayPosToVert = (*(vertices[i * 3 + j].pos) - rayPos);
 						float angle = rayDir.getAngleBetween(rayPosToVert.norm());
 
 						if(angle > PI / 2) angle = PI - angle;
@@ -58,7 +58,7 @@ namespace vb01{
 					if(skip) continue;
 				}
 
-				Vector3 pointA = pos + rot * vertices[indices[i * 3]].pos, pointB = pos + rot * vertices[indices[i * 3 + 1]].pos, pointC = pos + rot * vertices[indices[i * 3 + 2]].pos;
+				Vector3 pointA = pos + rot * *(vertices[indices[i * 3]].pos), pointB = pos + rot * *(vertices[indices[i * 3 + 1]].pos), pointC = pos + rot * *(vertices[indices[i * 3 + 2]].pos);
 				Vector3 hypVec = pointA - rayPos;
 				Vector3 perpVec = (pointB - pointA).cross(pointC - pointA).norm();
 				float a1 = hypVec.norm().getAngleBetween(perpVec);

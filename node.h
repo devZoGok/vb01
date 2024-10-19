@@ -31,6 +31,7 @@ namespace vb01{
 			void attachChild(Node*);
 			void dettachChild(Node*);
 			void addLight(Light*);
+			void removeLight(Light*);
 			void removeLight(int);
 			void addText(Text*);
 			virtual void lookAt(Vector3, Vector3);

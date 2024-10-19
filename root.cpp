@@ -5,6 +5,7 @@
 #include "box.h"
 #include "quad.h"
 #include "lineRenderer.h"
+#include "assetManager.h"
 #include "animationController.h"
 
 #include "glad.h"
@@ -22,6 +23,7 @@ namespace vb01{
 	Root* Root::getSingleton(){
 		if(!root)
 			root = new Root();
+
 		return root;
 	}
 
@@ -47,6 +49,8 @@ namespace vb01{
 		this->height = height;
 		this->libPath = libPath;
 
+		AssetManager::getSingleton()->load(Root::getSingleton()->getLibPath());
+
 		initWindow(name);
 
 		brdfLutPlane = new Quad(Vector3(1, 1, 1) * 2);
@@ -59,7 +63,7 @@ namespace vb01{
 		initBloomFramebuffer();
 		initGuiPlane(fragTexture, brightTexture);
 
-			shader = new Shader(Root::getSingleton()->getLibPath() + "line3D");
+		shader = new Shader(Root::getSingleton()->getLibPath() + "line3D");
 	}
 
 	void Root::initWindow(string name){

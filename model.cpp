@@ -28,8 +28,6 @@ namespace vb01{
 	}
 
 	Model::~Model(){
-		delete children[0]->getMesh(0)->getMaterial();
-
 		vector<Node*> descendants;
 		getDescendants(descendants);
 

@@ -24,18 +24,19 @@ namespace vb01Gui{
 			virtual void onMouseOver();
 			virtual void onMouseOff();
 			virtual void onClick(){}
-			inline vb01::Vector3 getPos(){return pos;}
 			void setPos(vb01::Vector3);
-			inline vb01::Vector2 getSize(){return size;}
 			void setSize(vb01::Vector2);
+			void setColor(vb01::Vector4);
+			void setImage(std::string);
+			inline vb01::Node* getRectNode(){return rectNode;}
+			inline vb01::Vector3 getPos(){return pos;}
+			inline vb01::Vector2 getSize(){return size;}
 			inline std::string getName(){return name;}
 			inline void setActive(bool active){this->active = active;}
 			inline bool isSeparate(){return separate;}
 			inline bool isActive(){return active;}
 			inline vb01::Vector4 getColor(){return color;}
 			inline int getTrigger(){return trigger;}
-			void setColor(vb01::Vector4);
-			void setImage(std::string);
 		protected:
 			int trigger, initWindowSize[2];
 			bool separate, active = true, mouseOver = false;

@@ -1,12 +1,15 @@
 #include "root.h"
 #include "bone.h"
 #include "mesh.h"
-#include "particleEmitter.h"
-#include "light.h"
 #include "text.h"
-#include "material.h"
+#include "util.h"
+#include "light.h"
 #include "matrix.h"
+#include "material.h"
 #include "skeleton.h"
+#include "shaderAsset.h"
+#include "particleEmitter.h"
+#include "assetManager.h"
 #include "animationController.h"
 
 #include <glm.hpp>
@@ -53,10 +56,10 @@ namespace vb01{
 			if(!render) break;
 		}
 
-		if(render){
-			for(Light *l : lights)
-				l->update();
+		for(Light *l : lights)
+			l->update(render);
 
+		if(render){
 			for(Mesh *m : meshes)
 				m->update();
 
@@ -245,6 +248,19 @@ namespace vb01{
 		lights.push_back(light);	
 		light->onAttached(this);
 		updateShaders();
+
+	}
+
+	void Node::removeLight(Light *light){
+		for(int i = 0; i < lights.size(); i++)
+			if(lights[i] == light){
+				lights.erase(lights.begin() + i);
+
+				Root::getSingleton()->shiftNumLights(false);
+				updateShaders();
+
+				break;
+			}
 	}
 
 	void Node::removeLight(int id){
@@ -439,27 +455,23 @@ namespace vb01{
 
 	void Node::updateShaders(){
 		Root *root = Root::getSingleton();
+		AssetManager *am = AssetManager::getSingleton();
+		ShaderAsset *sa = (ShaderAsset*)am->getAsset(root->getLibPath() + "texture.frag");
+		string shaderStr = sa->shaderString;
+		int numLights = root->getNumLights();
 
-		Node *rootNode = root->getRootNode();
-		vector<Node*> descendants;
-		rootNode->getDescendants(descendants);
-		descendants.push_back(rootNode);
+		string str1 = "const int numLights = " + to_string(numLights > 0 ? numLights : 1) + ";";
+		int a1 = findNthOccurence(shaderStr, "\n", 0);
+		int a2 = findNthOccurence(shaderStr, "\n", 1);
+		shaderStr.replace(a1 + 1, a2 - a1 - 1, str1);
 
-		for(Node *n : descendants){
-			vector<Mesh*> meshes = n->getMeshes();
+		string str2 = "const bool checkLights = " + string(numLights > 0 ? "true" : "false") + ";";
+		a1 = findNthOccurence(shaderStr, "\n", 1);
+		a2 = findNthOccurence(shaderStr, "\n", 2);
+		shaderStr.replace(a1 + 1, a2 - a1 - 1, str2);
 
-			for(Mesh *m : meshes){
-				Material *mat = m->getMaterial();
-
-				if(mat){
-					int numLights = root->getNumLights();
-					string str1 = "const int numLights = " + to_string(numLights > 0 ? numLights : 1) + ";";
-					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 1, str1);
-					string str2 = "const bool checkLights = " + string(numLights > 0 ? "true" : "false") + ";";
-					mat->getShader()->editShader(Shader::FRAGMENT_SHADER, 2, str2);
-				}
-			}
-		}
+		ShaderAsset sa2(sa->path, shaderStr);
+		am->editAsset(sa->path, sa2);
 	}
 
 	void Node::setOrientation(Quaternion q){
