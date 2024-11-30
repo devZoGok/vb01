@@ -32,8 +32,10 @@ namespace vb01{
 		for(Mesh *m : meshes)
 			delete m;
 
-		for(Light *l : lights)
+		for(Light *l : lights){
+			removeLight(l);
 			delete l;
+		}
 
 		for(ParticleEmitter *p : emitters)
 			delete p;

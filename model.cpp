@@ -28,18 +28,7 @@ namespace vb01{
 	}
 
 	Model::~Model(){
-		vector<Node*> descendants;
-		getDescendants(descendants);
-
-		for(Node *node : descendants)
-			for(Mesh *mesh : node->getMeshes())
-				mesh->setMaterial(nullptr);
-
-		while(!children.empty()){
-			Node *c = children[children.size() - 1];
-			dettachChild(c);
-			delete c;
-		}
+		this->setMaterial(nullptr);
 	}
 
 	void Model::update(){
