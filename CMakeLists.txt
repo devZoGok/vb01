@@ -4,7 +4,7 @@ project(vb01)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_TESTS OFF)
-set(BUILD_SAMPLES OFF)
+set(BUILD_SAMPLES ON)
 set(BUILD_WITH_ASSIMP OFF)
 set(BUILD_GUI_ELEMENTS ON)
 set(LIB_NAME vb01)
@@ -122,6 +122,9 @@ if(BUILD_SAMPLES)
 
 	add_executable(rayCasterSample rayCasterSample.cpp)
 	target_link_libraries(rayCasterSample ${LIB_NAME})
+
+	add_executable(planeRayCastSample planeRayCastSample.cpp)
+	target_link_libraries(planeRayCastSample ${LIB_NAME})
 
 	add_executable(pbrSample pbrSample.cpp)
 	target_link_libraries(pbrSample ${LIB_NAME})
