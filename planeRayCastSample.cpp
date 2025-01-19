@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "root.h"
 #include "assetManager.h"
 #include "quad.h"
@@ -39,8 +41,8 @@ int main(){
 	mat->addBoolUniform("texturingEnabled", false);
 	mat->addVec4Uniform("diffuseColor", Vector4(0, 0, 1, 1));
 
-	Vector3 size = Vector3(100, 100, 0);
-	int numVertDivs = 20, numHorDivs = 20;
+	Vector3 size = Vector3(1000, 1000, 0);
+	int numVertDivs = 50, numHorDivs = 50;
 	Quad *quad = new Quad(size, true, numVertDivs, numHorDivs);
 	quad->setMaterial(mat);
 
@@ -57,14 +59,18 @@ int main(){
 	for(int i = 0; i < numVertDivs; i++){
 		for(int j = 0; j < numHorDivs; j++){
 			Vector3 rayPos = startPos + Vector3(stepX * j, 0, stepZ * i);
-			vector<RayCaster::CollisionResult> results = RayCaster::cast(rayPos + Vector3(0, 100, 0), -Vector3::VEC_J, plane);
+			vector<RayCaster::CollisionResult> results = RayCaster::cast(startPos + Vector3(0, 100, 0), -Vector3::VEC_J, plane, 0, 30);
+			bool hit = !results.empty();
+
+			if(!hit)
+				cout << "x: " << rayPos.x << ", z: " << rayPos.z << endl;
 
 			Material *mat = new Material(PATH + "texture");
 			mat->addBoolUniform("lightingEnabled", false);
 			mat->addBoolUniform("texturingEnabled", false);
-			mat->addVec4Uniform("diffuseColor", (results.empty() ? Vector4(1, 0, 0, 1) : Vector4(0, 1, 0, 1)));
+			mat->addVec4Uniform("diffuseColor", (hit ? Vector4(0, 1, 0, 1) : Vector4(1, 0, 0, 1)));
 
-			Box *box = new Box(Vector3::VEC_IJK);
+			Box *box = new Box(Vector3::VEC_IJK * .7);
 			box->setMaterial(mat);
 
 			Node *node = new Node(rayPos);
