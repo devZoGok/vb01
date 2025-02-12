@@ -41,8 +41,8 @@ int main(){
 	mat->addBoolUniform("texturingEnabled", false);
 	mat->addVec4Uniform("diffuseColor", Vector4(0, 0, 1, 1));
 
-	Vector3 size = Vector3(1000, 1000, 0);
-	int numVertDivs = 50, numHorDivs = 50;
+	Vector3 size = Vector3(100, 100, 0);
+	int numVertDivs = 11, numHorDivs = 11;
 	Quad *quad = new Quad(size, true, numVertDivs, numHorDivs);
 	quad->setMaterial(mat);
 
