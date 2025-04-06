@@ -35,11 +35,12 @@ namespace vb01Gui{
 			mat->addVec4Uniform(diffColUni, color);
 		}
 		else{
-			mat->addBoolUniform(texUni, true);
 			string frame[]{imagePath};
 			Texture *tex = new Texture(frame, 1, false);
-			mat->addTexUniform("diffuseMap", tex, false);
 			textures.push_back(tex);
+
+			mat->addTexUniform("diffuseMap", tex, false);
+			mat->addBoolUniform(texUni, true);
 		}
 
 		rect->setMaterial(mat);
@@ -130,15 +131,13 @@ namespace vb01Gui{
 			if(textures[i]->getPath()[0] == image)
 				texId = i;
 
-		/*
 		if(texId == -1){
 			string p[]{image};
-			textures.push_back(new Texture(p, 1));
-			mat->setDiffuseMap(textures[textures.size() - 1], 0);
+			textures.push_back(new Texture(p, 1, false));
+			mat->setTexUniform("diffuseMap", textures[textures.size() - 1], false);
 		}
 		else
-			mat->setDiffuseMap(textures[texId], 0);
-			*/
+			mat->setTexUniform("diffuseMap", textures[texId], false);
 
 		this->imagePath = image;
 	}
