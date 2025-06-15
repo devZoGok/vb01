@@ -188,6 +188,9 @@ namespace vb01{
 		Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO), direction = node->getGlobalAxis(2);
 
 		for(Material *m : materials){
+			Material::BoolUniform *uniform = ((Material::BoolUniform*)m->getUniform("lightingEnabled"));
+			if(!(uniform && uniform->value)) continue;
+
 			Shader *shader = m->getShader();
 			shader->use();
 			shader->setInt((int)type, "lights[" + to_string(thisId) + "].type");
