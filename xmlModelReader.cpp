@@ -190,7 +190,24 @@ namespace vb01{
 
 			const char *fullSkeletonName = meshEl->Attribute("skeleton");
 			string name = string(meshEl->Parent()->ToElement()->Attribute("name")) + string(meshEl->Attribute("name"));
-			Mesh *mesh = new Mesh(MeshData(vertPos, weights, boneIndices, shapeKeyOffsets, numVertPos, normals, vertices, indices, numVertices / 3, name, vertexGroups, numVertexGroups, (fullSkeletonName ? fullSkeletonName : ""), shapeKeys, numShapeKeys));
+			MeshData meshData = MeshData(
+					vertPos, 
+					weights,
+				   	boneIndices,
+				   	shapeKeyOffsets,
+				   	numVertPos,
+				   	normals,
+				   	vertices,
+				   	indices,
+				   	numVertices / 3,
+				   	name,
+				   	vertexGroups,
+				   	numVertexGroups,
+				   	(fullSkeletonName ? fullSkeletonName : ""),
+				   	shapeKeys,
+				   	numShapeKeys
+			);
+			Mesh *mesh = new Mesh(meshData);
 
 			return mesh;
 		}

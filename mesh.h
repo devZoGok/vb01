@@ -20,7 +20,6 @@ namespace vb01{
 		public:
 			Mesh(MeshData);
 			~Mesh();
-			void construct();
 			void updateVerts(MeshData);
 			virtual void update();
 			void render();
@@ -67,7 +66,6 @@ namespace vb01{
 			int numShapeKeys = 0;
 			MeshData::ShapeKey *shapeKeys = nullptr;
 			bool castShadow = false, reflect = false, reflective = false, wireframe = false;
-			u32 VAO, VBO, EBO;
 	};
 }
 
