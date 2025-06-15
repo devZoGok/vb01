@@ -184,13 +184,11 @@ namespace vb01{
 	}
 
 	//TODO replace depth map id literals
+	//TODO implement logic to skip lighting if the material has lighting disabled
 	void Light::updateShader(vector<Material*> materials, int thisId, mat4 &proj, mat4 &view){
 		Vector3 position = node->localToGlobalPosition(Vector3::VEC_ZERO), direction = node->getGlobalAxis(2);
 
 		for(Material *m : materials){
-			Material::BoolUniform *uniform = ((Material::BoolUniform*)m->getUniform("lightingEnabled"));
-			if(!(uniform && uniform->value)) continue;
-
 			Shader *shader = m->getShader();
 			shader->use();
 			shader->setInt((int)type, "lights[" + to_string(thisId) + "].type");
