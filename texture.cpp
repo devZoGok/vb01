@@ -61,6 +61,8 @@ namespace vb01{
 	}
 
 	void Texture::loadImageData(ImageAsset *asset, int i){
+		glDeleteTextures(1, &texture[i]);
+
 		width = asset->width;
 		height = asset->height;
 

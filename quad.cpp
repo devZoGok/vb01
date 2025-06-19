@@ -11,7 +11,6 @@ namespace vb01{
 		this->numHorDiv = numHorDiv;
 
 		setSize(size);
-		Mesh::construct();
 	}
 	
 	void Quad::setSize(Vector3 size){
