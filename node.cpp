@@ -393,51 +393,51 @@ namespace vb01{
 		return Vector3(local.x, local.y, local.z);
 	}
 
-	Quaternion Node::adjustRot(vector<Node*> ancestors, Quaternion adjustableRot, bool localToGlobal){
-		Quaternion rOrigin = adjustableRot;
+	Quaternion Node::adjustRot(Quaternion adjustableRot, bool localToGlobal){
+		vector<Node*> ancestors = getAncestors();
+		Quaternion rOrigin = (localToGlobal ? Quaternion::QUAT_W : adjustableRot);
 
 		while(!ancestors.empty()){
-			int id = localToGlobal ? 0 : ancestors.size() - 1;
+			int id = (localToGlobal ? ancestors.size() - 1 : 0);
+			Node *node = ancestors[id], *nodePar = node->getParent();
 
-			float angle = ancestors[id]->getOrientation().getAngle();
-			Vector3 axis = ancestors[id]->getOrientation().getAxis();
+			Vector3 parAxis[]{
+				nodePar ? nodePar->getGlobalAxis(0) : Vector3::VEC_I,
+				nodePar ? nodePar->getGlobalAxis(1) : Vector3::VEC_J,
+				nodePar ? nodePar->getGlobalAxis(2) : Vector3::VEC_K
+			};
 
-			Quaternion o;
+			Vector3 axis = node->getOrientation().getAxis();
+			axis = (parAxis[0] * axis.x + parAxis[1] * axis.y + parAxis[2] * axis.z).norm();
+			float angle = node->getOrientation().getAngle();
+
 			if(localToGlobal){
-				Node *par = ancestors[id]->getParent();
-				Vector3 parAxis[]{
-					par ? par->getGlobalAxis(0) : Vector3::VEC_I,
-					par ? par->getGlobalAxis(1) : Vector3::VEC_J,
-					par ? par->getGlobalAxis(2) : Vector3::VEC_K
-				};
+				rOrigin = Quaternion(angle, axis) * rOrigin;
+				ancestors.pop_back();
 
-				axis = (parAxis[0] * axis.x + parAxis[1] * axis.y + parAxis[2] * axis.z).norm();
-
-				o = Quaternion(angle, axis);
-				rOrigin = rOrigin * o;
-				ancestors.erase(ancestors.begin());
+				if(ancestors.empty()){
+					Vector3 ax = adjustableRot.getAxis();
+					ax = (globalAxis[0] * ax.x + globalAxis[1] * ax.y + globalAxis[2] * ax.z).norm();
+					return Quaternion(adjustableRot.getAngle(), ax) * rOrigin;
+				}
 			}
 			else{
-				o = Quaternion(angle, axis).conj();
-				rOrigin = rOrigin * o;
+				rOrigin = rOrigin * Quaternion(angle, axis).conj();
 				ancestors.pop_back();
+
+				if(ancestors.empty())
+					return rOrigin;
 			}
 
 		}
-
-		return rOrigin;
 	}
 
 	Quaternion Node::localToGlobalOrientation(Quaternion localRot){
-		vector<Node*> ancestors = getAncestors();
-		Quaternion origin = adjustRot(ancestors, Quaternion::QUAT_W, true);
-		return localRot * origin;
+		return adjustRot(localRot, true);
 	}
 
 	Quaternion Node::globalToLocalOrientation(Quaternion globalRot){
-		vector<Node*> ancestors = getAncestors();
-		Quaternion origin = adjustRot(ancestors, globalRot, false);
-		return origin;
+		return adjustRot(globalRot, false);
 	}
 
 	Node* Node::findDescendant(string name, bool allDescendants){
