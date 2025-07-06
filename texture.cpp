@@ -60,8 +60,8 @@ namespace vb01{
 			}
 	}
 
-	void Texture::loadImageData(ImageAsset *asset, int i){
-		if(texture) glDeleteTextures(1, &texture[i]);
+	void Texture::loadImageData(ImageAsset *asset, bool creating, int i){
+		if(!creating) glDeleteTextures(1, &texture[i]);
 
 		width = asset->width;
 		height = asset->height;
@@ -81,7 +81,7 @@ namespace vb01{
 			if(paths[i].substr(length - 4, string::npos) == ".png")
 				png = true;
 
-			loadImageData((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]));
+			loadImageData((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]), true);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
