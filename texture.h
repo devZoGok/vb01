@@ -22,7 +22,7 @@ namespace vb01{
 			void select(int = 0, int = 0);
 			void update(int = 0);
 			void animate(float, KeyframeChannel);
-			void loadImageData(ImageAsset*, int = 0);
+			void loadImageData(ImageAsset*, bool, int = 0);
 			inline u32* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string* getPath(){return paths;}
 			inline int getNumFrames(){return numFrames;}
