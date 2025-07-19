@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
+#include "fontAsset.h"
 #include "attachable.h"
 #include "vector.h"
 #include "util.h"
 
 namespace vb01{
 	class Node;
-	class Texture;
 	class Shader;
 	class Material;
 
@@ -18,7 +18,7 @@ namespace vb01{
 		public:
 			struct Glyph{
 				u16 ch;
-				Texture *texture = nullptr;
+				int texId;
 				u32 advance;
 				Vector2 size, bearing;
 			};
@@ -41,9 +41,9 @@ namespace vb01{
 		private:
 			void applyFont(std::string, u16, u16 = 256);
 			void clearFont();
-			void prepareGlyphs(Glyph, Vector2);
-			void renderGlyphs(Glyph, float[], u32);
+			void prepareGlyphs(Glyph, int, Vector2);
 
+			FontAsset *font = nullptr;
 			Material *material = nullptr;
 			std::wstring entry;
 			std::vector<Glyph> characters;
