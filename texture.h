@@ -15,7 +15,7 @@ namespace vb01{
 	class Texture : public Animatable{
 		public:
 			~Texture();
-			Texture(int, int, bool = true);
+			Texture(int, int, bool = true, bool = false);
 			Texture(std::string[], int, bool, int = 0, bool = false, std::string = "");
 			Texture(int, bool = true, int = 0, std::string = "");
 			Texture(FT_Face);
