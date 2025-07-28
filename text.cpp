@@ -4,7 +4,6 @@
 #include "texture.h"
 #include "node.h"
 #include "material.h"
-#include "fontAsset.h"
 #include "assetManager.h"
 
 #include "glad.h"
@@ -23,17 +22,20 @@ namespace vb01{
 	}
 
 	Text::~Text(){
-		clearFont();
-
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 	}
 
+	//TODO ensure destruction of textures when unloading the asset
 	void Text::applyFont(string fontPath, u16 firstChar, u16 lastChar){
-		clearFont();
+		characters.clear();
 
-		FontAsset *font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
+		font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
 		FT_Face face = font->face;
+		vector<int> keys;
+
+		for (pair<int, Texture*> p : font->glyphTextures)
+		    keys.push_back(p.first);
 
 		for(u16 i = firstChar; i < lastChar; i++){
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER)){
@@ -43,19 +45,16 @@ namespace vb01{
 
 			Glyph c;
 			c.ch = i;
-			c.texture = new Texture(face);		
 			c.size = Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
 			c.bearing = Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top);
 			c.advance = face->glyph->advance.x;
+			c.texId = i;
+
+			if(find(keys.begin(), keys.end(), i) == keys.end())
+				font->glyphTextures.push_back(make_pair(i, new Texture(face)));
+
 			characters.push_back(c);
 		}
-	}
-
-	void Text::clearFont(){
-			while(!characters.empty()){
-					delete characters[characters.size() - 1].texture;
-					characters.pop_back();
-			}
 	}
 
 	void Text::update(){
@@ -72,11 +71,17 @@ namespace vb01{
 		for(int i = (leftToRight ? 0 : entry.length() - 1); (leftToRight ? (i < entry.length()) : (i >= 0)); (leftToRight ? i++ : i--)){
 			Glyph *glyphPtr = getGlyph(entry[i]);
 
-			if(!glyphPtr)
-				continue;
+			if(!glyphPtr) continue;
+
+			int glyphTexId = -1;
+			for(int j = 0; j < font->glyphTextures.size(); j++)
+				if(font->glyphTextures[j].first == glyphPtr->texId){
+					glyphTexId = j;
+					break;
+				}
 
 			Glyph glyph = *glyphPtr;
-			prepareGlyphs(glyph, advanceOffset);
+			prepareGlyphs(glyph, glyphTexId, advanceOffset);
 			Vector2 size = glyph.size, bearing = glyph.bearing;
 
 			if(horizontal)
@@ -86,7 +91,7 @@ namespace vb01{
 		}
 	}
 
-	void Text::prepareGlyphs(Glyph glyph, Vector2 advanceOffset){
+	void Text::prepareGlyphs(Glyph glyph, int glyphTexId, Vector2 advanceOffset){
 		Vector3 nodePos = node->getPosition();
 		Vector2 origin = Vector2(nodePos.x, nodePos.y) + (advanceOffset * scale);
 		Vector3 scale = node->getScale();
@@ -104,17 +109,13 @@ namespace vb01{
 			origin.x + bearing.x, origin.y - bearing.y, 0, 0
 		};
 
-		renderGlyphs(glyph, data, sizeof(data));
-	}
-
-	void Text::renderGlyphs(Glyph glyph, float data[], u32 dataSize){
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
 
 		int id = 2;
 		material->getShader()->setInt(id, "textures[1].pastTexture");
-		glyph.texture->select(id);
+		font->glyphTextures[glyphTexId].second->select(id);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);	
 	}
