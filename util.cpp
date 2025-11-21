@@ -7,19 +7,43 @@
 using namespace std;
 
 namespace vb01{
-		double *x = nullptr, *y = nullptr;
+	double *x = nullptr, *y = nullptr;
 
-		Vector2 getCursorPos()
-		{
-			if(!x)
-				x = new double;
+	Vector2 getCursorPos() {
+		if(!x) x = new double;
 
-			if(!y)
-				y = new double;
-				
-			glfwGetCursorPos(Root::getSingleton()->getWindow(), x, y);
-			return Vector2(*x, *y);
+		if(!y) y = new double;
+			
+		glfwGetCursorPos(Root::getSingleton()->getWindow(), x, y);
+		return Vector2(*x, *y);
+	}
+
+	bool rectanglesIntersect(Vector2 rp1, Vector2 rd1, Vector2 rps1, Vector2 rp2, Vector2 rd2, Vector2 rdl2, Vector2 rps2){
+		Vector2 point[]{
+			rp2 + .5 * (rdl2 * rps2.x + rd2 * rps2.y),
+			rp2 + .5 * (-rdl2 * rps2.x + rd2 * rps2.y),
+			rp2 + .5 * (-rdl2 * rps2.x - rd2 * rps2.y),
+			rp2 + .5 * (rdl2 * rps2.x - rd2 * rps2.y)
+		};
+
+		for(int i = 0; i < 4; i++){
+			Vector2 p = point[i], pv = p - rp1;
+			float pd = pv.getLength(), angle = rd1.getAngleBetween(pv.norm());
+			angle = (angle > PI / 2 ? PI - angle : angle);
+
+			bool b1 = (pd * sin(angle) <= .5 * rps1.x);
+			bool b2 = (pd * cos(angle) <= .5 * rps1.y);
+
+			if(b1 && b2) return true;
 		}
+
+		for(int i = 0; i < 4; i++){
+			for(int j = 0; j < 4; j++){
+			}
+		}
+
+		return false;
+	}
 
 	void readFile(string path, vector<string> &lines, int firstLine, int lastLine){
 		string l;

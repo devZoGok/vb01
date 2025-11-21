@@ -21,6 +21,7 @@ namespace vb01{
 
 	static const float PI = 4 * atan(1);
 
+	bool rectanglesIntersect(Vector2, Vector2, Vector2, Vector2, Vector2, Vector2, Vector2);
 	void readFile(std::string, std::vector<std::string>&, int = 0, int = -1);
 	void getLineData(std::string, std::string[], int, int = 0);
 	int findNthOccurence(std::string&, std::string, int, bool = true);
