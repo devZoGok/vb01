@@ -11,7 +11,6 @@ namespace vb01{
 		this->numHorDiv = numHorDiv;
 
 		setSize(size);
-		Mesh::construct();
 	}
 	
 	void Quad::setSize(Vector3 size){
@@ -85,5 +84,23 @@ namespace vb01{
 		}
 
 		meshBase = MeshData(faceVertPos, nullptr, nullptr, nullptr, 6, norm, vertices, indices, numTris);
+	}
+
+	//TODO improve functionality for GUI quads 
+	Vector2 Quad::getSubquadIds(int numVertDiv, int numHorDiv, Vector3 pos, Vector3 size){
+		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
+		Vector2 subQuadSize = Vector2(size.x / numHorQuads, size.z / numVertQuads);
+
+		return Vector2(int((.5 * size.x + pos.x) / subQuadSize.x), int((.5 * size.z + pos.z) / subQuadSize.y));
+	}
+
+	Vector3 Quad::getSubquadCorner(int xId, int yId, int numVertDiv, int numHorDiv, bool top, bool right){
+		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
+		int vertPosId = 6 * xId * numVertQuads + 6 * yId;
+
+		if(top && !right) return meshBase.positions[vertPosId];
+		else if(top && right) return meshBase.positions[vertPosId + 4];
+		else if(!top && !right) return meshBase.positions[vertPosId + 1];
+		else if(!top && right) return meshBase.positions[vertPosId + 3];
 	}
 }

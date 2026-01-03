@@ -14,17 +14,13 @@ using namespace std;
 
 namespace vb01{
 	Model::Model(string path) : Node(){
-			ModelAsset *asset = ((ModelAsset*)AssetManager::getSingleton()->getAsset(path));
-			Node *clonedRoot = asset->rootNode->clone();
-			vector<Node*> descendants = vector<Node*>{clonedRoot};
-			clonedRoot->getDescendants(descendants);
+		ModelAsset *asset = ((ModelAsset*)AssetManager::getSingleton()->getAsset(path));
+		Node *clonedRoot = asset->rootNode->clone();
+		vector<Node*> descendants = vector<Node*>{clonedRoot};
+		clonedRoot->getDescendants(descendants);
 
-			for(Node *desc : descendants)
-					for(Mesh *mesh : desc->getMeshes())
-							mesh->construct();
-
-			for(Node *child : clonedRoot->getChildren())
-					attachChild(child);
+		for(Node *child : clonedRoot->getChildren())
+			attachChild(child);
 	}
 
 	Model::~Model(){

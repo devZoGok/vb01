@@ -3,7 +3,6 @@
 namespace vb01{
 	Box::Box(Vector3 size){
 		setSize(size);
-		construct();
 	}
 
 	void Box::setSize(Vector3 size){

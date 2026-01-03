@@ -15,14 +15,14 @@ namespace vb01{
 	class Texture : public Animatable{
 		public:
 			~Texture();
-			Texture(int, int, bool = true);
+			Texture(int, int, bool = true, bool = false);
 			Texture(std::string[], int, bool, int = 0, bool = false, std::string = "");
 			Texture(int, bool = true, int = 0, std::string = "");
 			Texture(FT_Face);
 			void select(int = 0, int = 0);
 			void update(int = 0);
 			void animate(float, KeyframeChannel);
-			void loadImageData(ImageAsset*, int = 0);
+			void loadImageData(ImageAsset*, bool, int = 0);
 			inline u32* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string* getPath(){return paths;}
 			inline int getNumFrames(){return numFrames;}

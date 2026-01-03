@@ -35,6 +35,8 @@ namespace vb01Gui{
 			void scrollToHeight(float);
 			virtual void onOpen(){}
 			virtual void onClose(){}
+			inline void setName(std::string n){this->name = n;}
+			inline std::string getName(){return name;}
 			inline int getScrollOffset(){return scrollOffset;}
 			inline float getLineHeight(){return lineHeight;}
 			inline bool isOpen(){return open;}
@@ -60,7 +62,7 @@ namespace vb01Gui{
 			float lineHeight;
 			int maxDisplay, scrollOffset = 0;
 			bool open = false, closeable = false;
-			std::string fontPath;
+			std::string fontPath, name;
 			vb01::Vector3 pos, textOffset;
 			vb01::Vector2 size;
 			ListboxButton *listboxButton;

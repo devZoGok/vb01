@@ -15,7 +15,7 @@
 using namespace std;
 
 namespace vb01{
-	Texture::Texture(int width, int height, bool shadowMap) : Animatable(Animatable::TEXTURE){
+	Texture::Texture(int width, int height, bool shadowMap, bool hiRes) : Animatable(Animatable::TEXTURE){
 		this->width = width;
 		this->height = height;
 		texture = new u32;
@@ -33,8 +33,7 @@ namespace vb01{
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 		}
 		else{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
-			//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, (hiRes ? GL_RGB16F : GL_RGB), width, height, 0, GL_RGB, GL_FLOAT, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -60,7 +59,9 @@ namespace vb01{
 			}
 	}
 
-	void Texture::loadImageData(ImageAsset *asset, int i){
+	void Texture::loadImageData(ImageAsset *asset, bool creating, int i){
+		if(!creating) glDeleteTextures(1, &texture[i]);
+
 		width = asset->width;
 		height = asset->height;
 
@@ -79,7 +80,7 @@ namespace vb01{
 			if(paths[i].substr(length - 4, string::npos) == ".png")
 				png = true;
 
-			loadImageData((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]));
+			loadImageData((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]), true);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

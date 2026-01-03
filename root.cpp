@@ -56,14 +56,49 @@ namespace vb01{
 		brdfLutPlane = new Quad(Vector3(1, 1, 1) * 2);
 		iblBox = new Box(Vector3::VEC_IJK);
 
+		blurShader = new Shader(libPath + "blur");
+		shader = new Shader(Root::getSingleton()->getLibPath() + "line3D");
+
+		for(int i = 0; i < 2; i++)
+			pingPongTextures[i] = new Texture(width, height, false);
+
 		Texture *fragTexture = new Texture(width, height, false);
 		Texture *brightTexture = new Texture(width, height, false);
 
-		initMainFramebuffer(fragTexture, brightTexture);
-		initBloomFramebuffer();
+		initMainFramebuffer(fragTexture, nullptr);
 		initGuiPlane(fragTexture, brightTexture);
+	}
 
-		shader = new Shader(Root::getSingleton()->getLibPath() + "line3D");
+	void Root::toggleHDR(bool hdr){
+		glDeleteFramebuffers((hdr ? 2 : 1), &FBO);
+		glDeleteRenderbuffers(1, &RBO);
+
+		Texture *fragTexture = ((Material::TextureUniform*)guiPlane->getMaterial()->getUniform("frag"))->value;
+		Texture *brightTexture = ((Material::TextureUniform*)guiPlane->getMaterial()->getUniform("bright"))->value;
+		initMainFramebuffer(fragTexture, (hdr ? brightTexture : nullptr));
+
+		this->hdr = hdr;
+	}
+
+	void Root::initBloomFramebuffer(){
+		glGenFramebuffers(2, pingpongBuffers);
+
+		for(int i = 0; i < 2; i++){
+			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *(pingPongTextures[i]->getTexture()), 0);
+
+			if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "Not complete\n";
+		}
+	}
+
+	void Root::toggleBloom(bool bloom){
+		this->bloom = bloom;
+
+		if(bloom)
+			initBloomFramebuffer();
+		else
+			glDeleteFramebuffers(2, pingpongBuffers);
 	}
 
 	void Root::initWindow(string name){
@@ -101,11 +136,14 @@ namespace vb01{
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
 		u32 colorAttachments[]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+		glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachments[0], GL_TEXTURE_2D, *fragTexture->getTexture(), 0);
 
-		for(int i = 0; i < 2; i++)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachments[i], GL_TEXTURE_2D, *((i == 0 ? fragTexture : brightTexture)->getTexture()), 0);
-
-		glDrawBuffers(2, colorAttachments);
+		if(brightTexture){
+			glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachments[1], GL_TEXTURE_2D, *brightTexture->getTexture(), 0);
+			glDrawBuffers(2, colorAttachments);
+		}
+		else
+			glDrawBuffers(1, colorAttachments);
 
 		glGenRenderbuffers(1, &RBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
@@ -116,20 +154,6 @@ namespace vb01{
 			cout << "Not complete\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void Root::initBloomFramebuffer(){
-		blurShader = new Shader(libPath + "blur");
-		glGenFramebuffers(2, pingpongBuffers);
-
-		for(int i = 0; i < 2; i++){
-			glBindFramebuffer(GL_FRAMEBUFFER, pingpongBuffers[i]);
-			pingPongTextures[i] = new Texture(width, height, false);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *(pingPongTextures[i]->getTexture()), 0);
-
-			if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-				cout << "Not complete\n";
-		}
 	}
 
 	void Root::initGuiPlane(Texture *fragTexture, Texture *brightTexture){
@@ -167,7 +191,8 @@ namespace vb01{
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
 
-		updateBloomFramebuffer();
+		if(bloom) updateBloomFramebuffer();
+
 		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
@@ -259,10 +284,14 @@ namespace vb01{
 		shader->setFloat(exposure, "exposure");
 		shader->setFloat(gamma, "gamma");
 		shader->setInt(0, "frag");
-		shader->setInt(1, "bright");
 
 		((Material::TextureUniform*)material->getUniform("frag"))->value->select(0);
-		((Material::TextureUniform*)material->getUniform("bright"))->value->select(1);
+
+		if(hdr){
+			shader->setInt(1, "bright");
+			((Material::TextureUniform*)material->getUniform("bright"))->value->select(1);
+		}
+
 		guiPlane->render();
 	}
 

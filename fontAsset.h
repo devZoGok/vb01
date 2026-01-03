@@ -3,10 +3,18 @@
 
 #include "asset.h"
 
+#include <vector>
+#include <utility>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 namespace vb01{
-		struct FontAsset : public Asset{
-				FT_Face face;
-		};
+	class Texture;
+
+	struct FontAsset : public Asset{
+			FT_Face face;
+			std::vector<std::pair<int, Texture*>> glyphTextures;
+	};
 }
 
 #endif

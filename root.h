@@ -23,6 +23,8 @@ namespace vb01{
 		public:
 			void update();
 			void start(int, int, std::string, std::string);
+			void toggleHDR(bool);
+			void toggleBloom(bool);
 			inline Camera* getCamera(){return camera;}
 			inline Node* getRootNode(){return rootNode;}
 			inline Node* getGuiNode(){return guiNode;}
@@ -31,10 +33,8 @@ namespace vb01{
 			inline u32* getFBO(){return &FBO;}
 			inline u32* getRBO(){return &RBO;}
 			inline GLFWwindow* getWindow(){return window;}
-			inline void setHDREnabled(bool hdr){this->hdr = hdr;}
 			inline void setExposure(float exposure){this->exposure = exposure;}
 			inline void setGamma(float gamma){this->gamma = gamma;}
-			inline void setBloom(bool bloom){this->bloom = bloom;}
 			inline void setBlurLevel(bool level){this->blurLevel = level;}
 			inline Box* getSkybox(){return skybox;}
 			inline Box* getIblBox(){return iblBox;}

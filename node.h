@@ -81,7 +81,7 @@ namespace vb01{
 			void adjustDir(Vector3);
 			void updateShaders();
 
-			Quaternion adjustRot(std::vector<Node*>, Quaternion, bool);
+			Quaternion adjustRot(Quaternion, bool);
 			std::vector<Driver*> drivers;
 		protected:
 			virtual void animate(float, KeyframeChannel);
