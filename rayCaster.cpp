@@ -78,13 +78,17 @@ namespace vb01{
 
 					if((distance <= rayLength && rayLength != .0) || rayLength == .0){
 						Vector3 contactPoint = rayPos + rayDir.norm() * distance;
-						float angleA = (pointB - pointA).norm().getAngleBetween((pointC - pointA).norm());
-						float angleB = (pointA - pointB).norm().getAngleBetween((pointC - pointB).norm());
-						float angleC = (pointB - pointC).norm().getAngleBetween((pointA - pointC).norm());
-						Vector3 bisecAVec = ((pointB - pointA) + (pointC - pointA));
-						Vector3 bisecBVec = ((pointA - pointB) + (pointC - pointB));
-						Vector3 bisecCVec = ((pointB - pointC) + (pointA - pointC));
-						float eps = .1;
+						Vector3 vAB = (pointB - pointA);
+						Vector3 vBC = (pointC - pointB);
+						Vector3 vAC = (pointC - pointA);
+
+						float angleA = vAB.norm().getAngleBetween(vAC.norm());
+						float angleB = (-vAB.norm()).getAngleBetween(vBC.norm());
+						float angleC = (-vBC.norm()).getAngleBetween(-vAC.norm());
+						Vector3 bisecAVec = (vAB * vAC.getLength() + vAC * vAB.getLength()).norm();
+						Vector3 bisecBVec = (vBC * vAB.getLength() - vAB * vBC.getLength()).norm();
+						Vector3 bisecCVec = (-vAC * vBC.getLength() - vBC * vAC.getLength()).norm();
+						float eps = .001;
 						bool withinBisecA = ((contactPoint - pointA).norm().getAngleBetween(bisecAVec.norm()) - angleA / 2) <= eps;
 						bool withinBisecB = ((contactPoint - pointB).norm().getAngleBetween(bisecBVec.norm()) - angleB / 2) <= eps;
 						bool withinBisecC = ((contactPoint - pointC).norm().getAngleBetween(bisecCVec.norm()) - angleC / 2) <= eps;
