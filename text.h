@@ -26,7 +26,7 @@ namespace vb01{
 			Text(std::string, std::wstring, u16 = 0, u16 = 256);
 			~Text();
 			void update();
-			void setText(std::wstring);
+			void setText(std::wstring e){this->entry = e;}
 			inline void setScale(float s){this->scale = s;}
 			inline float getScale(){return scale;}
 			inline int getLength(){return entry.length();}
@@ -39,6 +39,7 @@ namespace vb01{
 			inline void setMaterial(Material *mat){this->material = mat;}
 			Glyph* getGlyph(u16);
 		private:
+			void init();
 			void applyFont(std::string, u16, u16 = 256);
 			void clearFont();
 			void prepareGlyphs(Glyph, int, Vector2);
