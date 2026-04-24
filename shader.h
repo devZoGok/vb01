@@ -18,7 +18,7 @@ namespace vb01{
 			Shader(std::string, bool = false);
 			Shader(std::string, std::string);
 			Shader(std::string, std::string, std::string);
-			~Shader(){}
+			~Shader();
 			std::string getName();
 			void use();
 			void loadShaders();

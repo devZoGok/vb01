@@ -33,6 +33,10 @@ namespace vb01{
 		loadShaders();
 	}
 
+	Shader::~Shader(){
+		glDeleteProgram(id);
+	}
+
 	string Shader::getName(){
 		int dirId = vString->path.find_last_of('/');
 		string name = (dirId != -1 ? vString->path.substr(dirId + 1) : vString->path);
