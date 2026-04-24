@@ -16,14 +16,29 @@
 using namespace std;
 
 namespace vb01{
-	Text::Text(string fontPath, wstring entry, u16 firstChar, u16 lastChar){
+	Text::Text(string fontPath, wstring e, u16 firstChar, u16 lastChar) : entry(e){
+		init();
 		applyFont(fontPath, firstChar, lastChar);
-		setText(entry);
 	}
 
 	Text::~Text(){
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
+	}
+
+	void Text::init(){
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 
 	//TODO ensure destruction of textures when unloading the asset
@@ -118,20 +133,6 @@ namespace vb01{
 		font->glyphTextures[glyphTexId].second->select(id);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);	
-	}
-
-	void Text::setText(wstring text){
-		this->entry = text;
-
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
 	}
 
 	Text::Glyph* Text::getGlyph(u16 ch){

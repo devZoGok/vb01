@@ -21,6 +21,7 @@ namespace vb01{
 			Model(std::string);
 			~Model();
 			inline Material* getMaterial(){return material;}
+			inline bool isWireframe(){return wireframe;}
 			void update();
 			void setMaterial(Material*);
 			void setCastShadow(bool);
