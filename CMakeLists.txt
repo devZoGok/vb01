@@ -1,131 +1,144 @@
-cmake_minimum_required(VERSION 3.2)
-project(vb01)
+cmake_minimum_required(VERSION 3.5)
+project(Renderer)
 
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
-set(BUILD_TESTS OFF)
-set(BUILD_SAMPLES ON)
-set(BUILD_WITH_ASSIMP OFF)
-set(BUILD_GUI_ELEMENTS ON)
-set(LIB_NAME vb01)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(LIB_NAME Renderer)
+option(BUILD_RENDERER_TESTS   "Build Renderer unit tests"   OFF)
+option(BUILD_RENDERER_SAMPLES "Build Renderer sample apps"  ON)
+option(BUILD_WITH_ASSIMP      "Enable Assimp model importer" OFF)
+option(BUILD_GUI_ELEMENTS     "Build GUI widget components"  ON)
 
-cmake_policy(SET CMP0015 NEW)
+set(CORE_SRC
+    Source/Core/Private/util.cpp)
 
-set(GUI text.cpp)
-set(UTILS util.cpp)
-set(MATH quaternion.cpp vector.cpp matrix.cpp rayCaster.cpp)
-set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp meshData.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
-set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.cpp keyframeChannel.cpp driver.cpp)
-set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_MANAGER assetManager.cpp shaderAsset.h textAsset.h imageAsset.h modelAsset.h fontAsset.h)
-set(ASSET_READERS shaderReader.cpp imageReader.cpp fontReader.cpp modelReader.cpp xmlModelReader.cpp)
+set(MATH_SRC
+    Source/Math/Private/quaternion.cpp
+    Source/Math/Private/vector.cpp
+    Source/Math/Private/matrix.cpp
+    Source/Math/Private/rayCaster.cpp)
 
-if(BUILD_WITH_ASSIMP)
-	set(ASSET_READERS ${ASSET_READERS} assimpModelReader.cpp)
-endif()
+set(RENDER_SRC
+    Source/Rendering/Private/lineRenderer.cpp
+    Source/Rendering/Private/particleEmitter.cpp
+    Source/Rendering/Private/camera.cpp
+    Source/Rendering/Private/light.cpp
+    Source/Rendering/Private/material.cpp
+    Source/Rendering/Private/mesh.cpp
+    Source/Rendering/Private/meshData.cpp
+    Source/Rendering/Private/model.cpp
+    Source/Rendering/Private/node.cpp
+    Source/Rendering/Private/quad.cpp
+    Source/Rendering/Private/box.cpp
+    Source/Rendering/Private/root.cpp
+    Source/Rendering/Private/shader.cpp
+    Source/Rendering/Private/texture.cpp)
+
+set(ANIM_SRC
+    Source/Animation/Private/animationController.cpp
+    Source/Animation/Private/animationChannel.cpp
+    Source/Animation/Private/animation.cpp
+    Source/Animation/Private/animatable.cpp
+    Source/Animation/Private/keyframeChannel.cpp
+    Source/Animation/Private/driver.cpp)
+
+set(ARMATURE_SRC
+    Source/Armature/Private/skeleton.cpp
+    Source/Armature/Private/bone.cpp
+    Source/Armature/Private/ikSolver.cpp)
+
+set(ASSETS_SRC
+    Source/Assets/Private/assetManager.cpp)
+
+set(LOADERS_SRC
+    Source/Loaders/Private/shaderReader.cpp
+    Source/Loaders/Private/imageReader.cpp
+    Source/Loaders/Private/fontReader.cpp
+    Source/Loaders/Private/modelReader.cpp
+    Source/Loaders/Private/xmlModelReader.cpp)
+
+set(GUI_SRC Source/GUI/Private/text.cpp)
 
 if(BUILD_GUI_ELEMENTS)
-	set(GUI ${GUI} abstractGuiManager.cpp button.cpp listbox.cpp textbox.cpp checkbox.cpp slider.cpp)
+    list(APPEND GUI_SRC
+        Source/GUI/Private/abstractGuiManager.cpp
+        Source/GUI/Private/button.cpp
+        Source/GUI/Private/listbox.cpp
+        Source/GUI/Private/textbox.cpp
+        Source/GUI/Private/checkbox.cpp
+        Source/GUI/Private/slider.cpp)
 endif()
 
-set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASSET_READERS} ${ANIM})
-
-include_directories(external/tinydir)
-include_directories(external/glm)
-include_directories(external/glm/glm)
-include_directories(external/glad)
-include_directories(external/stb)
-
-add_library(${LIB_NAME} external/glad/glad.c ${LIB_SRC})
-
-set(TINYXML2_DIR external/tinyxml2)
-set(GLFW_DIR external/glfw)
-set(FREETYPE_DIR external/freetype)
-set(ASSIMP_DIR external/assimp)
-set(CPPUNIT_DIR external/CppUnit)
-
-if(UNIX)
-	message("Building for UNIX")
-elseif(WIN32)
-	message("Building for Windows")
+if(BUILD_WITH_ASSIMP)
+    list(APPEND LOADERS_SRC Source/Loaders/Private/assimpModelReader.cpp)
 endif()
 
-add_subdirectory(${TINYXML2_DIR})
-set(TINYXML2_LIB_DIR build/${TINYXML2_DIR})
-target_include_directories(${LIB_NAME} PUBLIC ${TINYXML2_DIR})
-target_link_directories(${LIB_NAME} PUBLIC ${TINYXML2_LIB_DIR})
+set(LIB_SRC
+    ${CORE_SRC} ${MATH_SRC} ${RENDER_SRC} ${ANIM_SRC}
+    ${ARMATURE_SRC} ${ASSETS_SRC} ${LOADERS_SRC} ${GUI_SRC})
 
-add_subdirectory(${GLFW_DIR})
-set(GLFW_LIB_DIR build/${GLFW_DIR}/src)
-target_include_directories(${LIB_NAME} PUBLIC ${GLFW_DIR}/include/GLFW)
-target_link_directories(${LIB_NAME} PUBLIC ${GLFW_LIB_DIR})
+add_library(${LIB_NAME} ${LIB_SRC})
 
-set(FREETYPE_LIB_DIR build/${FREETYPE_DIR})
-add_subdirectory(${FREETYPE_DIR})
-target_include_directories(${LIB_NAME} PUBLIC ${FREETYPE_DIR}/include)
-target_link_directories(${LIB_NAME} PUBLIC ${FREETYPE_LIB_DIR})
+target_include_directories(${LIB_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Core/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Math/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Rendering/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Animation/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Armature/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Assets/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Loaders/Public
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/GUI/Public)
 
-set(DEPS glfw freetype ${CMAKE_DL_LIBS} tinyxml2)
+set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/ThirdParty)
 
-if(${BUILD_WITH_ASSIMP})
-	add_subdirectory(${ASSIMP_DIR})
-	set(ASSIMP_LIB_DIR build/${ASSIMP_DIR}/lib)
-	target_include_directories(${LIB_NAME} PUBLIC ${ASSIMP_DIR}/include/assimp)
-	target_link_directories(${LIB_NAME} PUBLIC ${ASSIMP_LIB_DIR})
+target_link_libraries(${LIB_NAME} PUBLIC glad)
 
-	set(DEPS assimp ${DEPS})
+target_link_libraries(${LIB_NAME} PUBLIC glm stb tinydir)
+
+target_include_directories(${LIB_NAME} PUBLIC ${THIRDPARTY_DIR}/GLFW/include)
+target_link_libraries(${LIB_NAME} PUBLIC glfw)
+
+target_include_directories(${LIB_NAME} PUBLIC ${THIRDPARTY_DIR}/tinyxml2)
+target_link_libraries(${LIB_NAME} PUBLIC tinyxml2)
+
+target_include_directories(${LIB_NAME} PUBLIC ${THIRDPARTY_DIR}/freetype/include)
+target_link_libraries(${LIB_NAME} PUBLIC freetype ${CMAKE_DL_LIBS})
+
+if(BUILD_WITH_ASSIMP)
+    target_include_directories(${LIB_NAME} PUBLIC
+        ${THIRDPARTY_DIR}/assimp/include)
+    target_link_libraries(${LIB_NAME} PUBLIC assimp)
 endif()
 
-target_link_libraries(${LIB_NAME} ${DEPS})
+if(BUILD_RENDERER_TESTS)
+    if(UNIX)
+        include_directories(/usr/include/cppunit)
+        link_directories(/usr/lib)
+    elseif(WIN32)
+        include_directories("C:/Program Files (x86)/cppunit/include")
+        link_directories("C:/Program Files (x86)/cppunit/lib")
+    endif()
 
-if(BUILD_TESTS)
-	if(UNIX)
-		include_directories(/usr/include/cppunit)
-		link_directories(/usr/lib)
-	elseif(WIN32)
-		include_directories(C:/Program\ Files\ \(x86\)/cppunit/include)
-		link_directories(C:/Program\ Files\ \(x86\)/cppunit/lib)
-	endif()
-	
-	set(RENDER_TEST nodeTest.cpp cameraTest.cpp shaderTest.cpp particleEmitterTest.cpp)
-	set(ARMATURE_TEST boneTest.cpp ikSolverTest.cpp)
-	set(ANIMATION_TEST animationChannelTest.cpp)
-	set(ASSET_MANAGER_TEST assetManagerTest.cpp)
-	set(TEST_SRC main.cpp ${LIB_SRC} ${RENDER_TEST} ${ARMATURE_TEST} ${ANIMATION_TEST} ${ASSET_MANAGER_TEST})
-	
-	add_executable(vb01Tests ${TEST_SRC})
-	target_link_libraries(vb01Tests ${LIB_NAME} ${DEPS} cppunit)
+    set(TEST_SRC
+        Tests/main.cpp
+        Tests/nodeTest.cpp
+        Tests/cameraTest.cpp
+        Tests/shaderTest.cpp
+        Tests/particleEmitterTest.cpp
+        Tests/boneTest.cpp
+        Tests/ikSolverTest.cpp
+        Tests/animationChannelTest.cpp
+        Tests/assetManagerTest.cpp)
+
+    add_executable(RendererTests ${TEST_SRC})
+    target_link_libraries(RendererTests PRIVATE ${LIB_NAME} cppunit)
 endif()
 
-if(BUILD_SAMPLES)
-	add_executable(textSample textSample.cpp)
-	target_link_libraries(textSample ${LIB_NAME})
-
-	add_executable(skeletalAnimationSample skeletalAnimationSample.cpp)
-	target_link_libraries(skeletalAnimationSample ${LIB_NAME})
-
-	add_executable(morphAnimationSample morphAnimationSample.cpp)
-	target_link_libraries(morphAnimationSample ${LIB_NAME})
-
-	add_executable(driverSample driverSample.cpp)
-	target_link_libraries(driverSample ${LIB_NAME})
-
-	add_executable(lightSample lightSample.cpp)
-	target_link_libraries(lightSample ${LIB_NAME})
-
-	add_executable(shadowSample shadowSample.cpp)
-	target_link_libraries(shadowSample ${LIB_NAME})
-
-	add_executable(particleEmitterSample particleEmitterSample.cpp)
-	target_link_libraries(particleEmitterSample ${LIB_NAME})
-
-	add_executable(rayCasterSample rayCasterSample.cpp)
-	target_link_libraries(rayCasterSample ${LIB_NAME})
-
-	add_executable(planeRayCastSample planeRayCastSample.cpp)
-	target_link_libraries(planeRayCastSample ${LIB_NAME})
-
-	add_executable(pbrSample pbrSample.cpp)
-	target_link_libraries(pbrSample ${LIB_NAME})
+if(BUILD_RENDERER_SAMPLES)
+    foreach(SAMPLE
+            textSample skeletalAnimationSample morphAnimationSample
+            driverSample lightSample shadowSample particleEmitterSample
+            rayCasterSample planeRayCastSample pbrSample)
+        add_executable(${SAMPLE} Samples/${SAMPLE}.cpp)
+        target_link_libraries(${SAMPLE} PRIVATE ${LIB_NAME})
+    endforeach()
 endif()
