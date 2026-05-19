@@ -98,11 +98,12 @@ namespace vb01{
 			Glyph glyph = *glyphPtr;
 			prepareGlyphs(glyph, glyphTexId, advanceOffset);
 			Vector2 size = glyph.size, bearing = glyph.bearing;
+			int numShifts = 6;
 
 			if(horizontal)
-				advanceOffset.x += node->getScale().x * (size.x + bearing.x);
+				advanceOffset.x += node->getScale().x * (glyph.advance >> numShifts);
 			else
-				advanceOffset.y += node->getScale().y * size.y;
+				advanceOffset.y += node->getScale().y * (glyph.advance >> numShifts);
 		}
 	}
 
