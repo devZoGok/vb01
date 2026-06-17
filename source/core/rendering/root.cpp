@@ -8,8 +8,8 @@
 #include "assetManager.h"
 #include "animationController.h"
 
-#include "glad.h"
-#include <glfw3.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <cstdlib>
 
 #include <iostream>

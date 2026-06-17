@@ -6,8 +6,8 @@
 #include "material.h"
 #include "mesh.h"
 
-#include "glad.h"
-#include <glfw3.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <ext.hpp>
 #include <iostream>
 

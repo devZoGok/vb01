@@ -1,7 +1,7 @@
 #include "util.h"
 #include "root.h"
 
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 #include <fstream>
 
 using namespace std;

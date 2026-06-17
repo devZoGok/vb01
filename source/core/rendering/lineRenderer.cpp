@@ -1,7 +1,7 @@
 #include "lineRenderer.h"
 #include "root.h"
 
-#include "glad.h"
+#include <glad/glad.h>
 
 #include <glm.hpp>
 #include <ext.hpp>

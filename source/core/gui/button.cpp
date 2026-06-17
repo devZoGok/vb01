@@ -1,6 +1,6 @@
 #include <locale>
 #include <codecvt>
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "root.h"
 #include "quad.h"
