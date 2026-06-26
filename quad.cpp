@@ -1,21 +1,23 @@
 #include "quad.h"
+#include "root.h"
 
 #include <algorithm>
 
 namespace vb01{
 	using namespace std;
 
-	Quad::Quad(Vector3 size, bool spatial, int numVertDiv, int numHorDiv){
-		this->spatial = spatial;
-		this->numVertDiv = numVertDiv;
-		this->numHorDiv = numHorDiv;
+	Quad::Quad(Vector3 sz, bool sp, int nvd, int nhd) : size(sz), spatial(sp), numVertDiv(nvd), numHorDiv(nhd){
+		init();
+	}
 
-		setSize(size);
+	Quad::Quad(Quad *q){
+		size = q->getSize();
+		numVertDiv = q->getNumVertSubquads() - 1;
+		numHorDiv = q->getNumHorSubquads() - 1;
+		meshBase = q->getMeshBase();
 	}
 	
-	void Quad::setSize(Vector3 size){
-		this->size = size;
-
+	void Quad::init(){
 		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
 		const int numVertPos = (numHorQuads + 1) * (numVertQuads + 1), numTris = 2 * numHorQuads * numVertQuads, numVerts = 3 * numTris;
 		Vector2 subQuadSize = Vector2(size.x / numHorQuads, size.y / numVertQuads);
@@ -84,6 +86,7 @@ namespace vb01{
 		}
 
 		meshBase = MeshData(faceVertPos, nullptr, nullptr, nullptr, 6, norm, vertices, indices, numTris);
+		//Root::getSingleton()->initVertexDataOnGpu(meshBase);
 	}
 
 	//TODO improve functionality for GUI quads 

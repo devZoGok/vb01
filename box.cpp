@@ -1,13 +1,17 @@
 #include "box.h"
+#include "root.h"
 
 namespace vb01{
-	Box::Box(Vector3 size){
-		setSize(size);
+	Box::Box(Vector3 sz) : size(sz){
+		init();
 	}
 
-	void Box::setSize(Vector3 size){
-		this->size = size;
+	Box::Box(Box *b){
+		size = b->getSize();
+		meshBase = b->getMeshBase();
+	}
 
+	void Box::init(){
 		Vector3 *pos = new Vector3[8];
 		pos[0] = Vector3(size.x / 2, size.y / 2, size.z / 2);
 		pos[1] = Vector3(-size.x / 2, size.y / 2, size.z / 2);
@@ -67,5 +71,7 @@ namespace vb01{
 		}
 
 		meshBase = MeshData(pos, nullptr, nullptr, nullptr, 8, norm, vertices, indices, numTris);
+		Root *root = Root::getSingleton();
+		root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
 	}
 }

@@ -54,6 +54,7 @@ namespace vb01{
 			inline std::vector<Text*>& getTexts(){return texts;}
 			inline std::vector<Mesh*>& getMeshes(){return meshes;}
 			inline std::vector<Skeleton*>& getSkeletons(){return skeletons;}
+			inline std::vector<ParticleEmitter*>& getParticleEmitters(){return emitters;}
 			inline Mesh* getMesh(int i){return meshes[i];}
 			inline int getNumMeshes(){return meshes.size();}
 			inline ParticleEmitter* getParticleEmitter(int i){return emitters[i];}

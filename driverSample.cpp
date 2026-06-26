@@ -121,13 +121,13 @@ int main(){
 	 * The AnimationController plays the animations set in the AnimationChannel objects.
 	 * AnimationChannel objects require an animation and animatable objects, e.g. textures to work.
 	*/
-	AnimationController *controller = AnimationController::getSingleton();
-	controller->addAnimation(anim);
-	AnimationChannel *channel = new AnimationChannel();
-	controller->addAnimationChannel(channel);
-	channel->addAnimatable(driver);
-	channel->setAnimationName(animName);
-	channel->setLoop(true);
+	//AnimationController *controller = AnimationController::getSingleton();
+	//controller->addAnimation(anim);
+	//AnimationChannel *channel = new AnimationChannel();
+	//controller->addAnimationChannel(channel);
+	//channel->addAnimatable(driver);
+	//channel->setAnimationName(animName);
+	//channel->setLoop(true);
 
 	while(true){
 		root->update();

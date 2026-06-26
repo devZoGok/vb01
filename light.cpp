@@ -6,7 +6,7 @@
 #include "material.h"
 #include "mesh.h"
 
-#include "glad.h"
+#include <glad.h>
 #include <glfw3.h>
 #include <ext.hpp>
 #include <iostream>
@@ -174,7 +174,7 @@ namespace vb01{
 					else
 						depthMapShader->setMat4(proj * view, "lightMat");
 
-					mesh->render();
+					//mesh->render();
 				}
 			}
 		}

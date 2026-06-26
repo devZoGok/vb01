@@ -2,11 +2,12 @@
 #include "node.h"
 #include "box.h"
 #include "quad.h"
+#include "camera.h"
 #include "texture.h"
 #include "skeleton.h"
 #include "animation.h"
 
-#include "glad.h"
+#include <glad.h>
 #include <glfw3.h>
 #include <glm.hpp>
 #include <ext.hpp>
@@ -50,11 +51,11 @@ namespace vb01{
 	}
 
 	void Mesh::updateVerts(MeshData meshData){
-		glBindBuffer(GL_ARRAY_BUFFER, meshData.VBO);
+		//glBindBuffer(GL_ARRAY_BUFFER, meshData.VBO);
 
-		MeshData::GpuVertex *glVertData = meshBase.toGpuVerts();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::GpuVertex) * meshBase.numTris, glVertData);
-		delete glVertData;
+		//MeshData::GpuVertex *glVertData = meshBase.toGpuVerts();
+		//glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(MeshData::GpuVertex) * meshBase.numTris, glVertData);
+		//delete glVertData;
 	}
 
 	void Mesh::update(){
@@ -89,12 +90,12 @@ namespace vb01{
 		Shader *shader = material->getShader();
 		material->update();
 
-		shader->setBool(castShadow, "castShadow");
-		shader->setBool(skeleton, "animated");
-		shader->setMat4(view, "view");
-		shader->setMat4(proj, "proj");
-		shader->setVec3(camPos, "camPos");
-		shader->setMat4(model, "model");
+		//shader->setBool(castShadow, "castShadow");
+		//shader->setBool(skeleton, "animated");
+		//shader->setMat4(view, "view");
+		//shader->setMat4(proj, "proj");
+		//shader->setVec3(camPos, "camPos");
+		//shader->setMat4(model, "model");
 
 		if(skeleton)
 			updateSkeleton(shader);
@@ -111,8 +112,6 @@ namespace vb01{
 			if(node)
 				shader->setVec3(pos, "pos");
 		}
-
-		render();
 	}
 
 	void Mesh::updateShapeKeys(Shader *shader){
@@ -228,7 +227,7 @@ namespace vb01{
 			if(skybox) {
 				glDepthMask(GL_FALSE);
 				glCullFace(GL_FRONT);
-				skybox->render();
+				//root->renderMesh(skybox);
 				glDepthMask(GL_TRUE);
 				glCullFace(GL_BACK);
 			}
@@ -261,7 +260,7 @@ namespace vb01{
 
 			glDepthMask(GL_FALSE);
 			glCullFace(GL_FRONT);
-			root->getIblBox()->render();
+			//root->renderMesh(root->getIblBox());
 			glDepthMask(GL_TRUE);
 			glCullFace(GL_BACK);
 		}
@@ -301,7 +300,7 @@ namespace vb01{
 
 				glDepthMask(GL_FALSE);
 				glCullFace(GL_FRONT);
-				root->getIblBox()->render();
+				//root->getIblBox()->renderMesh();
 				glDepthMask(GL_TRUE);
 				glCullFace(GL_BACK);
 			}
@@ -326,7 +325,7 @@ namespace vb01{
 		brdfIntegrationShader->setUnsignedInt(numSamples, "numSamples");
 
 		Root *root = Root::getSingleton();
-		root->getBrdfLutPlane()->render();
+		//root->renderMesh(root->getBrdfLutPlane());
 
 		glBindRenderbuffer(GL_RENDERBUFFER, *root->getRBO());
 		glBindFramebuffer(GL_FRAMEBUFFER, *root->getFBO());
@@ -354,12 +353,6 @@ namespace vb01{
 		irradianceMap->select(irradianceId);
 		brdfIntegrationMap->select(brdfId);
 		postfilterMap->select(postFilterId);
-	}
-
-	void Mesh::render(){
-		glBindVertexArray(meshBase.VAO);
-		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-		glDrawElements(GL_TRIANGLES, 3 * meshBase.numTris, GL_UNSIGNED_INT, 0);	
 	}
 
 	void Mesh::setReflect(bool reflect){

@@ -1,4 +1,5 @@
 #include "lineRenderer.h"
+#include "camera.h"
 #include "root.h"
 
 #include "glad.h"
@@ -41,10 +42,10 @@ namespace vb01{
 					shader->setMat4(proj, "proj");
 					shader->setMat4(view, "view");
 
-					glBegin(GL_LINES);
-					glVertex3f(l.start.x, l.start.y, l.start.z);
-					glVertex3f(l.end.x, l.end.y, l.end.z);
-					glEnd();
+					//glBegin(GL_LINES);
+					//glVertex3f(l.start.x, l.start.y, l.start.z);
+					//glVertex3f(l.end.x, l.end.y, l.end.z);
+					//glEnd();
 				}
 			}
 		}

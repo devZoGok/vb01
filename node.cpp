@@ -62,8 +62,7 @@ namespace vb01{
 			l->update(render);
 
 		if(render){
-			for(Mesh *m : meshes)
-				m->update();
+			//for(Mesh *m : meshes) m->update();
 
 			for(Text *t : texts)
 				t->update();

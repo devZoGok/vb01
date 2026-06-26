@@ -1,6 +1,7 @@
 #include "meshData.h"
+#include "root.h"
 
-#include "glad.h"
+#include <glad.h>
 #include <glfw3.h>
 #include <glm.hpp>
 #include <ext.hpp>
@@ -40,43 +41,7 @@ namespace vb01{
 				fullSkeletonName(fsn), 
 				shapeKeys(sk), 
 				numShapeKeys(nsk)
-   	{
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);	
-
-		u32 size = sizeof(MeshData::GpuVertex);
-
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-		MeshData::GpuVertex *glVertData = toGpuVerts();
-		glBufferData(GL_ARRAY_BUFFER, 3 * numTris * size, glVertData, GL_DYNAMIC_DRAW);
-		delete glVertData;
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * numTris * sizeof(u32), indices, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, norm)));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, uv)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, tan)));
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, biTan)));
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, weights)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, boneIndices)));
-		glEnableVertexAttribArray(6);
-
-		for(int i = 0; i < numShapeKeys; i++){
-			glVertexAttribPointer(7 + i, 3, GL_FLOAT, GL_FALSE, size, (void*)(offsetof(MeshData::GpuVertex, shapeKeyOffsets) + 3 * i * sizeof(float)));
-			glEnableVertexAttribArray(7 + i);
-		}
-	}
+   	{}
 
 	void MeshData::ShapeKey::animate(float value, KeyframeChannel keyframeChannel){
 		switch(keyframeChannel.type){
@@ -92,29 +57,45 @@ namespace vb01{
 		}
 	}
 
-	MeshData::GpuVertex* MeshData::toGpuVerts(){
+	//TODO replace number of max bone influences literal
+	vector<MeshData::GpuVertex> MeshData::toGpuVerts(){
 		int numVertices = 3 * numTris;
-		GpuVertex *vertData = new GpuVertex[numVertices];
+		vector<GpuVertex> vertData;
 
 		for(int i = 0; i < numVertices; i++){
-			vertData[i].pos = *vertices[i].pos;
-			vertData[i].norm = *vertices[i].norm;
-			vertData[i].tan = vertices[i].tan;
-			vertData[i].biTan = vertices[i].biTan;
-			vertData[i].uv = vertices[i].uv;
+			MeshData::GpuVertex gpuVert;
+			gpuVert.pos = *vertices[i].pos;
+			gpuVert.norm = *vertices[i].norm;
+			gpuVert.tan = vertices[i].tan;
+			gpuVert.biTan = vertices[i].biTan;
+			gpuVert.uv = vertices[i].uv;
 
 			if(weights){
 				for(int j = 0; j < 4; j++){
-					vertData[i].weights[j] = vertices[i].weights[j];
-					vertData[i].boneIndices[j] = vertices[i].boneIndices[j];
+					gpuVert.weights[j] = vertices[i].weights[j];
+					gpuVert.boneIndices[j] = vertices[i].boneIndices[j];
 				}
 			}
+			/*
 
-			if(shapeKeyOffsets)
-				for(int j = 0; j < 100; j++) 
-					vertData[i].shapeKeyOffsets[j] = vertices[i].shapeKeyOffsets[j];
+			*/
+			if(shapeKeyOffsets){
+				const int MAX_NUM_SHAPE_KEYS = Root::getSingleton()->getMaxNumShapeKeys();
+
+				for(int j = 0; j < MAX_NUM_SHAPE_KEYS; j++) 
+					gpuVert.shapeKeyOffsets[j] = vertices[i].shapeKeyOffsets[j];
+			}
+
+			vertData.push_back(gpuVert);
 		}
 
 		return vertData;
+	}
+
+	bool MeshData::operator==(MeshData &meshData){
+		bool samePos = (positions == meshData.positions);
+		bool sameNorm = (normals == meshData.normals);
+		bool sameSkOffsets = (shapeKeyOffsets == meshData.shapeKeyOffsets);
+		return samePos && sameNorm && sameSkOffsets;
 	}
 }

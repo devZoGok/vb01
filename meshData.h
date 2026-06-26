@@ -24,7 +24,7 @@ namespace vb01{
 			Vector2 uv;	
 			float weights[4]{0, 0, 0, 0};
 			int boneIndices[4]{-1, -1, -1, -1};
-			Vector3 shapeKeyOffsets[100];
+			Vector3 shapeKeyOffsets[5];
 		};
 
 		struct Vertex{
@@ -35,7 +35,7 @@ namespace vb01{
 			Vector3 *shapeKeyOffsets = nullptr;
 		};
 
-		GpuVertex* toGpuVerts();
+		std::vector<GpuVertex> toGpuVerts();
 
 		Vector3 *positions = nullptr, *normals = nullptr, **shapeKeyOffsets = nullptr;
 		float **weights = nullptr;
@@ -43,12 +43,13 @@ namespace vb01{
 		Vertex *vertices;
 		std::string *vertexGroups = nullptr;
 		ShapeKey *shapeKeys = nullptr;
-		u32 *indices, VAO, VBO, EBO;
+		u32 *indices;
 		int numPos, numTris, numVertexGroups = 0, numShapeKeys = 0;
 		std::string attachableName = "", fullSkeletonName = "";
 
 		MeshData(){}
 		MeshData(Vector3*, float**, int**, Vector3**, int, Vector3*, Vertex*, u32*, int, std::string = "", std::string *vg = nullptr, int = 0, std::string = "", ShapeKey *sk = nullptr, int = 0);
+		bool operator==(MeshData&);
 	};
 }
 

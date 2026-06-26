@@ -22,12 +22,12 @@ namespace vb01{
 			~Mesh();
 			void updateVerts(MeshData);
 			virtual void update();
-			void render();
 			void setReflect(bool);
 			inline void setMaterial(Material *mat){this->material = mat;}
 			inline void setCastShadow(bool castShadow){this->castShadow = castShadow;}
 			inline void setReflective(bool r){this->reflective = r;}
 			inline void setWireframe(bool w){this->wireframe = w;}
+			inline bool isWireframe(){return wireframe;}
 			inline void setSkeleton(Skeleton *sk){this->skeleton = sk;}
 			inline Material* getMaterial(){return material;}
 			inline bool isReflective(){return reflective;}
@@ -38,7 +38,7 @@ namespace vb01{
 			inline Texture* getIrradianceMap(){return irradianceMap;}
 			inline Texture* getPostfilterMap(){return postfilterMap;}
 			inline Texture* getBrdfIntegrationMap(){return brdfIntegrationMap;}
-			inline MeshData getMeshBase(){return meshBase;}
+			inline MeshData& getMeshBase(){return meshBase;}
 		private:
 			void initFramebuffer(u32&, u32&, int);
 			void updateSkeleton(Shader*);
@@ -61,6 +61,7 @@ namespace vb01{
 			Skeleton *skeleton = nullptr;
 		protected:
 			Mesh(){}
+			virtual void init(){}
 
 			MeshData meshBase;
 			int numShapeKeys = 0;
