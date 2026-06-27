@@ -2,8 +2,13 @@
 #include "root.h"
 
 namespace vb01{
-	Box::Box(Vector3 sz) : size(sz){
+	Box::Box(Vector3 sz, bool renderMesh) : size(sz){
 		init();
+
+		if(renderMesh){
+			Root *root = Root::getSingleton();
+			root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
+		}
 	}
 
 	Box::Box(Box *b){
@@ -71,7 +76,5 @@ namespace vb01{
 		}
 
 		meshBase = MeshData(pos, nullptr, nullptr, nullptr, 8, norm, vertices, indices, numTris);
-		Root *root = Root::getSingleton();
-		root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
 	}
 }

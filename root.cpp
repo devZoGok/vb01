@@ -5,6 +5,7 @@
 #include "box.h"
 #include "quad.h"
 #include "camera.h"
+#include "light.h"
 #include "lineRenderer.h"
 #include "assetManager.h"
 #include "imageAsset.h"
@@ -66,6 +67,9 @@ namespace vb01{
     	glGenBuffers(1, &drawCmdBuffer);
     	glGenBuffers(1, &objVertBuffer);
     	glGenBuffers(1, &objFragBuffer);
+    	glGenBuffers(1, &objLightBuffer);
+
+		glGenTextures(1, &skyboxBuffer);
 
 		guiPlaneTextureBuffer = new u32;
 		glGenTextures(1, guiPlaneTextureBuffer);
@@ -76,6 +80,7 @@ namespace vb01{
 
 		phongShader = new Shader(libPath + "phong4");
 		
+
 		initMeshRendering(meshVAO, meshVBO, meshEBO);
 		initParticleRendering();
 		initGuiRendering();
@@ -131,11 +136,9 @@ namespace vb01{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-		//textureGpuData.push_back(TextureGpuData(textureBuffer, , width, height));
 	}
 
+	//TODO check loading of textures with different dimensions 
 	void Root::initTextureDataOnGpu(u32 *textureBuffer, u8 *data, int width, int height, int &layerId){
 		bool present = false;
 
@@ -180,8 +183,169 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
+	}
 
-		//textureGpuData.push_back(TextureGpuData(textureBuffer, , width, height));
+	void Root::updateRenderNodeData(Node *node){
+		Quaternion orient = Quaternion::QUAT_W;
+		Vector3 pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
+		bool gui = false;
+
+		if(!gui){
+			pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
+			orient = node->localToGlobalOrientation(Quaternion::QUAT_W);
+			scale = node->getScale();
+		}
+
+		Vector3 rotAxis = orient.getAxis();
+
+		if(rotAxis == Vector3::VEC_ZERO)
+			rotAxis = Vector3::VEC_I;
+
+		mat4 model = mat4(1.);
+		model = translate(model, vec3(pos.x, pos.y, pos.z));
+		model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
+		model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
+
+		for(Mesh *mesh : node->getMeshes()){
+			MeshData &meshData = mesh->getMeshBase();
+
+			for(int i = 0; i < drawCmdMeshes.size(); i++)
+				if(*(drawCmdMeshes[i]) == meshData)
+					drawCmds[i].instanceCount++;
+
+			ObjectVertexData ovd;
+			ovd.viewProj = projView;
+			ovd.model = model;
+			//ovd.animated = 0;
+			//ovd.bones[0];
+
+			/*
+			for(int i = 0; i < meshData.numShapeKeys; i++)
+				ovd.shapeKeyFactors[i] = meshData.shapeKeys[i].value;
+			*/
+
+			objVertData.push_back(ovd);
+
+			Material *mat = mesh->getMaterial();
+
+			ObjectFragmentData ofd;
+			ofd.texturingEnabled = true;
+
+			if(ofd.texturingEnabled){
+				ofd.pastTexture[0] = 0;
+				ofd.pastTexture[1] = 0;
+			}
+			else{
+				Vector4 diffuseColor = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+
+				ofd.diffuseColor[0] = diffuseColor.x;
+				ofd.diffuseColor[1] = diffuseColor.y;
+				ofd.diffuseColor[2] = diffuseColor.z;
+				ofd.diffuseColor[3] = diffuseColor.w;
+			}
+
+			ofd.lightingEnabled = false;
+
+			if(ofd.lightingEnabled){
+				ofd.constLightingEnabled = false;
+				ofd.normalMapEnabled = false;
+				ofd.castShadow = false;
+				ofd.environmentMapEnabled = false;
+				ofd.specularMapEnabled = false;
+
+				if(!ofd.specularMapEnabled){
+					Vector4 specularColor = ((Material::Vector4Uniform*)mat->getUniform("specularColor"))->value;
+
+					ofd.specularColor[0] = specularColor.x;
+					ofd.specularColor[1] = specularColor.y;
+					ofd.specularColor[2] = specularColor.z;
+					ofd.specularColor[3] = specularColor.w;
+					ofd.shinyness;
+					ofd.specularStrength;
+				}
+			}
+
+			objFragData.push_back(ofd);
+		}
+
+		Vector3 direction = node->getGlobalAxis(2);
+
+		for(Light *light : node->getLights()){
+			LightData data;
+			Light::Type type = light->getLightType();
+			data.type = (int)type;
+			data.color[0] = light->getColor().x;
+			data.color[1] = light->getColor().y;
+			data.color[1] = light->getColor().z;
+
+			switch(type){
+				case Light::Type::POINT:
+					data.pos[0] = pos.x;
+					data.pos[1] = pos.y;
+					data.pos[2] = pos.z;
+					data.a = light->getAttenuationValues().x;
+					data.b = light->getAttenuationValues().y;
+					data.c = light->getAttenuationValues().z;
+					data.radius = light->getRadius();
+					data.useAngle = light->isUseAngle();
+					break;
+				case Light::Type::DIRECTIONAL:
+					//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+					data.direction[0] = direction.x;
+					data.direction[1] = direction.y;
+					data.direction[2] = direction.z;
+					break;
+				case Light::Type::SPOT:
+					//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+					data.pos[0] = pos.x;
+					data.pos[1] = pos.y;
+					data.pos[2] = pos.z;
+					data.direction[0] = direction.x;
+					data.direction[1] = direction.y;
+					data.direction[2] = direction.z;
+					data.a = light->getAttenuationValues().x;
+					data.b = light->getAttenuationValues().y;
+					data.c = light->getAttenuationValues().z;
+					data.innerAngle = light->getInnerAngle();
+					data.outerAngle = light->getOuterAngle();
+			}
+			
+			lightData.push_back(data);
+		}
+	}
+
+	void Root::createCubemap(bool depth, bool fromFile, string paths[6], int mipmapLevel){
+		for(int i = 0; i < 6; i++){
+			if(!depth){
+				if(paths[0] != ""){
+					ImageAsset *asset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
+					int width = asset->width;
+
+					glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxBuffer);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, asset->image);	
+				}
+				else{
+					glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_INT, NULL);	
+				}
+			}
+			else{
+				glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
+			}
+		}
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		if(mipmapLevel > 0){
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		}
+		else
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
 	void Root::initVertexDataOnGpu(MeshData &meshData, u32 &VAO, u32 &VBO, u32 &EBO, bool updateDrawCommands){
@@ -342,7 +506,7 @@ namespace vb01{
 	}
 
 	void Root::initGuiPlane(){
-		guiPlane = new Quad(Vector3(width, height, -1), false);
+		guiPlane = new Quad(Vector3(width, height, -1), false, 0, 0, false);
 
 		initMeshRendering(guiPlaneVAO, guiPlaneVBO, guiPlaneEBO);
 		initVertexDataOnGpu(guiPlane->getMeshBase(), guiPlaneVAO, guiPlaneVBO, guiPlaneEBO, false);
@@ -365,7 +529,8 @@ namespace vb01{
 			glCullFace(GL_FRONT);
 
 			skybox->update();
-			renderMesh(skybox, meshVAO);
+			skybox->getMaterial()->getShader()->setMat4(calculateProjView(), "projView");
+			renderMesh(skybox, skyboxVAO, skyboxBuffer, true);
 
 			glDepthMask(GL_TRUE);
 			glCullFace(GL_BACK);
@@ -373,17 +538,9 @@ namespace vb01{
 
 		AnimationController::getSingleton()->update();
 
-			Vector3 camPos = camera->getPosition();
-
-			Vector3 dir = camera->getDirection(), up = camera->getUp();
-			mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + dir.x, camPos.y + dir.y, camPos.z + dir.z), vec3(up.x, up.y, up.z));
-
-			float fov = camera->getFov(), nearPlane = camera->getNearPlane(), farPlane = camera->getFarPlane();
-			mat4 proj = perspective(radians(fov), (float)width / height, nearPlane, farPlane);
-
-		mat4 projView = proj * view;
-
-		updateNodeTree(rootNode, projView, false);
+		updateNodeTree(phongShader, false);
+		rootNode->update();
+		renderMeshes();
 
 		//LineRenderer::getSingleton()->drawLines();
 
@@ -398,13 +555,17 @@ namespace vb01{
 		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
+		//updateNodeTree(guiShader, true);
 		//updateNodeTree(guiNode, true);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	void Root::renderMesh(Mesh *mesh, u32 &vao){
+	void Root::renderMesh(Mesh *mesh, u32 &vao, u32 &texBuffer, bool cubemap){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texBuffer);
+
 		MeshData meshData = mesh->getMeshBase();
 		glBindVertexArray(vao);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -421,10 +582,8 @@ namespace vb01{
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ObjectFragmentData) * objFragData.size(), objFragData.data(), GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, objFragBuffer);
 
-		/*
-		glNamedBufferSubData(objFragBuffer, 0, sizeof(ObjectFragmentData) * objFragData.size(), objFragData.data());
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, objFragBuffer);
-		*/
+		glNamedBufferSubData(objLightBuffer, 0, sizeof(LightData) * lightData.size(), lightData.data());
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, objLightBuffer);
 
 		for(int i = 0; i < currTextureDims.size(); i++){
 			glActiveTexture(GL_TEXTURE0 + i);
@@ -447,9 +606,43 @@ namespace vb01{
 	void Root::renderGui(vector<Mesh*> &meshes){
 	}
 
+	mat4 Root::calculateProjView(Vector3 camPos){
+		Vector3 dir = camera->getDirection(), up = camera->getUp();
+		mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + dir.x, camPos.y + dir.y, camPos.z + dir.z), vec3(up.x, up.y, up.z));
+
+		float fov = camera->getFov(), nearPlane = camera->getNearPlane(), farPlane = camera->getFarPlane();
+		mat4 proj = perspective(radians(fov), (float)width / height, nearPlane, farPlane);
+
+		return proj * view;
+	}
+
 	//TODO replace sorting algorithm
 	//TODO specify differentiation of nodes with translucent meshes AND texts
-	void Root::updateNodeTree(Node *node, mat4 &projView, bool gui){
+	void Root::updateNodeTree(Shader *shader, bool gui){
+		shader->use();
+
+		if(!gui){
+			Vector3 camPos = camera->getPosition();
+			shader->setVec3(camPos, "camPos");
+			projView = calculateProjView(camPos);
+		}
+
+		objVertData.clear();
+		objFragData.clear();
+
+		for(DrawElementsIndirectCommand &cmd : drawCmds)
+			cmd.instanceCount = 0;
+
+		for(int i = 0; i < currTextureDims.size(); i++)
+			shader->setInt(i, "textureSamplers[" + to_string(i) + "]");
+
+		/*
+		if(gui){} //renderGui();
+		else{
+			renderMeshes();
+			//renderParticles(particleEmitters);
+		}
+
 		vector<Node*> descendants, opaqueNodes, transparentNodes;
 		node->getDescendants(descendants);
 
@@ -495,107 +688,21 @@ namespace vb01{
 			}
 		}
 
-		objVertData.clear();
-		objFragData.clear();
-
-		for(DrawElementsIndirectCommand &cmd : drawCmds)
-			cmd.instanceCount = 0;
-
 		vector<Node*> renderNodes = opaqueNodes;
 		renderNodes.insert(renderNodes.end(), transparentNodes.begin(), transparentNodes.end());
 
+
 		for(Node *renderNode : renderNodes){
-			renderNode->update();
+			//renderNode->update();
 
-			Quaternion orient = Quaternion::QUAT_W;
-			Vector3 pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
-
-			if(!gui){
-				pos = renderNode->localToGlobalPosition(Vector3::VEC_ZERO);
-				orient = renderNode->localToGlobalOrientation(Quaternion::QUAT_W);
-				scale = renderNode->getScale();
-			}
-
-			Vector3 rotAxis = orient.getAxis();
-
-			if(rotAxis == Vector3::VEC_ZERO)
-				rotAxis = Vector3::VEC_I;
-
-			mat4 model = mat4(1.);
-			model = translate(model, vec3(pos.x, pos.y, pos.z));
-			model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
-			model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
 
 			for(Mesh *mesh : renderNode->getMeshes()){
-				Material *mat = mesh->getMaterial();
 				mat->getShader()->use();
 				mat->getShader()->setInt(0, "textureSampler");
 
-				ObjectVertexData ovd;
-				ovd.viewProj = projView;
-				ovd.model = model;
-				//ovd.animated = 0;
-				//ovd.bones[0];
-				MeshData &meshData = mesh->getMeshBase();
-
-				for(int i = 0; i < drawCmdMeshes.size(); i++)
-					if(*(drawCmdMeshes[i]) == meshData)
-						drawCmds[i].instanceCount++;
-
-				/*
-				for(int i = 0; i < meshData.numShapeKeys; i++)
-					ovd.shapeKeyFactors[i] = meshData.shapeKeys[i].value;
-				*/
-
-				objVertData.push_back(ovd);
-
-				ObjectFragmentData ofd;
-				ofd.texturingEnabled = true;
-
-				if(ofd.texturingEnabled){
-					ofd.pastTexture[0] = 0;
-					ofd.pastTexture[1] = 0;
-				}
-				else{
-					Vector4 diffuseColor = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
-
-					ofd.diffuseColor[0] = diffuseColor.x;
-					ofd.diffuseColor[1] = diffuseColor.y;
-					ofd.diffuseColor[2] = diffuseColor.z;
-					ofd.diffuseColor[3] = diffuseColor.w;
-				}
-
-				ofd.lightingEnabled = false;
-
-				if(ofd.lightingEnabled){
-					ofd.constLightingEnabled = false;
-					ofd.texturingEnabled = false;
-					ofd.normalMapEnabled = false;
-					ofd.castShadow = false;
-					ofd.environmentMapEnabled = false;
-					ofd.specularMapEnabled = false;
-
-					if(!ofd.specularMapEnabled){
-						Vector4 specularColor = ((Material::Vector4Uniform*)mat->getUniform("specularColor"))->value;
-
-						ofd.specularColor[0] = specularColor.x;
-						ofd.specularColor[1] = specularColor.y;
-						ofd.specularColor[2] = specularColor.z;
-						ofd.specularColor[3] = specularColor.w;
-						ofd.shinyness;
-						ofd.specularStrength;
-					}
-				}
-
-				objFragData.push_back(ofd);
 			}
 		}
-
-		if(gui){} //renderGui();
-		else{
-			renderMeshes();
-			//renderParticles(particleEmitters);
-		}
+		*/
 	}
 
 	void Root::updateBloomFramebuffer(){
@@ -612,7 +719,7 @@ namespace vb01{
 			else
 				pingPongTextures[!horizontal]->select();
 
-			renderMesh(guiPlane, guiPlaneVAO);
+			renderMesh(guiPlane, guiPlaneVAO, meshVAO, false);
 			horizontal = !horizontal;
 		}
 
@@ -631,8 +738,6 @@ namespace vb01{
 		shader->setFloat(gamma, "gamma");
 		shader->setInt(0, "frag");
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, guiPlaneTextureBuffer[0]);
 		//((Material::TextureUniform*)material->getUniform("frag"))->value->select(0);
 
 		if(hdr){
@@ -640,7 +745,7 @@ namespace vb01{
 			((Material::TextureUniform*)material->getUniform("bright"))->value->select(1);
 		}
 
-		renderMesh(guiPlane, guiPlaneVAO);
+		renderMesh(guiPlane, guiPlaneVAO, guiPlaneTextureBuffer[0], false);
 	}
 
 	void Root::createSkybox(string paths[6]){
@@ -649,7 +754,13 @@ namespace vb01{
 	}
 
 	void Root::createSkybox(Texture *texture){
-		skybox = new Box(Vector3::VEC_IJK * 10);
+		skybox = new Box(Vector3::VEC_IJK * 10, false);
+
+		if(skyboxVBO == -1){
+			initMeshRendering(skyboxVAO, skyboxVBO, skyboxEBO);
+			initVertexDataOnGpu(skybox->getMeshBase(), skyboxVAO, skyboxVBO, skyboxEBO, false);
+		}
+
 		Material *skyboxMat = new Material(new Shader(libPath + "skybox"));
 		skyboxMat->addTexUniform("tex", texture, true);
 		skybox->setMaterial(skyboxMat);

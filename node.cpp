@@ -72,10 +72,15 @@ namespace vb01{
 
 			for(Skeleton *sk : skeletons)
 					sk->update();
-		}
 
-		for(Driver *driver : drivers)
-			driver->drive(getDriverValue(driver->getType()));
+			for(Driver *driver : drivers)
+				driver->drive(getDriverValue(driver->getType()));
+
+			Root::getSingleton()->updateRenderNodeData(this);
+
+			for(Node *child : children)
+				child->update();
+		}
 	}
 
 	Node* Node::clone(){

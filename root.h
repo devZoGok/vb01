@@ -44,6 +44,8 @@ namespace vb01{
 			void initVertexDataOnGpu(MeshData&, u32&, u32&, u32&, bool);
 			void initTextureDataOnGpu(int, int);
 			void initTextureDataOnGpu(u32*, u8*, int, int, int&);
+			void updateRenderNodeData(Node*);
+			void createCubemap(bool, bool, std::string[6], int);
 			inline Shader* getPhongShader(){return phongShader;}
 			inline u32& getMeshVAO(){return meshVAO;}
 			inline u32& getMeshVBO(){return meshVBO;}
@@ -89,6 +91,13 @@ namespace vb01{
 				float shinyness, specularStrength;
 				int lightingEnabled, constLightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
 			};
+			struct LightData {
+				int useAngle, additive, render;
+				int type, attenuation;
+				float pos[3], color[3], direction[3];
+				float innerAngle, outerAngle;
+				float a, b, c, near, far, radius;
+			};
 			struct TextureGpuData {
 				u32 *buffer = nullptr;
 				int unitId = 0, layerId = 0, width = 0, height = 0;
@@ -96,9 +105,15 @@ namespace vb01{
 				TextureGpuData(u32 *b, int u, int l, int w, int h) : buffer(b), unitId(u), layerId(l), width(w), height(h){}
 			};
 
+			glm::mat4 projView;
 			const int MAX_NUM_SHAPE_KEYS = 5;
 			int NUM_MAX_TEXTURE_UNITS = 0, NUM_MAX_TEXTURE_ARRAY_SIZE = 0, numLights = 0, width, height, blurLevel = 10, currNumVerts = 0, currNumIndexes = 0, depthmapSize = 512, currNumLayers = 0;
-			u32 meshVAO, meshVBO, meshEBO, particleVAO, particleVBO, guiPlaneVAO, guiPlaneVBO, guiPlaneEBO, *meshTextureBuffer = nullptr, *guiPlaneTextureBuffer = nullptr, *depthmapBuffer = nullptr, FBO, RBO, pingpongBuffers[2], drawCmdBuffer = -1, objVertBuffer = -1, objFragBuffer = -1;
+			u32 meshVAO, meshVBO, meshEBO, *meshTextureBuffer = nullptr, *depthmapBuffer = nullptr;
+			u32 particleVAO, particleVBO; 
+			u32 guiVAO, guiVBO, guiEBO, *guiTextureBuffer = nullptr; 
+			u32 guiPlaneVAO, guiPlaneVBO, guiPlaneEBO, *guiPlaneTextureBuffer = nullptr; 
+			u32 skyboxVAO = -1, skyboxVBO = -1, skyboxEBO = -1, skyboxBuffer = -1;
+			u32 FBO, RBO, pingpongBuffers[2], drawCmdBuffer = -1, objVertBuffer = -1, objFragBuffer = -1, objLightBuffer = -1;
 			bool bloom = false, hdr = false;
 			float exposure = 1, gamma = 1;
 			Box *skybox = nullptr, *iblBox = nullptr;
@@ -116,6 +131,7 @@ namespace vb01{
 			std::vector<DrawElementsIndirectCommand> drawCmds;
 			std::vector<ObjectVertexData> objVertData;
 			std::vector<ObjectFragmentData> objFragData;
+			std::vector<LightData> lightData;
 			std::vector<TextureGpuData> textureGpuData;
 			std::string libPath;
 
@@ -130,8 +146,9 @@ namespace vb01{
 			void initGuiPlane();
 			void updateBloomFramebuffer();
 			void updateGuiPlane();
-			void updateNodeTree(vb01::Node*, glm::mat4&, bool);
-			void renderMesh(Mesh*, u32&);
+			glm::mat4 calculateProjView(Vector3 = Vector3::VEC_ZERO);
+			void updateNodeTree(Shader*, bool);
+			void renderMesh(Mesh*, u32&, u32&, bool);
 
 		protected:
 			virtual void initMeshRendering(u32 &vao, u32 &vbo, u32 &ebo);

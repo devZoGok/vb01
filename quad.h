@@ -7,7 +7,7 @@
 namespace vb01{
 	class Quad : public Mesh{
 		public:
-			Quad(Vector3, bool = true, int numVertDiv = 0, int numHorDiv = 0);
+			Quad(Vector3, bool = true, int numVertDiv = 0, int numHorDiv = 0, bool = true);
 			Vector3 getSubquadCorner(int, int, int, int, bool, bool);
 			Vector2 getSubquadIds(int, int, Vector3, Vector3);
 			inline Quad* clone(){return new Quad(this);}

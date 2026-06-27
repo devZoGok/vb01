@@ -6,17 +6,19 @@
 #include "abstractAssetReader.h"
 
 namespace vb01{
-		class ImageReader : public AbstractAssetReader{
-				public:
-						static ImageReader* getSingleton();
-						inline void setFlip(bool flip){this->flip = flip;}
-						inline bool isFlip(){return flip;}
-						Asset* readAsset(std::string);
-				private:
-						ImageReader(){}
+	class ImageReader : public AbstractAssetReader{
+		public:
+			static ImageReader* getSingleton();
+			inline void setFlip(bool flip){this->flip = flip;}
+			inline bool isFlip(){return flip;}
+			inline void setLoadToGpu(bool ltg){this->loadToGpu = ltg;}
+			inline bool isLoadToGpu(){return loadToGpu;}
+			Asset* readAsset(std::string);
+		private:
+			ImageReader(){}
 
-						bool flip = true;
-		};
+			bool flip = true, loadToGpu = true;
+	};
 }
 
 #endif

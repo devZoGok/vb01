@@ -46,8 +46,6 @@ namespace vb01{
 			std::string *paths = nullptr;
 			std::vector<Frame> frames;
 
-			void createCubemap(bool, bool, bool);
-			void create2DTexture(bool);
 			inline int getNextFrame(int frameId){return (frameId + 1 < numFrames ? frameId + 1 : 0);}
 	};
 }

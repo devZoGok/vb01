@@ -31,110 +31,28 @@ namespace vb01{
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 			*/
 		}
-		else{
-			Root::getSingleton()->initTextureDataOnGpu(width, height);
-			/*
-			glTexImage2D(GL_TEXTURE_2D, 0, (hiRes ? GL_RGB16F : GL_RGB), width, height, 0, GL_RGB, GL_FLOAT, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			*/
-		}
-	}
-
-	Texture::Texture(string paths[], int numPaths, bool cubemap, int mipmapLevel, bool flip, string name) : Animatable(Animatable::TEXTURE, name){
-			this->cubemap = cubemap;
-			this->paths = new string[numPaths];
-
-			for(int i = 0; i < numPaths; i++)
-				this->paths[i] = paths[i];
-
-			if(cubemap){
-				texture = new u32;
-				createCubemap(false, flip, true);
-			}
-			else{
-				this->numFrames = numPaths;
-				//texture = new u32[numPaths];
-				//create2DTexture(flip);
-				//
-				for(int i = 0; i < numFrames; i++){
-					ImageAsset *imgAsset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
-					frames.push_back(Frame(nullptr, imgAsset->layerId));
-				}
-			}
-	}
-
-	void Texture::loadImageData(ImageAsset *asset, bool creating, int i){
-		if(!creating) glDeleteTextures(1, &texture[i]);
-
-		width = asset->width;
-		height = asset->height;
-
-		glGenTextures(1, &texture[i]);
-		glBindTexture(GL_TEXTURE_2D, texture[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, png ? GL_RGBA : GL_RGB, width, height, 0, png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, asset->image);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-
-	void Texture::create2DTexture(bool flip){
-		mixRatio = .1;
-
-		for(int i = 0; i < numFrames; i++){
-			int length = paths[i].length();
-
-			if(paths[i].substr(length - 4, string::npos) == ".png")
-				png = true;
-
-			loadImageData((ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]), true);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-	}
-
-	Texture::Texture(int width, bool depth, int mipmapLevel, string name) : Animatable(Animatable::TEXTURE, name){
-		this->width = width;
-		this->mipmapLevel = mipmapLevel;
-		this->cubemap = true;
-		texture = new u32;
-
-		createCubemap(depth, false, false);
-	}
-
-	void Texture::createCubemap(bool depth, bool flip, bool fromFile){
-		glGenTextures(1, &texture[0]);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, texture[0]);
-
-		for(int i = 0; i < 6; i++){
-			if(!depth){
-				if(fromFile){
-					ImageAsset *asset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
-					width = asset->width;
-
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_BYTE, asset->image);	
-				}
-				else
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_UNSIGNED_INT, NULL);	
-			}
-			else
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, width, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);	
-		}
-
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		if(mipmapLevel > 0){
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-		}
 		else
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			Root::getSingleton()->initTextureDataOnGpu(width, height);
+	}
+
+	Texture::Texture(string paths[], int np, bool cm, int ml, bool flip, string name) : Animatable(Animatable::TEXTURE, name), numFrames(np), cubemap(cm), mipmapLevel(ml){
+		this->paths = new string[np];
+
+		for(int i = 0; i < np; i++){
+			this->paths[i] = paths[i];
+
+			if(!cm){
+				ImageAsset *imgAsset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
+				frames.push_back(Frame(nullptr, imgAsset->layerId));
+			}
+		}
+
+		if(cm) Root::getSingleton()->createCubemap(false, true, paths, ml);
+	}
+
+	Texture::Texture(int w, bool depth, int ml, string name) : Animatable(Animatable::TEXTURE, name), width(w), mipmapLevel(ml), cubemap(true){
+		string p[6]{""};
+		Root::getSingleton()->createCubemap(depth, false, p, ml);
 	}
 
 	Texture::Texture(FT_Face face) : Animatable(Animatable::TEXTURE){
@@ -161,18 +79,7 @@ namespace vb01{
 	}
 
 	Texture::~Texture(){
-		glBindTexture(cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, 0);
-
-		if(numFrames > 0){
-			for(int i = 0; i < numFrames; i++)
-				glDeleteTextures(1, &texture[i]);
-
-			delete[] texture;
-		}
-		else{
-			glDeleteTextures(1, &texture[0]);
-			delete texture;
-		}
+		delete paths;
 	}
 
 	void Texture::animate(float value, KeyframeChannel keyframeChannel){

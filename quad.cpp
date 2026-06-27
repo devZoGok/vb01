@@ -6,8 +6,13 @@
 namespace vb01{
 	using namespace std;
 
-	Quad::Quad(Vector3 sz, bool sp, int nvd, int nhd) : size(sz), spatial(sp), numVertDiv(nvd), numHorDiv(nhd){
+	Quad::Quad(Vector3 sz, bool sp, int nvd, int nhd, bool renderMesh) : size(sz), spatial(sp), numVertDiv(nvd), numHorDiv(nhd){
 		init();
+
+		if(renderMesh){
+			Root *root = Root::getSingleton();
+			root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
+		}
 	}
 
 	Quad::Quad(Quad *q){
@@ -86,7 +91,6 @@ namespace vb01{
 		}
 
 		meshBase = MeshData(faceVertPos, nullptr, nullptr, nullptr, 6, norm, vertices, indices, numTris);
-		//Root::getSingleton()->initVertexDataOnGpu(meshBase);
 	}
 
 	//TODO improve functionality for GUI quads 
