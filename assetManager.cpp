@@ -61,22 +61,15 @@ namespace vb01{
 
 			string format = file.substr(file.find_last_of(".") + 1, string::npos);
 			AbstractAssetReader *assetReader = nullptr;
-			vector<string> imageFormats = vector<string>{"png", "jpeg", "jpg"};
 
 			if(find(imageFormats.begin(), imageFormats.end(), format) != imageFormats.end())
 				assetReader = ImageReader::getSingleton();
 
-			vector<string> fontFormats = vector<string>{"ttf"};
-
 			if(find(fontFormats.begin(), fontFormats.end(), format) != fontFormats.end())
 				assetReader = FontReader::getSingleton();
 
-			vector<string> modelFormats = vector<string>{"xml"};
-
 			if(find(modelFormats.begin(), modelFormats.end(), format) != modelFormats.end())
 				assetReader = XmlModelReader::getSingleton();
-
-			vector<string> shaderFormats = vector<string>{"vert", "frag", "geo"};
 
 			if(find(shaderFormats.begin(), shaderFormats.end(), format) != shaderFormats.end())
 				assetReader = ShaderReader::getSingleton();
@@ -94,6 +87,19 @@ namespace vb01{
 				return a;
 		
 		return nullptr;
+	}
+
+	vector<Asset*> AssetManager::getAssets(vector<string> formats){
+		vector<Asset*> formatAssets;
+
+		for(Asset *a : assets){
+			string format = a->path.substr(a->path.find_last_of(".") + 1, string::npos);
+
+			if(find(formats.begin(), formats.end(), format) != formats.end())
+				formatAssets.push_back(a);
+		}
+		
+		return formatAssets;
 	}
 
 	void AssetManager::editAsset(string path, Asset &newAsset){

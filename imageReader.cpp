@@ -1,4 +1,5 @@
 #include "imageReader.h"
+#include "root.h"
 
 #include "stb_image.h"
 
@@ -16,8 +17,9 @@ namespace vb01{
 
 		Asset* ImageReader::readAsset(string path){
 			stbi_set_flip_vertically_on_load(flip);
-			int width, height, numChannels;
+			int width, height, numChannels, layerId;
 			u8 *data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
-			return new ImageAsset(path, data, width, height, numChannels);
+			Root::getSingleton()->initTextureDataOnGpu(Root::getSingleton()->getMeshTextureBuffer(), data, width, height, layerId);
+			return new ImageAsset(path, data, width, height, numChannels, layerId);
 		}
 }

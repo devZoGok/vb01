@@ -31,12 +31,20 @@ namespace vb01{
 			inline bool isCubemap(){return cubemap;}
 			inline bool isTransparent(){return png;}
 		private:
+			struct Frame{
+				u32 *buffer = nullptr;
+				int layerId = 0;
+
+				Frame(u32 *b, int lid) : buffer(b), layerId(lid){}
+			};
+
 			bool cubemap = false, png = false;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;
 			int width, height, updateRate = 0, numFrames = 0, frameA = 0, frameB = 0, mipmapLevel = 1;
 			float mixRatio;
 			std::string *paths = nullptr;
+			std::vector<Frame> frames;
 
 			void createCubemap(bool, bool, bool);
 			void create2DTexture(bool);

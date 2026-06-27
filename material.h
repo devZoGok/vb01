@@ -139,7 +139,7 @@ namespace vb01{
 					}
 			};
 
-			Material(std::string, bool = false);
+			Material(Shader*);
 			~Material();
 			void update();
 			void setIntUniform(std::string, int);

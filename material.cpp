@@ -1,14 +1,11 @@
 #include "material.h"
 #include "shader.h"
-#include "root.h"
 
 using namespace std;
 using namespace glm;
 
 namespace vb01{
-	Material::Material(string shaderName, bool geometryShader){
-		shader = new Shader(shaderName);
-	}
+	Material::Material(Shader *sh) : shader(sh){}
 
 	Material::~Material(){
 		delete shader;

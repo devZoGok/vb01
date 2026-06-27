@@ -4,18 +4,20 @@
 #include "asset.h"
 
 namespace vb01{
-		struct ImageAsset : public Asset{
-				ImageAsset(std::string path, u8 *image, int width, int height, int numChannels){
-						this->path = path;
-						this->image = image;
-						this->width = width;
-						this->height = height;
-						this->numChannels = numChannels;
-				}
+	struct ImageAsset : public Asset{
+		ImageAsset(std::string p, u8 *img, int w, int h, int nc, int lid) : 
+			image(img), 
+			width(w), 
+			height(h), 
+			numChannels(nc), 
+			layerId(lid)
+		{
+			this->path = p;
+		}
 
-				u8 *image;
-				int width, height, numChannels;
-		};
+		u8 *image;
+		int width, height, numChannels, layerId;
+	};
 }
 
 #endif

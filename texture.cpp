@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "assetManager.h"
 #include "imageAsset.h"
+#include "root.h"
 
 #include <glad.h>
 #include <glfw3.h>
@@ -15,15 +16,12 @@
 using namespace std;
 
 namespace vb01{
-	Texture::Texture(int width, int height, bool shadowMap, bool hiRes) : Animatable(Animatable::TEXTURE){
-		this->width = width;
-		this->height = height;
+	Texture::Texture(int w, int h, bool shadowMap, bool hiRes) : Animatable(Animatable::TEXTURE), width(w), height(h), texture(new u32){
+		if(shadowMap){
+			/*
 		texture = new u32;
-
 		glGenTextures(1, &texture[0]);
 		glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-		if(shadowMap){
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -31,13 +29,17 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 			float borderColor[] = {1, 1, 1, 1};
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+			*/
 		}
 		else{
+			Root::getSingleton()->initTextureDataOnGpu(width, height);
+			/*
 			glTexImage2D(GL_TEXTURE_2D, 0, (hiRes ? GL_RGB16F : GL_RGB), width, height, 0, GL_RGB, GL_FLOAT, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			*/
 		}
 	}
 
@@ -54,8 +56,13 @@ namespace vb01{
 			}
 			else{
 				this->numFrames = numPaths;
-				texture = new u32[numPaths];
-				create2DTexture(flip);
+				//texture = new u32[numPaths];
+				//create2DTexture(flip);
+				//
+				for(int i = 0; i < numFrames; i++){
+					ImageAsset *imgAsset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
+					frames.push_back(Frame(nullptr, imgAsset->layerId));
+				}
 			}
 	}
 
@@ -183,10 +190,12 @@ namespace vb01{
 	}
 
 	void Texture::update(int id){
+		/*
 		select(id, frameA);
 
 		if(numFrames > 0)
 			select(id + 1, frameB);
+			*/
 	}
 
 	void Texture::select(int id, int fr){
