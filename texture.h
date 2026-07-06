@@ -18,7 +18,7 @@ namespace vb01{
 			Texture(int, int, bool = true, bool = false);
 			Texture(std::string[], int, bool, int = 0, bool = false, std::string = "");
 			Texture(int, bool = true, int = 0, std::string = "");
-			Texture(FT_Face);
+			Texture(std::string, int);
 			void select(int = 0, int = 0);
 			void update(int = 0);
 			void animate(float, KeyframeChannel);

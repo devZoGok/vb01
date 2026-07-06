@@ -20,8 +20,11 @@ namespace vb01{
 		int width, height, numChannels, layerId;
 		u8 *data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
 
-		if(loadToGpu)
-			Root::getSingleton()->initTextureDataOnGpu(Root::getSingleton()->getMeshTextureBuffer(), data, width, height, layerId);
+		if(loadToGpu){
+			Root *root = Root::getSingleton();
+			u32 *texBuffer = (sceneImage ? root->getMeshTextureBuffer() : root->getGuiTextureBuffer());
+			root->initTextureDataOnGpu(texBuffer, data, width, height, layerId);
+		}
 
 		return new ImageAsset(path, data, width, height, numChannels, layerId);
 	}

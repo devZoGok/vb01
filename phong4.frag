@@ -1,8 +1,7 @@
 #version 460 core
-const int numLights=1;
 const bool checkLights=false;
 
-in flat int drawId, instanceId;
+in flat int ID;
 in vec3 fragPos;
 in vec3 tan;
 in vec3 biTan;
@@ -15,40 +14,35 @@ layout (location = 1) out vec4 BrightColor;
 
 //0-POINT,1-DIRECTIONAL,2-SPOT
 
-struct Light{
-	bool useAngle, additive, render;
-	int type, attenuation;
-	vec3 pos, color, direction;
-	float innerAngle, outerAngle;
-	float a, b, c, near, far, radius;
-	//sampler2D depthMap;
-	//samplerCube depthMapCube;
-	mat4 lightMat;
+struct ObjectFragData{
+	float mixRatio;
+	int pastTexture[2], nextTexture[2];
+	bool animated;
+	float diffuseColor[4], specularColor[4];
+	float shinyness, specularStrength;
+	bool lightingEnabled, constLightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
 };
 
-struct Texture{
-	float mixRatio;
-	sampler2D pastTexture, nextTexture;
-	bool animated;
+layout(std430, binding = 1) buffer objFragSSBO {
+	ObjectFragData objData[];
+};
+
+struct Light{
+	int useAngle, additive, render;
+	int type, attenuation;
+	float pos[3], color[3], direction[3];
+	float innerAngle, outerAngle;
+	float a, b, c, near, far, radius;
+	//mat4 lightMat;
 };
 
 layout(std430, binding = 2) readonly buffer lightsSSBO {
 	Light lights[];
 };
 
-struct ObjectFragData{
-	bool lightingEnabled, constLightingEnabled, texturingEnabled, normalMapEnabled, specularMapEnabled, castShadow, environmentMapEnabled;
-	vec4 diffuseColor, specularColor;
-	float shinyness, specularStrength;
-};
-
-layout(std430, binding = 1) buffer objFragSSBO {
-	//vec3 camPos;
-	ObjectFragData objData[];
-};
-
-uniform Texture textures[4];
-uniform samplerCube environmentMap;
+const int numLights = 0;
+uniform vec3 camPos;
+uniform sampler2DArray textureSamplers[256];
 
 float linDepth(float depth, int i){
 	float z = depth * 2 - 1, near = lights[i].near, far = lights[i].far;
@@ -87,8 +81,11 @@ float getShadow(int id){
 }
 
 void main(){
-	vec4 finalColor = objData[drawId + instanceId].diffuseColor;
+	int id = ID;
+	vec4 diffuseColor = vec4(objData[id].diffuseColor[0], objData[id].diffuseColor[1], objData[id].diffuseColor[2], objData[id].diffuseColor[3]);
+	vec4 finalColor = diffuseColor;
 
+	finalColor = texture(textureSamplers[objData[id].pastTexture[0]], vec3(texCoords.xy, objData[id].pastTexture[1]));
 	/*
 	if(texturingEnabled){
 		vec4 textureColor = texture(textures[0].pastTexture, texCoords); 
@@ -176,8 +173,7 @@ void main(){
 					specularCol += specularStrength * spec * specularSample * lights[i].color;
 				}
 
-				if(castShadow)
-					diffuseCol *= (1.0 - getShadow(i));
+				//if(castShadow) diffuseCol *= (1.0 - getShadow(i));
 			}
 		}
 
@@ -190,7 +186,5 @@ void main(){
 	if(brightness > 1)
 		BrightColor = vec4(finalColor.rgb, 1);
 
-	//FragColor = vec4(fragPos,1);
-	FragColor = vec4(1,1,0,1);
-	//FragColor = finalColor;
+	FragColor = finalColor;
 }

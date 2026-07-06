@@ -1,6 +1,6 @@
-#include "stb_image.h"
 #include "root.h"
 #include "node.h"
+#include "text.h"
 #include "shader.h"
 #include "box.h"
 #include "quad.h"
@@ -11,7 +11,9 @@
 #include "imageAsset.h"
 #include "animationController.h"
 
-#include "glad.h"
+#include "stb_image.h"
+
+#include <glad.h>
 
 #include <glfw3.h>
 
@@ -76,12 +78,15 @@ namespace vb01{
 
 		meshTextureBuffer = new u32[NUM_MAX_TEXTURE_UNITS];
 		glGenTextures(NUM_MAX_TEXTURE_UNITS, meshTextureBuffer);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, meshTextureBuffer[0]);
+
+		guiTextureBuffer = new u32[NUM_MAX_TEXTURE_UNITS];
+		glGenTextures(NUM_MAX_TEXTURE_UNITS, guiTextureBuffer);
 
 		phongShader = new Shader(libPath + "phong4");
-		
+		guiShader = new Shader(libPath + "gui");
 
 		initMeshRendering(meshVAO, meshVBO, meshEBO);
+		initMeshRendering(guiVAO, guiVBO, guiEBO);
 		initParticleRendering();
 		initGuiRendering();
 		initPostProcessing();
@@ -186,131 +191,191 @@ namespace vb01{
 	}
 
 	void Root::updateRenderNodeData(Node *node){
-		Quaternion orient = Quaternion::QUAT_W;
-		Vector3 pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
-		bool gui = false;
+		vector<Node*> ancestors = node->getAncestors();
+		Node *topAncestor = ancestors[ancestors.size() - 1];
+		bool scene = (topAncestor == rootNode);
 
-		if(!gui){
+		Vector3 pos = node->getPosition(), scale = node->getScale();
+		mat4 model = mat4(1.);
+
+		if(scene){
+			Quaternion orient = Quaternion::QUAT_W;
+
 			pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
 			orient = node->localToGlobalOrientation(Quaternion::QUAT_W);
 			scale = node->getScale();
+
+			Vector3 rotAxis = orient.getAxis();
+
+			if(rotAxis == Vector3::VEC_ZERO)
+				rotAxis = Vector3::VEC_I;
+
+			model = translate(model, vec3(pos.x, pos.y, pos.z));
+			model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
+			model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
+
+			Vector3 direction = node->getGlobalAxis(2);
+
+			for(Light *light : node->getLights()){
+				LightData data;
+				Light::Type type = light->getLightType();
+				data.type = (int)type;
+				data.color[0] = light->getColor().x;
+				data.color[1] = light->getColor().y;
+				data.color[1] = light->getColor().z;
+
+				switch(type){
+					case Light::Type::POINT:
+						data.pos[0] = pos.x;
+						data.pos[1] = pos.y;
+						data.pos[2] = pos.z;
+						data.a = light->getAttenuationValues().x;
+						data.b = light->getAttenuationValues().y;
+						data.c = light->getAttenuationValues().z;
+						data.radius = light->getRadius();
+						data.useAngle = light->isUseAngle();
+						break;
+					case Light::Type::DIRECTIONAL:
+						//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+						data.direction[0] = direction.x;
+						data.direction[1] = direction.y;
+						data.direction[2] = direction.z;
+						break;
+					case Light::Type::SPOT:
+						//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
+						data.pos[0] = pos.x;
+						data.pos[1] = pos.y;
+						data.pos[2] = pos.z;
+						data.direction[0] = direction.x;
+						data.direction[1] = direction.y;
+						data.direction[2] = direction.z;
+						data.a = light->getAttenuationValues().x;
+						data.b = light->getAttenuationValues().y;
+						data.c = light->getAttenuationValues().z;
+						data.innerAngle = light->getInnerAngle();
+						data.outerAngle = light->getOuterAngle();
+				}
+				
+				lightData.push_back(data);
+			}
 		}
+		else
+			for(Text *text : node->getTexts()){
+				Material *mat = text->getMaterial();
+				bool texturingEnabled = ((Material::BoolUniform*)mat->getUniform("texturingEnabled"))->value;
 
-		Vector3 rotAxis = orient.getAxis();
+				GuiData gui;
+				gui.pos[0] = pos.x;
+				gui.pos[1] = pos.y;
+				gui.pos[2] = pos.z;
+				gui.texturingEnabled = texturingEnabled;
 
-		if(rotAxis == Vector3::VEC_ZERO)
-			rotAxis = Vector3::VEC_I;
+				if(gui.texturingEnabled){
+					gui.pastTexture[0] = 0;
+					gui.pastTexture[1] = 0;
+					gui.nextTexture[0] = 0;
+					gui.nextTexture[1] = 0;
+				}
+				else{
+					Vector4 diffCol = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+					gui.diffuseColor[0] = diffCol.x;
+					gui.diffuseColor[1] = diffCol.y;
+					gui.diffuseColor[2] = diffCol.z;
+					gui.diffuseColor[3] = diffCol.w;
+				}
 
-		mat4 model = mat4(1.);
-		model = translate(model, vec3(pos.x, pos.y, pos.z));
-		model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
-		model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
+				guiData.push_back(gui);
+			}
 
 		for(Mesh *mesh : node->getMeshes()){
 			MeshData &meshData = mesh->getMeshBase();
-
-			for(int i = 0; i < drawCmdMeshes.size(); i++)
-				if(*(drawCmdMeshes[i]) == meshData)
-					drawCmds[i].instanceCount++;
-
-			ObjectVertexData ovd;
-			ovd.viewProj = projView;
-			ovd.model = model;
-			//ovd.animated = 0;
-			//ovd.bones[0];
-
-			/*
-			for(int i = 0; i < meshData.numShapeKeys; i++)
-				ovd.shapeKeyFactors[i] = meshData.shapeKeys[i].value;
-			*/
-
-			objVertData.push_back(ovd);
-
 			Material *mat = mesh->getMaterial();
+			bool texturingEnabled = ((Material::BoolUniform*)mat->getUniform("texturingEnabled"))->value;
 
-			ObjectFragmentData ofd;
-			ofd.texturingEnabled = true;
+			if(scene){
+				bool lightingEnabled = ((Material::BoolUniform*)mat->getUniform("lightingEnabled"))->value;
 
-			if(ofd.texturingEnabled){
-				ofd.pastTexture[0] = 0;
-				ofd.pastTexture[1] = 0;
+				for(int i = 0; i < drawCmdMeshes.size(); i++)
+					if(*(drawCmdMeshes[i]) == meshData)
+						drawCmds[i].instanceCount++;
+
+				ObjectVertexData ovd;
+				ovd.viewProj = projView;
+				ovd.model = model;
+				//ovd.animated = 0;
+				//ovd.bones[0];
+
+				/*
+				for(int i = 0; i < meshData.numShapeKeys; i++)
+					ovd.shapeKeyFactors[i] = meshData.shapeKeys[i].value;
+				*/
+
+				objVertData.push_back(ovd);
+
+				Material *mat = mesh->getMaterial();
+
+				ObjectFragmentData ofd;
+				ofd.texturingEnabled = texturingEnabled;
+
+				if(ofd.texturingEnabled){
+					ofd.pastTexture[0] = 0;
+					ofd.pastTexture[1] = 0;
+				}
+				else{
+					Vector4 diffuseColor = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+
+					ofd.diffuseColor[0] = diffuseColor.x;
+					ofd.diffuseColor[1] = diffuseColor.y;
+					ofd.diffuseColor[2] = diffuseColor.z;
+					ofd.diffuseColor[3] = diffuseColor.w;
+				}
+
+				ofd.lightingEnabled = lightingEnabled;
+
+				if(ofd.lightingEnabled){
+					ofd.constLightingEnabled = false;
+					ofd.normalMapEnabled = false;
+					ofd.castShadow = false;
+					ofd.environmentMapEnabled = false;
+					ofd.specularMapEnabled = false;
+
+					if(!ofd.specularMapEnabled){
+						Vector4 specularColor = ((Material::Vector4Uniform*)mat->getUniform("specularColor"))->value;
+
+						ofd.specularColor[0] = specularColor.x;
+						ofd.specularColor[1] = specularColor.y;
+						ofd.specularColor[2] = specularColor.z;
+						ofd.specularColor[3] = specularColor.w;
+						ofd.shinyness;
+						ofd.specularStrength;
+					}
+				}
+
+				objFragData.push_back(ofd);
 			}
 			else{
-				Vector4 diffuseColor = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+				GuiData gui;
+				gui.pos[0] = pos.x;
+				gui.pos[1] = pos.y;
+				gui.pos[2] = pos.z;
+				gui.texturingEnabled = texturingEnabled;
 
-				ofd.diffuseColor[0] = diffuseColor.x;
-				ofd.diffuseColor[1] = diffuseColor.y;
-				ofd.diffuseColor[2] = diffuseColor.z;
-				ofd.diffuseColor[3] = diffuseColor.w;
-			}
-
-			ofd.lightingEnabled = false;
-
-			if(ofd.lightingEnabled){
-				ofd.constLightingEnabled = false;
-				ofd.normalMapEnabled = false;
-				ofd.castShadow = false;
-				ofd.environmentMapEnabled = false;
-				ofd.specularMapEnabled = false;
-
-				if(!ofd.specularMapEnabled){
-					Vector4 specularColor = ((Material::Vector4Uniform*)mat->getUniform("specularColor"))->value;
-
-					ofd.specularColor[0] = specularColor.x;
-					ofd.specularColor[1] = specularColor.y;
-					ofd.specularColor[2] = specularColor.z;
-					ofd.specularColor[3] = specularColor.w;
-					ofd.shinyness;
-					ofd.specularStrength;
+				if(gui.texturingEnabled){
+					gui.pastTexture[0] = 0;
+					gui.pastTexture[1] = 0;
+					gui.nextTexture[0] = 0;
+					gui.nextTexture[1] = 0;
 				}
+				else{
+					Vector4 diffCol = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+					gui.diffuseColor[0] = diffCol.x;
+					gui.diffuseColor[1] = diffCol.y;
+					gui.diffuseColor[2] = diffCol.z;
+					gui.diffuseColor[3] = diffCol.w;
+				}
+
+				guiData.push_back(gui);
 			}
-
-			objFragData.push_back(ofd);
-		}
-
-		Vector3 direction = node->getGlobalAxis(2);
-
-		for(Light *light : node->getLights()){
-			LightData data;
-			Light::Type type = light->getLightType();
-			data.type = (int)type;
-			data.color[0] = light->getColor().x;
-			data.color[1] = light->getColor().y;
-			data.color[1] = light->getColor().z;
-
-			switch(type){
-				case Light::Type::POINT:
-					data.pos[0] = pos.x;
-					data.pos[1] = pos.y;
-					data.pos[2] = pos.z;
-					data.a = light->getAttenuationValues().x;
-					data.b = light->getAttenuationValues().y;
-					data.c = light->getAttenuationValues().z;
-					data.radius = light->getRadius();
-					data.useAngle = light->isUseAngle();
-					break;
-				case Light::Type::DIRECTIONAL:
-					//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
-					data.direction[0] = direction.x;
-					data.direction[1] = direction.y;
-					data.direction[2] = direction.z;
-					break;
-				case Light::Type::SPOT:
-					//shader->setMat4(proj * view, "lights[" + to_string(thisId) + "].lightMat");
-					data.pos[0] = pos.x;
-					data.pos[1] = pos.y;
-					data.pos[2] = pos.z;
-					data.direction[0] = direction.x;
-					data.direction[1] = direction.y;
-					data.direction[2] = direction.z;
-					data.a = light->getAttenuationValues().x;
-					data.b = light->getAttenuationValues().y;
-					data.c = light->getAttenuationValues().z;
-					data.innerAngle = light->getInnerAngle();
-					data.outerAngle = light->getOuterAngle();
-			}
-			
-			lightData.push_back(data);
 		}
 	}
 
@@ -555,8 +620,9 @@ namespace vb01{
 		updateGuiPlane();
 
 		glEnable(GL_DEPTH_TEST);
-		//updateNodeTree(guiShader, true);
-		//updateNodeTree(guiNode, true);
+		updateNodeTree(guiShader, true);
+		guiNode->update();
+		renderGui();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -603,7 +669,19 @@ namespace vb01{
 	void Root::renderParticles(vector<ParticleEmitter*> &particleEmitters){
 	}
 
-	void Root::renderGui(vector<Mesh*> &meshes){
+	void Root::renderGui(){
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, guiDataBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GuiData) * guiData.size(), guiData.data(), GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, guiDataBuffer);
+
+		for(int i = 0; i < currTextureDims.size(); i++){
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, guiTextureBuffer[i]);
+		}
+
+		glBindVertexArray(guiVAO);
+		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, guiData.size());	
+		glBindVertexArray(0);
 	}
 
 	mat4 Root::calculateProjView(Vector3 camPos){
@@ -622,16 +700,20 @@ namespace vb01{
 		shader->use();
 
 		if(!gui){
+			objVertData.clear();
+			objFragData.clear();
+
+			for(DrawElementsIndirectCommand &cmd : drawCmds)
+				cmd.instanceCount = 0;
+
 			Vector3 camPos = camera->getPosition();
 			shader->setVec3(camPos, "camPos");
 			projView = calculateProjView(camPos);
 		}
-
-		objVertData.clear();
-		objFragData.clear();
-
-		for(DrawElementsIndirectCommand &cmd : drawCmds)
-			cmd.instanceCount = 0;
+		else{
+			guiData.clear();
+			shader->setVec2(Vector2(width, height), "screen");
+		}
 
 		for(int i = 0; i < currTextureDims.size(); i++)
 			shader->setInt(i, "textureSamplers[" + to_string(i) + "]");

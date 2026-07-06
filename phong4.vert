@@ -19,7 +19,7 @@ layout (location = 6) in ivec4 aBoneIndices;
 
 out vec3 fragPos, norm, tan, biTan;
 out vec2 texCoords;
-out int drawId, instanceId;
+out int ID;
 
 struct Bone{
 	float angle;
@@ -83,7 +83,6 @@ void main(){
 	vec4 vertPos = vec4(aPos, 1);
 	bool anyWeights = false;
 
-	//int id = 0;
 	int id = gl_DrawID + gl_InstanceID;
 	mat4 model = objData[id].model;
 	mat3 normalMat = mat3(transpose(inverse(model)));
@@ -148,6 +147,5 @@ void main(){
 	gl_Position = viewProj * model * vertPos;
 	fragPos = vec3(model * vertPos);
 	texCoords = aTexCoords;
-	drawId = gl_DrawID;
-	instanceId = gl_InstanceID;
+	ID = id;
 }

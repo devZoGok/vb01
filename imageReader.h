@@ -13,11 +13,13 @@ namespace vb01{
 			inline bool isFlip(){return flip;}
 			inline void setLoadToGpu(bool ltg){this->loadToGpu = ltg;}
 			inline bool isLoadToGpu(){return loadToGpu;}
+			inline void setSceneImage(bool si){this->sceneImage = si;}
+			inline bool isSceneImage(){return sceneImage;}
 			Asset* readAsset(std::string);
 		private:
 			ImageReader(){}
 
-			bool flip = true, loadToGpu = true;
+			bool flip = true, loadToGpu = true, sceneImage = true;
 	};
 }
 

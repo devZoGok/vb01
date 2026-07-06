@@ -11,7 +11,11 @@ namespace vb01{
 
 		if(renderMesh){
 			Root *root = Root::getSingleton();
-			root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
+
+			if(sp)
+				root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
+			else
+				root->initVertexDataOnGpu(meshBase, root->getGuiVAO(), root->getGuiVBO(), root->getGuiEBO(), false);
 		}
 	}
 

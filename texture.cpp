@@ -1,21 +1,23 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
-#include "texture.h"
-#include "assetManager.h"
-#include "imageAsset.h"
 #include "root.h"
+#include "texture.h"
+#include "fontAsset.h"
+#include "imageAsset.h"
+#include "assetManager.h"
 
 #include <glad.h>
+
 #include <glfw3.h>
+
 #include <iostream>
 
 using namespace std;
 
 namespace vb01{
+	//TODO deallocate (V)RAM for this constructor 
 	Texture::Texture(int w, int h, bool shadowMap, bool hiRes) : Animatable(Animatable::TEXTURE), width(w), height(h), texture(new u32){
 		if(shadowMap){
 			/*
@@ -55,31 +57,13 @@ namespace vb01{
 		Root::getSingleton()->createCubemap(depth, false, p, ml);
 	}
 
-	Texture::Texture(FT_Face face) : Animatable(Animatable::TEXTURE){
-		texture = new u32;
-
-		glGenTextures(1, &texture[0]);
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
-		glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_RED,
-				face->glyph->bitmap.width,
-				face->glyph->bitmap.rows,
-				0,
-				GL_RED,
-				GL_UNSIGNED_BYTE,
-				face->glyph->bitmap.buffer
-		);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTexture(GL_TEXTURE_2D, 0);
+	Texture::Texture(string path, int id) : Animatable(Animatable::TEXTURE){
+		FontAsset *fontAsset = (FontAsset*)AssetManager::getSingleton()->getAsset(path);
+		frames.push_back(Frame(nullptr, fontAsset->getGlyph(id).layerId));
 	}
 
 	Texture::~Texture(){
-		delete paths;
+		if(paths) delete paths;
 	}
 
 	void Texture::animate(float value, KeyframeChannel keyframeChannel){
