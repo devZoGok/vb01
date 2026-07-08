@@ -32,10 +32,9 @@ namespace vb01{
 			inline bool isTransparent(){return png;}
 		private:
 			struct Frame{
-				u32 *buffer = nullptr;
-				int layerId = 0;
+				int bufferId = 0, layerId = 0;
 
-				Frame(u32 *b, int lid) : buffer(b), layerId(lid){}
+				Frame(int bid, int lid) : bufferId(bid), layerId(lid){}
 			};
 
 			bool cubemap = false, png = false;

@@ -37,13 +37,12 @@ namespace vb01{
 			void start(int, int, std::string, std::string);
 			void toggleHDR(bool);
 			void toggleBloom(bool);
-			void addMeshes(Node*);
 			void createSkybox(std::string[6]);
 			void createSkybox(vb01::Texture*);
 			void removeSkybox();
 			void initVertexDataOnGpu(MeshData&, u32&, u32&, u32&, bool);
 			void initTextureDataOnGpu(int, int);
-			void initTextureDataOnGpu(u32*, u8*, int, int, int&);
+			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool);
 			void updateRenderNodeData(Node*);
 			void createCubemap(bool, bool, std::string[6], int);
 			inline Shader* getPhongShader(){return phongShader;}
@@ -54,8 +53,6 @@ namespace vb01{
 			inline u32& getGuiVAO(){return guiVAO;}
 			inline u32& getGuiVBO(){return guiVBO;}
 			inline u32& getGuiEBO(){return guiEBO;}
-			inline u32* getMeshTextureBuffer(){return meshTextureBuffer;}
-			inline u32* getGuiTextureBuffer(){return guiTextureBuffer;}
 			inline u32* getGuiPlaneTextureBuffer(){return guiPlaneTextureBuffer;}
 			inline const int getMaxNumShapeKeys(){return MAX_NUM_SHAPE_KEYS;}
 			inline Camera* getCamera(){return camera;}
@@ -83,6 +80,9 @@ namespace vb01{
 				int baseVertex = 0;
 				u32 baseInstance = 0;
 			};
+			struct ObjectIdData{
+				int drawId = 0, instanceId = 0;
+			};
 			struct ObjectVertexData {
 				float shapeKeyFactors[24];
 				glm::mat4 viewProj, model, bones[256];
@@ -109,18 +109,18 @@ namespace vb01{
 				float diffuseColor[4];
 			};
 			struct TextureUnitGpuData {
-				u32 *buffer = nullptr;
+				u32 buffer = -1;
 				int numLayers = 0, width = 0, height = 0;
 
-				TextureUnitGpuData(u32 *b, int l, int w, int h) : buffer(b), numLayers(l), width(w), height(h){}
+				TextureUnitGpuData(int w, int h) : width(w), height(h){}
 			};
 
 			glm::mat4 projView;
 			const int MAX_NUM_SHAPE_KEYS = 5;
 			int NUM_MAX_TEXTURE_UNITS = 0, NUM_MAX_TEXTURE_ARRAY_SIZE = 0, numLights = 0, width, height, blurLevel = 10, currNumVerts = 0, currNumIndexes = 0, depthmapSize = 512, currNumLayers = 0;
-			u32 meshVAO = -1, meshVBO = -1, meshEBO = -1, *meshTextureBuffer = nullptr, *depthmapBuffer = nullptr;
+			u32 meshVAO = -1, meshVBO = -1, meshEBO = -1;
 			u32 particleVAO = -1, particleVBO = -1; 
-			u32 guiVAO = -1, guiVBO = -1, guiEBO = -1, *guiTextureBuffer = nullptr;
+			u32 guiVAO = -1, guiVBO = -1, guiEBO = -1;
 			u32 guiPlaneVAO = -1, guiPlaneVBO = -1, guiPlaneEBO = -1, *guiPlaneTextureBuffer = nullptr;
 			u32 skyboxVAO = -1, skyboxVBO = -1, skyboxEBO = -1, skyboxBuffer = -1;
 			u32 FBO = -1, RBO = -1, pingpongBuffers[2], drawCmdBuffer = -1, objVertBuffer = -1, objFragBuffer = -1, objLightBuffer = -1, guiDataBuffer = -1;
@@ -138,12 +138,14 @@ namespace vb01{
 			std::vector<std::pair<int, int>> currTextureDims;
 			std::vector<u32> currentIndices;
 			std::vector<Mesh*> meshes;
-			std::vector<DrawElementsIndirectCommand> drawCmds;
+			std::vector<DrawElementsIndirectCommand> drawCmds, drawCmds2;
+			std::vector<ObjectIdData> objIdData;
 			std::vector<ObjectVertexData> objVertData;
 			std::vector<ObjectFragmentData> objFragData;
 			std::vector<LightData> lightData;
 			std::vector<GuiData> guiData;
-			std::vector<TextureUnitGpuData> textureGpuData;
+			std::vector<int> numObjGpuInstances; 
+			std::vector<TextureUnitGpuData> meshTextureData, depthmapData, guiTextureData;
 			std::string libPath;
 
 			Root();

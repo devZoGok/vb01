@@ -36,7 +36,6 @@ namespace vb01{
 
 		vector<FontAsset::Glyph> glyphs;
 		Root *root = Root::getSingleton();
-		u32 *buffer = root->getGuiTextureBuffer();
 
 		for(u16 i = firstChar; i < lastChar; i++){
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER)){
@@ -50,9 +49,10 @@ namespace vb01{
 					Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows), 
 					Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top), 
 					face->glyph->advance.x, 
+					-1,
 					-1
 			);
-			root->initTextureDataOnGpu(buffer, glyph.data, glyph.size.x, glyph.size.y, glyph.layerId);
+			root->initTextureDataOnGpu(glyph.data, glyph.size.x, glyph.size.y, glyph.bufferId, glyph.layerId, false);
 
 			glyphs.push_back(glyph);
 		}

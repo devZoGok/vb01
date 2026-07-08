@@ -1,7 +1,7 @@
 #version 460 core
 const bool checkLights=false;
 
-in flat int ID;
+in flat int drawId, instanceId;
 in vec3 fragPos;
 in vec3 tan;
 in vec3 biTan;
@@ -81,7 +81,8 @@ float getShadow(int id){
 }
 
 void main(){
-	int id = ID;
+	int id = drawId;
+
 	vec4 diffuseColor = vec4(objData[id].diffuseColor[0], objData[id].diffuseColor[1], objData[id].diffuseColor[2], objData[id].diffuseColor[3]);
 	vec4 finalColor = diffuseColor;
 

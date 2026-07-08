@@ -76,12 +76,6 @@ namespace vb01{
 		guiPlaneTextureBuffer = new u32;
 		glGenTextures(1, guiPlaneTextureBuffer);
 
-		meshTextureBuffer = new u32[NUM_MAX_TEXTURE_UNITS];
-		glGenTextures(NUM_MAX_TEXTURE_UNITS, meshTextureBuffer);
-
-		guiTextureBuffer = new u32[NUM_MAX_TEXTURE_UNITS];
-		glGenTextures(NUM_MAX_TEXTURE_UNITS, guiTextureBuffer);
-
 		phongShader = new Shader(libPath + "phong4");
 		guiShader = new Shader(libPath + "gui");
 
@@ -144,42 +138,49 @@ namespace vb01{
 	}
 
 	//TODO check loading of textures with different dimensions 
-	void Root::initTextureDataOnGpu(u32 *textureBuffer, u8 *data, int width, int height, int &layerId){
-		bool present = false;
+	void Root::initTextureDataOnGpu(u8 *data, int width, int height, int &bufferId, int &layerId, bool scene){
+		int textureUnitId = -1;
+		vector<TextureUnitGpuData> &textureData = (scene ? meshTextureData : guiTextureData);
 
-		for(pair<int, int> &p : currTextureDims)
-			if(p.first == width && p.second == height){
-				present = true;
+		for(int i = 0; i < textureData.size(); i++)
+			if(textureData[i].width == width && textureData[i].height == height){
+				textureUnitId = i;
 				break;
 			}
 
-		if(!present) currTextureDims.push_back(make_pair(width, height));
+		if(textureUnitId == -1){
+			textureData.push_back(TextureUnitGpuData(width, height));
+			textureUnitId = textureData.size() - 1;
+			glGenTextures(1, &textureData[textureUnitId].buffer);
+		}
 
 		AssetManager *assetManager = AssetManager::getSingleton();
 		vector<Asset*> assets = assetManager->getAssets(assetManager->getImageFormats());
 
-		for(int i = 0; i < currTextureDims.size(); i++){
+		for(int i = 0; i < textureData.size(); i++){
 			vector<ImageAsset*> imgAssets;
-			pair<int, int> &resPair = currTextureDims[i];
+			TextureUnitGpuData &texData = textureData[i];
 
 			for(Asset *asset : assets){
 				ImageAsset *a = (ImageAsset*)asset;
 
-				if(a->width == resPair.first && a->height == resPair.second)
+				if(a->loadedToGpu && a->width == texData.width && a->height == texData.height)
 					imgAssets.push_back((ImageAsset*)asset);
 			}
 
-			//layerId = currNumLayers, currNumLayers++;
+			glBindTexture(GL_TEXTURE_2D_ARRAY, texData.buffer);
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, texData.width, texData.height, imgAssets.size() + 1, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			
-			glBindTexture(GL_TEXTURE_2D_ARRAY, textureBuffer[i]);
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, resPair.first, resPair.second, imgAssets.size() + 1, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			for(int j = 0; j < imgAssets.size(); j++)
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, j, imgAssets[j]->width, imgAssets[j]->height, 1, GL_RGB, GL_UNSIGNED_BYTE, imgAssets[j]->image);
 			
-			for(int i = 0; i < imgAssets.size(); i++)
-				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGB, GL_UNSIGNED_BYTE, imgAssets[i]->image);
-			
-			if(resPair.first == width && resPair.second == height){
+			if(textureUnitId == i){
+				bufferId = i;
+
 				int lid = 0 + (imgAssets.size() == 0 ? 0 : 1);
 				layerId = lid;
+				texData.numLayers++;
+
 				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, lid, width, height, 1, GL_RGB, GL_UNSIGNED_BYTE, data);
 			}
 
@@ -187,6 +188,7 @@ namespace vb01{
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		}
 	}
 
@@ -296,8 +298,20 @@ namespace vb01{
 				bool lightingEnabled = ((Material::BoolUniform*)mat->getUniform("lightingEnabled"))->value;
 
 				for(int i = 0; i < drawCmdMeshes.size(); i++)
-					if(*(drawCmdMeshes[i]) == meshData)
-						drawCmds[i].instanceCount++;
+					if(*(drawCmdMeshes[i]) == meshData){
+						int sum = 0;
+
+						for(int j = 0; j < i; j++)
+							sum += 3 * drawCmdMeshes[j]->numTris;
+
+						DrawElementsIndirectCommand cmd;
+						cmd.count = 3 * meshData.numTris;
+						cmd.instanceCount = 1;
+						cmd.firstIndex = sum;
+						cmd.baseVertex = 0;
+						cmd.baseInstance = 0;
+						drawCmds.push_back(cmd);
+					}
 
 				ObjectVertexData ovd;
 				ovd.viewProj = projView;
@@ -422,18 +436,7 @@ namespace vb01{
 		u32 vertSize = sizeof(MeshData::GpuVertex), indexSize = sizeof(u32);
 
 		if(updateDrawCommands){
-			DrawElementsIndirectCommand drawCmd;
-			drawCmd.count = 3 * meshData.numTris;
-			drawCmd.instanceCount = 0;
-			drawCmd.firstIndex = currentIndices.size();
-			drawCmd.baseVertex = currentGpuVertices.size();
-			drawCmd.baseInstance = 0;
-			drawCmds.push_back(drawCmd);
 			drawCmdMeshes.push_back(&meshData);
-
-			glBindBuffer(GL_DRAW_INDIRECT_BUFFER, drawCmdBuffer);
-			glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(DrawElementsIndirectCommand) * drawCmds.size(), drawCmds.data(), GL_DYNAMIC_DRAW);
-
 			int currNumIndices = currentIndices.size();
 
 			for(int i = 0; i < 3 * meshData.numTris; i++)
@@ -469,18 +472,6 @@ namespace vb01{
 
 		//Texture *fragTexture = new Texture(width, height, false);
 		//Texture *brightTexture = new Texture(width, height, false);
-	}
-
-	void Root::addMeshes(Node *rootNode){
-		vector<Node*> descendants;
-		rootNode->getDescendants(descendants);
-
-		vector<Mesh*> meshes;
-
-		for(Node *desc : descendants){
-			vector<Mesh*> m = desc->getMeshes();
-			meshes.insert(meshes.end(), m.begin(), m.end());
-		}
 	}
 
 	void Root::toggleHDR(bool hdr){
@@ -651,9 +642,9 @@ namespace vb01{
 		glNamedBufferSubData(objLightBuffer, 0, sizeof(LightData) * lightData.size(), lightData.data());
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, objLightBuffer);
 
-		for(int i = 0; i < currTextureDims.size(); i++){
+		for(int i = 0; i < meshTextureData.size(); i++){
 			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, meshTextureBuffer[i]);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, meshTextureData[i].buffer);
 		}
 
 		glBindVertexArray(meshVAO);
@@ -674,9 +665,9 @@ namespace vb01{
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GuiData) * guiData.size(), guiData.data(), GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, guiDataBuffer);
 
-		for(int i = 0; i < currTextureDims.size(); i++){
+		for(int i = 0; i < guiTextureData.size(); i++){
 			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, guiTextureBuffer[i]);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, guiTextureData[i].buffer);
 		}
 
 		glBindVertexArray(guiVAO);
@@ -702,6 +693,7 @@ namespace vb01{
 		if(!gui){
 			objVertData.clear();
 			objFragData.clear();
+			drawCmds.clear();
 
 			for(DrawElementsIndirectCommand &cmd : drawCmds)
 				cmd.instanceCount = 0;
@@ -717,74 +709,6 @@ namespace vb01{
 
 		for(int i = 0; i < currTextureDims.size(); i++)
 			shader->setInt(i, "textureSamplers[" + to_string(i) + "]");
-
-		/*
-		if(gui){} //renderGui();
-		else{
-			renderMeshes();
-			//renderParticles(particleEmitters);
-		}
-
-		vector<Node*> descendants, opaqueNodes, transparentNodes;
-		node->getDescendants(descendants);
-
-		for(Node *desc : descendants){
-			if(!desc->isVisible()) continue;
-			
-			vector<Mesh*> meshes = desc->getMeshes();
-
-			if(!meshes.empty())
-				for(Mesh *mesh : meshes){
-					bool transparentMesh = (mesh->getMaterial()->isTransparent());
-					(transparentMesh ? transparentNodes : opaqueNodes).push_back(desc);
-				}
-			else if(!desc->getTexts().empty())
-				transparentNodes.push_back(desc);
-			else{
-				opaqueNodes.push_back(desc);
-			}
-		}
-
-		int numNodes = transparentNodes.size();
-
-		for(int i = 0; i < numNodes; i++){
-			float d1 = transparentNodes[i]->getPosition().z;
-
-			if(!gui){
-				Vector3 v1 = transparentNodes[i]->getPosition() - camera->getPosition();
-				float a1 = v1.norm().getAngleBetween(camera->getDirection());
-				d1 = v1.getLength() * cos(a1);
-			}
-
-			for(int j = i; j < numNodes; j++){
-				float d2 = transparentNodes[j]->getPosition().z;
-
-				if(!gui){
-					Vector3 v2 = transparentNodes[j]->getPosition() - camera->getPosition();
-					float a2 = v2.norm().getAngleBetween(camera->getDirection());
-					d2 = v2.getLength() * cos(a2);
-				}
-
-				if(d1 > d2)
-					swap(transparentNodes[i], transparentNodes[j]);
-			}
-		}
-
-		vector<Node*> renderNodes = opaqueNodes;
-		renderNodes.insert(renderNodes.end(), transparentNodes.begin(), transparentNodes.end());
-
-
-		for(Node *renderNode : renderNodes){
-			//renderNode->update();
-
-
-			for(Mesh *mesh : renderNode->getMeshes()){
-				mat->getShader()->use();
-				mat->getShader()->setInt(0, "textureSampler");
-
-			}
-		}
-		*/
 	}
 
 	void Root::updateBloomFramebuffer(){

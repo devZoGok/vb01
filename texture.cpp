@@ -45,7 +45,7 @@ namespace vb01{
 
 			if(!cm){
 				ImageAsset *imgAsset = (ImageAsset*)AssetManager::getSingleton()->getAsset(paths[i]);
-				frames.push_back(Frame(nullptr, imgAsset->layerId));
+				frames.push_back(Frame(imgAsset->bufferId, imgAsset->layerId));
 			}
 		}
 
@@ -59,7 +59,8 @@ namespace vb01{
 
 	Texture::Texture(string path, int id) : Animatable(Animatable::TEXTURE){
 		FontAsset *fontAsset = (FontAsset*)AssetManager::getSingleton()->getAsset(path);
-		frames.push_back(Frame(nullptr, fontAsset->getGlyph(id).layerId));
+		const FontAsset::Glyph &glyph = fontAsset->getGlyph(id);
+		frames.push_back(Frame(glyph.bufferId, glyph.layerId));
 	}
 
 	Texture::~Texture(){

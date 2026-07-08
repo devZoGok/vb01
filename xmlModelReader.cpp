@@ -208,9 +208,9 @@ namespace vb01{
 				   	numShapeKeys
 			);
 
-			Root *root = Root::getSingleton();
-			root->initVertexDataOnGpu(meshData, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
 			Mesh *mesh = new Mesh(meshData);
+			Root *root = Root::getSingleton();
+			root->initVertexDataOnGpu(mesh->getMeshBase(), root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
 
 			return mesh;
 		}

@@ -16,13 +16,12 @@ namespace vb01{
 
 	struct FontAsset : public Asset{
 		struct Glyph{
-			int id;
 			u8 *data;
-			Vector2 size, bearing;
 			u32 advance;
-			int layerId;
+			int id, bufferId, layerId;
+			Vector2 size, bearing;
 
-			Glyph(int i, u8 *d, Vector2 s, Vector2 b, u32 adv, int lid) : id(i), data(d), size(s), bearing(b), advance(adv), layerId(lid){}
+			Glyph(int i, u8 *d, Vector2 s, Vector2 b, u32 adv, int bid, int lid) : id(i), data(d), size(s), bearing(b), advance(adv), bufferId(bid), layerId(lid){}
 		};
 
 		const Glyph& getGlyph(int);
