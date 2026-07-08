@@ -685,8 +685,6 @@ namespace vb01{
 		return proj * view;
 	}
 
-	//TODO replace sorting algorithm
-	//TODO specify differentiation of nodes with translucent meshes AND texts
 	void Root::updateNodeTree(Shader *shader, bool gui){
 		shader->use();
 
@@ -694,9 +692,6 @@ namespace vb01{
 			objVertData.clear();
 			objFragData.clear();
 			drawCmds.clear();
-
-			for(DrawElementsIndirectCommand &cmd : drawCmds)
-				cmd.instanceCount = 0;
 
 			Vector3 camPos = camera->getPosition();
 			shader->setVec3(camPos, "camPos");
@@ -707,7 +702,7 @@ namespace vb01{
 			shader->setVec2(Vector2(width, height), "screen");
 		}
 
-		for(int i = 0; i < currTextureDims.size(); i++)
+		for(int i = 0; i < NUM_MAX_TEXTURE_UNITS; i++)
 			shader->setInt(i, "textureSamplers[" + to_string(i) + "]");
 	}
 

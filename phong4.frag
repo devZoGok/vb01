@@ -42,7 +42,7 @@ layout(std430, binding = 2) readonly buffer lightsSSBO {
 
 const int numLights = 0;
 uniform vec3 camPos;
-uniform sampler2DArray textureSamplers[256];
+uniform sampler2DArray textureSamplers[128];
 
 float linDepth(float depth, int i){
 	float z = depth * 2 - 1, near = lights[i].near, far = lights[i].far;

@@ -16,7 +16,7 @@ layout(std430, binding = 0) readonly restrict buffer objSSBO {
 	GuiObjectData guiObjData[];
 };
 
-uniform sampler2DArray textureSamplers[256];
+uniform sampler2DArray textureSamplers[128];
 
 void main(){
 	int id = ID;
