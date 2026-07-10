@@ -16,40 +16,38 @@ namespace vb01{
 
 	class Text : public Attachable{
 		public:
-			struct Glyph{
-				u16 ch;
-				int texId;
-				u32 advance;
-				Vector2 size, bearing;
+			struct Character{
+				wchar_t ch;
+				Material *material = nullptr;
+				Vector2 offset = Vector2::VEC_ZERO;
+
+				Character(wchar_t c, Material *m) : ch(c), material(m) {}
 			};
 
 			Text(std::string, std::wstring, u16 = 0, u16 = 256);
 			~Text();
 			void update();
-			void setText(std::wstring e){this->entry = e;}
-			inline void setScale(float s){this->scale = s;}
-			inline float getScale(){return scale;}
-			inline int getLength(){return entry.length();}
-			inline std::wstring getText(){return entry;}
+			std::wstring getEntry();
+			void setEntry(std::wstring);
+			inline FontAsset* getFont(){return font;}
+			inline int getLength(){return characters.size();}
 			inline bool isHorizontal(){return horizontal;}
 			inline void setHorizontal(bool h){this->horizontal = h;}
 			inline bool isLeftToRight(){return leftToRight;}
 			inline void setLeftToRight(bool ltr){this->leftToRight = ltr;}
 			inline Material* getMaterial(){return material;}
 			inline void setMaterial(Material *mat){this->material = mat;}
-			Glyph* getGlyph(u16);
+			inline const std::vector<Character>& getCharacters(){return characters;}
+			//Glyph* getGlyph(u16);
 		private:
 			void init();
 			void applyFont(std::string, u16, u16 = 256);
 			void clearFont();
-			void prepareGlyphs(Glyph, int, Vector2);
+			//void prepareGlyphs(Glyph, int, Vector2);
 
 			FontAsset *font = nullptr;
 			Material *material = nullptr;
-			std::wstring entry;
-			std::vector<Glyph> characters;
-			unsigned int VAO, VBO;
-			float scale = 1;
+			std::vector<Character> characters;
 			bool horizontal = true, leftToRight = true;
 	};
 }

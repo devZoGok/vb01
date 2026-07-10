@@ -86,6 +86,8 @@ namespace vb01{
 		initPostProcessing();
 		initMainFramebuffer(pingPongTextures[0], nullptr);
 		initGuiPlane();
+
+		textQuad = new Quad(Vector3(100, 100, .1), false);
 	}
 
 	void Root::initMeshRendering(u32 &VAO, u32 &VBO, u32 &EBO){
@@ -138,7 +140,7 @@ namespace vb01{
 	}
 
 	//TODO check loading of textures with different dimensions 
-	void Root::initTextureDataOnGpu(u8 *data, int width, int height, int &bufferId, int &layerId, bool scene){
+	void Root::initTextureDataOnGpu(u8 *data, int width, int height, int &bufferId, int &layerId, bool scene, int w, int h){
 		int textureUnitId = -1;
 		vector<TextureUnitGpuData> &textureData = (scene ? meshTextureData : guiTextureData);
 
@@ -154,41 +156,47 @@ namespace vb01{
 			glGenTextures(1, &textureData[textureUnitId].buffer);
 		}
 
-		AssetManager *assetManager = AssetManager::getSingleton();
-		vector<Asset*> assets = assetManager->getAssets(assetManager->getImageFormats());
-
 		for(int i = 0; i < textureData.size(); i++){
-			vector<ImageAsset*> imgAssets;
 			TextureUnitGpuData &texData = textureData[i];
 
-			for(Asset *asset : assets){
-				ImageAsset *a = (ImageAsset*)asset;
-
-				if(a->loadedToGpu && a->width == texData.width && a->height == texData.height)
-					imgAssets.push_back((ImageAsset*)asset);
-			}
+			const int numPixels = texData.width * texData.height;
+			u8 background[numPixels]{0};
 
 			glBindTexture(GL_TEXTURE_2D_ARRAY, texData.buffer);
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, texData.width, texData.height, imgAssets.size() + 1, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-			
-			for(int j = 0; j < imgAssets.size(); j++)
-				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, j, imgAssets[j]->width, imgAssets[j]->height, 1, GL_RGB, GL_UNSIGNED_BYTE, imgAssets[j]->image);
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RED, texData.width, texData.height, texData.imageData.size() + 1, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+
+			int dims[]{texData.width, texData.height};
+
+			for(int j = 0; j < texData.imageData.size(); j++){
+				if(!(texData.subDims[j].first == 0 && texData.subDims[j].second == 0)){
+				   	dims[0] = texData.subDims[j].first;
+					dims[1] = texData.subDims[j].second;
+				}
+
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, j, texData.width, texData.height, 1, GL_RED, GL_UNSIGNED_BYTE, background);
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, j, dims[0], dims[1], 1, GL_RED, GL_UNSIGNED_BYTE, texData.imageData[j]);
+			}
 			
 			if(textureUnitId == i){
+				int dims[]{width, height};
+
 				bufferId = i;
 
-				int lid = 0 + (imgAssets.size() == 0 ? 0 : 1);
-				layerId = lid;
 				texData.numLayers++;
+				layerId = texData.numLayers - 1;
+				texData.imageData.push_back(data);
+				texData.subDims.push_back(make_pair(w, h));
 
-				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, lid, width, height, 1, GL_RGB, GL_UNSIGNED_BYTE, data);
+				if(!(w == 0 && h == 0)) dims[0] = w, dims[1] = h;
+
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layerId, texData.width, texData.height, 1, GL_RED, GL_UNSIGNED_BYTE, background);
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layerId, dims[0], dims[1], 1, GL_RED, GL_UNSIGNED_BYTE, data);
 			}
 
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, scene ? GL_REPEAT : GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, scene ? GL_REPEAT : GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 		}
 	}
 
@@ -263,30 +271,45 @@ namespace vb01{
 		}
 		else
 			for(Text *text : node->getTexts()){
-				Material *mat = text->getMaterial();
-				bool texturingEnabled = ((Material::BoolUniform*)mat->getUniform("texturingEnabled"))->value;
+				const vector<Text::Character> &characters = text->getCharacters();
+				FontAsset *font = text->getFont();
+				Vector3 size = textQuad->getSize();
 
-				GuiData gui;
-				gui.pos[0] = pos.x;
-				gui.pos[1] = pos.y;
-				gui.pos[2] = pos.z;
-				gui.texturingEnabled = texturingEnabled;
+				for(const Text::Character &charac : characters){
+					Material *mat = text->getMaterial();
+					bool texturingEnabled = ((Material::BoolUniform*)mat->getUniform("texturingEnabled"))->value;
+					Vector2 offset = charac.offset;
 
-				if(gui.texturingEnabled){
-					gui.pastTexture[0] = 0;
-					gui.pastTexture[1] = 0;
-					gui.nextTexture[0] = 0;
-					gui.nextTexture[1] = 0;
+					GuiData gui;
+					const FontAsset::Glyph &glyph = font->getGlyph(charac.ch);
+					gui.pos[0] = pos.x + charac.offset.x;
+					gui.pos[1] = pos.y + charac.offset.y;
+					gui.pos[2] = pos.z;
+					gui.scale[0] = scale.x;
+					gui.scale[1] = scale.y;
+					gui.scale[2] = scale.z;
+
+					const Texture::Frame &frame = ((Material::TextureUniform*)charac.material->getUniform("glyphTexture"))->value->getFrame(0);
+					gui.glyphTexture[0] = frame.bufferId;
+					gui.glyphTexture[1] = frame.layerId;
+					gui.texturingEnabled = texturingEnabled;
+
+					if(gui.texturingEnabled){
+						gui.pastTexture[0] = 0;
+						gui.pastTexture[1] = 0;
+						gui.nextTexture[0] = 0;
+						gui.nextTexture[1] = 0;
+					}
+					else{
+						Vector4 diffCol = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
+						gui.diffuseColor[0] = diffCol.x;
+						gui.diffuseColor[1] = diffCol.y;
+						gui.diffuseColor[2] = diffCol.z;
+						gui.diffuseColor[3] = diffCol.w;
+					}
+
+					guiData.push_back(gui);
 				}
-				else{
-					Vector4 diffCol = ((Material::Vector4Uniform*)mat->getUniform("diffuseColor"))->value;
-					gui.diffuseColor[0] = diffCol.x;
-					gui.diffuseColor[1] = diffCol.y;
-					gui.diffuseColor[2] = diffCol.z;
-					gui.diffuseColor[3] = diffCol.w;
-				}
-
-				guiData.push_back(gui);
 			}
 
 		for(Mesh *mesh : node->getMeshes()){
@@ -372,6 +395,8 @@ namespace vb01{
 				gui.pos[0] = pos.x;
 				gui.pos[1] = pos.y;
 				gui.pos[2] = pos.z;
+				gui.glyphTexture[0] = -1;
+				gui.glyphTexture[1] = -1;
 				gui.texturingEnabled = texturingEnabled;
 
 				if(gui.texturingEnabled){

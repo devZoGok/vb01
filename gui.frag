@@ -6,9 +6,9 @@ in flat int ID;
 out vec4 FragColor;
 
 struct GuiObjectData{
-	float pos[3];
+	float pos[3], scale[3];
 	bool texturingEnabled;
-	int pastTexture[2], nextTexture[2];
+	int glyphTexture[2], pastTexture[2], nextTexture[2];
 	float diffuseColor[4];
 };
 
@@ -26,6 +26,13 @@ void main(){
 		c = texture(textureSamplers[guiObjData[id].pastTexture[0]], vec3(texCoords.xy, guiObjData[id].pastTexture[1]));
 	else
 		c = vec4(guiObjData[id].diffuseColor[0], guiObjData[id].diffuseColor[1], guiObjData[id].diffuseColor[2], guiObjData[id].diffuseColor[3]);
+
+	if(guiObjData[id].glyphTexture[0] == -1){
+	}
+	else{
+		float alpha = texture(textureSamplers[guiObjData[id].glyphTexture[0]], vec3(texCoords.xy, guiObjData[id].glyphTexture[1])).r; 
+		c.w *= alpha;
+	}
 
 	FragColor = c;
 }

@@ -14,6 +14,12 @@ namespace vb01{
 
 	class Texture : public Animatable{
 		public:
+			struct Frame{
+				int bufferId = 0, layerId = 0;
+
+				Frame(int bid, int lid) : bufferId(bid), layerId(lid){}
+			};
+
 			~Texture();
 			Texture(int, int, bool = true, bool = false);
 			Texture(std::string[], int, bool, int = 0, bool = false, std::string = "");
@@ -23,6 +29,7 @@ namespace vb01{
 			void update(int = 0);
 			void animate(float, KeyframeChannel);
 			void loadImageData(ImageAsset*, bool, int = 0);
+			inline const Frame& getFrame(int i){return frames[i];}
 			inline u32* getTexture(int i = 0){return &(texture[i]);}
 			inline std::string* getPath(){return paths;}
 			inline int getNumFrames(){return numFrames;}
@@ -31,12 +38,6 @@ namespace vb01{
 			inline bool isCubemap(){return cubemap;}
 			inline bool isTransparent(){return png;}
 		private:
-			struct Frame{
-				int bufferId = 0, layerId = 0;
-
-				Frame(int bid, int lid) : bufferId(bid), layerId(lid){}
-			};
-
 			bool cubemap = false, png = false;
 			u32 *texture = nullptr;
 			s64 lastUpdateTime = 0;

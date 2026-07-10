@@ -16,6 +16,8 @@ namespace vb01{
 			inline void setPixelHeight(int h){this->pixelHeight = h;}
 			inline int getPixelWidth(){return pixelWidth;}
 			inline int getPixelHeight(){return pixelHeight;}
+			inline void setFirstChar(int fc){this->firstChar = fc;}
+			inline void setLastChar(int lc){this->lastChar = lc;}
 			inline FT_Library& getFT(){return ft;}
 		private:
 			FontReader();

@@ -42,7 +42,7 @@ namespace vb01{
 			void removeSkybox();
 			void initVertexDataOnGpu(MeshData&, u32&, u32&, u32&, bool);
 			void initTextureDataOnGpu(int, int);
-			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool);
+			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool, int = 0, int = 0);
 			void updateRenderNodeData(Node*);
 			void createCubemap(bool, bool, std::string[6], int);
 			inline Shader* getPhongShader(){return phongShader;}
@@ -104,13 +104,15 @@ namespace vb01{
 				float a, b, c, near, far, radius;
 			};
 			struct GuiData {
-				float pos[3];
-				int texturingEnabled, pastTexture[2], nextTexture[2];
+				float pos[3], scale[3];
+				int texturingEnabled, glyphTexture[2], pastTexture[2], nextTexture[2];
 				float diffuseColor[4];
 			};
 			struct TextureUnitGpuData {
 				u32 buffer = -1;
 				int numLayers = 0, width = 0, height = 0;
+				std::vector<u8*> imageData;
+				std::vector<std::pair<int, int>> subDims;
 
 				TextureUnitGpuData(int w, int h) : width(w), height(h){}
 			};
@@ -133,6 +135,7 @@ namespace vb01{
 			Camera *camera;
 			Shader *blurShader = nullptr, *phongShader = nullptr, *guiShader = nullptr;
 			Texture *pingPongTextures[2];
+			Quad *textQuad = nullptr;
 			std::vector<MeshData*> drawCmdMeshes;
 			std::vector<MeshData::GpuVertex> currentGpuVertices;
 			std::vector<std::pair<int, int>> currTextureDims;

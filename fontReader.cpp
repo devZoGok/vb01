@@ -43,16 +43,22 @@ namespace vb01{
 				continue;
 			}
 
+			const int numPixels = face->glyph->bitmap.width * face->glyph->bitmap.rows;
+			u8 *imageData = new u8[numPixels];
+
+			for(int j = 0; j < numPixels; j++)
+				imageData[j] = face->glyph->bitmap.buffer[j];
+
 			FontAsset::Glyph glyph = FontAsset::Glyph(
-					i, 
-					face->glyph->bitmap.buffer, 
-					Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows), 
-					Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top), 
-					face->glyph->advance.x, 
+					i,
+					imageData,
+					Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+					Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+					face->glyph->advance.x,
 					-1,
 					-1
 			);
-			root->initTextureDataOnGpu(glyph.data, glyph.size.x, glyph.size.y, glyph.bufferId, glyph.layerId, false);
+			root->initTextureDataOnGpu(glyph.data, pixelHeight, pixelHeight, glyph.bufferId, glyph.layerId, false, glyph.size.x, glyph.size.y);
 
 			glyphs.push_back(glyph);
 		}
