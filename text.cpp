@@ -1,17 +1,9 @@
 #include "root.h"
 #include "text.h"
-#include "shader.h"
 #include "texture.h"
 #include "node.h"
 #include "material.h"
 #include "assetManager.h"
-
-#include "glad.h"
-#include <glfw3.h>
-#include <iostream>
-#include <algorithm>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 using namespace std;
 
@@ -19,28 +11,6 @@ namespace vb01{
 	Text::Text(string fontPath, wstring e, u16 firstChar, u16 lastChar){
 		font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
 		setEntry(e);
-		//init();
-		//applyFont(fontPath, firstChar, lastChar);
-	}
-
-	Text::~Text(){
-		//glDeleteVertexArrays(1, &VAO);
-		//glDeleteBuffers(1, &VBO);
-	}
-
-	void Text::init(){
-		//glGenVertexArrays(1, &VAO);
-		//glGenBuffers(1, &VBO);
-
-		//glBindVertexArray(VAO);
-		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-		//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//glBindVertexArray(0);
 	}
 
 	wstring Text::getEntry(){
@@ -57,126 +27,28 @@ namespace vb01{
 			delete ch.material;
 
 		characters.clear();
-		Vector3 scale = Vector3::VEC_IJK;
 
 		for(wchar_t ch : entry){
 			Material *mat = new Material(Root::getSingleton()->getGuiShader());
 			mat->addTexUniform("glyphTexture", new Texture(font->path, ch), false, false);
-			
-			Character charac = Character(ch, mat);
-			int numChars = characters.size();
-
-			if(numChars > 0){
-				const FontAsset::Glyph &glyph = font->getGlyph(ch);
-				Vector2 currOffset = Vector2::VEC_ZERO;
-
-				if(horizontal)
-					currOffset = Vector2::VEC_I * (leftToRight ? 1 : -1) * glyph.size.x * scale.x;
-				else
-					currOffset = Vector2::VEC_J * glyph.size.y * scale.y;
-
-				charac.offset = characters[numChars - 1].offset + currOffset;
-			}
-
-			characters.push_back(charac);
-		}
-	}
-
-	//TODO ensure destruction of textures when unloading the asset
-	void Text::applyFont(string fontPath, u16 firstChar, u16 lastChar){
-		characters.clear();
-
-		font = (FontAsset*)AssetManager::getSingleton()->getAsset(fontPath);
-
-		for(u16 i = firstChar; i < lastChar; i++){
-
-			/*
-			Glyph c;
-			c.ch = i;
-			c.size = Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
-			c.bearing = Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top);
-			c.advance = face->glyph->advance.x;
-			c.texId = i;
-
-			 */
-			//characters.push_back(c);
+			characters.push_back(Character(ch, mat));
 		}
 	}
 
 	void Text::update(){
-		//Root *root = Root::getSingleton();
-		//int width = root->getWidth(), height = root->getHeight();
+		Vector2 advanceOffset = Vector2::VEC_ZERO;
+		Vector3 scale = node->getScale();
+		int numShifts = 6, startId = (leftToRight ? 0 : getLength() - 1);
 
-		//material->update();
-		//Shader *shader = material->getShader();
-		//shader->setVec2(Vector2(width, height), "screen");
-		//shader->setVec3(node->getPosition(), "pos");
+		for(int i = startId; (leftToRight ? (i < getLength()) : (i >= 0)); (leftToRight ? i++ : i--)){
+			Character &charac = characters[i];
+			const FontAsset::Glyph &currGlyph = font->getGlyph(charac.ch);
+			charac.offset = Vector2( (currGlyph.bearing.x + advanceOffset.x),  (advanceOffset.y - currGlyph.bearing.y));
 
-		//Vector2 advanceOffset = Vector2::VEC_ZERO;
-
-		//for(int i = (leftToRight ? 0 : entry.length() - 1); (leftToRight ? (i < entry.length()) : (i >= 0)); (leftToRight ? i++ : i--)){
-		//	Glyph *glyphPtr = getGlyph(entry[i]);
-
-		//	if(!glyphPtr) continue;
-
-		//	int glyphTexId = -1;
-
-		//	for(int j = 0; j < font->glyphTextures.size(); j++)
-		//		if(font->glyphTextures[j].first == glyphPtr->texId){
-		//			glyphTexId = j;
-		//			break;
-		//		}
-
-		//	Glyph glyph = *glyphPtr;
-		//	prepareGlyphs(glyph, glyphTexId, advanceOffset);
-		//	Vector2 size = glyph.size, bearing = glyph.bearing;
-
-		//	if(horizontal)
-		//		advanceOffset.x += node->getScale().x * (size.x + bearing.x);
-		//	else
-		//		advanceOffset.y += node->getScale().y * size.y;
-		//}
+			if(horizontal)
+				advanceOffset.x += (currGlyph.advance >> numShifts);
+			else
+				advanceOffset.y += currGlyph.size.y + (currGlyph.size.y - currGlyph.bearing.y);
+		}
 	}
-
-	/*
-	void Text::prepareGlyphs(Glyph glyph, int glyphTexId, Vector2 advanceOffset){
-		//Vector3 nodePos = node->getPosition(), scale = node->getScale();
-		//Vector2 origin = Vector2(nodePos.x, nodePos.y) + (advanceOffset * scale);
-
-		//Vector2 size = Vector2(glyph.size.x * scale.x, glyph.size.y * scale.y);
-		//Vector2 bearing = Vector2(glyph.bearing.x * scale.x, glyph.bearing.y * scale.y);
-
-		//float data[] = {
-		//	origin.x + bearing.x, origin.y - bearing.y, 0, 0,
-		//	origin.x + bearing.x + size.x, origin.y - bearing.y, 1, 0,
-		//	origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
-
-		//	origin.x + bearing.x + size.x, origin.y - bearing.y + size.y, 1, 1,
-		//	origin.x + bearing.x, origin.y - bearing.y + size.y, 0, 1,
-		//	origin.x + bearing.x, origin.y - bearing.y, 0, 0
-		//};
-
-		////glBindVertexArray(VAO);
-		////glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		////glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
-
-		//int id = 2;
-		//material->getShader()->setInt(id, "textures[1].pastTexture");
-		//font->glyphTextures[glyphTexId].second->select(id);
-
-		////glDrawArrays(GL_TRIANGLES, 0, 6);	
-	}
-	*/
-
-	/*
-	Text::Glyph* Text::getGlyph(u16 ch){
-		Glyph *glyph = nullptr;
-
-		for(Glyph &g : characters)
-			if(g.ch == ch)
-				glyph = &g;
-
-		return glyph;
-	}
-	 */
 }

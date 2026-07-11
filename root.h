@@ -42,7 +42,7 @@ namespace vb01{
 			void removeSkybox();
 			void initVertexDataOnGpu(MeshData&, u32&, u32&, u32&, bool);
 			void initTextureDataOnGpu(int, int);
-			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool, int = 0, int = 0);
+			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool, bool = false, int = 0, int = 0);
 			void updateRenderNodeData(Node*);
 			void createCubemap(bool, bool, std::string[6], int);
 			inline Shader* getPhongShader(){return phongShader;}
@@ -104,7 +104,7 @@ namespace vb01{
 				float a, b, c, near, far, radius;
 			};
 			struct GuiData {
-				float pos[3], scale[3];
+				float pos[3], scale[3], size[2];
 				int texturingEnabled, glyphTexture[2], pastTexture[2], nextTexture[2];
 				float diffuseColor[4];
 			};

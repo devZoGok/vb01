@@ -6,7 +6,7 @@ in flat int ID;
 out vec4 FragColor;
 
 struct GuiObjectData{
-	float pos[3], scale[3];
+	float pos[3], scale[3], size[2];
 	bool texturingEnabled;
 	int glyphTexture[2], pastTexture[2], nextTexture[2];
 	float diffuseColor[4];

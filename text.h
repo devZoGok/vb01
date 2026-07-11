@@ -25,7 +25,7 @@ namespace vb01{
 			};
 
 			Text(std::string, std::wstring, u16 = 0, u16 = 256);
-			~Text();
+			~Text(){}
 			void update();
 			std::wstring getEntry();
 			void setEntry(std::wstring);
@@ -38,13 +38,7 @@ namespace vb01{
 			inline Material* getMaterial(){return material;}
 			inline void setMaterial(Material *mat){this->material = mat;}
 			inline const std::vector<Character>& getCharacters(){return characters;}
-			//Glyph* getGlyph(u16);
 		private:
-			void init();
-			void applyFont(std::string, u16, u16 = 256);
-			void clearFont();
-			//void prepareGlyphs(Glyph, int, Vector2);
-
 			FontAsset *font = nullptr;
 			Material *material = nullptr;
 			std::vector<Character> characters;

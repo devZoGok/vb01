@@ -58,7 +58,7 @@ namespace vb01{
 					-1,
 					-1
 			);
-			root->initTextureDataOnGpu(glyph.data, pixelHeight, pixelHeight, glyph.bufferId, glyph.layerId, false, glyph.size.x, glyph.size.y);
+			root->initTextureDataOnGpu(glyph.data, pixelHeight, pixelHeight, glyph.bufferId, glyph.layerId, false, true, glyph.size.x, glyph.size.y);
 
 			glyphs.push_back(glyph);
 		}
