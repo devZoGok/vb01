@@ -18,6 +18,7 @@ namespace vb01{
 			inline int getNumVertSubquads(){return numVertDiv + 1;}
 		private:
 			Quad(Quad*);
+			void adaptTo(Quad*);
 			void init();
 
 			Vector3 size;

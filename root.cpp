@@ -87,7 +87,7 @@ namespace vb01{
 		initMainFramebuffer(pingPongTextures[0], nullptr);
 		initGuiPlane();
 
-		textQuad = new Quad(Vector3(100, 100, .1), false);
+		guiQuad = new Quad(Vector3(100, 100, .1), false);
 	}
 
 	void Root::initMeshRendering(u32 &VAO, u32 &VBO, u32 &EBO){
@@ -277,7 +277,7 @@ namespace vb01{
 			for(Text *text : node->getTexts()){
 				const vector<Text::Character> &characters = text->getCharacters();
 				FontAsset *font = text->getFont();
-				Vector3 size = textQuad->getSize();
+				Vector3 size = guiQuad->getSize();
 
 				for(const Text::Character &charac : characters){
 					Material *mat = text->getMaterial();
@@ -401,6 +401,9 @@ namespace vb01{
 				gui.pos[0] = pos.x;
 				gui.pos[1] = pos.y;
 				gui.pos[2] = pos.z;
+				gui.scale[0] = scale.x;
+				gui.scale[1] = scale.y;
+				gui.scale[2] = scale.z;
 				gui.size[0] = 1;
 				gui.size[1] = 1;
 				gui.glyphTexture[0] = -1;

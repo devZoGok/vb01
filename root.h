@@ -45,6 +45,7 @@ namespace vb01{
 			void initTextureDataOnGpu(u8*, int, int, int&, int&, bool, bool = false, int = 0, int = 0);
 			void updateRenderNodeData(Node*);
 			void createCubemap(bool, bool, std::string[6], int);
+			inline Quad* getGuiQuad(){return guiQuad;}
 			inline Shader* getPhongShader(){return phongShader;}
 			inline Shader* getGuiShader(){return guiShader;}
 			inline u32& getMeshVAO(){return meshVAO;}
@@ -135,7 +136,7 @@ namespace vb01{
 			Camera *camera;
 			Shader *blurShader = nullptr, *phongShader = nullptr, *guiShader = nullptr;
 			Texture *pingPongTextures[2];
-			Quad *textQuad = nullptr;
+			Quad *guiQuad = nullptr;
 			std::vector<MeshData*> drawCmdMeshes;
 			std::vector<MeshData::GpuVertex> currentGpuVertices;
 			std::vector<std::pair<int, int>> currTextureDims;

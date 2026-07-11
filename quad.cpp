@@ -14,12 +14,21 @@ namespace vb01{
 
 			if(sp)
 				root->initVertexDataOnGpu(meshBase, root->getMeshVAO(), root->getMeshVBO(), root->getMeshEBO(), true);
-			else
-				root->initVertexDataOnGpu(meshBase, root->getGuiVAO(), root->getGuiVBO(), root->getGuiEBO(), false);
+			else{
+				Quad *guiQuad = root->getGuiQuad();
+
+				if(!guiQuad)
+					root->initVertexDataOnGpu(meshBase, root->getGuiVAO(), root->getGuiVBO(), root->getGuiEBO(), false);
+				else adaptTo(guiQuad);
+			}
 		}
 	}
 
 	Quad::Quad(Quad *q){
+		adaptTo(q);
+	}
+
+	void Quad::adaptTo(Quad *q){
 		size = q->getSize();
 		numVertDiv = q->getNumVertSubquads() - 1;
 		numHorDiv = q->getNumHorSubquads() - 1;

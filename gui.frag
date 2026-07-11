@@ -27,9 +27,9 @@ void main(){
 	else
 		c = vec4(guiObjData[id].diffuseColor[0], guiObjData[id].diffuseColor[1], guiObjData[id].diffuseColor[2], guiObjData[id].diffuseColor[3]);
 
-	if(guiObjData[id].glyphTexture[0] == -1){
-	}
-	else{
+	bool glyph = !(guiObjData[id].glyphTexture[0] == -1 || guiObjData[id].glyphTexture[0] == -1);
+
+	if(glyph){
 		float alpha = texture(textureSamplers[guiObjData[id].glyphTexture[0]], vec3(texCoords.xy, guiObjData[id].glyphTexture[1])).r; 
 		c.w *= alpha;
 	}
