@@ -15,19 +15,19 @@ using namespace glm;
 using namespace std;
 
 namespace vb01{
-	Light::Light(Type t, string name) : Animatable(Animatable::LIGHT, name){
-		this->type = t;
-
-		initDepthMap();
+	Light::Light(Type t, string name) : Animatable(Animatable::LIGHT, name), type(t){
+		//initDepthMap();
 	}
 
 	Light::~Light(){
+		/*
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDeleteFramebuffers(1, &depthmapFBO);
 
 		delete depthMap;
 
 		delete depthMapShader;
+		*/
 	}
 
 	void Light::animate(float value, KeyframeChannel keyframeChannel){
@@ -76,6 +76,7 @@ namespace vb01{
 	}
 
 	void Light::update(bool render){
+		/*
 		Root *root = Root::getSingleton();
 		Node *rootNode = root->getRootNode();
 
@@ -108,6 +109,7 @@ namespace vb01{
 		mat4 proj = mat4(1.), view = mat4(1.);
 		renderShadow(descendants, proj, view);
 		updateShader(materials, thisId, proj, view);
+		*/
 	}
 
 	void Light::renderShadow(std::vector<Node*> descendants, mat4 &proj, mat4 &view){

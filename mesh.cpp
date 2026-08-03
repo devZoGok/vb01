@@ -60,35 +60,37 @@ namespace vb01{
 
 	void Mesh::update(){
 		Root *root = Root::getSingleton();
-		Camera *cam = root->getCamera();
-		Vector3 camPos = Vector3::VEC_ZERO, pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
-		Quaternion orient = Quaternion::QUAT_W;
 
-		if(node){
-			pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
-			orient = node->localToGlobalOrientation(Quaternion::QUAT_W);
-			scale = node->getScale();
-			camPos = cam->getPosition();
-		}
+		//Camera *cam = root->getCamera();
+		//Vector3 camPos = Vector3::VEC_ZERO, pos = Vector3::VEC_ZERO, scale = Vector3::VEC_IJK;
+		//Quaternion orient = Quaternion::QUAT_W;
 
-		Vector3 rotAxis = orient.getAxis();
+		//if(node){
+		//	pos = node->localToGlobalPosition(Vector3::VEC_ZERO);
+		//	orient = node->localToGlobalOrientation(Quaternion::QUAT_W);
+		//	scale = node->getScale();
+		//	camPos = cam->getPosition();
+		//}
 
-		if(rotAxis == Vector3::VEC_ZERO)
-			rotAxis = Vector3::VEC_I;
+		//Vector3 rotAxis = orient.getAxis();
 
-		mat4 model = mat4(1.);
-		model = translate(model, vec3(pos.x, pos.y, pos.z));
-		model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
-		model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
+		//if(rotAxis == Vector3::VEC_ZERO)
+		//	rotAxis = Vector3::VEC_I;
 
-		Vector3 dir = cam->getDirection(), up = cam->getUp();
-		mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + dir.x, camPos.y + dir.y, camPos.z + dir.z), vec3(up.x, up.y, up.z));
+		//mat4 model = mat4(1.);
+		//model = translate(model, vec3(pos.x, pos.y, pos.z));
+		//model = rotate(model, orient.getAngle(), vec3(rotAxis.x, rotAxis.y, rotAxis.z));
+		//model = glm::scale(model, vec3(scale.x, scale.y, scale.z));
 
-		float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight(), nearPlane = cam->getNearPlane(), farPlane = cam->getFarPlane();
-		mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
+		//Vector3 dir = cam->getDirection(), up = cam->getUp();
+		//mat4 view = lookAt(vec3(camPos.x, camPos.y, camPos.z), vec3(camPos.x + dir.x, camPos.y + dir.y, camPos.z + dir.z), vec3(up.x, up.y, up.z));
 
-		Shader *shader = material->getShader();
+		//float fov = cam->getFov(), width = root->getWidth(), height = root->getHeight(), nearPlane = cam->getNearPlane(), farPlane = cam->getFarPlane();
+		//mat4 proj = perspective(radians(fov), width / height, nearPlane, farPlane);
+
+		//Shader *shader = material->getShader();
 		material->update();
+
 
 		//shader->setBool(castShadow, "castShadow");
 		//shader->setBool(skeleton, "animated");
@@ -97,6 +99,7 @@ namespace vb01{
 		//shader->setVec3(camPos, "camPos");
 		//shader->setMat4(model, "model");
 
+		/*
 		if(skeleton)
 			updateSkeleton(shader);
 
@@ -112,6 +115,7 @@ namespace vb01{
 			if(node)
 				shader->setVec3(pos, "pos");
 		}
+		*/
 	}
 
 	void Mesh::updateShapeKeys(Shader *shader){

@@ -38,6 +38,7 @@ namespace vb01{
 			inline void setRadius(float r){this->radius = r;}
 			inline void setAdditiveLighting(bool al){this->additiveLighting = al;}
 			inline void setUseAngle(bool ua){this->useAngle = ua;}
+			inline bool isUseAngle(){return useAngle;}
 			inline Attenuation getAttenuation(){return attenuation;}
 			inline Vector3 getAttenuationValues(){return attenuationValues;}
 			inline bool isAdditiveLighting(){return additiveLighting;}
