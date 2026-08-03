@@ -4,9 +4,9 @@ project(vb01)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic")
 set(BUILD_TESTS OFF)
-set(BUILD_SAMPLES ON)
+set(BUILD_SAMPLES OFF)
 set(BUILD_WITH_ASSIMP OFF)
-set(BUILD_GUI_ELEMENTS ON)
+set(BUILD_GUI_ELEMENTS OFF)
 set(LIB_NAME vb01)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -18,7 +18,7 @@ set(MATH quaternion.cpp vector.cpp matrix.cpp rayCaster.cpp)
 set(RENDER lineRenderer.cpp particleEmitter.cpp camera.cpp light.cpp material.cpp mesh.cpp meshData.cpp model.cpp node.cpp quad.cpp box.cpp root.cpp shader.cpp texture.cpp)
 set(ANIM animationController.cpp animationChannel.cpp animation.cpp animatable.cpp keyframeChannel.cpp driver.cpp)
 set(ARMATURE skeleton.cpp bone.cpp ikSolver.cpp)
-set(ASSET_MANAGER assetManager.cpp shaderAsset.h textAsset.h imageAsset.h modelAsset.h fontAsset.h)
+set(ASSET_MANAGER assetManager.cpp shaderAsset.h textAsset.h imageAsset.h modelAsset.h fontAsset.cpp)
 set(ASSET_READERS shaderReader.cpp imageReader.cpp fontReader.cpp modelReader.cpp xmlModelReader.cpp)
 
 if(BUILD_WITH_ASSIMP)
@@ -34,10 +34,12 @@ set(LIB_SRC ${RENDER} ${MATH} ${UTILS} ${GUI} ${ARMATURE} ${ASSET_MANAGER} ${ASS
 include_directories(external/tinydir)
 include_directories(external/glm)
 include_directories(external/glm/glm)
-include_directories(external/glad)
+include_directories(external/glad3)
+include_directories(external/glad3/include/glad)
+include_directories(external/glad3/include/KHR)
 include_directories(external/stb)
 
-add_library(${LIB_NAME} external/glad/glad.c ${LIB_SRC})
+add_library(${LIB_NAME} external/glad3/src/glad.c ${LIB_SRC})
 
 set(TINYXML2_DIR external/tinyxml2)
 set(GLFW_DIR external/glfw)
@@ -101,31 +103,34 @@ endif()
 if(BUILD_SAMPLES)
 	add_executable(textSample textSample.cpp)
 	target_link_libraries(textSample ${LIB_NAME})
-
+	
 	add_executable(skeletalAnimationSample skeletalAnimationSample.cpp)
 	target_link_libraries(skeletalAnimationSample ${LIB_NAME})
-
+	
 	add_executable(morphAnimationSample morphAnimationSample.cpp)
 	target_link_libraries(morphAnimationSample ${LIB_NAME})
-
+	
 	add_executable(driverSample driverSample.cpp)
 	target_link_libraries(driverSample ${LIB_NAME})
-
+	
 	add_executable(lightSample lightSample.cpp)
 	target_link_libraries(lightSample ${LIB_NAME})
-
+	
 	add_executable(shadowSample shadowSample.cpp)
 	target_link_libraries(shadowSample ${LIB_NAME})
-
+	
 	add_executable(particleEmitterSample particleEmitterSample.cpp)
 	target_link_libraries(particleEmitterSample ${LIB_NAME})
-
+	
 	add_executable(rayCasterSample rayCasterSample.cpp)
 	target_link_libraries(rayCasterSample ${LIB_NAME})
-
+	
 	add_executable(planeRayCastSample planeRayCastSample.cpp)
 	target_link_libraries(planeRayCastSample ${LIB_NAME})
-
+	
 	add_executable(pbrSample pbrSample.cpp)
 	target_link_libraries(pbrSample ${LIB_NAME})
+
+	add_executable(mrs manyRendersSample.cpp)
+	target_link_libraries(mrs ${LIB_NAME})
 endif()
