@@ -1,12 +1,11 @@
-#include <glfw3.h>
-
-#include <sstream>
-#include <algorithm>
-
 #include "slider.h"
 #include "root.h"
 #include "util.h"
 
+#include <glfw3.h>
+
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 using namespace vb01;

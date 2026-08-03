@@ -27,7 +27,7 @@ namespace vb01Gui{
 			void remove();
 			inline void setSlider(Slider *s){this->slider = s;}
 			inline bool isEnabled(){return enabled;}
-			inline std::wstring getText(){return text->getText();}
+			inline std::wstring getText(){return text->getEntry();}
 			inline void setDeleteCharacters(bool del){this->deleteCharacters = del;}
 			inline bool isDeleteCharacters(){return deleteCharacters;}
 		private:

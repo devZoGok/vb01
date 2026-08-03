@@ -1,7 +1,3 @@
-#include <locale>
-#include <codecvt>
-#include <glfw3.h>
-
 #include "root.h"
 #include "quad.h"
 #include "node.h"
@@ -10,6 +6,10 @@
 #include "texture.h"
 #include "util.h"
 #include "button.h"
+
+#include <locale>
+#include <codecvt>
+#include <glfw3.h>
 
 using namespace std;
 using namespace vb01;
@@ -28,7 +28,7 @@ namespace vb01Gui{
 		guiNode = root->getGuiNode();
 		rect = new Quad(Vector3(size.x, size.y, 0), false);
 		rectNode = new Node(pos);
-		Material *mat = new Material(root->getLibPath() + "gui");
+		Material *mat = new Material(root->getGuiShader());
 
 		if(imagePath == ""){
 			mat->addBoolUniform(texUni, false);
@@ -54,7 +54,7 @@ namespace vb01Gui{
 			textNode = new Node(pos + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
 			textNode->addText(text);
 
-			Material *textMat = new Material(root->getLibPath() + "text");
+			Material *textMat = new Material(root->getGuiShader());
 			textMat->addBoolUniform(texUni, false);
 			textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
 			text->setMaterial(textMat);

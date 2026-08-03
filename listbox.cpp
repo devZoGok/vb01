@@ -1,5 +1,3 @@
-#include <glfw3.h>
-
 #include "listbox.h"
 #include "util.h"
 #include "node.h"
@@ -7,6 +5,8 @@
 #include "quad.h"
 #include "root.h"
 #include "material.h"
+
+#include <glfw3.h>
 
 using namespace vb01;
 using namespace std;
@@ -46,7 +46,7 @@ namespace vb01Gui{
 		guiNode = Root::getSingleton()->getGuiNode();
 
 		string texUni = "texturingEnabled", diffColUni = "diffuseColor";
-		textMat = new Material(root->getLibPath() + "text");
+		textMat = new Material(root->getGuiShader());
 		textMat->addBoolUniform(texUni, false);
 		textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
 
@@ -65,7 +65,7 @@ namespace vb01Gui{
 
 		Quad *selRect = new Quad(Vector3(size.x, size.y, 0), false);
 		selRectNode = new Node(Vector3(size.x, size.y, -.05));
-		Material *mat = new Material(root->getLibPath() + "gui");
+		Material *mat = new Material(root->getGuiShader());
 		mat->addBoolUniform(texUni, false);
 		mat->addVec4Uniform(diffColUni, Vector4(.6, .35, .05, 1));
 		selRect->setMaterial(mat);
@@ -203,14 +203,14 @@ namespace vb01Gui{
 	}
 
 	void Listbox::changeLine(int id, wstring change){
-		lines[id]->setText(change);	
+		lines[id]->setEntry(change);	
 	}
 
 	std::vector<wstring> Listbox::getContents(){
 		std::vector<wstring> lines;
 
 		for(Text *t : this->lines)
-			lines.push_back(t->getText());
+			lines.push_back(t->getEntry());
 
 		return lines;
 	}

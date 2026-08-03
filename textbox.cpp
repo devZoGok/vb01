@@ -27,9 +27,10 @@ namespace vb01Gui{
 		textboxButton = new TextboxButton(this, pos, size, "TextboxButton");
 		string libPath = Root::getSingleton()->getLibPath();
 
-		guiNode = Root::getSingleton()->getGuiNode();
+		Root *root = Root::getSingleton();
+		guiNode = root->getGuiNode();
 		text = new Text(fontPath, entry);
-		Material *textMat = new Material(libPath + "text");
+		Material *textMat = new Material(root->getGuiShader());
 		textMat->addBoolUniform("texturingEnabled", false);
 		textMat->addVec4Uniform("diffuseColor", Vector4(1, 1, 1, 1));
 		text->setMaterial(textMat);
@@ -42,7 +43,7 @@ namespace vb01Gui{
 		cursorPosOffset = entry.length();
 		cursorRect = new Quad(Vector3(cursorWidth, size.y, 0), false);
 		cursorNode = new Node(Vector3(pos.x + text->getLength(), pos.y, pos.z + cursorZCoord));
-		Material *mat = new Material(libPath + "gui");
+		Material *mat = new Material(root->getGuiShader());
 		mat->addBoolUniform("texturingEnabled", false);
 		mat->addVec4Uniform("diffuseColor", Vector4(1, 1, 1, 1));
 		cursorRect->setMaterial(mat);
@@ -73,8 +74,8 @@ namespace vb01Gui{
 
 	void Textbox::type(u32 c, bool capitalLetters){
 		entry += c;
-		text->setText(entry);
-		moveCursor(false, text->getGlyph(c)->size.x);
+		text->setEntry(entry);
+		moveCursor(false, text->getFont()->getGlyph(c).size.x);
 	}
 
 	void Textbox::moveCursor(bool left, float charWidth){
@@ -94,8 +95,8 @@ namespace vb01Gui{
 		if(entry.length() > 0 && canDeleteChar()){
 			char c = entry.c_str()[entry.length() - 1];
 			entry = entry.substr(0, entry.length() - 1);
-			text->setText(entry);
-			moveCursor(true, text->getGlyph(c)->size.x);
+			text->setEntry(entry);
+			moveCursor(true, text->getFont()->getGlyph(c).size.x);
 			lastDeleteTime = getTime();
 		}
 	}
@@ -124,7 +125,7 @@ namespace vb01Gui{
 
 	void Textbox::setEntry(wstring entry){
 		this->entry = entry;
-		text->setText(entry);
+		text->setEntry(entry);
 		cursorNode->setPosition(Vector3(pos.x + text->getLength(), pos.y, cursorZCoord));
 		cursorPosOffset = entry.length();
 	}
