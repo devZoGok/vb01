@@ -35,6 +35,7 @@ namespace vb01Gui{
 			void scrollToHeight(float);
 			virtual void onOpen(){}
 			virtual void onClose(){}
+			inline vb01::Text* getLineText(int i){return lines[i];}
 			inline void setName(std::string n){this->name = n;}
 			inline std::string getName(){return name;}
 			inline int getScrollOffset(){return scrollOffset;}
@@ -69,7 +70,6 @@ namespace vb01Gui{
 			ScrollingButton *scrollingButton;
 			vb01::Node *selRectNode, *guiNode;
 			std::vector<vb01::Text*> lines;
-			vb01::Material *textMat = nullptr;
 		protected:
 		   	int selectedOption = 0;
 		public: 

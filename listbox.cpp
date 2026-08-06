@@ -45,11 +45,6 @@ namespace vb01Gui{
 		Vector2 mousePos = getCursorPos();
 		guiNode = Root::getSingleton()->getGuiNode();
 
-		string texUni = "texturingEnabled", diffColUni = "diffuseColor";
-		textMat = new Material(root->getLibPath() + "text");
-		textMat->addBoolUniform(texUni, false);
-		textMat->addVec4Uniform(diffColUni, Vector4::VEC_IJKL);
-
 		if(!lines.empty()){
 			for(int i = 0; i < lines.size(); i++)
 				addLine(stringToWstring(lines[i]));
@@ -66,8 +61,8 @@ namespace vb01Gui{
 		Quad *selRect = new Quad(Vector3(size.x, size.y, 0), false);
 		selRectNode = new Node(Vector3(size.x, size.y, -.05));
 		Material *mat = new Material(root->getLibPath() + "gui");
-		mat->addBoolUniform(texUni, false);
-		mat->addVec4Uniform(diffColUni, Vector4(.6, .35, .05, 1));
+		mat->addBoolUniform("texturingEnabled", false);
+		mat->addVec4Uniform("diffuseColor", Vector4(.6, .35, .05, 1));
 		selRect->setMaterial(mat);
 		selRectNode->attachMesh(selRect);
 		selRectNode->setVisible(false);
@@ -218,8 +213,13 @@ namespace vb01Gui{
 	void Listbox::addLine(wstring line){
 		float sc = .2;
 		Node *node = new Node(pos + Vector3(0, size.y * (lines.size() + 1), 0) + textOffset, Quaternion::QUAT_W, Vector3(sc, sc, 1));
-		Root::getSingleton()->getGuiNode()->attachChild(node);
+		Root *root = Root::getSingleton();
+		root->getGuiNode()->attachChild(node);
 		node->setVisible(false);
+
+		Material *textMat = new Material(root->getLibPath() + "text");
+		textMat->addBoolUniform("texturingEnabled", false);
+		textMat->addVec4Uniform("diffuseColor", Vector4::VEC_IJKL);
 
 		Text *text = new Text(fontPath, line);
 		text->setMaterial(textMat);
