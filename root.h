@@ -22,7 +22,7 @@ namespace vb01{
 	class Root{
 		public:
 			void update();
-			void start(int, int, std::string, std::string);
+			void start(int, int, std::string, std::string, bool = false);
 			void toggleHDR(bool);
 			void toggleBloom(bool);
 			inline Camera* getCamera(){return camera;}
@@ -48,7 +48,7 @@ namespace vb01{
 			inline std::string getLibPath(){return libPath;}
 		private:
 			int numLights = 0;
-			bool bloom = false, hdr = false;
+			bool bloom = false, hdr = false, fullscreen = false;
 			float exposure = 1, gamma = 1;
 			Box *skybox = nullptr, *iblBox = nullptr;
 			Quad *guiPlane = nullptr, *brdfLutPlane = nullptr;
@@ -60,11 +60,11 @@ namespace vb01{
 			Shader *blurShader;
 			Texture *pingPongTextures[2];
 			std::vector<Mesh*> meshes;
-			std::string libPath;
+			std::string libPath, name;
 
 			void framebuffer_size_callback(GLFWwindow*, int, int);
 			Root();
-			void initWindow(std::string);
+			void initWindow();
 			void initMainFramebuffer(Texture*, Texture*);
 			void initBloomFramebuffer();
 			void initGuiPlane(Texture*, Texture*);
