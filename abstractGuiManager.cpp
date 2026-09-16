@@ -293,6 +293,7 @@ namespace vb01Gui{
 			else
 				targetId++;
         }
+        currentListbox = nullptr;
     }
 
     void AbstractGuiManager::removeAllCheckboxes(vector<Checkbox*> exceptions) {
@@ -322,6 +323,7 @@ namespace vb01Gui{
 			else
 				targetId++;
         }
+        currentSlider = nullptr;
     }
 
     void AbstractGuiManager::removeAllTextboxes(vector<Textbox*> exceptions) {
@@ -336,6 +338,7 @@ namespace vb01Gui{
 			else
 				targetId++;
         }
+        currentTextbox = nullptr;
     }
 
     void AbstractGuiManager::removeAllGuiRectangles(vector<Node*> exceptions) {
