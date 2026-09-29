@@ -51,6 +51,7 @@ namespace vb01{
 		bool render = true;
 		Node *ancestor = this;
 
+		// Get the oldest ancestor of this node that is being rendered
 		while(ancestor){
 			render = ancestor->isVisible();
 			ancestor = ancestor->getParent();
@@ -58,9 +59,11 @@ namespace vb01{
 			if(!render) break;
 		}
 
+		// Update the lighting attached to this node
 		for(Light *l : lights)
 			l->update(render);
 
+		// If the node is being rendered, update all of the below members
 		if(render){
 			for(Mesh *m : meshes)
 				m->update();
@@ -75,6 +78,7 @@ namespace vb01{
 					sk->update();
 		}
 
+		// Handles animations added to the gui node
 		for(Driver *driver : drivers)
 			driver->drive(getDriverValue(driver->getType()));
 	}
@@ -296,6 +300,8 @@ namespace vb01{
 		setOrientation(Quaternion(angle, rotAxis));
 	}
 
+	/// @brief Change the direction of the node by setting a new up vector direction
+	/// @param newUp 
 	void Node::adjustUp(Vector3 newUp){
 		Vector3 xDir = orientation * Vector3(1, 0, 0),
 					 	yDir = orientation * Vector3(0, 1, 0),
@@ -334,7 +340,9 @@ namespace vb01{
 		return ancestors;
 	}
 
+	/// @brief Updates the global axes of the node along with all of its child nodes
 	void Node::updateAxis(){
+		// Update the node's partial axes based on the parent's axes if it has a parent. If no parent, then use the unit vectors as the partial axes
 		Vector3 parGlobalAxis[3]{
 			parent ? parent->getGlobalAxis(0) : Vector3::VEC_I,
 			parent ? parent->getGlobalAxis(1) : Vector3::VEC_J,
@@ -346,9 +354,11 @@ namespace vb01{
 		Vector3 newAxis = (parGlobalAxis[0] * rotAxis.x + parGlobalAxis[1] * rotAxis.y + parGlobalAxis[2] * rotAxis.z).norm();
 		Quaternion rotQuat = Quaternion(rotAngle, newAxis);
 
+		// Calculate the global axis for this node
 		for(int i = 0; i < 3; i++)
 			globalAxis[i] = (rotQuat * parGlobalAxis[i]).norm();
 
+		// The partial axes of the children nodes are updated from this node's global axes since this is their parent node
 		for(Node *ch : children)
 			ch->updateAxis();
 	}

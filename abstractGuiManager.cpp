@@ -41,6 +41,7 @@ namespace vb01Gui{
 		if(currentSlider){
 			float percentage = (cursorPos.x - currentSlider->getPos().x) / currentSlider->getSize().x;
 			currentSlider->setValue(percentage * currentSlider->getMaxValue());
+			// currentSlider->update();
 		}
 
         for (Textbox *t : textboxes){
@@ -49,6 +50,9 @@ namespace vb01Gui{
 		}
     }
 
+	/// @brief Set the clicked listbox as the current listbox, close the previous listbox. 
+	/// @param b 
+	/// @param listboxClicked 
 	void AbstractGuiManager::updateCurrentListbox(Button *b, bool &listboxClicked){
 		Listbox *pastListbox = currentListbox;
 		
@@ -61,6 +65,7 @@ namespace vb01Gui{
 					if(pastListbox->isCloseable())
 						pastListbox->close();
 				}
+				// If the current listbox hasn't changed or there is no past listbox then set the current listbox as the one clicked
 				else
 					currentListbox = (l->isOpen() ? l : nullptr);
 		
