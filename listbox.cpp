@@ -163,6 +163,22 @@ namespace vb01Gui{
 		onClose();
 	}
 
+	void Listbox::setSelectedOption(int option){
+		if(option < 0 || option >= lines.size()) return;
+
+		if(!open){
+			Node *pastNode = lines[selectedOption]->getNode();
+			pastNode->setPosition(pos + Vector3(0, size.y * (selectedOption - scrollOffset + 1), 0) + textOffset);
+			pastNode->setVisible(false);
+
+			Node *node = lines[option]->getNode();
+			node->setPosition(pos + Vector3(0, size.y, 0) + textOffset);
+			node->setVisible(true);
+		}
+
+		selectedOption = option;
+	}
+
 	void Listbox::scrollUp(){
 		if(scrollOffset > 0){
 			scrollOffset--;
