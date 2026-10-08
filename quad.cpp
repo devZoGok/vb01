@@ -103,4 +103,26 @@ namespace vb01{
 		else if(!top && !right) return meshBase.positions[vertPosId + 1];
 		else if(!top && right) return meshBase.positions[vertPosId + 3];
 	}
+
+	//TODO implement checks to clamp the number of points to be within the mesh
+	vector<Vector3> Quad::getVertPosInQuad(int numVertDiv, int numHorDiv, Vector3 meshSize, Vector3 quadPos, Vector3 quadSize){
+		Vector2 topLeftSubquad = getSubquadIds(numVertDiv, numHorDiv, quadPos - .5 * quadSize, meshSize);
+		Vector3 bottRightCorner = getSubquadCorner(topLeftSubquad.x, topLeftSubquad.y, numVertDiv, numHorDiv, false, true);
+
+		const int numHorQuads = numVertDiv + 1, numVertQuads = numHorDiv + 1;
+		Vector2 subquadSize = Vector2(meshSize.x / numHorQuads, meshSize.z / numVertQuads);
+
+		int numHorPoints = int(fabs(quadPos.x + .5 * quadSize.x - bottRightCorner.x) / subquadSize.x);
+		int numVertPoints = int(fabs(quadPos.z + .5 * quadSize.z - bottRightCorner.z) / subquadSize.y);
+
+		vector<Vector3> positions;
+
+		for(int i = 0; i < numVertPoints; i++)
+			for(int j = 0; j < numHorPoints; j++){
+				Vector3 corner = getSubquadCorner(topLeftSubquad.x + j, topLeftSubquad.y + i, numVertDiv, numHorDiv, false, true);
+				positions.push_back(corner);
+			}
+
+		return positions;
+	}
 }

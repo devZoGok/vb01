@@ -11,6 +11,7 @@ namespace vb01{
 			void setSize(Vector3);
 			Vector3 getSubquadCorner(int, int, int, int, bool, bool);
 			Vector2 getSubquadIds(int, int, Vector3, Vector3);
+			std::vector<Vector3> getVertPosInQuad(int, int, Vector3, Vector3, Vector3);
 			inline Vector3 getSize(){return size;}
 			inline Vector2 getSubquadSize(){return Vector2(size.x / (numHorDiv + 1), size.y / (numVertDiv + 1));}
 			inline int getNumHorSubquads(){return numHorDiv + 1;}
