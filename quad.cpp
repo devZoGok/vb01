@@ -125,4 +125,28 @@ namespace vb01{
 
 		return positions;
 	}
+
+	float Quad::getHeightInSubquad(int numVertDiv, int numHorDiv, Vector3 meshSize, Vector3 pos){
+		Vector2 subquadIds = getSubquadIds(numVertDiv, numHorDiv, pos, meshSize);
+		Vector3 topLeft = getSubquadCorner(subquadIds.x, subquadIds.y, numVertDiv, numHorDiv, true, false);
+		Vector3 topRight = getSubquadCorner(subquadIds.x, subquadIds.y, numVertDiv, numHorDiv, true, true);
+		Vector3 bottLeft = getSubquadCorner(subquadIds.x, subquadIds.y, numVertDiv, numHorDiv, false, false);
+		Vector3 bottRight = getSubquadCorner(subquadIds.x, subquadIds.y, numVertDiv, numHorDiv, false, true);
+
+		Vector3 v1 = (bottLeft - topLeft), v2 = (bottRight - topLeft);
+		v1.y = 0, v2.y = 0;
+		float angle = v1.norm().getAngleBetween(v2.norm());
+
+		float hypZ = topLeft.z + (topRight.x - topLeft.x) / tan(angle);
+		bool leftTri = pos.z > hypZ;
+
+		float xRatio = (pos.x - topLeft.x) / (topRight.x - topLeft.x);
+		float zRatio = (pos.z - topLeft.z) / v1.z;
+		float height;
+
+		if(leftTri) height = (topLeft + (bottRight - bottLeft) * xRatio + (bottLeft - topLeft) * zRatio).y;
+		else height = (topLeft + (topRight - topLeft) * xRatio + (bottRight - topRight) * zRatio).y;
+
+		return height;
+	}
 }
