@@ -10,13 +10,12 @@ namespace vb01Gui{
     Checkbox::CheckboxButton::CheckboxButton(Checkbox *ch, Vector3 pos, Vector2 size, string name, bool separate) : Button(pos, size, name, "", -1, separate), checkbox(ch) {}
     
     void Checkbox::CheckboxButton::onClick() {
-        checkbox->check();
-		float col = (checkbox->isChecked() ? .6 : .2);
-		setColor(Vector4(col, col, col, 1));
+        checkbox->setChecked(!checkbox->isChecked());
     }
 
     Checkbox::Checkbox(Vector3 p, string fontPath) : pos(p){
         checkboxButton = new CheckboxButton(this, pos, Vector2(length,length), "CheckboxButton", false);
+        setChecked(false);
 
 				/*
 				Root *root = Root::getSingleton();
@@ -40,5 +39,13 @@ namespace vb01Gui{
     void Checkbox::check() {
 			checked = !checked;
 			//checkNode->setVisible(checked);
+    }
+
+    void Checkbox::setChecked(bool c) {
+        if(c != isChecked())
+            check();
+
+		float col = (isChecked() ? .6 : .2);
+		checkboxButton->setColor(Vector4(col, col, col, 1));
     }
 }

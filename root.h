@@ -23,6 +23,7 @@ namespace vb01{
 		public:
 			void update();
 			void start(int, int, std::string, std::string, bool = false);
+			void setResolution(int, int, bool);
 			void toggleHDR(bool);
 			void toggleBloom(bool);
 			inline Camera* getCamera(){return camera;}
@@ -30,6 +31,7 @@ namespace vb01{
 			inline Node* getGuiNode(){return guiNode;}
 			inline int getWidth(){return width;}
 			inline int getHeight(){return height;}
+			inline bool isFullscreen(){return fullscreen;}
 			inline u32* getFBO(){return &FBO;}
 			inline u32* getRBO(){return &RBO;}
 			inline GLFWwindow* getWindow(){return window;}
