@@ -16,6 +16,7 @@ using namespace std;
 namespace vb01Gui{
 	Textbox::TextboxButton::TextboxButton(Textbox *t, Vector3 pos, Vector2 size, string name) : Button(pos, size, name, "", -1, false), textbox(t) {}
 
+	/// @brief Cliking the textbox toggles between enabling and disabling it
 	void Textbox::TextboxButton::onClick(){
 		if(!textbox->isEnabled())
 			textbox->enable();
@@ -59,6 +60,7 @@ namespace vb01Gui{
 	}
 
 	void Textbox::update(){
+		// If the textbox is enabled then the cursor is updated
 		if(enabled){
 			if(canChangeCursor()){
 				canShowCursor = !canShowCursor;
@@ -122,6 +124,8 @@ namespace vb01Gui{
 		}
 	}
 
+	/// @brief Sets the text as the passed wide-string and moves the cursor to the end of the string
+	/// @param entry 
 	void Textbox::setEntry(wstring entry){
 		this->entry = entry;
 		text->setText(entry);

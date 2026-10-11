@@ -163,6 +163,7 @@ namespace vb01Gui{
 		onClose();
 	}
 
+	/// @brief Handles scrolling up one line
 	void Listbox::scrollUp(){
 		if(scrollOffset > 0){
 			scrollOffset--;
@@ -179,7 +180,8 @@ namespace vb01Gui{
 			}
 		}
 	}
-
+	
+	/// @brief Handles scrolling down one line
 	void Listbox::scrollDown(){
 		if (scrollOffset < lines.size() - maxDisplay){
 			scrollOffset++;

@@ -11,7 +11,9 @@ namespace vb01{
 		this->keyframeChannel = keyframeChannel;
 		this->type = type;
 	}
-
+	
+	/// @brief Animate the keyframes that are found based on the passed driver value
+	/// @param driverValue 
 	void Driver::drive(float driverValue){
 		Keyframe pastKeyframe = KeyframeChannel::findKeyframe(driverValue, keyframeChannel, true);
 		Keyframe nextKeyframe = KeyframeChannel::findKeyframe(driverValue, keyframeChannel, false);

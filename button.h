@@ -39,6 +39,7 @@ namespace vb01Gui{
 			inline int getTrigger(){return trigger;}
 		protected:
 			int trigger, initWindowSize[2];
+			// Separate appears to be if the text will be apart from the button and pop out above it
 			bool separate, active = true, mouseOver = false;
 			vb01::Quad *rect;
 			vb01::Node *rectNode, *textNode = nullptr, *guiNode;
