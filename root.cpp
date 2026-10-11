@@ -44,14 +44,16 @@ namespace vb01{
 		camera = new Camera();
 	}
 
-	void Root::start(int width, int height, string libPath, string name){
+	void Root::start(int width, int height, string libPath, string name, bool fullscreen){
 		this->width = width;
 		this->height = height;
+		this->name = name;
 		this->libPath = libPath;
+		this->fullscreen = fullscreen;
 
 		AssetManager::getSingleton()->load(Root::getSingleton()->getLibPath());
 
-		initWindow(name);
+		initWindow();
 
 		brdfLutPlane = new Quad(Vector3(1, 1, 1) * 2);
 		iblBox = new Box(Vector3::VEC_IJK);
@@ -101,13 +103,13 @@ namespace vb01{
 			glDeleteFramebuffers(2, pingpongBuffers);
 	}
 
-	void Root::initWindow(string name){
+	void Root::initWindow(){
 		glfwSetErrorCallback(error_callback);
 
 		if (GL_TRUE != glfwInit())
 			std::cerr << "Error initialising glfw" << std::endl;
 
-		window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+		window = glfwCreateWindow(width, height, name.c_str(), fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 		if(window == NULL){
 			cout << "Failed to load window...\n";
