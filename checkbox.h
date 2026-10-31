@@ -16,6 +16,7 @@ namespace vb01Gui{
         ~Checkbox();
         void update(){}
         virtual void check();
+        void setChecked(bool);
         virtual bool isChecked(){return checked;}
     private:
         class CheckboxButton : public Button {

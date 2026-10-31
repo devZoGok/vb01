@@ -39,6 +39,7 @@ namespace vb01Gui{
 			vb01::Text* getText(std::string);
 			vb01::Node* getGuiRectangle(std::string);
 			void removeSlider(Slider*);
+			inline void releaseSlider(){currentSlider = nullptr;}
 			void removeAllButtons(std::vector<Button*> = std::vector<Button*>{});
 			void removeAllListboxes(std::vector<Listbox*> = std::vector<Listbox*>{});
 			void removeAllCheckboxes(std::vector<Checkbox*> = std::vector<Checkbox*>{});

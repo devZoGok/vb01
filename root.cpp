@@ -44,14 +44,16 @@ namespace vb01{
 		camera = new Camera();
 	}
 
-	void Root::start(int width, int height, string libPath, string name){
+	void Root::start(int width, int height, string libPath, string name, bool fullscreen){
 		this->width = width;
 		this->height = height;
+		this->name = name;
 		this->libPath = libPath;
+		this->fullscreen = fullscreen;
 
 		AssetManager::getSingleton()->load(Root::getSingleton()->getLibPath());
 
-		initWindow(name);
+		initWindow();
 
 		brdfLutPlane = new Quad(Vector3(1, 1, 1) * 2);
 		iblBox = new Box(Vector3::VEC_IJK);
@@ -67,6 +69,53 @@ namespace vb01{
 
 		initMainFramebuffer(fragTexture, nullptr);
 		initGuiPlane(fragTexture, brightTexture);
+	}
+
+	void Root::setResolution(int width, int height, bool fullscreen){
+		GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+
+		if(fullscreen)
+			glfwSetWindowMonitor(window, monitor, 0, 0, width, height, GLFW_DONT_CARE);
+		else{
+			int x, y;
+			glfwGetWindowPos(window, &x, &y);
+			glfwSetWindowMonitor(window, NULL, x, y, width, height, GLFW_DONT_CARE);
+
+			//leaving fullscreen restores the desktop mode, whose DPI can resize the window frame, so size it again once that's processed
+			if(this->fullscreen){
+				glfwPollEvents();
+				glfwSetWindowSize(window, width, height);
+
+				const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+				glfwSetWindowPos(window, (mode->width - width) / 2, (mode->height - height) / 2);
+			}
+		}
+
+		this->fullscreen = fullscreen;
+		glfwGetWindowSize(window, &this->width, &this->height);
+
+		//the render targets keep their GL names, so the framebuffers they're attached to stay valid
+		Material *mat = guiPlane->getMaterial();
+		Texture *textures[]{
+			((Material::TextureUniform*)mat->getUniform("frag"))->value,
+			((Material::TextureUniform*)mat->getUniform("bright"))->value,
+			pingPongTextures[0],
+			pingPongTextures[1]
+		};
+
+		for(Texture *tex : textures){
+			glBindTexture(GL_TEXTURE_2D, *tex->getTexture());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->width, this->height, 0, GL_RGB, GL_FLOAT, NULL);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, this->width, this->height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		guiPlane->setSize(Vector3(this->width, this->height, -1));
+		glViewport(0, 0, this->width, this->height);
 	}
 
 	void Root::toggleHDR(bool hdr){
@@ -101,13 +150,13 @@ namespace vb01{
 			glDeleteFramebuffers(2, pingpongBuffers);
 	}
 
-	void Root::initWindow(string name){
+	void Root::initWindow(){
 		glfwSetErrorCallback(error_callback);
 
 		if (GL_TRUE != glfwInit())
 			std::cerr << "Error initialising glfw" << std::endl;
 
-		window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+		window = glfwCreateWindow(width, height, name.c_str(), fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 		if(window == NULL){
 			cout << "Failed to load window...\n";
